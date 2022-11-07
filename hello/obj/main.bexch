@@ -1,0 +1,18 @@
+[GENERATED OBJECT FILE]
+b__main.o
+[PROJECT FILES]
+/home/joan/gnatstudio/hello/default.gpr
+20220809092312 6d738691608560e9259fd78d1fdcb9d2
+[BOUND OBJECT FILES]
+/home/joan/gnatstudio/hello/obj/main.o
+[GENERATED SOURCE FILES]
+b__main.ads
+b__main.adb
+b__main.ali
+[RESULTING OPTIONS]
+-L/home/joan/gnatstudio/hello/obj/
+-L/home/joan/gnatstudio/hello/obj/
+-L/usr/lib/gcc/x86_64-redhat-linux/11/adalib/
+-static
+-lgnat
+-ldl

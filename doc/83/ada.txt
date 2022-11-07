@@ -1,0 +1,605 @@
+graphic_character ::= basic_graphic_character
+   | lower_case_letter | other_special_character 
+
+basic_graphic_character ::=
+     upper_case_letter | digit
+   | special_character | space_character 
+
+basic_character ::=
+     basic_graphic_character | format_effector 
+
+identifier ::=
+   letter {[underline] letter_or_digit} 
+
+letter_or_digit ::= letter | digit 
+
+letter ::= upper_case_letter | lower_case_letter 
+
+numeric_literal ::= decimal_literal | based_literal 
+
+decimal_literal ::= integer [.integer] [exponent] 
+
+integer ::= digit {[underline] digit} 
+
+exponent ::= E [+] integer | E - integer 
+
+based_literal ::=
+   base # based_integer [.based_integer] # [exponent] 
+
+base ::= integer 
+
+based_integer ::=
+   extended_digit {[underline] extended_digit} 
+
+extended_digit ::= digit | letter   
+
+character_literal ::= 'graphic_character' 
+
+string_literal ::= "{graphic_character}" 
+
+pragma ::=
+   pragma identifier [(argument_association
+                           {, argument_association})]; 
+
+argument_association ::=
+     [argument_identifier =&gt;] name
+   | [argument_identifier =&gt;] expression 
+
+basic_declaration ::=
+     object_declaration     | number_declaration
+   | type_declaration       | subtype_declaration
+   | subprogram_declaration | package_declaration
+   | task_declaration       | generic_declaration
+   | exception_declaration  | generic_instantiation 
+   | renaming_declaration   | deferred_constant_declaration 
+
+object_declaration ::=
+     identifier_list : [constant] subtype_indication [:= expression];
+   | identifier_list : [constant] constrained_array_definition
+                                                     [:= expression]; 
+
+number_declaration ::=
+     identifier_list : constant := universal_static_expression; 
+
+identifier_list ::=  identifier {, identifier} 
+
+type_declaration ::=  full_type_declaration
+   | incomplete_type_declaration | private_type_declaration 
+
+full_type_declaration ::=
+ type identifier [discriminant_part] is type_definition; 
+
+type_definition ::=
+     enumeration_type_definition | integer_type_definition
+   | real_type_definition        | array_type_definition
+   | record_type_definition      | access_type_definition
+   | derived_type_definition    
+
+subtype_declaration ::=
+   subtype identifier is subtype_indication; 
+
+subtype_indication ::=  type_mark [constraint] 
+
+type_mark ::= type_name | subtype_name 
+
+constraint ::=
+     range_constraint       | floating_point_constraint
+   | fixed_point_constraint | index_constraint
+   | discriminant_constraint 
+
+derived_type_definition ::= new subtype_indication 
+
+range_constraint ::=  range range 
+
+range ::=  range_attribute
+   | simple_expression .. simple_expression 
+
+enumeration_type_definition ::=
+   (enumeration_literal_specification
+      {, enumeration_literal_specification}) 
+
+enumeration_literal_specification ::=  enumeration_literal 
+
+enumeration_literal ::=  identifier | character_literal 
+
+integer_type_definition ::=  range_constraint 
+
+real_type_definition ::=
+   floating_point_constraint | fixed_point_constraint 
+
+floating_point_constraint ::=
+   floating_accuracy_definition [range_constraint] 
+
+floating_accuracy_definition ::=
+   digits static_simple_expression 
+
+fixed_point_constraint ::=
+   fixed_accuracy_definition [range_constraint] 
+
+fixed_accuracy_definition ::=
+   delta static_simple_expression 
+
+array_type_definition ::=
+   unconstrained_array_definition | constrained_array_definition 
+
+unconstrained_array_definition ::=
+   array(index_subtype_definition {, index_subtype_definition}) of
+            component_subtype_indication 
+
+constrained_array_definition ::=
+   array index_constraint of component_subtype_indication 
+
+index_subtype_definition ::= type_mark range <> 
+
+index_constraint ::=  (discrete_range {, discrete_range}) 
+
+discrete_range ::= discrete_subtype_indication | range 
+
+record_type_definition ::=
+   record
+      component_list
+   end record 
+
+component_list ::=
+      component_declaration {component_declaration}
+   | {component_declaration} variant_part
+   |  null; 
+
+component_declaration ::=
+   identifier_list : component_subtype_definition [:= expression]; 
+
+component_subtype_definition ::=  subtype_indication 
+
+discriminant_part ::=
+   (discriminant_specification {; discriminant_specification}) 
+
+discriminant_specification ::=
+   identifier_list : type_mark [:= expression] 
+
+discriminant_constraint ::=
+   (discriminant_association {, discriminant_association})       
+
+discriminant_association ::=
+   [discriminant_simple_name {| discriminant_simple_name} =&gt;]
+            expression 
+
+variant_part ::=
+   case discriminant_simple_name is
+       variant
+      {variant}
+   end case; 
+
+variant ::=
+   when choice {| choice} =&gt;
+      component_list 
+
+choice ::= simple_expression
+   | discrete_range | others | component_simple_name 
+
+access_type_definition ::= access subtype_indication 
+
+incomplete_type_declaration ::=
+   type identifier [discriminant_part]; 
+
+declarative_part ::=
+   {basic_declarative_item} {later_declarative_item} 
+
+basic_declarative_item ::= basic_declaration
+   | representation_clause | use_clause 
+
+later_declarative_item ::= body
+   | subprogram_declaration | package_declaration
+   | task_declaration       | generic_declaration
+   | use_clause             | generic_instantiation 
+
+body ::= proper_body | body_stub 
+
+proper_body ::=
+   subprogram_body | package_body | task_body 
+
+name ::= simple_name
+   | character_literal  | operator_symbol
+   | indexed_component  | slice
+   | selected_component | attribute 
+
+simple_name ::= identifier   
+
+prefix ::= name | function_call 
+
+indexed_component ::= prefix(expression {, expression}) 
+
+slice ::= prefix(discrete_range) 
+
+selected_component ::= prefix.selector 
+
+selector ::= simple_name
+   | character_literal | operator_symbol | all 
+
+attribute ::= prefix'attribute_designator 
+
+attribute_designator ::=  
+   simple_name [(universal_static_expression)] 
+
+aggregate ::=
+   (component_association {, component_association}) 
+
+component_association ::=
+   [choice {| choice} =&gt; ] expression 
+
+expression ::=
+     relation {and relation} | relation {and then relation}
+   | relation {or relation}  | relation {or else relation}
+   | relation {xor relation} 
+
+relation ::=
+     simple_expression [relational_operator simple_expression]
+   | simple_expression [not] in range
+   | simple_expression [not] in type_mark 
+
+simple_expression ::=
+   [unary_adding_operator] term {binary_adding_operator term} 
+
+term ::= factor {multiplying_operator factor} 
+
+factor ::= primary [** primary] | abs primary | not primary 
+
+primary ::=
+     numeric_literal | null | aggregate | string_literal
+   | name | allocator | function_call | type_conversion
+   | qualified_expression | (expression)  
+
+logical_operator  ::=  and | or | xor 
+
+relational_operator  ::=  = | /= | &lt; | &lt;= | &gt; | &gt;= 
+
+binary_adding_operator  ::=  + | - | &amp; 
+
+unary_adding_operator  ::=  + | - 
+
+multiplying_operator  ::=  * | / | mod | rem 
+
+highest_precedence_operator  ::=  ** | abs | not 
+
+type_conversion ::= type_mark(expression) 
+
+qualified_expression ::=
+   type_mark'(expression) | type_mark'aggregate 
+
+allocator ::=
+   new subtype_indication | new qualified_expression 
+
+sequence_of_statements ::= statement {statement} 
+
+statement ::=
+   {label} simple_statement | {label} compound_statement 
+
+simple_statement ::= null_statement
+   | assignment_statement | procedure_call_statement
+   | exit_statement       | return_statement
+   | goto_statement       | entry_call_statement
+   | delay_statement      | abort_statement
+   | raise_statement      | code_statement 
+
+compound_statement ::=
+     if_statement     | case_statement
+   | loop_statement   | block_statement
+   | accept_statement | select_statement 
+
+label ::= &lt;&lt;label_simple_name&gt;&gt; 
+
+null_statement ::= null; 
+
+assignment_statement ::=
+   variable_name := expression;  
+
+if_statement ::=
+    if condition then
+      sequence_of_statements
+   {elsif condition then
+      sequence_of_statements}
+   [else
+      sequence_of_statements]
+    end if; 
+
+condition ::= boolean_expression 
+
+case_statement ::=
+   case expression is
+       case_statement_alternative
+      {case_statement_alternative}
+   end case; 
+
+case_statement_alternative ::=
+   when choice {| choice } =&gt;
+      sequence_of_statements 
+
+loop_statement ::=
+   [loop_simple_name:]
+      [iteration_scheme] loop
+         sequence_of_statements
+       end loop [loop_simple_name]; 
+
+iteration_scheme ::= while condition
+   | for loop_parameter_specification 
+
+loop_parameter_specification ::=
+   identifier in [reverse] discrete_range 
+
+block_statement ::=
+   [block_simple_name:]
+      [declare
+           declarative_part]
+       begin
+           sequence_of_statements
+      [exception
+           exception_handler
+          {exception_handler}]
+       end [block_simple_name]; 
+
+exit_statement ::=
+   exit [loop_name] [when condition]; 
+
+return_statement ::= return [expression]; 
+
+goto_statement ::= goto label_name; 
+
+subprogram_declaration ::= subprogram_specification; 
+
+subprogram_specification ::=
+     procedure identifier [formal_part]
+   | function designator  [formal_part] return type_mark 
+
+designator ::= identifier | operator_symbol 
+
+operator_symbol ::= string_literal 
+
+formal_part ::=
+   (parameter_specification {; parameter_specification}) 
+
+parameter_specification ::=
+   identifier_list : mode type_mark [:= expression] 
+
+mode ::= [in] | in out | out 
+
+subprogram_body ::=
+    subprogram_specification is
+       [declarative_part]
+    begin
+        sequence_of_statements
+   [exception
+        exception_handler
+       {exception_handler}]
+    end [designator]; 
+
+procedure_call_statement ::=
+   procedure_name [actual_parameter_part]; 
+
+function_call ::=
+   function_name [actual_parameter_part] 
+
+actual_parameter_part ::=
+   (parameter_association {, parameter_association})    
+
+parameter_association ::=
+   [formal_parameter =&gt;] actual_parameter 
+
+formal_parameter ::= parameter_simple_name 
+
+actual_parameter ::=
+   expression | variable_name | type_mark(variable_name) 
+
+package_declaration ::= package_specification; 
+
+package_specification ::=
+    package identifier is
+      {basic_declarative_item}
+   [private
+      {basic_declarative_item}]
+    end [package_simple_name] 
+
+package_body ::=
+    package body package_simple_name is
+       [declarative_part] 
+   [begin
+        sequence_of_statements
+   [exception
+        exception_handler
+       {exception_handler}]]
+    end [package_simple_name]; 
+
+private_type_declaration ::=
+   type identifier [discriminant_part] is [limited] private; 
+
+deferred_constant_declaration ::=
+   identifier_list : constant type_mark; 
+
+use_clause ::= use package_name {, package_name}; 
+
+renaming_declaration ::=
+     identifier : type_mark   renames object_name;
+   | identifier : exception   renames exception_name;
+   | package identifier       renames package_name;
+   | subprogram_specification renames subprogram_or_entry_name; 
+
+task_declaration ::= task_specification; 
+
+task_specification ::=
+   task [type] identifier [is  
+      {entry_declaration}
+      {representation_clause}
+   end [task_simple_name]] 
+
+task_body ::=
+    task body task_simple_name is
+       [declarative_part]
+    begin
+        sequence_of_statements
+   [exception
+        exception_handler
+       {exception_handler}]
+    end [task_simple_name]; 
+
+entry_declaration ::=
+   entry identifier [(discrete_range)] [formal_part]; 
+
+entry_call_statement ::=
+   entry_name [actual_parameter_part]; 
+
+accept_statement ::=
+   accept entry_simple_name [(entry_index)] [formal_part] [do
+      sequence_of_statements
+   end [entry_simple_name]]; 
+
+entry_index ::= expression 
+
+delay_statement ::= delay simple_expression; 
+
+select_statement ::= selective_wait
+   | conditional_entry_call | timed_entry_call 
+
+selective_wait ::=
+    select   
+      select_alternative
+   {or
+      select_alternative}
+   [else
+      sequence_of_statements]
+    end select; 
+
+select_alternative ::=
+   [when condition =&gt;]
+      selective_wait_alternative 
+
+selective_wait_alternative ::= accept_alternative
+   | delay_alternative | terminate_alternative  
+
+accept_alternative  ::=
+   accept_statement [sequence_of_statements] 
+
+delay_alternative  ::=
+   delay_statement [sequence_of_statements] 
+
+terminate_alternative ::= terminate; 
+
+conditional_entry_call ::=
+   select
+       entry_call_statement
+      [sequence_of_statements]
+   else
+       sequence_of_statements
+   end select; 
+
+timed_entry_call ::=
+   select
+       entry_call_statement
+      [sequence_of_statements]
+   or
+       delay_alternative
+   end select; 
+
+abort_statement ::= abort task_name {, task_name}; 
+
+compilation ::= {compilation_unit} 
+
+compilation_unit ::=
+     context_clause library_unit
+   | context_clause secondary_unit 
+
+library_unit ::=
+     subprogram_declaration | package_declaration
+   | generic_declaration    | generic_instantiation
+   | subprogram_body 
+
+secondary_unit ::= library_unit_body | subunit 
+
+library_unit_body ::= subprogram_body | package_body 
+
+context_clause ::= {with_clause {use_clause}} 
+
+with_clause ::=
+   with unit_simple_name {, unit_simple_name};  
+
+body_stub ::=
+     subprogram_specification is separate;
+   | package body package_simple_name is separate;
+   | task body task_simple_name is separate; 
+
+subunit ::= separate (parent_unit_name) proper_body 
+
+exception_declaration ::= identifier_list : exception; 
+
+exception_handler ::=
+   when exception_choice {| exception_choice} =&gt;
+      sequence_of_statements 
+
+exception_choice ::= exception_name | others 
+
+raise_statement ::= raise [exception_name]; 
+
+generic_declaration ::= generic_specification; 
+
+generic_specification ::=
+     generic_formal_part subprogram_specification
+   | generic_formal_part package_specification 
+
+generic_formal_part ::= generic {generic_parameter_declaration} 
+
+generic_parameter_declaration ::=
+     identifier_list : [in [out]] type_mark [:= expression];
+   | type identifier is generic_type_definition;
+   | private_type_declaration
+   | with subprogram_specification [is name];
+   | with subprogram_specification [is &lt;&gt;]; 
+
+generic_type_definition ::=
+     (&lt;&gt;) | range &lt;&gt; | digits &lt;&gt; | delta &lt;&gt;
+   | array_type_definition | access_type_definition 
+
+generic_instantiation ::=
+     package identifier is
+         new generic_package_name [generic_actual_part];
+   | procedure identifier is
+         new generic_procedure_name [generic_actual_part];
+   | function designator is
+         new generic_function_name [generic_actual_part];  
+
+generic_actual_part ::=
+   (generic_association {, generic_association}) 
+
+generic_association ::=
+   [generic_formal_parameter =&gt;] generic_actual_parameter
+
+generic_formal_parameter ::=
+   parameter_simple_name | operator_symbol 
+
+generic_actual_parameter ::= expression | variable_name  
+   | subprogram_name | entry_name | type_mark 
+
+representation_clause ::=
+     type_representation_clause | address_clause 
+
+type_representation_clause ::= length_clause
+   | enumeration_representation_clause
+   | record_representation_clause 
+
+length_clause ::= for attribute use simple_expression; 
+
+enumeration_representation_clause ::=
+   for type_simple_name use aggregate; 
+
+record_representation_clause ::=
+   for type_simple_name use
+      record [alignment_clause]
+         {component_clause}
+      end record; 
+
+alignment_clause ::= at mod static_simple_expression; 
+
+component_clause ::=
+   component_name at static_simple_expression
+                  range static_range; 
+
+address_clause ::=
+   for simple_name use at simple_expression; 
+
+code_statement ::= type_mark'record_aggregate;     

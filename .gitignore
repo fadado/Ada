@@ -1,0 +1,6 @@
+*.ali
+*.o
+*.pdf
+*_test
+main
+*.std???
