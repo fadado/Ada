@@ -11,7 +11,6 @@ use Ada.Containers;
 use Ada.Strings.Unbounded.Text_IO;
 
 package body CLI is
-
 ------------------------------------------------------------------------
 
    function "+" (s: String) return Unbounded_String 
