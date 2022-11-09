@@ -87,6 +87,8 @@ package body CLI is
       end if;
    end Set_Argument;
 
+------------------------------------------------------------------------
+
    procedure Set_Description(description: in Unbounded_String) is
    begin
       self_description := description;
