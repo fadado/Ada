@@ -1,14 +1,10 @@
 -- cli.adb
 
 with Ada.Command_Line;
-with Ada.Text_IO;
-with Ada.Strings.Unbounded.Text_IO;
 with Ada.Containers.Vectors;
 with Ada.Containers.Indefinite_Ordered_Maps;
 
-use Ada.Text_IO;
 use Ada.Containers;
-use Ada.Strings.Unbounded.Text_IO;
 
 package body CLI is
 ------------------------------------------------------------------------
@@ -38,10 +34,10 @@ package body CLI is
    package Names_Map is
       new Indefinite_Ordered_Maps(Unbounded_String, Natural);
 
-   self_command     : Unbounded_String;
-   self_args        : Argument_Vector.Vector;
+   self_command     : String renames Ada.Command_Line.command_name;
+   self_arguments   : Argument_Vector.Vector;
    self_argNames    : Names_Map.map;
-   self_textArgumen : Unbounded_String_Vector.Vector;
+   self_words       : Unbounded_String_Vector.Vector;
 
    self_parsed      : Boolean;
    self_flagCount   : Integer := 0;
@@ -51,7 +47,9 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function Command_Name return Unbounded_String is
+   procedure Print_Help is separate;
+
+   function Command_Name return String is
    begin
       return self_command;
    end Command_Name;
@@ -69,24 +67,23 @@ package body CLI is
       description : in Unbounded_String;
       hasValue    : in Boolean
    ) is
-      arg: aliased Argument :=
-         Argument'(
-            arg_short   => arg_short,
-            arg_long    => arg_long,
-            description => description,
-            hasValue    => hasValue,
-            value       => +"",
-            parsed      => False);
+      arg: aliased Argument := (
+         arg_short   => arg_short,
+         arg_long    => arg_long,
+         description => description,
+         hasValue    => hasValue,
+         value       => +"",
+         parsed      => False);
    begin
-      self_args.append(arg);
+      self_arguments.append(arg);
       
       -- Set up links.
-      if length(arg_short) > 0 then
-         self_argNames.include(arg_short, self_args.Last_Index);
+      if arg_short /= "" then
+         self_argNames.include(arg_short, self_arguments.Last_Index);
       end if;
 
-      if length(arg_long) > 0 then
-         self_argNames.include(arg_long, self_args.Last_Index);
+      if arg_long /= "" then
+         self_argNames.include(arg_long, self_arguments.Last_Index);
       end if;
    end Set_Argument;
 
@@ -111,8 +108,6 @@ package body CLI is
       short_arg   : Unbounded_String;
    begin
       -- 
-      self_command := +Ada.Command_Line.command_name;
-
       for arg_i in 1 .. Ada.Command_Line.argument_count
       loop
          arg := +Ada.Command_Line.Argument(arg_i);
@@ -120,7 +115,7 @@ package body CLI is
          -- the same string if they're the short form flag type (one character per flag).
          if expectValue then
             -- Copy value.
-            self_args.Reference(Names_Map.Element(flag_it)).value := arg;    
+            self_arguments.Reference(Names_Map.Element(flag_it)).value := arg;    
             expectValue := False;
          elsif Ada.Strings.Unbounded.Slice(arg, 1, 1) = "-" then
             -- Parse flag.
@@ -131,16 +126,15 @@ package body CLI is
                arg := Ada.Strings.Unbounded.Delete(arg, 1, 2);
                if not self_argNames.contains(arg) then
                   -- Flag wasn't found. Abort.
-                  Ada.Strings.Unbounded.Text_IO.put_line("Long flag " & arg & " wasn't found");
-                  return False;
+                  raise Long_Flag_Not_Found;
                end if;
 
                -- Mark as found.
                flag_it := self_argNames.find(arg);
-               self_args(Names_Map.Element(flag_it)).parsed := True;
+               self_arguments(Names_Map.Element(flag_it)).parsed := True;
                self_flagCount := self_flagCount + 1;
 
-               if self_args(Names_Map.Element(flag_it)).hasValue = True then
+               if self_arguments(Names_Map.Element(flag_it)).hasValue = True then
                   expectValue := True;
                end if;
             else
@@ -152,21 +146,19 @@ package body CLI is
                   Ada.Strings.Unbounded.Append(short_arg, Ada.Strings.Unbounded.Element(arg, i));
                   if not Names_Map.Contains(self_argNames, short_arg) then
                      -- Flag wasn't found. Abort.
-                     put_line("Short flag " & short_arg & " wasn't found.");
-                     return False;
+                     raise Long_Flag_Not_Found;
                   end if;
 
                   flag_it := self_argNames.find(short_arg);
 
                   -- Mark as found.
-                  self_args(Names_Map.Element(flag_it)).parsed := True;
+                  self_arguments(Names_Map.Element(flag_it)).parsed := True;
                   self_flagCount := self_flagCount + 1;
 
-                  if not self_args(Names_Map.Element(flag_it)).hasValue then
+                  if not self_arguments(Names_Map.Element(flag_it)).hasValue then
                      if i /= (Ada.Strings.Unbounded.Length(arg)) then
-                        -- Flag isn't at end, thus cannot have value.
-                        put_line("Flag " & short_arg & " needs to be followed by a value string.");
-                        return False;
+                        -- Flag isn't at end, thus cannot have value. Abort.
+                        raise Flag_Missing_Argument;
                      else
                         expectValue := True;
                      end if;
@@ -177,7 +169,7 @@ package body CLI is
             end if;  
          else
             -- Add to text argument vector.
-            self_textArgumen.append(arg);
+            self_words.append(arg);
          end if;
       end loop;
 
@@ -188,7 +180,7 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function  Get_Flag (
+   function Get_Flag (
       arg_flag    :  in Unbounded_String;
       arg_value   : out Unbounded_String
    ) return Boolean
@@ -203,16 +195,18 @@ package body CLI is
       flag_it := self_argNames.find(arg_flag);
       if flag_it = Names_Map.No_Element then
          return False;
-      elsif not self_args(Names_Map.Element(flag_it)).parsed then
+      elsif not self_arguments(Names_Map.Element(flag_it)).parsed then
          return False;
       end if;
 
-      if self_args(Names_Map.Element(flag_it)).hasValue then
-         arg_value := self_args(Names_Map.Element(flag_it)).value;
+      if self_arguments(Names_Map.Element(flag_it)).hasValue then
+         arg_value := self_arguments(Names_Map.Element(flag_it)).value;
       end if;
 
       return True;
    end Get_Flag;
+
+------------------------------------------------------------------------
 
    function Exists (
       arg_flag : in Unbounded_String
@@ -227,63 +221,29 @@ package body CLI is
       flag_it := self_argNames.find(arg_flag);
       if flag_it = Names_Map.No_Element then
          return False;
-      elsif not self_args(Names_Map.Element(flag_it)).parsed then
+      end if;
+      if not self_arguments(Names_Map.Element(flag_it)).parsed then
          return False;
       end if;
-
       return True;
    end Exists;
 
-   function  Get_Text_Argument (
-      index : in  Integer;
-      value : out Unbounded_String
-   ) return Boolean is
-   begin
-      if index < Integer(Unbounded_String_Vector.length(self_textArgumen)) then
-         value := self_textArgumen(index);
-         return True;
-      else
-         return False;
-      end if;
-   end Get_Text_Argument;
-
 ------------------------------------------------------------------------
 
-   procedure Print_Help is
-      count    : Integer := 1;
-      spaceCnt : Integer;
+   function Get_Word(index: in Integer; value: out Unbounded_String)
+   return Boolean is
+      function length(vector: Unbounded_String_Vector.Vector)
+         return Ada.Containers.Count_Type
+         renames Unbounded_String_Vector.length;
    begin
-      new_line;
-      put_line(self_description);
-      put_line("Usage:");
-      put_line(self_usage);
-      new_line;
-      put_line("Options:");
+      if index < Integer(length(self_words)) then
+         value := self_words(index);
+         return True;
+      end if;
+      return False;
+   end Get_Word;
 
-      -- Determine whitespace needed between arg_long and description.
-      for flag in self_args.Iterate loop
-         if Integer(Ada.Strings.Unbounded.length(self_args(flag).arg_long)) > count then
-            count := Integer(Ada.Strings.Unbounded.length(self_args(flag).arg_long));
-         end if;
-      end loop;
-
-      count := count + 3; -- Number of actual spaces between the longest arg_long and description.
-
-      -- Print out the options.
-      for opt in self_args.Iterate loop
-         --spaceStr := Unbound_String(count - Ada.Strings.Unbounded.length(self_args(opt).arg_long)
-         spaceCnt := (count - Integer(Ada.Strings.Unbounded.length(self_args(opt).arg_long)));
-         if Ada.Strings.Unbounded.length(self_args(opt).arg_short) < 1 then
-            Ada.Strings.Unbounded.Text_IO.put_line("    " & self_args(opt).arg_short 
-            & "--" & self_args(opt).arg_long 
-            & spaceCnt * " " & self_args(opt).description);
-         else
-            Ada.Strings.Unbounded.Text_IO.put_line("-" & self_args(opt).arg_short 
-            & ", --" & self_args(opt).arg_long 
-            & spaceCnt * " " & self_args(opt).description);
-         end if;
-      end loop;
-   end Print_Help;
+------------------------------------------------------------------------
 
 end CLI;
 

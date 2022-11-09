@@ -28,23 +28,26 @@ package CLI is
    function  Get_Flag (
       arg_flag:  in  Unbounded_String;
       arg_value: out Unbounded_String
-   ) return Boolean;
+   )  return Boolean;
 
    function  Exists (
       arg_flag: in Unbounded_String
-   ) return Boolean;
+   )  return Boolean;
 
-   function  Get_Text_Argument (
+   function  Get_Word (
       index: in  Integer;
       value: out Unbounded_String
-   ) return Boolean;
+   )  return Boolean;
 
    function  Flag_Count
       return Integer;
 
    function  Command_Name
-      return Unbounded_String;
+      return String;
 
+   Long_Flag_Not_Found   : exception;
+   Flag_Missing_Argument : exception;
+   Short_Flag_Not_Found  : exception;
 end CLI;
 
 -- ¡ISO-8859-1!

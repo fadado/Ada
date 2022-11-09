@@ -1,2 +1,2 @@
 clean:
-	rm -f *.o *.ali main
+	rm -f *.o *.ali cli?test

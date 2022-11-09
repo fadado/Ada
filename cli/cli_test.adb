@@ -39,6 +39,8 @@ begin
       return;
    end if;
 
+   put_line("Command name: " & CLI.Command_Name);
+
    put_line("Number of flags found: " & CLI.Flag_Count'Image);
 
    if CLI.Exists(+"help") then
@@ -56,7 +58,7 @@ begin
       put_line("Got number: " & number);
    end if;
 
-   if CLI.Get_Text_Argument(0, textarg) then
+   if CLI.Get_Word(0, textarg) then
       put_line("Got text argument: " & textarg);
    end if;
 
