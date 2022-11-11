@@ -12,7 +12,7 @@ package body CLI is
    function "+" (s: String) return Unbounded_String 
       renames Ada.Strings.Unbounded.To_Unbounded_String;
 
-   type Argument is
+   type T_Argument is
       record
          arg_short   : aliased Unbounded_String;
          arg_long    : aliased Unbounded_String;
@@ -22,22 +22,14 @@ package body CLI is
          parsed      : aliased Boolean := False;
       end record;
 
-   type Argument_Access is access all Argument;
-
-   package Argument_Vector is
-      new Vectors(Natural, Argument);
-
-   package Unbounded_String_Vector is
-      new Vectors(Natural, Unbounded_String);
-
-   --package Names_Map is new Indefinite_Ordered_Maps(Unbounded_String, Argument_Access);
-   package Names_Map is
-      new Indefinite_Ordered_Maps(Unbounded_String, Natural);
+   package Arguments_Vector is new Vectors(Natural, T_Argument);
+   package UStrings_Vector  is new Vectors(Natural, Unbounded_String);
+   package UStrings_Map     is new Indefinite_Ordered_Maps(Unbounded_String, Natural);
 
    self_command     : String renames Ada.Command_Line.command_name;
-   self_arguments   : Argument_Vector.Vector;
-   self_argNames    : Names_Map.map;
-   self_words       : Unbounded_String_Vector.Vector;
+   self_arguments   : Arguments_Vector.Vector;
+   self_flags       : UStrings_Map.Map;
+   self_words       : UStrings_Vector.Vector;
 
    self_parsed      : Boolean;
    self_flagCount   : Integer := 0;
@@ -67,7 +59,7 @@ package body CLI is
       description : in Unbounded_String;
       hasValue    : in Boolean
    ) is
-      arg: aliased Argument := (
+      arg: aliased T_Argument := (
          arg_short   => arg_short,
          arg_long    => arg_long,
          description => description,
@@ -79,15 +71,13 @@ package body CLI is
       
       -- Set up links.
       if arg_short /= "" then
-         self_argNames.include(arg_short, self_arguments.Last_Index);
+         self_flags.Include(arg_short, self_arguments.Last_Index);
       end if;
 
       if arg_long /= "" then
-         self_argNames.include(arg_long, self_arguments.Last_Index);
+         self_flags.Include(arg_long, self_arguments.Last_Index);
       end if;
    end Set_Argument;
-
-------------------------------------------------------------------------
 
    procedure Set_Description(description: in Unbounded_String) is
    begin
@@ -101,64 +91,73 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function Parse_Arguments
-      return Boolean
+   procedure Parse_Arguments
    is
-      flag_it     : Names_Map.Cursor;
+      flag_it     : UStrings_Map.Cursor;
       expectValue : Boolean := False;
       arg         : Unbounded_String;
       short_arg   : Unbounded_String;
+      --
+      package US renames Ada.Strings.Unbounded;
    begin
       -- 
       for arg_i in 1 .. Ada.Command_Line.argument_count
       loop
+         -- Each flag will start with a '-' character. Multiple flags can be
+         -- joined together in the same string if they're the short form flag
+         -- type (one character per flag).
+
          arg := +Ada.Command_Line.Argument(arg_i);
-         -- Each flag will start with a '-' character. Multiple flags can be joined together in
-         -- the same string if they're the short form flag type (one character per flag).
+
          if expectValue then
             -- Copy value.
-            self_arguments.Reference(Names_Map.Element(flag_it)).value := arg;    
+            self_arguments.Reference(UStrings_Map.Element(flag_it)).value := arg;    
             expectValue := False;
-         elsif Ada.Strings.Unbounded.Slice(arg, 1, 1) = "-" then
+
+         elsif US.Slice(arg, 1, 1) /= "-" then
+            -- Add to text argument vector.
+            self_words.append(arg);
+
+         else
             -- Parse flag.
             -- First check for the long form.
-            if Ada.Strings.Unbounded.Slice(arg, 1, 2) = "--" then
+            if US.Slice(arg, 1, 2) = "--" then
                -- Long form of the flag.
                -- First delete the preceding dashes.
-               arg := Ada.Strings.Unbounded.Delete(arg, 1, 2);
-               if not self_argNames.contains(arg) then
+               arg := US.Delete(arg, 1, 2);
+               if not self_flags.Contains(arg) then
                   -- Flag wasn't found. Abort.
                   raise Long_Flag_Not_Found;
                end if;
 
                -- Mark as found.
-               flag_it := self_argNames.find(arg);
-               self_arguments(Names_Map.Element(flag_it)).parsed := True;
-               self_flagCount := self_flagCount + 1;
+               flag_it := self_flags.Find(arg);
+               self_arguments(UStrings_Map.Element(flag_it)).parsed := True;
+               self_flagCount := @ + 1;
 
-               if self_arguments(Names_Map.Element(flag_it)).hasValue = True then
+               if self_arguments(UStrings_Map.Element(flag_it)).hasValue then
                   expectValue := True;
                end if;
             else
-               -- Parse short form flag. Parse all of them sequentially. Only the last one
-               -- is allowed to have an additional value following it.
-               -- First delete the preceding dash.
-               arg := Ada.Strings.Unbounded.Delete(arg, 1, 1);
-               for i in 1 .. Ada.Strings.Unbounded.Length(arg) loop
-                  Ada.Strings.Unbounded.Append(short_arg, Ada.Strings.Unbounded.Element(arg, i));
-                  if not Names_Map.Contains(self_argNames, short_arg) then
+               -- Parse short form flag. Parse all of them sequentially. Only
+               -- the last one is allowed to have an additional value following
+               -- it.  First delete the preceding dash.
+               arg := US.Delete(arg, 1, 1);
+               for i in 1 .. US.Length(arg) loop
+                  US.Append(short_arg, US.Element(arg, i));
+                  if not UStrings_Map.Contains(self_flags, short_arg) then
                      -- Flag wasn't found. Abort.
                      raise Long_Flag_Not_Found;
                   end if;
 
-                  flag_it := self_argNames.find(short_arg);
+                  flag_it := self_flags.Find(short_arg);
 
                   -- Mark as found.
-                  self_arguments(Names_Map.Element(flag_it)).parsed := True;
-                  self_flagCount := self_flagCount + 1;
+                  self_arguments(UStrings_Map.Element(flag_it)).parsed := True;
+                  self_flagCount := @ + 1;
 
-                  if not self_arguments(Names_Map.Element(flag_it)).hasValue then
-                     if i /= (Ada.Strings.Unbounded.Length(arg)) then
+                  if not self_arguments(UStrings_Map.Element(flag_it)).hasValue then
+                     if i /= (US.Length(arg)) then
                         -- Flag isn't at end, thus cannot have value. Abort.
                         raise Flag_Missing_Argument;
                      else
@@ -166,18 +165,13 @@ package body CLI is
                      end if;
                   end if;
 
-                  Ada.Strings.Unbounded.Delete(short_arg, 1, 1);
+                  US.Delete(short_arg, 1, 1);
                end loop;
             end if;  
-         else
-            -- Add to text argument vector.
-            self_words.append(arg);
          end if;
       end loop;
 
       self_parsed := True;
-
-      return True;
    end Parse_Arguments;
 
 ------------------------------------------------------------------------
@@ -187,22 +181,22 @@ package body CLI is
       arg_value   : out Unbounded_String
    ) return Boolean
    is
-      flag_it: Names_Map.Cursor;
-      use Names_Map;
+      flag_it: UStrings_Map.Cursor;
+      use UStrings_Map;
    begin
       if not self_parsed then
          return False;
       end if;
 
-      flag_it := self_argNames.find(arg_flag);
-      if flag_it = Names_Map.No_Element then
+      flag_it := self_flags.Find(arg_flag);
+      if flag_it = UStrings_Map.No_Element then
          return False;
-      elsif not self_arguments(Names_Map.Element(flag_it)).parsed then
+      elsif not self_arguments(UStrings_Map.Element(flag_it)).parsed then
          return False;
       end if;
 
-      if self_arguments(Names_Map.Element(flag_it)).hasValue then
-         arg_value := self_arguments(Names_Map.Element(flag_it)).value;
+      if self_arguments(UStrings_Map.Element(flag_it)).hasValue then
+         arg_value := self_arguments(UStrings_Map.Element(flag_it)).value;
       end if;
 
       return True;
@@ -213,18 +207,18 @@ package body CLI is
    function Exists (
       arg_flag : in Unbounded_String
    ) return Boolean is
-      flag_it : Names_Map.Cursor;
-      use Names_Map;
+      flag_it : UStrings_Map.Cursor;
+      use UStrings_Map;
    begin
       if not self_parsed then
          return False;
       end if;
 
-      flag_it := self_argNames.find(arg_flag);
-      if flag_it = Names_Map.No_Element then
+      flag_it := self_flags.Find(arg_flag);
+      if flag_it = UStrings_Map.No_Element then
          return False;
       end if;
-      if not self_arguments(Names_Map.Element(flag_it)).parsed then
+      if not self_arguments(UStrings_Map.Element(flag_it)).parsed then
          return False;
       end if;
       return True;
@@ -234,9 +228,9 @@ package body CLI is
 
    function Get_Word(index: in Integer; value: out Unbounded_String)
    return Boolean is
-      function length(vector: Unbounded_String_Vector.Vector)
+      function length(vector: UStrings_Vector.Vector)
          return Ada.Containers.Count_Type
-         renames Unbounded_String_Vector.length;
+         renames UStrings_Vector.Length;
    begin
       if index < Integer(length(self_words)) then
          value := self_words(index);

@@ -1,34 +1,33 @@
 -- cli-print_help.adb
 
-with Ada.Text_IO,
-     Ada.Strings.Unbounded.Text_IO;
+with Ada.Text_IO;
+with Ada.Strings.Unbounded.Text_IO;
 
-separate (CLI) procedure Print_Help is
-   -- aliased names
-   procedure print(str: Ada.Strings.Unbounded.Unbounded_String)
-      renames Ada.Strings.Unbounded.Text_IO.put_line;
-   procedure print(str: String)
-      renames Ada.Text_IO.put_line;
-
+separate (CLI)
+procedure Print_Help is
    -- local objects
    count  : Integer := 1;
    spaces : Integer;
 
-   -- local subprograms
-   procedure new_line with Inline is
+   -- aliased subprograms
+   procedure print(str: Ada.Strings.Unbounded.Unbounded_String)
+      renames Ada.Strings.Unbounded.Text_IO.put_line;
+   procedure print(str: String)
+      renames Ada.Text_IO.put_line;
+   procedure print with Inline is
    begin
       Ada.Text_IO.new_line;
    end;
    function length(str: Unbounded_String) return Integer with Inline is
    begin
-      return Integer(Ada.Strings.Unbounded.length(str));
+      return Integer(Ada.Strings.Unbounded.Length(str));
    end;
 begin
-   new_line;
+   print;
    print(self_description);
    print("Usage:");
    print(self_usage);
-   new_line;
+   print;
    print("Options:");
 
    -- Determine whitespace needed between arg_long and description.

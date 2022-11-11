@@ -4,7 +4,6 @@ with Ada.Strings.Unbounded;
 use  Ada.Strings.Unbounded;
 
 package CLI is 
-
    procedure Print_Help;
 
    procedure Set_Argument (
@@ -16,14 +15,17 @@ package CLI is
 
    procedure Set_Description (
       description: in Unbounded_String
-   );
+   ) with Inline;
 
    procedure Set_Usage (
       usage: in Unbounded_String
-   );
+   ) with Inline;
 
-   function  Parse_Arguments
-      return Boolean;
+   procedure  Parse_Arguments;
+
+   Short_Flag_Not_Found  : exception;
+   Long_Flag_Not_Found   : exception;
+   Flag_Missing_Argument : exception;
 
    function  Get_Flag (
       arg_flag:  in  Unbounded_String;
@@ -40,14 +42,10 @@ package CLI is
    )  return Boolean;
 
    function  Flag_Count
-      return Integer;
+      return Integer with Inline;
 
    function  Command_Name
-      return String;
-
-   Long_Flag_Not_Found   : exception;
-   Flag_Missing_Argument : exception;
-   Short_Flag_Not_Found  : exception;
+      return String with Inline;
 end CLI;
 
 -- ¡ISO-8859-1!

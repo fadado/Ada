@@ -19,25 +19,22 @@ procedure CLI_TEST is
    textarg  : Unbounded_String;
 
    isOption : constant Boolean := True;
-   isFlag   : constant Boolean := False;
+   isBool   : constant Boolean := False;
 
 begin
 
-   CLI.Set_Argument(+"h", +"help",    +"Get help.", isFlag);
+   CLI.Set_Argument(+"h", +"help",    +"Get help.", isBool);
    CLI.Set_Argument(+"k", +"kittens", +"K is for <kittens>. Everyone needs kittens in their life.", isOption);
    CLI.Set_Argument(+"n", +"number",  +"Gimme a <number>. Any number.", isOption);
-   CLI.Set_Argument(+"a", +"apple",   +"Just an apple.", isFlag);
-   CLI.Set_Argument(+"b", +"bear",    +"Look, it's a bear.", isFlag);
-   CLI.Set_Argument(+"",  +"snake",   +"Snakes only come in long form, there are no short snakes.", isFlag);
+   CLI.Set_Argument(+"a", +"apple",   +"Just an apple.", isBool);
+   CLI.Set_Argument(+"b", +"bear",    +"Look, it's a bear.", isBool);
+   CLI.Set_Argument(+"",  +"snake",   +"Snakes only come in long form, there are no short snakes.", isBool);
 
    CLI.Set_Description(+"CLI command line argument parsing testing app. For demonstration purposes and testing.");
 
    CLI.Set_Usage(+"CLI_TEST <options>");
 
-   if not CLI.Parse_Arguments then
-      put_line("Couldn't parse arguments...");
-      return;
-   end if;
+   CLI.Parse_Arguments; -- can raise CLI exceptions
 
    put_line("Command name: " & CLI.Command_Name);
 
@@ -62,6 +59,13 @@ begin
       put_line("Got text argument: " & textarg);
    end if;
 
+exception
+   when CLI.Short_Flag_Not_Found =>
+      put_line("Couldn't parse arguments: short flag not found");
+   when CLI.Long_Flag_Not_Found =>
+      put_line("Couldn't parse arguments...: long flag not found");
+   when CLI.Flag_Missing_Argument =>
+      put_line("Couldn't parse arguments...: flag missing argument");
 end CLI_TEST;
 
 -- ¡ISO-8859-1!
