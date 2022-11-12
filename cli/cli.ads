@@ -7,18 +7,18 @@ package CLI is
    procedure Print_Help;
 
    procedure Set_Argument (
-      arg_short   : in Unbounded_String;
-      arg_long    : in Unbounded_String;
+      short_name  : in Unbounded_String;
+      long_name   : in Unbounded_String;
       description : in Unbounded_String;
-      hasValue    : in Boolean
+      valued      : in Boolean
    );
 
    procedure Set_Description (
-      description: in Unbounded_String
+      description : in Unbounded_String
    ) with Inline;
 
    procedure Set_Usage (
-      usage: in Unbounded_String
+      usage : in Unbounded_String
    ) with Inline;
 
    procedure  Parse_Arguments;
@@ -28,17 +28,17 @@ package CLI is
    Flag_Missing_Argument : exception;
 
    function  Get_Flag (
-      arg_flag:  in  Unbounded_String;
-      arg_value: out Unbounded_String
+      name  : in  Unbounded_String;
+      value : out Unbounded_String
    )  return Boolean;
 
    function  Exists (
-      arg_flag: in Unbounded_String
+      name : in Unbounded_String
    )  return Boolean;
 
    function  Get_Word (
-      index: in  Integer;
-      value: out Unbounded_String
+      index : in  Integer;
+      value : out Unbounded_String
    )  return Boolean;
 
    function  Flag_Count

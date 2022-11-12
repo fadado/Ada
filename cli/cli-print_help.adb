@@ -30,28 +30,34 @@ begin
    print;
    print("Options:");
 
-   -- Determine whitespace needed between arg_long and description.
+   -- Determine whitespace needed between long_name and description.
    for flag in self_arguments.Iterate loop
-      if length(self_arguments(flag).arg_long) > count then
-         count := length(self_arguments(flag).arg_long);
-      end if;
+      declare
+         long_name: Unbounded_String renames self_arguments(flag).long_name;
+      begin
+         if length(long_name) > count then
+            count := length(long_name);
+         end if;
+      end;
    end loop;
 
-   -- Number of actual spaces between the longest arg_long and description.
+   -- Number of actual spaces between the longest long_name and description.
    count := count + 3;
 
    -- Print out the options.
    for opt in self_arguments.Iterate loop
-      spaces := (count - length(self_arguments(opt).arg_long));
-      if length(self_arguments(opt).arg_short) < 1 then
-         print("    " & self_arguments(opt).arg_short 
-               & "--" & self_arguments(opt).arg_long 
-               & spaces*" " & self_arguments(opt).description);
-      else
-         print("-" & self_arguments(opt).arg_short 
-               & ", --" & self_arguments(opt).arg_long 
-               & spaces*" " & self_arguments(opt).description);
-      end if;
+      declare
+         long_name: Unbounded_String renames self_arguments(opt).long_name;
+         short_name: Unbounded_String renames self_arguments(opt).short_name;
+         description: Unbounded_String renames self_arguments(opt).description;
+      begin
+         spaces := (count - length(long_name));
+         if length(short_name) < 1 then
+            print("    " & short_name & "--" & long_name & spaces*" " & description);
+         else
+            print("-" & short_name & ", --" & long_name & spaces*" " & description);
+         end if;
+      end;
    end loop;
 end Print_Help;
 

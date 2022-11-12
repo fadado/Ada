@@ -4,8 +4,6 @@ with Ada.Command_Line;
 with Ada.Containers.Vectors;
 with Ada.Containers.Indefinite_Ordered_Maps;
 
-use Ada.Containers;
-
 package body CLI is
 ------------------------------------------------------------------------
 
@@ -14,22 +12,23 @@ package body CLI is
 
    type T_Argument is
       record
-         arg_short   : aliased Unbounded_String;
-         arg_long    : aliased Unbounded_String;
+         short_name  : aliased Unbounded_String;
+         long_name   : aliased Unbounded_String;
          description : aliased Unbounded_String;
          value       : aliased Unbounded_String;
-         hasValue    : aliased Boolean := False;
+         valued      : aliased Boolean := False;
          parsed      : aliased Boolean := False;
       end record;
 
-   package Arguments_Vector is new Vectors(Natural, T_Argument);
-   package UStrings_Vector  is new Vectors(Natural, Unbounded_String);
-   package UStrings_Map     is new Indefinite_Ordered_Maps(Unbounded_String, Natural);
+   package Arguments is new Ada.Containers.Vectors(Natural, T_Argument);
+   package UStrings  is new Ada.Containers.Vectors(Natural, Unbounded_String);
+   package UString2Natural is
+      new Ada.Containers.Indefinite_Ordered_Maps(Unbounded_String, Natural);
 
    self_command     : String renames Ada.Command_Line.command_name;
-   self_arguments   : Arguments_Vector.Vector;
-   self_flags       : UStrings_Map.Map;
-   self_words       : UStrings_Vector.Vector;
+   self_arguments   : Arguments.Vector;
+   self_flags       : UString2Natural.Map;
+   self_words       : UStrings.Vector;
 
    self_parsed      : Boolean;
    self_flagCount   : Integer := 0;
@@ -54,28 +53,28 @@ package body CLI is
 ------------------------------------------------------------------------
 
    procedure Set_Argument (
-      arg_short   : in Unbounded_String;
-      arg_long    : in Unbounded_String;
+      short_name  : in Unbounded_String;
+      long_name   : in Unbounded_String;
       description : in Unbounded_String;
-      hasValue    : in Boolean
+      valued      : in Boolean
    ) is
       arg: aliased T_Argument := (
-         arg_short   => arg_short,
-         arg_long    => arg_long,
+         short_name  => short_name,
+         long_name   => long_name,
          description => description,
-         hasValue    => hasValue,
+         valued      => valued,
          value       => +"",
          parsed      => False);
    begin
-      self_arguments.append(arg);
+      self_arguments.Append(arg);
       
       -- Set up links.
-      if arg_short /= "" then
-         self_flags.Include(arg_short, self_arguments.Last_Index);
+      if short_name /= "" then
+         self_flags.Include(short_name, self_arguments.Last_Index);
       end if;
 
-      if arg_long /= "" then
-         self_flags.Include(arg_long, self_arguments.Last_Index);
+      if long_name /= "" then
+         self_flags.Include(long_name, self_arguments.Last_Index);
       end if;
    end Set_Argument;
 
@@ -93,7 +92,7 @@ package body CLI is
 
    procedure Parse_Arguments
    is
-      flag_it     : UStrings_Map.Cursor;
+      flag_it     : UString2Natural.Cursor;
       expectValue : Boolean := False;
       arg         : Unbounded_String;
       short_arg   : Unbounded_String;
@@ -111,7 +110,7 @@ package body CLI is
 
          if expectValue then
             -- Copy value.
-            self_arguments.Reference(UStrings_Map.Element(flag_it)).value := arg;    
+            self_arguments.Reference(UString2Natural.Element(flag_it)).value := arg;    
             expectValue := False;
 
          elsif US.Slice(arg, 1, 1) /= "-" then
@@ -132,10 +131,10 @@ package body CLI is
 
                -- Mark as found.
                flag_it := self_flags.Find(arg);
-               self_arguments(UStrings_Map.Element(flag_it)).parsed := True;
+               self_arguments(UString2Natural.Element(flag_it)).parsed := True;
                self_flagCount := @ + 1;
 
-               if self_arguments(UStrings_Map.Element(flag_it)).hasValue then
+               if self_arguments(UString2Natural.Element(flag_it)).valued then
                   expectValue := True;
                end if;
             else
@@ -145,7 +144,7 @@ package body CLI is
                arg := US.Delete(arg, 1, 1);
                for i in 1 .. US.Length(arg) loop
                   US.Append(short_arg, US.Element(arg, i));
-                  if not UStrings_Map.Contains(self_flags, short_arg) then
+                  if not UString2Natural.Contains(self_flags, short_arg) then
                      -- Flag wasn't found. Abort.
                      raise Long_Flag_Not_Found;
                   end if;
@@ -153,10 +152,10 @@ package body CLI is
                   flag_it := self_flags.Find(short_arg);
 
                   -- Mark as found.
-                  self_arguments(UStrings_Map.Element(flag_it)).parsed := True;
+                  self_arguments(UString2Natural.Element(flag_it)).parsed := True;
                   self_flagCount := @ + 1;
 
-                  if not self_arguments(UStrings_Map.Element(flag_it)).hasValue then
+                  if not self_arguments(UString2Natural.Element(flag_it)).valued then
                      if i /= (US.Length(arg)) then
                         -- Flag isn't at end, thus cannot have value. Abort.
                         raise Flag_Missing_Argument;
@@ -177,26 +176,25 @@ package body CLI is
 ------------------------------------------------------------------------
 
    function Get_Flag (
-      arg_flag    :  in Unbounded_String;
-      arg_value   : out Unbounded_String
+      name  :  in Unbounded_String;
+      value : out Unbounded_String
    ) return Boolean
    is
-      flag_it: UStrings_Map.Cursor;
-      use UStrings_Map;
+      flag_it: UString2Natural.Cursor;
    begin
       if not self_parsed then
          return False;
       end if;
 
-      flag_it := self_flags.Find(arg_flag);
-      if flag_it = UStrings_Map.No_Element then
+      flag_it := self_flags.Find(name);
+      if UString2Natural."="(flag_it, UString2Natural.No_Element) then
          return False;
-      elsif not self_arguments(UStrings_Map.Element(flag_it)).parsed then
+      elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
          return False;
       end if;
 
-      if self_arguments(UStrings_Map.Element(flag_it)).hasValue then
-         arg_value := self_arguments(UStrings_Map.Element(flag_it)).value;
+      if self_arguments(UString2Natural.Element(flag_it)).valued then
+         value := self_arguments(UString2Natural.Element(flag_it)).value;
       end if;
 
       return True;
@@ -205,20 +203,20 @@ package body CLI is
 ------------------------------------------------------------------------
 
    function Exists (
-      arg_flag : in Unbounded_String
+      name : in Unbounded_String
    ) return Boolean is
-      flag_it : UStrings_Map.Cursor;
-      use UStrings_Map;
+      flag_it : UString2Natural.Cursor;
+      use UString2Natural;
    begin
       if not self_parsed then
          return False;
       end if;
 
-      flag_it := self_flags.Find(arg_flag);
-      if flag_it = UStrings_Map.No_Element then
+      flag_it := self_flags.Find(name);
+      if flag_it = UString2Natural.No_Element then
          return False;
       end if;
-      if not self_arguments(UStrings_Map.Element(flag_it)).parsed then
+      if not self_arguments(UString2Natural.Element(flag_it)).parsed then
          return False;
       end if;
       return True;
@@ -228,9 +226,9 @@ package body CLI is
 
    function Get_Word(index: in Integer; value: out Unbounded_String)
    return Boolean is
-      function length(vector: UStrings_Vector.Vector)
+      function length(vector: UStrings.Vector)
          return Ada.Containers.Count_Type
-         renames UStrings_Vector.Length;
+         renames UStrings.Length;
    begin
       if index < Integer(length(self_words)) then
          value := self_words(index);
