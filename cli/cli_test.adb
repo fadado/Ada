@@ -1,4 +1,4 @@
--- cli_test.ads
+-- cli_test.adb
 
 with CLI;
 

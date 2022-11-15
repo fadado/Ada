@@ -144,7 +144,7 @@ package body CLI is
                arg := US.Delete(arg, 1, 1);
                for i in 1 .. US.Length(arg) loop
                   US.Append(short_arg, US.Element(arg, i));
-                  if not UString2Natural.Contains(self_flags, short_arg) then
+                  if not self_flags.Contains(short_arg) then
                      -- Flag wasn't found. Abort.
                      raise Long_Flag_Not_Found;
                   end if;
@@ -180,7 +180,7 @@ package body CLI is
       value : out Unbounded_String
    ) return Boolean
    is
-      flag_it: UString2Natural.Cursor;
+      flag_it : UString2Natural.Cursor;
    begin
       if not self_parsed then
          return False;
@@ -206,14 +206,13 @@ package body CLI is
       name : in Unbounded_String
    ) return Boolean is
       flag_it : UString2Natural.Cursor;
-      use UString2Natural;
    begin
       if not self_parsed then
          return False;
       end if;
 
       flag_it := self_flags.Find(name);
-      if flag_it = UString2Natural.No_Element then
+      if UString2Natural."="(flag_it, UString2Natural.No_Element) then
          return False;
       end if;
       if not self_arguments(UString2Natural.Element(flag_it)).parsed then
