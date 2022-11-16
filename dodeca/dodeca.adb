@@ -1,58 +1,77 @@
---dodeca.adb
+-- dodeca.adb
 
 with Ada.Text_IO;
-use  Ada.Text_IO;
 
 procedure DODECA is
-   SERIES_LENGTH : constant := 12;
+   SIZE : constant := 12;
 
-   type Note_Type     is range 1..SERIES_LENGTH;
-   type Interval_Type is range 1..SERIES_LENGTH-1;
-   type Level_Type    is range 1..SERIES_LENGTH;
+   -- Set of available choices
+   type Choice_Type   is range 1..SIZE;
 
-   type Solution_Type is array (Level_Type) of Note_Type;
+   -- Node's level in the in decision tree
+   type Level_Type    is range 1..SIZE;
 
-   -- Notes and intervals not yet used
-   Notes     : array (Note_Type) of Boolean := (others => True);
-   Intervals : array (Interval_Type) of Boolean := (others => True);
+   -- Ordered set of choices
+   type Solution_Type is array (Level_Type) of Choice_Type;
 
-   -- Vector with solution
-   Solution  : Solution_Type;
+   -- Sets of notes and intervals used
+   type Interval_Type is range 1..SIZE-1;
+   Used_Notes     : array (Choice_Type) of Boolean := (others => False);
+   Used_Intervals : array (Interval_Type) of Boolean := (others => False);
 
-   procedure Advance(level: Level_Type) is
+   -- Vector with current (partial) solution
+   Solution : Solution_Type;
+
+   -- Output current complete solution
+   procedure Output is
+      use Ada.Text_IO;
+   begin
+      for choice of Solution loop
+         Put(choice'Image);
+      end loop;
+      New_Line;
+   end Output;
+
+   -- Solve the search problem
+   procedure Solve(level: Level_Type);
+
+   procedure Solve is
+   begin
+      for choice in Choice_Type loop
+         Solution(1) := choice;
+         Used_Notes(choice) := True;
+         Solve(2);
+         Used_Notes(choice) := False;
+      end loop;
+   end Solve;
+
+   procedure Solve(level: Level_Type) is
       interval : Interval_Type;
    begin
-      for note in Note_Type loop
-         -- is note free to take?
-         if Notes(note) then
-            interval := Interval_Type(abs (note - Solution(level-1)));
-            -- is interval free to take?
-            if Intervals(interval) then
-               Solution(level) := note;
-               if level = SERIES_LENGTH then
-                  -- one complete solution found
-                  for note of Solution loop
-                     put(note'Image);
-                  end loop;
-                  New_Line;
+      for choice in Choice_Type loop
+         if Used_Notes(choice) then
+            null;    -- fail
+         else
+            interval := Interval_Type(abs (choice - Solution(level-1)));
+            if Used_Intervals(interval) then
+               null; -- fail
+            else
+               Solution(level) := choice;
+               Used_Notes(choice) := True;
+               Used_Intervals(interval) := True;
+               if level = SIZE then
+                  Output;
                else
-                  Notes(note)         := False;
-                  Intervals(interval) := False;
-                  Advance(level + 1);
-                  Intervals(interval) := True;
-                  Notes(note)         := True;
+                  Solve(level + 1);
                end if;
+               Used_Intervals(interval) := False;
+               Used_Notes(choice) := False;
             end if;
          end if;
       end loop;
-   end Advance;
+   end Solve;
 begin
-   for note in Note_Type loop
-      Solution(1) := note;
-      Notes(note) := False;
-      Advance(2);
-      Notes(note) := True;
-   end loop;
+   Solve;
 end DODECA;
 
 -- ¡ISO-8859-1!

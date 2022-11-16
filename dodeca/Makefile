@@ -2,7 +2,9 @@
 
 .SILENT:
 
-all:
+all: dodeca
+
+dodeca:
 	gnatmake -gnat2020 dodeca
 
 clean:
