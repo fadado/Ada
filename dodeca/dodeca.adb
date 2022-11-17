@@ -14,13 +14,12 @@ procedure DODECA is
    -- Ordered set of choices
    type Solution_Type is array (Level_Type) of Choice_Type;
 
-   -- Sets of notes and intervals used
-   type Interval_Type is range 1..SIZE-1;
-   Used_Notes     : array (Choice_Type) of Boolean := (others => False);
-   Used_Intervals : array (Interval_Type) of Boolean := (others => False);
-
    -- Vector with current (partial) solution
    Solution : Solution_Type;
+
+   -- Sets of notes and intervals used
+   Used_Notes     : array (Choice_Type) of Boolean := (others => False);
+   Used_Intervals : array (Integer range 1..SIZE-1) of Boolean := (others => False);
 
    -- Output current complete solution
    procedure Output is
@@ -40,33 +39,37 @@ procedure DODECA is
       for choice in Choice_Type loop
          Solution(1) := choice;
          Used_Notes(choice) := True;
-         Solve(2);
+         Solve(level => 2);
          Used_Notes(choice) := False;
       end loop;
    end Solve;
 
    procedure Solve(level: Level_Type) is
-      interval : Interval_Type;
+      interval : Integer;
+      function reject(choice: Choice_Type) return Boolean with Inline is
+      begin
+         if Used_Notes(choice) then
+            return True;
+         end if;
+         interval := Integer(abs (choice - Solution(level-1)));
+         return Used_Intervals(interval);
+      end;
    begin
       for choice in Choice_Type loop
-         if Used_Notes(choice) then
-            null;    -- fail
+         if reject(choice) then
+            null; -- fail
          else
-            interval := Interval_Type(abs (choice - Solution(level-1)));
-            if Used_Intervals(interval) then
-               null; -- fail
+            Solution(level) := choice;
+            --
+            Used_Notes(choice) := True;
+            Used_Intervals(interval) := True;
+            if level = SIZE then
+               Output;
             else
-               Solution(level) := choice;
-               Used_Notes(choice) := True;
-               Used_Intervals(interval) := True;
-               if level = SIZE then
-                  Output;
-               else
-                  Solve(level + 1);
-               end if;
-               Used_Intervals(interval) := False;
-               Used_Notes(choice) := False;
+               Solve(level => level+1);
             end if;
+            Used_Intervals(interval) := False;
+            Used_Notes(choice) := False;
          end if;
       end loop;
    end Solve;
