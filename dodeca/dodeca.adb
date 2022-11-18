@@ -8,7 +8,7 @@ procedure DODECA is
    -- Set of available choices
    type Choice_Type   is range 1..SIZE;
 
-   -- Node's level in the in decision tree
+   -- Node's level in the decision tree
    type Level_Type    is range 1..SIZE;
 
    -- Ordered set of choices
@@ -18,8 +18,9 @@ procedure DODECA is
    Solution : Solution_Type;
 
    -- Sets of notes and intervals used
+   type Interval_Type is range 1..SIZE-1;
    Used_Notes     : array (Choice_Type) of Boolean := (others => False);
-   Used_Intervals : array (Integer range 1..SIZE-1) of Boolean := (others => False);
+   Used_Intervals : array (Interval_Type) of Boolean := (others => False);
 
    -- Output current complete solution
    procedure Output is
@@ -32,47 +33,69 @@ procedure DODECA is
    end Output;
 
    -- Solve the search problem
-   procedure Solve(level: Level_Type);
+   procedure Extend(level: Level_Type);
 
    procedure Solve is
-   begin
-      for choice in Choice_Type loop
-         Solution(1) := choice;
+      -- start on level 1
+      level : constant := 1;
+      -- to wrap the recursive call
+      procedure enter(choice: Choice_Type) with Inline is
+      begin
          Used_Notes(choice) := True;
-         Solve(level => 2);
+      end;
+      procedure leave(choice: Choice_Type) with Inline is
+      begin
          Used_Notes(choice) := False;
+      end;
+   begin
+      -- try starting with each choice
+      for choice in Choice_Type loop
+         Solution(level) := choice;
+         enter(choice);
+         Extend(level => level+1);
+         leave(choice);
       end loop;
    end Solve;
 
-   procedure Solve(level: Level_Type) is
-      interval : Integer;
+   procedure Extend(level: Level_Type) is
+      -- `choice` corresponds to current level
+      function interval(choice: Choice_Type) return Interval_Type with Inline is
+      begin
+         return Interval_Type(abs (choice - Solution(level-1)));
+      end;
+      -- reasons to prune
       function reject(choice: Choice_Type) return Boolean with Inline is
       begin
-         if Used_Notes(choice) then
-            return True;
-         end if;
-         interval := Integer(abs (choice - Solution(level-1)));
-         return Used_Intervals(interval);
+         return Used_Notes(choice) or else Used_Intervals(interval(choice));
+      end;
+      -- to wrap the recursive call
+      procedure enter(choice: Choice_Type) with Inline is
+      begin
+         Used_Notes(choice) := True;
+         Used_Intervals(interval(choice)) := True;
+      end;
+      procedure leave(choice: Choice_Type) with Inline is
+      begin
+         Used_Intervals(interval(choice)) := False;
+         Used_Notes(choice) := False;
       end;
    begin
+      -- try to extend solution with each choice
       for choice in Choice_Type loop
          if reject(choice) then
             null; -- fail
          else
             Solution(level) := choice;
-            --
-            Used_Notes(choice) := True;
-            Used_Intervals(interval) := True;
             if level = SIZE then
                Output;
             else
-               Solve(level => level+1);
+               enter(choice);
+               Extend(level => level+1);
+               leave(choice);
             end if;
-            Used_Intervals(interval) := False;
-            Used_Notes(choice) := False;
          end if;
       end loop;
-   end Solve;
+   end Extend;
 begin
    Solve;
 end DODECA;
