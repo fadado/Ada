@@ -180,6 +180,7 @@ package body CLI is
       value : out Unbounded_String
    ) return Boolean
    is
+      use type UString2Natural.Cursor;
       flag_it : UString2Natural.Cursor;
    begin
       if not self_parsed then
@@ -187,7 +188,7 @@ package body CLI is
       end if;
 
       flag_it := self_flags.Find(name);
-      if UString2Natural."="(flag_it, UString2Natural.No_Element) then
+      if flag_it = UString2Natural.No_Element then
          return False;
       elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
          return False;
@@ -205,6 +206,7 @@ package body CLI is
    function Exists (
       name : in Unbounded_String
    ) return Boolean is
+      use type UString2Natural.Cursor;
       flag_it : UString2Natural.Cursor;
    begin
       if not self_parsed then
@@ -212,7 +214,7 @@ package body CLI is
       end if;
 
       flag_it := self_flags.Find(name);
-      if UString2Natural."="(flag_it, UString2Natural.No_Element) then
+      if flag_it = UString2Natural.No_Element then
          return False;
       end if;
       if not self_arguments(UString2Natural.Element(flag_it)).parsed then
