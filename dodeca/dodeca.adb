@@ -14,10 +14,34 @@ procedure DODECA is
    -- Ordered set of choices
    type Solution_Type is array (Level_Type) of Choice_Type;
 
-   --
-   task Series is
-      entry Next(solution : out Solution_Type);
-   end;
+   -- Consumer
+   task Player is
+      entry Output(vector: Solution_Type);
+      entry Finish;
+   end Player;
+
+   task body Player is
+      v : Solution_Type;
+      use Ada.Text_IO;
+   begin
+      sink: loop
+         select
+            accept Output(vector: Solution_Type) do
+               v := vector; -- local copy
+            end;
+            for item of v loop
+               Put(item'Image);
+            end loop;
+            New_Line;
+         or
+            accept Finish;
+            exit sink;
+         end select;
+      end loop sink;
+   end Player;
+
+   -- Producer
+   task Series;
    task body Series is
       -- Vector with current (partial) solution
       Solution : Solution_Type;
@@ -26,16 +50,6 @@ procedure DODECA is
       type Interval_Type is range 1..SIZE-1;
       Used_Notes     : array (Choice_Type) of Boolean := (others => False);
       Used_Intervals : array (Interval_Type) of Boolean := (others => False);
-
-      -- Output current complete solution
-      procedure Output is
-         use Ada.Text_IO;
-      begin
-         for choice of Solution loop
-            Put(choice'Image);
-         end loop;
-         New_Line;
-      end Output;
 
       -- Solve the search problem
       procedure Extend(level: Level_Type);
@@ -60,6 +74,7 @@ procedure DODECA is
             Extend(level => level+1);
             leave(choice);
          end loop;
+         Player.Finish;
       end Solve;
 
       procedure Extend(level: Level_Type) is
@@ -92,10 +107,7 @@ procedure DODECA is
             else
                Solution(level) := choice;
                if level = SIZE then
-                  Output;
---                  accept Next(solution : out Solution_Type) do
---                     solution := Series.Solution;
---                  end Next;
+                  Player.Output(Solution);
                else
                   enter(choice);
                   Extend(level => level+1);
