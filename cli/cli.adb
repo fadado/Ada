@@ -7,45 +7,47 @@ with Ada.Containers.Indefinite_Ordered_Maps;
 package body CLI is
 ------------------------------------------------------------------------
 
-   function "+" (s: String) return Unbounded_String 
+   function "+" (s: STRING) return VSTRING 
       renames Ada.Strings.Unbounded.To_Unbounded_String;
 
-   type T_Argument is
+   type ARGUMENT is
       record
-         short_name  : aliased Unbounded_String;
-         long_name   : aliased Unbounded_String;
-         description : aliased Unbounded_String;
-         value       : aliased Unbounded_String;
-         valued      : aliased Boolean := False;
-         parsed      : aliased Boolean := False;
+         short_name  : aliased VSTRING;
+         long_name   : aliased VSTRING;
+         description : aliased VSTRING;
+         value       : aliased VSTRING;
+         valued      : aliased BOOLEAN := FALSE;
+         parsed      : aliased BOOLEAN := FALSE;
       end record;
 
-   package Arguments is new Ada.Containers.Vectors(Natural, T_Argument);
-   package UStrings  is new Ada.Containers.Vectors(Natural, Unbounded_String);
+   package Arguments is 
+      new Ada.Containers.Vectors(NATURAL, ARGUMENT);
+   package UStrings is
+      new Ada.Containers.Vectors(NATURAL, VSTRING);
    package UString2Natural is
-      new Ada.Containers.Indefinite_Ordered_Maps(Unbounded_String, Natural);
+      new Ada.Containers.Indefinite_Ordered_Maps(VSTRING, NATURAL);
 
-   self_command     : String renames Ada.Command_Line.command_name;
-   self_arguments   : Arguments.Vector;
-   self_flags       : UString2Natural.Map;
-   self_words       : UStrings.Vector;
+   self_command     : STRING renames Ada.Command_Line.command_name;
+   self_arguments   : Arguments.VECTOR;
+   self_flags       : UString2Natural.MAP;
+   self_words       : UStrings.VECTOR;
 
-   self_parsed      : Boolean;
-   self_flagCount   : Integer := 0;
+   self_parsed      : BOOLEAN;
+   self_flagCount   : INTEGER := 0;
 
-   self_usage       : Unbounded_String;
-   self_description : Unbounded_String;
+   self_usage       : VSTRING;
+   self_description : VSTRING;
 
 ------------------------------------------------------------------------
 
    procedure Print_Help is separate;
 
-   function Command_Name return String is
+   function Command_Name return STRING is
    begin
       return self_command;
    end Command_Name;
 
-   function Flag_Count return Integer is
+   function Flag_Count return INTEGER is
    begin
       return self_flagCount;
    end Flag_Count;
@@ -53,18 +55,18 @@ package body CLI is
 ------------------------------------------------------------------------
 
    procedure Set_Argument (
-      short_name  : in Unbounded_String;
-      long_name   : in Unbounded_String;
-      description : in Unbounded_String;
-      valued      : in Boolean
+      short_name  : in VSTRING;
+      long_name   : in VSTRING;
+      description : in VSTRING;
+      valued      : in BOOLEAN
    ) is
-      arg: aliased T_Argument := (
+      arg: aliased ARGUMENT := (
          short_name  => short_name,
          long_name   => long_name,
          description => description,
          valued      => valued,
          value       => +"",
-         parsed      => False);
+         parsed      => FALSE);
    begin
       self_arguments.Append(arg);
       
@@ -78,12 +80,12 @@ package body CLI is
       end if;
    end Set_Argument;
 
-   procedure Set_Description(description: in Unbounded_String) is
+   procedure Set_Description(description: in VSTRING) is
    begin
       self_description := description;
    end Set_Description;
 
-   procedure Set_Usage(usage: in Unbounded_String) is
+   procedure Set_Usage(usage: in VSTRING) is
    begin
       self_usage := usage;
    end Set_Usage;
@@ -92,10 +94,10 @@ package body CLI is
 
    procedure Parse_Arguments
    is
-      flag_it     : UString2Natural.Cursor;
-      expectValue : Boolean := False;
-      arg         : Unbounded_String;
-      short_arg   : Unbounded_String;
+      flag_it     : UString2Natural.CURSOR;
+      expectValue : BOOLEAN := FALSE;
+      arg         : VSTRING;
+      short_arg   : VSTRING;
       --
       package US renames Ada.Strings.Unbounded;
    begin
@@ -111,7 +113,7 @@ package body CLI is
          if expectValue then
             -- Copy value.
             self_arguments.Reference(UString2Natural.Element(flag_it)).value := arg;    
-            expectValue := False;
+            expectValue := FALSE;
 
          elsif US.Slice(arg, 1, 1) /= "-" then
             -- Add to text argument vector.
@@ -131,11 +133,11 @@ package body CLI is
 
                -- Mark as found.
                flag_it := self_flags.Find(arg);
-               self_arguments(UString2Natural.Element(flag_it)).parsed := True;
+               self_arguments(UString2Natural.Element(flag_it)).parsed := TRUE;
                self_flagCount := @ + 1;
 
                if self_arguments(UString2Natural.Element(flag_it)).valued then
-                  expectValue := True;
+                  expectValue := TRUE;
                end if;
             else
                -- Parse short form flag. Parse all of them sequentially. Only
@@ -152,7 +154,7 @@ package body CLI is
                   flag_it := self_flags.Find(short_arg);
 
                   -- Mark as found.
-                  self_arguments(UString2Natural.Element(flag_it)).parsed := True;
+                  self_arguments(UString2Natural.Element(flag_it)).parsed := TRUE;
                   self_flagCount := @ + 1;
 
                   if not self_arguments(UString2Natural.Element(flag_it)).valued then
@@ -160,7 +162,7 @@ package body CLI is
                         -- Flag isn't at end, thus cannot have value. Abort.
                         raise Flag_Missing_Argument;
                      else
-                        expectValue := True;
+                        expectValue := TRUE;
                      end if;
                   end if;
 
@@ -170,72 +172,71 @@ package body CLI is
          end if;
       end loop;
 
-      self_parsed := True;
+      self_parsed := TRUE;
    end Parse_Arguments;
 
 ------------------------------------------------------------------------
 
    function Get_Flag (
-      name  :  in Unbounded_String;
-      value : out Unbounded_String
-   ) return Boolean
+      name  :  in VSTRING;
+      value : out VSTRING
+   ) return BOOLEAN
    is
-      use type UString2Natural.Cursor;
-      flag_it : UString2Natural.Cursor;
+      use type UString2Natural.CURSOR;
+      flag_it : UString2Natural.CURSOR;
    begin
       if not self_parsed then
-         return False;
+         return FALSE;
       end if;
 
       flag_it := self_flags.Find(name);
       if flag_it = UString2Natural.No_Element then
-         return False;
+         return FALSE;
       elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
-         return False;
+         return FALSE;
       end if;
 
       if self_arguments(UString2Natural.Element(flag_it)).valued then
          value := self_arguments(UString2Natural.Element(flag_it)).value;
       end if;
 
-      return True;
+      return TRUE;
    end Get_Flag;
 
 ------------------------------------------------------------------------
 
-   function Exists (
-      name : in Unbounded_String
-   ) return Boolean is
-      use type UString2Natural.Cursor;
-      flag_it : UString2Natural.Cursor;
+   function Exists (name : in VSTRING)
+   return BOOLEAN is
+      use type UString2Natural.CURSOR;
+      flag_it : UString2Natural.CURSOR;
    begin
       if not self_parsed then
-         return False;
+         return FALSE;
       end if;
 
       flag_it := self_flags.Find(name);
       if flag_it = UString2Natural.No_Element then
-         return False;
+         return FALSE;
       end if;
       if not self_arguments(UString2Natural.Element(flag_it)).parsed then
-         return False;
+         return FALSE;
       end if;
-      return True;
+      return TRUE;
    end Exists;
 
 ------------------------------------------------------------------------
 
-   function Get_Word(index: in Integer; value: out Unbounded_String)
-   return Boolean is
-      function length(vector: UStrings.Vector)
-         return Ada.Containers.Count_Type
+   function Get_Word(index: in INTEGER; value: out VSTRING)
+   return BOOLEAN is
+      function length(vector: UStrings.VECTOR)
+         return Ada.Containers.COUNT_TYPE
          renames UStrings.Length;
    begin
-      if index < Integer(length(self_words)) then
+      if index < INTEGER(length(self_words)) then
          value := self_words(index);
-         return True;
+         return TRUE;
       end if;
-      return False;
+      return FALSE;
    end Get_Word;
 
 ------------------------------------------------------------------------

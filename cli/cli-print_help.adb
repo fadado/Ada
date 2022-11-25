@@ -5,23 +5,23 @@ with Ada.Strings.Unbounded.Text_IO;
 
 separate (CLI)
 procedure Print_Help is
-   -- local objects
-   count  : Integer := 1;
-   spaces : Integer;
-
-   -- aliased subprograms
-   procedure print(str: Ada.Strings.Unbounded.Unbounded_String)
-      renames Ada.Strings.Unbounded.Text_IO.put_line;
-   procedure print(str: String)
-      renames Ada.Text_IO.put_line;
+   -- aliased subprograms to easy printing
+   procedure print(str: VSTRING) renames Ada.Strings.Unbounded.Text_IO.put_line;
+   procedure print(str: STRING)  renames Ada.Text_IO.put_line;
    procedure print with Inline is
    begin
       Ada.Text_IO.new_line;
    end;
-   function length(str: Unbounded_String) return Integer with Inline is
+
+   -- short name to get VSTRINGs length
+   function length(str: VSTRING) return INTEGER with Inline is
    begin
-      return Integer(Ada.Strings.Unbounded.Length(str));
+      return INTEGER(Ada.Strings.Unbounded.Length(str));
    end;
+
+   -- local objects
+   count  : INTEGER := 1;
+   spaces : INTEGER;
 begin
    print;
    print(self_description);
@@ -33,7 +33,8 @@ begin
    -- Determine whitespace needed between long_name and description.
    for flag in self_arguments.Iterate loop
       declare
-         long_name: Unbounded_String renames self_arguments(flag).long_name;
+         long_name: VSTRING
+            renames self_arguments(flag).long_name;
       begin
          if length(long_name) > count then
             count := length(long_name);
@@ -47,15 +48,15 @@ begin
    -- Print out the options.
    for opt in self_arguments.Iterate loop
       declare
-         long_name: Unbounded_String renames self_arguments(opt).long_name;
-         short_name: Unbounded_String renames self_arguments(opt).short_name;
-         description: Unbounded_String renames self_arguments(opt).description;
+         long_name:   VSTRING renames self_arguments(opt).long_name;
+         short_name:  VSTRING renames self_arguments(opt).short_name;
+         description: VSTRING renames self_arguments(opt).description;
       begin
          spaces := (count - length(long_name));
          if length(short_name) < 1 then
-            print("    " & short_name & "--" & long_name & spaces*" " & description);
+            print("    " & short_name & "--"   & long_name & spaces*" " & description);
          else
-            print("-" & short_name & ", --" & long_name & spaces*" " & description);
+            print("-"    & short_name & ", --" & long_name & spaces*" " & description);
          end if;
       end;
    end loop;

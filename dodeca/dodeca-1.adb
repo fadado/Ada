@@ -3,13 +3,13 @@
 with Ada.Text_IO;
 
 procedure DODECA is
-   SIZE : constant := 12;
+   Size : constant := 12;
 
    -- Set of available choices
-   type Choice_Type   is range 1..SIZE;
+   type Choice_Type   is range 1..Size;
 
    -- Node's level in the decision tree
-   type Level_Type    is range 1..SIZE;
+   type Level_Type    is range 1..Size;
 
    -- Ordered set of choices
    type Solution_Type is array (Level_Type) of Choice_Type;
@@ -18,7 +18,7 @@ procedure DODECA is
    Solution : Solution_Type;
 
    -- Sets of notes and intervals used
-   type Interval_Type is range 1..SIZE-1;
+   type Interval_Type is range 1..Size-1;
    Used_Notes     : array (Choice_Type) of Boolean := (others => False);
    Used_Intervals : array (Interval_Type) of Boolean := (others => False);
 
@@ -86,7 +86,7 @@ procedure DODECA is
             null; -- fail
          else
             Solution(level) := choice;
-            if level = SIZE then
+            if level = Size then
                Output;
             else
                enter(choice);

@@ -11,15 +11,15 @@ use  Ada.Text_IO,
 
 procedure CLI_TEST is
 
-   function "+" (s: String) return Unbounded_String 
+   function "+" (s: String) return CLI.VSTRING 
       renames Ada.Strings.Unbounded.To_Unbounded_String;
 
-   kittens  : Unbounded_String;
-   number   : Unbounded_String;
-   textarg  : Unbounded_String;
+   kittens  : CLI.VSTRING;
+   number   : CLI.VSTRING;
+   textarg  : CLI.VSTRING;
 
-   isOption : constant Boolean := True;
-   isBool   : constant Boolean := False;
+   isOption : constant Boolean := TRUE;
+   isBool   : constant Boolean := FALSE;
 
 begin
 

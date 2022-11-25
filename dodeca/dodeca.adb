@@ -2,127 +2,117 @@
 
 with Ada.Text_IO;
 
-procedure DODECA is
-   SIZE : constant := 12;
+procedure dodeca is
+   Size : constant := 12;
 
    -- Set of available choices
-   type Choice_Type   is range 1..SIZE;
-
-   -- Node's level in the decision tree
-   type Level_Type    is range 1..SIZE;
-
+   type CHOICE   is range 1..Size;
+   type LEVEL    is range CHOICE'First..CHOICE'Last;
    -- Ordered set of choices
-   type Solution_Type is array (Level_Type) of Choice_Type;
+   type SOLUTION is array (LEVEL) of CHOICE;
 
    -- Consumer
-   task Player is
-      entry Output(vector: Solution_Type);
-      entry Finish;
-   end Player;
+   task player is
+      entry output(vector: in SOLUTION);
+      entry finish;
+   end player;
 
-   task body Player is
-      v : Solution_Type;
+   task body player is
       use Ada.Text_IO;
+      vector : SOLUTION;
    begin
-      sink: loop
+      loop
          select
-            accept Output(vector: Solution_Type) do
-               v := vector; -- local copy
+            accept output(vector: in SOLUTION)
+            do
+               player.vector := vector; -- local copy
             end;
-            for item of v loop
+            for item of vector loop
                Put(item'Image);
             end loop;
             New_Line;
          or
-            accept Finish;
-            exit sink;
+            accept finish;
+            exit;
          end select;
-      end loop sink;
-   end Player;
+      end loop;
+   end player;
 
    -- Producer
-   task Series;
-   task body Series is
+   task solver;
+   task body solver is
       -- Vector with current (partial) solution
-      Solution : Solution_Type;
+      serie : SOLUTION;
 
       -- Sets of notes and intervals used
-      type Interval_Type is range 1..SIZE-1;
-      Used_Notes     : array (Choice_Type) of Boolean := (others => False);
-      Used_Intervals : array (Interval_Type) of Boolean := (others => False);
+      type INTERVAL is range CHOICE'First..CHOICE'Pred(CHOICE'Last);
+      used_notes     : array (CHOICE) of BOOLEAN := (others => FALSE);
+      used_intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
 
       -- Solve the search problem
-      procedure Extend(level: Level_Type);
-
-      procedure Solve is
-         -- start on level 1
-         level : constant := 1;
-         -- to wrap the recursive call
-         procedure enter(choice: Choice_Type) with Inline is
+      procedure extend(current: in LEVEL) is
+         -- `c` is the choice in the currrent level
+         function last_interval(c: in CHOICE) return INTERVAL with Inline is
+            previous : CHOICE renames serie(LEVEL'Pred(current));
          begin
-            Used_Notes(choice) := True;
-         end;
-         procedure leave(choice: Choice_Type) with Inline is
-         begin
-            Used_Notes(choice) := False;
-         end;
-      begin
-         -- try starting with each choice
-         for choice in Choice_Type loop
-            Solution(level) := choice;
-            enter(choice);
-            Extend(level => level+1);
-            leave(choice);
-         end loop;
-         Player.Finish;
-      end Solve;
-
-      procedure Extend(level: Level_Type) is
-         -- `choice` corresponds to current level
-         function interval(choice: Choice_Type) return Interval_Type with Inline is
-         begin
-            return Interval_Type(abs (choice - Solution(level-1)));
+            return INTERVAL(abs (c - previous));
          end;
          -- reasons to prune
-         function reject(choice: Choice_Type) return Boolean with Inline is
+         function reject(c: in CHOICE) return BOOLEAN with Inline is
          begin
-            return Used_Notes(choice) or else Used_Intervals(interval(choice));
+            return used_notes(c) or else used_intervals(last_interval(c));
          end;
          -- to wrap the recursive call
-         procedure enter(choice: Choice_Type) with Inline is
+         procedure enter(c: in CHOICE) with Inline is
          begin
-            Used_Notes(choice) := True;
-            Used_Intervals(interval(choice)) := True;
+            used_notes(c) := TRUE;
+            used_intervals(last_interval(c)) := TRUE;
          end;
-         procedure leave(choice: Choice_Type) with Inline is
+         procedure leave(c: in CHOICE) with Inline is
          begin
-            Used_Intervals(interval(choice)) := False;
-            Used_Notes(choice) := False;
+            used_intervals(last_interval(c)) := FALSE;
+            used_notes(c) := FALSE;
          end;
       begin
          -- try to extend solution with each choice
-         for choice in Choice_Type loop
-            if reject(choice) then
+         for c in CHOICE'Range loop
+            if reject(c) then
                null; -- fail
             else
-               Solution(level) := choice;
-               if level = SIZE then
-                  Player.Output(Solution);
+               serie(current) := c;
+               if current = LEVEL'Last then
+                  player.output(serie);
                else
-                  enter(choice);
-                  Extend(level => level+1);
-                  leave(choice);
+                  enter(c);
+                  extend(current => LEVEL'Succ(current));
+                  leave(c);
                end if;
             end if;
          end loop;
-      end Extend;
+      end extend;
    begin
-      Solve;
-   end Series;
+      declare
+         first  : constant := LEVEL'First;
+         second : constant := LEVEL'Succ(LEVEL'First);
+      begin
+         for c in CHOICE'Range loop
+            -- start with each choice in turn
+            serie(first) := c;
+            -- enter next level
+            used_notes(c) := TRUE;
+            -- extend solution
+            extend(current => second);
+            -- return from next level
+            used_notes(c) := FALSE;
+         end loop;
+         player.finish;
+      end;
+   end solver;
 begin
+   -- wait until player and solver end
    null;
-end DODECA;
+end dodeca;
 
-   -- ¡ISO-8859-1!
-   -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
-   -- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- ¡ISO-8859-1!
+-- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada
