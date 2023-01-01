@@ -4,9 +4,6 @@ with Ada.Strings.Unbounded;
 use  Ada.Strings.Unbounded;
 
 package CLI is 
-   type KNOT is access STRING;
-   subtype USTRING is Ada.Strings.Unbounded.Unbounded_String;
-
    procedure Print_Help;
 
    procedure Set_Argument (
@@ -31,18 +28,16 @@ package CLI is
    Flag_Missing_Argument : exception;
 
    function  Get_Flag (
-      name  : in  STRING;
-      value : out USTRING
-   )  return BOOLEAN;
+      name  : in  STRING
+   )  return STRING;
 
    function  Exists (
       name : in STRING
    )  return BOOLEAN;
 
    function  Get_Word (
-      index : in  INTEGER;
-      value : out USTRING
-   )  return BOOLEAN;
+      index : in  INTEGER
+   )  return STRING;
 
    function  Flag_Count
       return INTEGER with Inline;

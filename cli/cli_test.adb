@@ -10,10 +10,6 @@ use  Ada.Text_IO,
      Ada.Strings.Unbounded.Text_IO;
 
 procedure CLI_TEST is
-   kittens  : CLI.USTRING;
-   number   : CLI.USTRING;
-   textarg  : CLI.USTRING;
-
    isOption : constant Boolean := TRUE;
    isBool   : constant Boolean := FALSE;
 
@@ -43,17 +39,28 @@ begin
    end if;
 
    -- Read out Kittens and Number.
-   if CLI.Get_Flag("kittens", kittens) then
-      put_line("Got kittens: " & kittens);
-   end if;
+   declare
+      kittens : STRING := CLI.Get_Flag("kittens");
+   begin
+      if kittens /= "" then
+         put_line("Got kittens: " & kittens);
+      end if;
+   end;
+   declare
+      number : STRING := CLI.Get_Flag("number");
+   begin
+      if number /= "" then
+         put_line("Got kittens: " & number);
+      end if;
+   end;
 
-   if CLI.Get_Flag("number", number) then
-      put_line("Got number: " & number);
-   end if;
-
-   if CLI.Get_Word(0, textarg) then
-      put_line("Got text argument: " & textarg);
-   end if;
+   declare
+      textarg : STRING := CLI.Get_Word(0);
+   begin
+      if textarg /= "" then
+         put_line("Got text argument: " & textarg);
+      end if;
+   end;
 
 exception
    when CLI.Short_Flag_Not_Found =>

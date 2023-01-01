@@ -5,6 +5,9 @@ with Ada.Containers.Vectors;
 with Ada.Containers.Indefinite_Ordered_Maps;
 
 package body CLI is
+   type HITCH is access STRING;
+
+   subtype USTRING is Ada.Strings.Unbounded.Unbounded_String;
 ------------------------------------------------------------------------
 
    function "+" (s: STRING) return USTRING 
@@ -180,29 +183,28 @@ package body CLI is
 ------------------------------------------------------------------------
 
    function Get_Flag (
-      name  :  in STRING;
-      value : out USTRING
-   ) return BOOLEAN
+      name  :  in STRING
+   ) return STRING
    is
       use type UString2Natural.CURSOR;
       flag_it : UString2Natural.CURSOR;
    begin
       if not self_parsed then
-         return FALSE;
+         return "";
       end if;
 
       flag_it := self_flags.Find(+name);
       if flag_it = UString2Natural.No_Element then
-         return FALSE;
+         return "";
       elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
-         return FALSE;
+         return "";
       end if;
 
       if self_arguments(UString2Natural.Element(flag_it)).valued then
-         value := self_arguments(UString2Natural.Element(flag_it)).value;
+         return -self_arguments(UString2Natural.Element(flag_it)).value;
       end if;
 
-      return TRUE;
+      return "";
    end Get_Flag;
 
 ------------------------------------------------------------------------
@@ -228,17 +230,17 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function Get_Word(index: in INTEGER; value: out USTRING)
-   return BOOLEAN is
+   function Get_Word(index: in INTEGER)
+   return STRING is
       function length(vector: UStrings.VECTOR)
          return Ada.Containers.COUNT_TYPE
          renames UStrings.Length;
    begin
       if index < INTEGER(length(self_words)) then
-         value := self_words(index);
-         return TRUE;
+         return -self_words(index);
+      else
+         return "";
       end if;
-      return FALSE;
    end Get_Word;
 
 ------------------------------------------------------------------------
