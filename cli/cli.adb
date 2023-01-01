@@ -7,15 +7,17 @@ with Ada.Containers.Indefinite_Ordered_Maps;
 package body CLI is
 ------------------------------------------------------------------------
 
-   function "+" (s: STRING) return VSTRING 
+   function "+" (s: STRING) return USTRING 
       renames Ada.Strings.Unbounded.To_Unbounded_String;
+   function "-" (s: USTRING) return STRING 
+      renames Ada.Strings.Unbounded.To_String;
 
    type ARGUMENT is
       record
-         short_name  : aliased VSTRING;
-         long_name   : aliased VSTRING;
-         description : aliased VSTRING;
-         value       : aliased VSTRING;
+         short_name  : aliased USTRING;
+         long_name   : aliased USTRING;
+         description : aliased USTRING;
+         value       : aliased USTRING;
          valued      : aliased BOOLEAN := FALSE;
          parsed      : aliased BOOLEAN := FALSE;
       end record;
@@ -23,9 +25,9 @@ package body CLI is
    package Arguments is 
       new Ada.Containers.Vectors(NATURAL, ARGUMENT);
    package UStrings is
-      new Ada.Containers.Vectors(NATURAL, VSTRING);
+      new Ada.Containers.Vectors(NATURAL, USTRING);
    package UString2Natural is
-      new Ada.Containers.Indefinite_Ordered_Maps(VSTRING, NATURAL);
+      new Ada.Containers.Indefinite_Ordered_Maps(USTRING, NATURAL);
 
    self_command     : STRING renames Ada.Command_Line.command_name;
    self_arguments   : Arguments.VECTOR;
@@ -35,8 +37,8 @@ package body CLI is
    self_parsed      : BOOLEAN;
    self_flagCount   : INTEGER := 0;
 
-   self_usage       : VSTRING;
-   self_description : VSTRING;
+   self_usage       : USTRING;
+   self_description : USTRING;
 
 ------------------------------------------------------------------------
 
@@ -55,15 +57,15 @@ package body CLI is
 ------------------------------------------------------------------------
 
    procedure Set_Argument (
-      short_name  : in VSTRING;
-      long_name   : in VSTRING;
-      description : in VSTRING;
+      short_name  : in STRING;
+      long_name   : in STRING;
+      description : in STRING;
       valued      : in BOOLEAN
    ) is
       arg: aliased ARGUMENT := (
-         short_name  => short_name,
-         long_name   => long_name,
-         description => description,
+         short_name  => +short_name,
+         long_name   => +long_name,
+         description => +description,
          valued      => valued,
          value       => +"",
          parsed      => FALSE);
@@ -72,22 +74,22 @@ package body CLI is
       
       -- Set up links.
       if short_name /= "" then
-         self_flags.Include(short_name, self_arguments.Last_Index);
+         self_flags.Include(+short_name, self_arguments.Last_Index);
       end if;
 
       if long_name /= "" then
-         self_flags.Include(long_name, self_arguments.Last_Index);
+         self_flags.Include(+long_name, self_arguments.Last_Index);
       end if;
    end Set_Argument;
 
-   procedure Set_Description(description: in VSTRING) is
+   procedure Set_Description(description: in STRING) is
    begin
-      self_description := description;
+      self_description := +description;
    end Set_Description;
 
-   procedure Set_Usage(usage: in VSTRING) is
+   procedure Set_Usage(usage: in STRING) is
    begin
-      self_usage := usage;
+      self_usage := +usage;
    end Set_Usage;
 
 ------------------------------------------------------------------------
@@ -96,8 +98,8 @@ package body CLI is
    is
       flag_it     : UString2Natural.CURSOR;
       expectValue : BOOLEAN := FALSE;
-      arg         : VSTRING;
-      short_arg   : VSTRING;
+      arg         : USTRING;
+      short_arg   : USTRING;
       --
       package US renames Ada.Strings.Unbounded;
    begin
@@ -178,8 +180,8 @@ package body CLI is
 ------------------------------------------------------------------------
 
    function Get_Flag (
-      name  :  in VSTRING;
-      value : out VSTRING
+      name  :  in STRING;
+      value : out USTRING
    ) return BOOLEAN
    is
       use type UString2Natural.CURSOR;
@@ -189,7 +191,7 @@ package body CLI is
          return FALSE;
       end if;
 
-      flag_it := self_flags.Find(name);
+      flag_it := self_flags.Find(+name);
       if flag_it = UString2Natural.No_Element then
          return FALSE;
       elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
@@ -205,7 +207,7 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function Exists (name : in VSTRING)
+   function Exists (name : in STRING)
    return BOOLEAN is
       use type UString2Natural.CURSOR;
       flag_it : UString2Natural.CURSOR;
@@ -214,7 +216,7 @@ package body CLI is
          return FALSE;
       end if;
 
-      flag_it := self_flags.Find(name);
+      flag_it := self_flags.Find(+name);
       if flag_it = UString2Natural.No_Element then
          return FALSE;
       end if;
@@ -226,7 +228,7 @@ package body CLI is
 
 ------------------------------------------------------------------------
 
-   function Get_Word(index: in INTEGER; value: out VSTRING)
+   function Get_Word(index: in INTEGER; value: out USTRING)
    return BOOLEAN is
       function length(vector: UStrings.VECTOR)
          return Ada.Containers.COUNT_TYPE

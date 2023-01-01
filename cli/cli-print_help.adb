@@ -6,7 +6,7 @@ with Ada.Strings.Unbounded.Text_IO;
 separate (CLI)
 procedure Print_Help is
    -- aliased subprograms to easy printing
-   procedure print(str: VSTRING) renames Ada.Strings.Unbounded.Text_IO.put_line;
+   procedure print(str: USTRING) renames Ada.Strings.Unbounded.Text_IO.put_line;
    procedure print(str: STRING)  renames Ada.Text_IO.put_line;
    procedure print with Inline is
    begin
@@ -14,7 +14,7 @@ procedure Print_Help is
    end;
 
    -- short name to get VSTRINGs length
-   function length(str: VSTRING) return INTEGER with Inline is
+   function length(str: USTRING) return INTEGER with Inline is
    begin
       return INTEGER(Ada.Strings.Unbounded.Length(str));
    end;
@@ -24,16 +24,16 @@ procedure Print_Help is
    spaces : INTEGER;
 begin
    print;
-   print(self_description);
+   print(-self_description);
    print("Usage:");
-   print(self_usage);
+   print(-self_usage);
    print;
    print("Options:");
 
    -- Determine whitespace needed between long_name and description.
    for flag in self_arguments.Iterate loop
       declare
-         long_name: VSTRING
+         long_name: USTRING
             renames self_arguments(flag).long_name;
       begin
          if length(long_name) > count then
@@ -48,9 +48,9 @@ begin
    -- Print out the options.
    for opt in self_arguments.Iterate loop
       declare
-         long_name:   VSTRING renames self_arguments(opt).long_name;
-         short_name:  VSTRING renames self_arguments(opt).short_name;
-         description: VSTRING renames self_arguments(opt).description;
+         long_name:   USTRING renames self_arguments(opt).long_name;
+         short_name:  USTRING renames self_arguments(opt).short_name;
+         description: USTRING renames self_arguments(opt).description;
       begin
          spaces := (count - length(long_name));
          if length(short_name) < 1 then

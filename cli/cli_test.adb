@@ -10,29 +10,25 @@ use  Ada.Text_IO,
      Ada.Strings.Unbounded.Text_IO;
 
 procedure CLI_TEST is
-
-   function "+" (s: String) return CLI.VSTRING 
-      renames Ada.Strings.Unbounded.To_Unbounded_String;
-
-   kittens  : CLI.VSTRING;
-   number   : CLI.VSTRING;
-   textarg  : CLI.VSTRING;
+   kittens  : CLI.USTRING;
+   number   : CLI.USTRING;
+   textarg  : CLI.USTRING;
 
    isOption : constant Boolean := TRUE;
    isBool   : constant Boolean := FALSE;
 
 begin
 
-   CLI.Set_Argument(+"h", +"help",    +"Get help.", isBool);
-   CLI.Set_Argument(+"k", +"kittens", +"K is for <kittens>. Everyone needs kittens in their life.", isOption);
-   CLI.Set_Argument(+"n", +"number",  +"Gimme a <number>. Any number.", isOption);
-   CLI.Set_Argument(+"a", +"apple",   +"Just an apple.", isBool);
-   CLI.Set_Argument(+"b", +"bear",    +"Look, it's a bear.", isBool);
-   CLI.Set_Argument(+"",  +"snake",   +"Snakes only come in long form, there are no short snakes.", isBool);
+   CLI.Set_Argument("h", "help",    "Get help.", isBool);
+   CLI.Set_Argument("k", "kittens", "K is for <kittens>. Everyone needs kittens in their life.", isOption);
+   CLI.Set_Argument("n", "number",  "Gimme a <number>. Any number.", isOption);
+   CLI.Set_Argument("a", "apple",   "Just an apple.", isBool);
+   CLI.Set_Argument("b", "bear",    "Look, it's a bear.", isBool);
+   CLI.Set_Argument("",  "snake",   "Snakes only come in long form, there are no short snakes.", isBool);
 
-   CLI.Set_Description(+"CLI command line argument parsing testing app. For demonstration purposes and testing.");
+   CLI.Set_Description("CLI command line argument parsing testing app. For demonstration purposes and testing.");
 
-   CLI.Set_Usage(+"CLI_TEST <options>");
+   CLI.Set_Usage("CLI_TEST <options>");
 
    CLI.Parse_Arguments; -- can raise CLI exceptions
 
@@ -40,18 +36,18 @@ begin
 
    put_line("Number of flags found: " & CLI.Flag_Count'Image);
 
-   if CLI.Exists(+"help") then
+   if CLI.Exists("help") then
       CLI.Print_Help;
    else
       put_line("No help requested...");
    end if;
 
    -- Read out Kittens and Number.
-   if CLI.Get_Flag(+"kittens", kittens) then
+   if CLI.Get_Flag("kittens", kittens) then
       put_line("Got kittens: " & kittens);
    end if;
 
-   if CLI.Get_Flag(+"number", number) then
+   if CLI.Get_Flag("number", number) then
       put_line("Got number: " & number);
    end if;
 

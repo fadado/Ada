@@ -4,23 +4,24 @@ with Ada.Strings.Unbounded;
 use  Ada.Strings.Unbounded;
 
 package CLI is 
-   subtype VSTRING is Ada.Strings.Unbounded.Unbounded_String;
+   type KNOT is access STRING;
+   subtype USTRING is Ada.Strings.Unbounded.Unbounded_String;
 
    procedure Print_Help;
 
    procedure Set_Argument (
-      short_name  : in VSTRING;
-      long_name   : in VSTRING;
-      description : in VSTRING;
+      short_name  : in STRING;
+      long_name   : in STRING;
+      description : in STRING;
       valued      : in BOOLEAN
    );
 
    procedure Set_Description (
-      description : in VSTRING
+      description : in STRING
    ) with Inline;
 
    procedure Set_Usage (
-      usage : in VSTRING
+      usage : in STRING
    ) with Inline;
 
    procedure  Parse_Arguments;
@@ -30,17 +31,17 @@ package CLI is
    Flag_Missing_Argument : exception;
 
    function  Get_Flag (
-      name  : in  VSTRING;
-      value : out VSTRING
+      name  : in  STRING;
+      value : out USTRING
    )  return BOOLEAN;
 
    function  Exists (
-      name : in VSTRING
+      name : in STRING
    )  return BOOLEAN;
 
    function  Get_Word (
       index : in  INTEGER;
-      value : out VSTRING
+      value : out USTRING
    )  return BOOLEAN;
 
    function  Flag_Count
