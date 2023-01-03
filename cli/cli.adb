@@ -32,21 +32,23 @@ package body CLI is
 
    package Arguments is 
       new Ada.Containers.Vectors(NATURAL, ARGUMENT);
-   package UStrings is
-      new Ada.Containers.Vectors(NATURAL, USTRING);
-   package UString2Natural is
+
+   package Flags is
       new Ada.Containers.Indefinite_Ordered_Maps(USTRING, NATURAL);
+
+   package Words is
+      new Ada.Containers.Vectors(NATURAL, USTRING);
 
    self_command     : STRING renames Ada.Command_Line.command_name;
    self_arguments   : Arguments.VECTOR;
-   self_flags       : UString2Natural.MAP;
-   self_words       : UStrings.VECTOR;
+   self_flags       : Flags.MAP;
+   self_words       : Words.VECTOR;
 
    self_parsed      : BOOLEAN;
    self_flagCount   : INTEGER := 0;
 
-   self_usage       : USTRING;
-   self_description : USTRING;
+   self_usage       : HITCH;
+   self_description : HITCH;
 
 ------------------------------------------------------------------------
 
@@ -92,19 +94,19 @@ package body CLI is
 
    procedure Set_Description(description: in STRING) is
    begin
-      self_description := +description;
+      self_description := new STRING'(description);
    end Set_Description;
 
    procedure Set_Usage(usage: in STRING) is
    begin
-      self_usage := +usage;
+      self_usage := new STRING'(usage);
    end Set_Usage;
 
 ------------------------------------------------------------------------
 
    procedure Parse_Arguments
    is
-      flag_it     : UString2Natural.CURSOR;
+      flag_it     : Flags.CURSOR;
       expectValue : BOOLEAN := FALSE;
       arg         : USTRING;
       short_arg   : USTRING;
@@ -122,7 +124,7 @@ package body CLI is
 
          if expectValue then
             -- Copy value.
-            self_arguments.Reference(UString2Natural.Element(flag_it)).value := arg;    
+            self_arguments.Reference(Flags.Element(flag_it)).value := arg;    
             expectValue := FALSE;
 
          elsif US.Slice(arg, 1, 1) /= "-" then
@@ -143,10 +145,10 @@ package body CLI is
 
                -- Mark as found.
                flag_it := self_flags.Find(arg);
-               self_arguments(UString2Natural.Element(flag_it)).parsed := TRUE;
+               self_arguments(Flags.Element(flag_it)).parsed := TRUE;
                self_flagCount := @ + 1;
 
-               if self_arguments(UString2Natural.Element(flag_it)).valued then
+               if self_arguments(Flags.Element(flag_it)).valued then
                   expectValue := TRUE;
                end if;
             else
@@ -164,10 +166,10 @@ package body CLI is
                   flag_it := self_flags.Find(short_arg);
 
                   -- Mark as found.
-                  self_arguments(UString2Natural.Element(flag_it)).parsed := TRUE;
+                  self_arguments(Flags.Element(flag_it)).parsed := TRUE;
                   self_flagCount := @ + 1;
 
-                  if not self_arguments(UString2Natural.Element(flag_it)).valued then
+                  if not self_arguments(Flags.Element(flag_it)).valued then
                      if i /= (US.Length(arg)) then
                         -- Flag isn't at end, thus cannot have value. Abort.
                         raise Flag_Missing_Argument;
@@ -188,25 +190,25 @@ package body CLI is
 ------------------------------------------------------------------------
 
    function Get_Flag (
-      name  :  in STRING
+      name : in STRING
    ) return STRING
    is
-      use type UString2Natural.CURSOR;
-      flag_it : UString2Natural.CURSOR;
+      use type Flags.CURSOR;
+      flag_it : Flags.CURSOR;
    begin
       if not self_parsed then
          return "";
       end if;
 
       flag_it := self_flags.Find(+name);
-      if flag_it = UString2Natural.No_Element then
+      if flag_it = Flags.No_Element then
          return "";
-      elsif not self_arguments(UString2Natural.Element(flag_it)).parsed then
+      elsif not self_arguments(Flags.Element(flag_it)).parsed then
          return "";
       end if;
 
-      if self_arguments(UString2Natural.Element(flag_it)).valued then
-         return -self_arguments(UString2Natural.Element(flag_it)).value;
+      if self_arguments(Flags.Element(flag_it)).valued then
+         return -self_arguments(Flags.Element(flag_it)).value;
       end if;
 
       return "";
@@ -216,18 +218,18 @@ package body CLI is
 
    function Exists (name : in STRING)
    return BOOLEAN is
-      use type UString2Natural.CURSOR;
-      flag_it : UString2Natural.CURSOR;
+      use type Flags.CURSOR;
+      flag_it : Flags.CURSOR;
    begin
       if not self_parsed then
          return FALSE;
       end if;
 
       flag_it := self_flags.Find(+name);
-      if flag_it = UString2Natural.No_Element then
+      if flag_it = Flags.No_Element then
          return FALSE;
       end if;
-      if not self_arguments(UString2Natural.Element(flag_it)).parsed then
+      if not self_arguments(Flags.Element(flag_it)).parsed then
          return FALSE;
       end if;
       return TRUE;
@@ -237,11 +239,8 @@ package body CLI is
 
    function Get_Word(index: in INTEGER)
    return STRING is
-      function length(vector: UStrings.VECTOR)
-         return Ada.Containers.COUNT_TYPE
-         renames UStrings.Length;
    begin
-      if index < INTEGER(length(self_words)) then
+      if index < INTEGER(Words.Length(self_words)) then
          return -self_words(index);
       else
          return "";

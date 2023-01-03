@@ -24,9 +24,9 @@ procedure Print_Help is
    spaces : INTEGER;
 begin
    print;
-   print(-self_description);
+   print(self_description.all);
    print("Usage:");
-   print(-self_usage);
+   print(self_usage.all);
    print;
    print("Options:");
 
