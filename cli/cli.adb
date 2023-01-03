@@ -7,6 +7,11 @@ with Ada.Containers.Indefinite_Ordered_Maps;
 package body CLI is
    type HITCH is access STRING;
 
+   function "="(s, t: HITCH) return BOOLEAN with Inline is
+   begin
+      return s.all = t.all;
+   end;
+
    subtype USTRING is Ada.Strings.Unbounded.Unbounded_String;
 ------------------------------------------------------------------------
 

@@ -3,10 +3,10 @@
 with Ada.Text_IO;
 
 procedure dodeca is
-   Size : constant := 12;
+   Chromatic_Notes : constant := 12;
 
    -- Set of available choices
-   type CHOICE   is range 1..Size;
+   type CHOICE   is range 1..Chromatic_Notes;
    type LEVEL    is range CHOICE'First..CHOICE'Last;
    -- Ordered set of choices
    type SOLUTION is array (LEVEL) of CHOICE;
@@ -26,7 +26,7 @@ procedure dodeca is
             accept output(vector: in SOLUTION)
             do
                player.vector := vector; -- local copy
-            end;
+            end output;
             for item of vector loop
                Put(item'Image);
             end loop;
