@@ -4,23 +4,35 @@ with Ada.Text_IO;
 
 procedure OOP is
    package Root is
-      type INNER is abstract tagged private;
+      type    INNER is abstract tagged private;
+      subtype CLASS is INNER'Class;
+      type    BEING is access INNER;
+      --
+      function Level(self: in INNER) return INTEGER;
    private
       type INNER is abstract tagged null record;
    end Root;
+   package body Root is
+      function Level(self: in INNER) return INTEGER is
+      begin
+         return 0;
+      end;
+   end Root;
 
    package Shape is
-      subtype UPPER  is Root.INNER;
-      type    INNER  is new UPPER with private;
-      subtype CLASS  is INNER'Class;
-      type    BEING  is access INNER;
+      subtype SUPER is Root.INNER;
+      type    INNER is new SUPER with private;
+      subtype CLASS is INNER'Class;
+      type    BEING is access INNER;
       --
       procedure Set_X(self: in out INNER; X: in INTEGER) with Inline;
       procedure Set_Y(self: in out INNER; Y: in INTEGER) with Inline;
       function  Get_X(self: in INNER) return INTEGER with Inline;
       function  Get_Y(self: in INNER) return INTEGER with Inline;
+      --
+      function Level(self: in INNER) return INTEGER;
    private
-      type INNER is new UPPER with
+      type INNER is new SUPER with
          record
             X, Y : INTEGER := 0;
          end record;
@@ -42,31 +54,43 @@ procedure OOP is
       begin
          return self.Y;
       end Get_Y;
+      --
+      function Level(self: in INNER) return INTEGER is
+      begin
+         return 1 + SUPER(self).Level;
+      end;
    end Shape;
 
    package Circle is
-      subtype UPPER is Shape.INNER;
-      type    INNER is new UPPER with private;
+      subtype SUPER is Shape.INNER;
+      type    INNER is new SUPER with private;
       subtype CLASS is INNER'Class;
       type    BEING is access all INNER;
+      --
+      function Level(self: in INNER) return INTEGER;
    private
-      type INNER is new UPPER with
+      type INNER is new SUPER with
          record
             R : INTEGER := 1;
          end record;
    end Circle;
    package body Circle is
+      --
+      function Level(self: in INNER) return INTEGER is
+      begin
+         return 1 + SUPER(self).Level;
+      end;
    end Circle;
 begin
    MAIN:
       declare
          procedure print(str: STRING) renames Ada.Text_IO.put_line;
          a : Circle.INNER;
-         b : Circle.BEING := new Circle.INNER;
       begin
          a.Set_X(33);
          print("X =" & a.Get_X'Image);
          print("Y =" & a.Get_Y'Image);
+         print("L =" & a.Level'Image);
       end MAIN;
 end OOP;
 
