@@ -2,37 +2,44 @@
 
 with Ada.Text_IO;
 
+-- Root <- Shape <- Circle
+
 procedure OOP is
+------------------------------------------------------------------------
    package Root is
+------------------------------------------------------------------------
       type    INNER is abstract tagged private;
       subtype CLASS is INNER'Class;
-      type    BEING is access INNER;
-      --
-      function Level(self: in INNER) return INTEGER;
+      type    PROXY is access all CLASS;
+      -- experiments
+      function Level(self: in INNER) return INTEGER with Inline;
    private
       type INNER is abstract tagged null record;
    end Root;
    package body Root is
+      -- experiments
       function Level(self: in INNER) return INTEGER is
       begin
          return 0;
       end;
    end Root;
 
+------------------------------------------------------------------------
    package Shape is
-      subtype SUPER is Root.INNER;
-      type    INNER is new SUPER with private;
+------------------------------------------------------------------------
+      subtype UPPER is Root.INNER;
+      type    INNER is new UPPER with private;
       subtype CLASS is INNER'Class;
-      type    BEING is access INNER;
+      type    PROXY is access all CLASS;
       --
       procedure Set_X(self: in out INNER; X: in INTEGER) with Inline;
       procedure Set_Y(self: in out INNER; Y: in INTEGER) with Inline;
       function  Get_X(self: in INNER) return INTEGER with Inline;
       function  Get_Y(self: in INNER) return INTEGER with Inline;
       --
-      function Level(self: in INNER) return INTEGER;
+      function Level(self: in INNER) return INTEGER with Inline;
    private
-      type INNER is new SUPER with
+      type INNER is new UPPER with
          record
             X, Y : INTEGER := 0;
          end record;
@@ -56,20 +63,23 @@ procedure OOP is
       end Get_Y;
       --
       function Level(self: in INNER) return INTEGER is
+         super : UPPER renames UPPER(self);
       begin
-         return 1 + SUPER(self).Level;
+         return 1 + super.Level;
       end;
    end Shape;
 
+------------------------------------------------------------------------
    package Circle is
-      subtype SUPER is Shape.INNER;
-      type    INNER is new SUPER with private;
+------------------------------------------------------------------------
+      subtype UPPER is Shape.INNER;
+      type    INNER is new UPPER with private;
       subtype CLASS is INNER'Class;
-      type    BEING is access all INNER;
+      type    PROXY is access all CLASS;
       --
-      function Level(self: in INNER) return INTEGER;
+      function Level(self: in INNER) return INTEGER with Inline;
    private
-      type INNER is new SUPER with
+      type INNER is new UPPER with
          record
             R : INTEGER := 1;
          end record;
@@ -77,10 +87,12 @@ procedure OOP is
    package body Circle is
       --
       function Level(self: in INNER) return INTEGER is
+         super : UPPER renames UPPER(self);
       begin
-         return 1 + SUPER(self).Level;
+         return 1 + super.Level;
       end;
    end Circle;
+------------------------------------------------------------------------
 begin
    MAIN:
       declare
