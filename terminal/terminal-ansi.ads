@@ -10,8 +10,8 @@ package terminal.ANSI is
    function cursor_down(Lines: POSITIVE := 1) return STRING with Inline;
    function cursor_right(Columns: POSITIVE := 1) return STRING with Inline;
    function cursor_left(Columns: POSITIVE := 1) return STRING with Inline;
-   function cursor_down1(Lines: POSITIVE := 1) return STRING with Inline;
-   function cursor_up1(Lines: POSITIVE := 1) return STRING with Inline;
+   function cursor_down_1st(Lines: POSITIVE := 1) return STRING with Inline;
+   function cursor_up_1st(Lines: POSITIVE := 1) return STRING with Inline;
    function cursor_column(Column: POSITIVE := 1) return STRING with Inline;
    function cursor_position(Line, Column: POSITIVE := 1) return STRING with Inline;
    -- CSI ...
@@ -30,7 +30,7 @@ package terminal.ANSI is
       no_blink       : constant STRING := "25";
    end SGR;
    -- Fs
-   function reset             return STRING with Inline;
+   function reset return STRING with Inline;
 ------------------------------------------------------------------------
 end terminal.ANSI;
 -- ¡ISO-8859-1!

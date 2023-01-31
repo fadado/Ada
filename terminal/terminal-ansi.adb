@@ -43,17 +43,17 @@ package body terminal.ANSI is
       return CSI & C(2..C'Last) & 'D';
    end cursor_left;
 
-   function cursor_down1(Lines: POSITIVE := 1) return STRING is
+   function cursor_down_1st(Lines: POSITIVE := 1) return STRING is
       L : STRING renames Lines'Image;
    begin
       return CSI & L(2..L'Last) & 'E';
-   end cursor_down1;
+   end cursor_down_1st;
 
-   function cursor_up1(Lines: POSITIVE := 1) return STRING is
+   function cursor_up_1st(Lines: POSITIVE := 1) return STRING is
       L : STRING renames Lines'Image;
    begin
       return CSI & L(2..L'Last) & 'F';
-   end cursor_up1;
+   end cursor_up_1st;
 
    function cursor_column(Column: POSITIVE := 1) return STRING is
       C : STRING renames Column'Image;
