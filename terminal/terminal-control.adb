@@ -2,21 +2,17 @@ with Ada.Characters.Latin_1;
 ------------------------------------------------------------------------
 package body Terminal.Control is
 ------------------------------------------------------------------------
+   -- make public?
    BEL : CHARACTER renames Ada.Characters.Latin_1.BEL;
+   BS  : CHARACTER renames Ada.Characters.Latin_1.RS;
    HT  : CHARACTER renames Ada.Characters.Latin_1.HT;
+   LF  : CHARACTER renames Ada.Characters.Latin_1.LF;
+   CR  : CHARACTER renames Ada.Characters.Latin_1.CR;
+   SO  : CHARACTER renames Ada.Characters.Latin_1.SO;
+   SI  : CHARACTER renames Ada.Characters.Latin_1.SI;
+   --
    ESC : CHARACTER renames Ada.Characters.Latin_1.ESC;
    CSI : constant STRING := ESC & '[';
-
-   -- C0
-   function bell return CHARACTER is
-   begin
-      return BEL;
-   end bell;
-
-   function tab return CHARACTER is
-   begin
-      return HT;
-   end tab;
 
    -- CSI cursor
    function cursor_up(Lines: POSITIVE := 1) return STRING is
@@ -71,11 +67,13 @@ package body Terminal.Control is
    function cursor_save return STRING is
    begin
       return CSI & 's';
+      --return ESC & '7';
    end cursor_save;
 
    function cursor_restore return STRING is
    begin
       return CSI & 'r';
+      --return ESC & '8';
    end cursor_restore;
 
    function cursor_hide return STRING is
@@ -89,13 +87,13 @@ package body Terminal.Control is
    end cursor_show;
 
    -- CSI eraser
-   function erase_display(Mode: Display_Eraser_Mode := Full) return STRING is
+   function erase_display(Mode: Display_Eraser_Mode := Display) return STRING is
       M : STRING renames Display_Eraser_Mode'Pos(Mode)'Image;
    begin
       return CSI & M(2..M'Last) & 'J';
    end erase_display;
 
-   function erase_line(Mode: Line_Eraser_Mode := Full) return STRING is
+   function erase_line(Mode: Line_Eraser_Mode := Line) return STRING is
       M : STRING renames Line_Eraser_Mode'Pos(Mode)'Image;
    begin
       return CSI & M(2..M'Last) & 'K';
@@ -176,11 +174,17 @@ package body Terminal.Control is
    begin
       return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7&';'&s8&';'&s9 & 'm';
    end attributes;
-   -- Fs
+
+   -- Other
    function reset_device return STRING is
    begin
       return ESC & 'c';
    end reset_device;
+
+   function E_test return STRING is
+   begin
+      return ESC & "#8";
+   end E_test;
 end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

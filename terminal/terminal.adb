@@ -4,11 +4,11 @@ package body Terminal is
 ------------------------------------------------------------------------
    procedure Emit(Code: CHARACTER) is
    begin
-      Ada.Text_IO.Put(Code);
+      Ada.Text_IO.Put(Ada.Text_IO.Standard_Error, Code);
    end;
    procedure Emit(Code: STRING) is
    begin
-      Ada.Text_IO.Put(Code);
+      Ada.Text_IO.Put(Ada.Text_IO.Standard_Error, Code);
    end;
 end Terminal;
 -- ¡ISO-8859-1!

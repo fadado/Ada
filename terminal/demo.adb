@@ -1,31 +1,48 @@
 -- demo.adb
 
-with Terminal.Screen;
 with Terminal.Control;
+use  Terminal;
+use  Terminal.Control;
 
+with Terminal.Screen;
 with Ada.Text_IO;
 
 procedure demo is
-   package screen  renames Terminal.Screen;
-   package Control renames Terminal.Control;
-   package SGR     renames Terminal.Control.SGR;
-   use Terminal;
-   use Control;
+   -- to move to screen module
+   procedure screen_Clear_Screen is
+   begin
+      Emit(cursor_move); -- go to home
+      Emit(erase_display);
+   end;
+
+   procedure test_01 is
+   begin
+      screen_Clear_Screen;
+      Emit(cursor_hide);
+      Emit(E_test);
+      delay 2.0;
+      Emit(cursor_show);
+   end;
+
+   procedure test_02 is
+   begin
+      Emit(attributes(
+            foreground(SGR.red),
+            background(SGR.yellow),
+            SGR.blink,
+            SGR.bold,
+            SGR.italic)
+      );
+      screen_Clear_Screen;
+      Emit(cursor_hide);
+      Emit(cursor_move(1, 7));
+      Screen.Print("Hi!");
+      delay 2.0;
+      Emit(cursor_show);
+   end;
 begin
-   Emit(erase_display);
-   Emit(attributes(
-         foreground(SGR.red),
-         background(SGR.yellow),
-         SGR.blink,
-         SGR.bold,
-         SGR.italic)
-   );
-   Emit(cursor_hide);
-   Emit(cursor_move(1, 7));
-
-   screen.Print("Hi!");
-   delay 2.0;
-
+   test_01;
+   test_02;
    Emit(reset_device);
 end demo;
 

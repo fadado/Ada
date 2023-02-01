@@ -1,25 +1,25 @@
-with Ada.Text_IO;
+with Ada.Text_IO; use Ada;
 ------------------------------------------------------------------------
 package body Terminal.Screen is
 ------------------------------------------------------------------------
-   package Integer_IO is new Ada.Text_IO.Integer_IO (Num => INTEGER);
+   package Integer_IO is new Text_IO.Integer_IO (Num => INTEGER);
 
    -- print to screen
    procedure Print is
    begin
-      Ada.Text_IO.New_Line;
+      Text_IO.New_Line;
    end;
    procedure Print(Item: CHARACTER) is
    begin
-      Ada.Text_IO.Put(Item);
+      Text_IO.Put(Item);
    end;
    procedure Print(Item: STRING) is
    begin
-      Ada.Text_IO.Put(Item);
+      Text_IO.Put(Text_IO.Standard_Error, Item);
    end;
    procedure Print(Item: INTEGER; Width: INTEGER := 1) is
    begin
-      Integer_IO.Put(Item);
+      Integer_IO.Put(Text_IO.Standard_Error, Item);
    end;
 end Terminal.Screen;
 -- ¡ISO-8859-1!
