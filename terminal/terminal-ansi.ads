@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
 package terminal.ANSI is
-   pragma Pure(ANSI);
 ------------------------------------------------------------------------
    -- C0
    function bell  return CHARACTER with Inline;
@@ -28,23 +27,32 @@ package terminal.ANSI is
    function scroll_down(Lines: POSITIVE := 1) return STRING with Inline;
    -- SGR attributes
    package SGR is
-      reset                : constant STRING := "0";
-      bold                 : constant STRING := "1";
-      faint                : constant STRING := "2";
-      normal               : constant STRING := "22"; -- neither bold nor faint
-      italic               : constant STRING := "3";
-      no_italic            : constant STRING := "23";
-      underline            : constant STRING := "4";
-      no_underline         : constant STRING := "24";
-      blink                : constant STRING := "5";
-      no_blink             : constant STRING := "25";
+      reset          : constant STRING := "0";
+      bold           : constant STRING := "1";
+      faint          : constant STRING := "2";
+      normal         : constant STRING := "22"; -- neither bold nor faint
+      italic         : constant STRING := "3";
+      no_italic      : constant STRING := "23";
+      underline      : constant STRING := "4";
+      no_underline   : constant STRING := "24";
+      blink          : constant STRING := "5";
+      no_blink       : constant STRING := "25";
       type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
    end SGR;
-   function attributes(A: STRING) return STRING with Inline;
    function foreground(Color: SGR.COLOR) return STRING with Inline;
    function background(Color: SGR.COLOR) return STRING with Inline;
+   function attributes(s0: STRING) return STRING with Inline;
+   function attributes(s0, s1: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4, s5: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4, s5, s6: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8: STRING) return STRING with Inline;
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9: STRING) return STRING with Inline;
    -- Fs
-   function reset return STRING with Inline;
+   function reset_device return STRING with Inline;
 ------------------------------------------------------------------------
 end terminal.ANSI;
 -- ¡ISO-8859-1!

@@ -115,11 +115,6 @@ package body terminal.ANSI is
    end scroll_down;
 
    -- SGR attributes
-   function attributes(A: STRING) return STRING is
-   begin
-      return CSI & A & 'm';
-   end attributes;
-   
    function foreground(Color: SGR.COLOR) return STRING is
       C : STRING renames SGR.COLOR'Pos(Color)'Image;
    begin
@@ -132,11 +127,60 @@ package body terminal.ANSI is
       return '4' & C(2..C'Last);
    end background;
    
+   function attributes(s0: STRING) return STRING is
+   begin
+      return CSI & s0 & 'm';
+   end attributes;
+
+   function attributes(s0, s1: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4, s5: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4, s5, s6: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7&';'&s8 & 'm';
+   end attributes;
+
+   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9: STRING) return STRING is
+   begin
+      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7&';'&s8&';'&s9 & 'm';
+   end attributes;
    -- Fs
-   function reset return STRING is
+   function reset_device return STRING is
    begin
       return ESC & 'c';
-   end reset;
+   end reset_device;
 end terminal.ANSI;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

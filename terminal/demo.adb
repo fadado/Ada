@@ -6,25 +6,27 @@ with Terminal.ANSI;
 with Ada.Text_IO;
 
 procedure demo is
-   package VDU    renames Terminal.Screen;
+   package screen renames Terminal.Screen;
    package ANSI   renames Terminal.ANSI;
    package SGR    renames Terminal.ANSI.SGR;
+   use Terminal;
    use ANSI;
 begin
-   VDU.Clear;
-   VDU.Display(
-      foreground(SGR.red),
-      background(SGR.yellow),
-      SGR.blink,
-      SGR.bold,
-      SGR.italic
+   Emit(erase_display);
+   Emit(attributes(
+         foreground(SGR.red),
+         background(SGR.yellow),
+         SGR.blink,
+         SGR.bold,
+         SGR.italic)
    );
-   VDU.Print(ANSI.cursor_hide);
-   VDU.Move(1, 7);
-   Ada.Text_IO.Put("Hi!");
+   Emit(cursor_hide);
+   Emit(cursor_move(1, 7));
+
+   screen.Print("Hi!");
    delay 2.0;
-   VDU.Print(ANSI.reset);
-   VDU.Reset;
+
+   Emit(reset_device);
 end demo;
 
 -- ¡ISO-8859-1!
