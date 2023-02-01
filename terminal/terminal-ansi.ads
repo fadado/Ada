@@ -13,22 +13,36 @@ package terminal.ANSI is
    function cursor_down_1st(Lines: POSITIVE := 1) return STRING with Inline;
    function cursor_up_1st(Lines: POSITIVE := 1) return STRING with Inline;
    function cursor_column(Column: POSITIVE := 1) return STRING with Inline;
-   function cursor_position(Line, Column: POSITIVE := 1) return STRING with Inline;
-   -- CSI ...
-   function clear_screen return string with Inline;
-   -- SGR
+   function cursor_move(Line, Column: POSITIVE := 1) return STRING with Inline;
+   function cursor_save return STRING with Inline;
+   function cursor_restore return STRING with Inline;
+   function cursor_hide return STRING with Inline;
+   function cursor_show return STRING with Inline;
+   -- CSI eraser
+   type Display_Eraser_Mode is (Down, Up, Full);
+   function erase_display(Mode: Display_Eraser_Mode := Full) return STRING with Inline;
+   type Line_Eraser_Mode is (Rigth, Left, Full);
+   function erase_line(Mode: Line_Eraser_Mode := Full) return STRING with Inline;
+   -- CSI scroll
+   function scroll_up(Lines: POSITIVE := 1) return STRING with Inline;
+   function scroll_down(Lines: POSITIVE := 1) return STRING with Inline;
+   -- SGR attributes
    package SGR is
-      reset          : constant STRING := "0";
-      bold           : constant STRING := "1";
-      faint          : constant STRING := "2";
-      normal         : constant STRING := "22"; -- neither bold nor faint
-      italic         : constant STRING := "3";
-      no_italic      : constant STRING := "23";
-      underline      : constant STRING := "4";
-      no_underline   : constant STRING := "24";
-      blink          : constant STRING := "5";
-      no_blink       : constant STRING := "25";
+      reset                : constant STRING := "0";
+      bold                 : constant STRING := "1";
+      faint                : constant STRING := "2";
+      normal               : constant STRING := "22"; -- neither bold nor faint
+      italic               : constant STRING := "3";
+      no_italic            : constant STRING := "23";
+      underline            : constant STRING := "4";
+      no_underline         : constant STRING := "24";
+      blink                : constant STRING := "5";
+      no_blink             : constant STRING := "25";
+      type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
    end SGR;
+   function attributes(A: STRING) return STRING with Inline;
+   function foreground(Color: SGR.COLOR) return STRING with Inline;
+   function background(Color: SGR.COLOR) return STRING with Inline;
    -- Fs
    function reset return STRING with Inline;
 ------------------------------------------------------------------------
