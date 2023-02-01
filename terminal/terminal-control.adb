@@ -1,6 +1,6 @@
 with Ada.Characters.Latin_1;
 ------------------------------------------------------------------------
-package body terminal.ANSI is
+package body Terminal.Control is
 ------------------------------------------------------------------------
    BEL : CHARACTER renames Ada.Characters.Latin_1.BEL;
    HT  : CHARACTER renames Ada.Characters.Latin_1.HT;
@@ -181,7 +181,7 @@ package body terminal.ANSI is
    begin
       return ESC & 'c';
    end reset_device;
-end terminal.ANSI;
+end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

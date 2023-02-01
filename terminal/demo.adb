@@ -1,16 +1,16 @@
 -- demo.adb
 
 with Terminal.Screen;
-with Terminal.ANSI;
+with Terminal.Control;
 
 with Ada.Text_IO;
 
 procedure demo is
-   package screen renames Terminal.Screen;
-   package ANSI   renames Terminal.ANSI;
-   package SGR    renames Terminal.ANSI.SGR;
+   package screen  renames Terminal.Screen;
+   package Control renames Terminal.Control;
+   package SGR     renames Terminal.Control.SGR;
    use Terminal;
-   use ANSI;
+   use Control;
 begin
    Emit(erase_display);
    Emit(attributes(
