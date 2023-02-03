@@ -1,103 +1,156 @@
-with Ada.Characters.Latin_1;
 ------------------------------------------------------------------------
 package body Terminal.Control is
 ------------------------------------------------------------------------
-   -- make public?
-   BEL : CHARACTER renames Ada.Characters.Latin_1.BEL;
-   BS  : CHARACTER renames Ada.Characters.Latin_1.RS;
-   HT  : CHARACTER renames Ada.Characters.Latin_1.HT;
-   LF  : CHARACTER renames Ada.Characters.Latin_1.LF;
-   CR  : CHARACTER renames Ada.Characters.Latin_1.CR;
-   SO  : CHARACTER renames Ada.Characters.Latin_1.SO;
-   SI  : CHARACTER renames Ada.Characters.Latin_1.SI;
-   --
-   ESC : CHARACTER renames Ada.Characters.Latin_1.ESC;
+   ESC : constant CHARACTER := CHARACTER'Val(27);
    CSI : constant STRING := ESC & '[';
 
    -- CSI cursor
-   function cursor_up(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'A';
-   end cursor_up;
+   package body Cursor is
+      function home return STRING is
+      begin
+         return CSI & 'H';
+      end home;
 
-   function cursor_down(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'B';
-   end cursor_down;
+      function up(Lines: POSITIVE := 1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'A';
+      end up;
 
-   function cursor_right(Columns: POSITIVE := 1) return STRING is
-      C : STRING renames Columns'Image;
-   begin
-      return CSI & C(2..C'Last) & 'C';
-   end cursor_right;
+      function down(Lines: POSITIVE := 1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'B';
+      end down;
 
-   function cursor_left(Columns: POSITIVE := 1) return STRING is
-      C : STRING renames Columns'Image;
-   begin
-      return CSI & C(2..C'Last) & 'D';
-   end cursor_left;
+      function forward(Columns: POSITIVE := 1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return CSI & C(2..C'Last) & 'C';
+      end forward;
 
-   function cursor_down_1st(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'E';
-   end cursor_down_1st;
+      function backward(Columns: POSITIVE := 1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return CSI & C(2..C'Last) & 'D';
+      end backward;
 
-   function cursor_up_1st(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'F';
-   end cursor_up_1st;
+      function down_1st(Lines: POSITIVE := 1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'E';
+      end down_1st;
 
-   function cursor_column(Column: POSITIVE := 1) return STRING is
-      C : STRING renames Column'Image;
-   begin
-      return CSI & C(2..C'Last) & 'G';
-   end cursor_column;
+      function up_1st(Lines: POSITIVE := 1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'F';
+      end up_1st;
 
-   function cursor_move(Line, Column: POSITIVE := 1) return STRING is
-      L : STRING renames Line'Image;
-      C : STRING renames Column'Image;
-   begin
-      return CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
-   end cursor_move;
+      function column(Column: POSITIVE := 1) return STRING is
+         C : STRING renames Column'Image;
+      begin
+         return CSI & C(2..C'Last) & 'G';
+      end column;
 
-   function cursor_save return STRING is
-   begin
-      return CSI & 's';
-      --return ESC & '7';
-   end cursor_save;
+      function move(Line, Column: POSITIVE := 1) return STRING is
+         L : STRING renames Line'Image;
+         C : STRING renames Column'Image;
+      begin
+         return CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
+      end move;
 
-   function cursor_restore return STRING is
-   begin
-      return CSI & 'r';
-      --return ESC & '8';
-   end cursor_restore;
+      function save return STRING is
+      begin
+         return CSI & 's';
+         --return ESC & '7';
+      end save;
 
-   function cursor_hide return STRING is
-   begin
-      return CSI & "?25l";
-   end cursor_hide;
+      function restore return STRING is
+      begin
+         return CSI & 'r';
+         --return ESC & '8';
+      end restore;
 
-   function cursor_show return STRING is
-   begin
-      return CSI & "?25h";
-   end cursor_show;
+      function hide return STRING is
+      begin
+         return CSI & "?25l";
+      end hide;
 
-   -- CSI eraser
-   function erase_display(Mode: Display_Eraser_Mode := Display) return STRING is
+      function show return STRING is
+      begin
+         return CSI & "?25h";
+      end show;
+   end Cursor;
+
+   -- SGR attributes
+   package body SGR is
+      function foreground(Color: SGR.COLOR) return STRING is
+         C : STRING renames SGR.COLOR'Pos(Color)'Image;
+      begin
+         return '3' & C(2..C'Last);
+      end foreground;
+      
+      function background(Color: SGR.COLOR) return STRING is
+         C : STRING renames SGR.COLOR'Pos(Color)'Image;
+      begin
+         return '4' & C(2..C'Last);
+      end background;
+      
+      function attributes(p0: STRING) return STRING is
+      begin
+         return CSI & p0 & 'm';
+      end attributes;
+      function attributes(p0, p1: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
+      end attributes;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+      begin
+         return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
+      end attributes;
+   end SGR;
+
+   -- CSI erase
+   function display_erase(Mode: Display_Eraser_Mode := Display) return STRING is
       M : STRING renames Display_Eraser_Mode'Pos(Mode)'Image;
    begin
       return CSI & M(2..M'Last) & 'J';
-   end erase_display;
+   end display_erase;
 
-   function erase_line(Mode: Line_Eraser_Mode := Line) return STRING is
+   function display_erase_line(Mode: Line_Eraser_Mode := Line) return STRING is
       M : STRING renames Line_Eraser_Mode'Pos(Mode)'Image;
    begin
       return CSI & M(2..M'Last) & 'K';
-   end erase_line;
+   end display_erase_line;
    
    -- CSI scroll
    function scroll_up(Lines: POSITIVE := 1) return STRING is
@@ -111,69 +164,6 @@ package body Terminal.Control is
    begin
       return CSI & L(2..L'Last) & 'T';
    end scroll_down;
-
-   -- SGR attributes
-   function foreground(Color: SGR.COLOR) return STRING is
-      C : STRING renames SGR.COLOR'Pos(Color)'Image;
-   begin
-      return '3' & C(2..C'Last);
-   end foreground;
-   
-   function background(Color: SGR.COLOR) return STRING is
-      C : STRING renames SGR.COLOR'Pos(Color)'Image;
-   begin
-      return '4' & C(2..C'Last);
-   end background;
-   
-   function attributes(s0: STRING) return STRING is
-   begin
-      return CSI & s0 & 'm';
-   end attributes;
-
-   function attributes(s0, s1: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4, s5: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4, s5, s6: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7&';'&s8 & 'm';
-   end attributes;
-
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9: STRING) return STRING is
-   begin
-      return CSI & s0&';'&s1&';'&s2&';'&s3&';'&s4&';'&s5&';'&s6&';'&s7&';'&s8&';'&s9 & 'm';
-   end attributes;
 
    -- Other
    function reset_device return STRING is

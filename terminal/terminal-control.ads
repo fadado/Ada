@@ -1,31 +1,33 @@
 ------------------------------------------------------------------------
 package Terminal.Control is
 ------------------------------------------------------------------------
-   -- C0
+   -- C0: ASCII Control Characters
+   package ASCII is
+      BEL   : constant CHARACTER := CHARACTER'Val(7);
+      BS    : constant CHARACTER := CHARACTER'Val(8);
+      HT    : constant CHARACTER := CHARACTER'Val(9);
+      LF    : constant CHARACTER := CHARACTER'Val(10);
+      CR    : constant CHARACTER := CHARACTER'Val(13);
+      SO    : constant CHARACTER := CHARACTER'Val(14);
+      SI    : constant CHARACTER := CHARACTER'Val(15);
+   end ASCII;
 
    -- CSI cursor
-   function cursor_up(Lines: POSITIVE := 1) return STRING with Inline;
-   function cursor_down(Lines: POSITIVE := 1) return STRING with Inline;
-   function cursor_right(Columns: POSITIVE := 1) return STRING with Inline;
-   function cursor_left(Columns: POSITIVE := 1) return STRING with Inline;
-   function cursor_down_1st(Lines: POSITIVE := 1) return STRING with Inline;
-   function cursor_up_1st(Lines: POSITIVE := 1) return STRING with Inline;
-   function cursor_column(Column: POSITIVE := 1) return STRING with Inline;
-   function cursor_move(Line, Column: POSITIVE := 1) return STRING with Inline;
-   function cursor_save return STRING with Inline;
-   function cursor_restore return STRING with Inline;
-   function cursor_hide return STRING with Inline;
-   function cursor_show return STRING with Inline;
-
-   -- CSI eraser
-   type Display_Eraser_Mode is (Below, Above, Display);
-   function erase_display(Mode: Display_Eraser_Mode := Display) return STRING with Inline;
-   type Line_Eraser_Mode is (Rigth, Left, Line);
-   function erase_line(Mode: Line_Eraser_Mode := Line) return STRING with Inline;
-
-   -- CSI scroll
-   function scroll_up(Lines: POSITIVE := 1) return STRING with Inline;
-   function scroll_down(Lines: POSITIVE := 1) return STRING with Inline;
+   package Cursor is
+      function up(Lines: POSITIVE := 1) return STRING with Inline;
+      function down(Lines: POSITIVE := 1) return STRING with Inline;
+      function forward(Columns: POSITIVE := 1) return STRING with Inline;
+      function backward(Columns: POSITIVE := 1) return STRING with Inline;
+      function down_1st(Lines: POSITIVE := 1) return STRING with Inline;
+      function up_1st(Lines: POSITIVE := 1) return STRING with Inline;
+      function column(Column: POSITIVE := 1) return STRING with Inline;
+      function home return STRING with Inline;
+      function move(Line, Column: POSITIVE := 1) return STRING with Inline;
+      function save return STRING with Inline;
+      function restore return STRING with Inline;
+      function hide return STRING with Inline;
+      function show return STRING with Inline;
+   end Cursor;
 
    -- SGR attributes
    package SGR is
@@ -40,20 +42,34 @@ package Terminal.Control is
       blink          : constant STRING := "5";
       no_blink       : constant STRING := "25";
       inverse        : constant STRING := "7";
+      --
       type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
+      --
+      function foreground(Color: SGR.COLOR) return STRING with Inline;
+      function background(Color: SGR.COLOR) return STRING with Inline;
+      --
+      function attributes(p0: STRING) return STRING with Inline;
+      function attributes(p0, p1: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
    end SGR;
-   function foreground(Color: SGR.COLOR) return STRING with Inline;
-   function background(Color: SGR.COLOR) return STRING with Inline;
-   function attributes(s0: STRING) return STRING with Inline;
-   function attributes(s0, s1: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4, s5: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4, s5, s6: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8: STRING) return STRING with Inline;
-   function attributes(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9: STRING) return STRING with Inline;
+
+   -- CSI eraser
+   type Display_Eraser_Mode is (Below, Above, Display);
+   function display_erase(Mode: Display_Eraser_Mode := Display) return STRING with Inline;
+
+   type Line_Eraser_Mode is (Rigth, Left, Line);
+   function display_erase_line(Mode: Line_Eraser_Mode := Line) return STRING with Inline;
+
+   -- CSI scroll
+   function scroll_up(Lines: POSITIVE := 1) return STRING with Inline;
+   function scroll_down(Lines: POSITIVE := 1) return STRING with Inline;
 
    -- Other
    function reset_device return STRING with Inline;

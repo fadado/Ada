@@ -11,34 +11,34 @@ procedure demo is
    -- to move to screen module
    procedure screen_Clear_Screen is
    begin
-      Emit(cursor_move); -- go to home
-      Emit(erase_display);
+      Emit(Cursor.home);
+      Emit(display_erase);
    end;
 
    procedure test_01 is
    begin
+      Emit(Cursor.hide);
       screen_Clear_Screen;
-      Emit(cursor_hide);
       Emit(E_test);
       delay 2.0;
-      Emit(cursor_show);
+      Emit(Cursor.show);
    end;
 
    procedure test_02 is
    begin
-      Emit(attributes(
-            foreground(SGR.red),
-            background(SGR.yellow),
+      Emit(SGR.attributes(
+            SGR.foreground(SGR.red),
+            SGR.background(SGR.yellow),
             SGR.blink,
             SGR.bold,
             SGR.italic)
       );
+      Emit(Cursor.hide);
       screen_Clear_Screen;
-      Emit(cursor_hide);
-      Emit(cursor_move(1, 7));
+      Emit(Cursor.move(1, 7));
       Screen.Print("Hi!");
       delay 2.0;
-      Emit(cursor_show);
+      Emit(Cursor.show);
    end;
 begin
    test_01;
