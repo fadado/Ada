@@ -4,46 +4,46 @@ with Terminal.Control;
 use  Terminal;
 use  Terminal.Control;
 
-with Terminal.Screen;
+with Terminal.Display;
 with Ada.Text_IO;
 
 procedure demo is
-   -- to move to screen module
-   procedure screen_Clear_Screen is
+   -- to move to display module
+   procedure display_Clear_Display is
    begin
-      Emit(Cursor.home);
-      Emit(display_erase);
+      Send(Cursor.home);
+      Send(display_erase);
    end;
 
    procedure test_01 is
    begin
-      Emit(Cursor.hide);
-      screen_Clear_Screen;
-      Emit(E_test);
+      Send(Cursor.hide);
+      display_Clear_Display;
+      Send(E_test);
       delay 2.0;
-      Emit(Cursor.show);
+      Send(Cursor.show);
    end;
 
    procedure test_02 is
    begin
-      Emit(SGR.attributes(
-            SGR.foreground(SGR.red),
-            SGR.background(SGR.yellow),
-            SGR.blink,
-            SGR.bold,
-            SGR.italic)
+      Send(Style.attributes(
+            Style.foreground(Style.red),
+            Style.background(Style.yellow),
+            Style.blink,
+            Style.bold,
+            Style.italic)
       );
-      Emit(Cursor.hide);
-      screen_Clear_Screen;
-      Emit(Cursor.move(1, 7));
-      Screen.Print("Hi!");
+      Send(Cursor.hide);
+      display_Clear_Display;
+      Send(Cursor.position(1, 7));
+      Terminal.Display.Print("Hi!");
       delay 2.0;
-      Emit(Cursor.show);
+      Send(Cursor.show);
    end;
 begin
    test_01;
    test_02;
-   Emit(reset_device);
+   Send(reset_device);
 end demo;
 
 -- ¡ISO-8859-1!

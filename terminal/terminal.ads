@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------
 package Terminal is 
 ------------------------------------------------------------------------
-   procedure Emit(Code: CHARACTER) with Inline;
-   procedure Emit(Code: STRING) with Inline;
+   procedure send(Code: CHARACTER) with Inline;
+   procedure send(Code: STRING) with Inline;
 end Terminal;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

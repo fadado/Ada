@@ -1,10 +1,10 @@
 with Ada.Text_IO; use Ada;
 ------------------------------------------------------------------------
-package body Terminal.Screen is
+package body Terminal.Display is
 ------------------------------------------------------------------------
    package Integer_IO is new Text_IO.Integer_IO (Num => INTEGER);
 
-   -- print to screen
+   -- send to the IO device
    procedure Print is
    begin
       Text_IO.New_Line;
@@ -21,7 +21,7 @@ package body Terminal.Screen is
    begin
       Integer_IO.Put(Text_IO.Standard_Error, Item);
    end;
-end Terminal.Screen;
+end Terminal.Display;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

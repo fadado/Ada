@@ -2,64 +2,74 @@
 package body Terminal.Control is
 ------------------------------------------------------------------------
    ESC : constant CHARACTER := CHARACTER'Val(27);
-   CSI : constant STRING := ESC & '[';
+   CSI : constant STRING := ESC & '['; -- Control Sequence Introduction
 
-   -- CSI cursor
+   ---------------------------------------------------------------------
    package body Cursor is
-      function home return STRING is
-      begin
-         return CSI & 'H';
-      end home;
-
+   ---------------------------------------------------------------------
+      -- CUU
       function up(Lines: POSITIVE := 1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'A';
       end up;
 
+      -- CUD
       function down(Lines: POSITIVE := 1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'B';
       end down;
 
+      -- CUF
       function forward(Columns: POSITIVE := 1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return CSI & C(2..C'Last) & 'C';
       end forward;
 
+      -- CUB
       function backward(Columns: POSITIVE := 1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return CSI & C(2..C'Last) & 'D';
       end backward;
 
-      function down_1st(Lines: POSITIVE := 1) return STRING is
+      -- CNL
+      function next_line(Lines: POSITIVE := 1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'E';
-      end down_1st;
+      end next_line;
 
-      function up_1st(Lines: POSITIVE := 1) return STRING is
+      -- CPL
+      function preceding_line(Lines: POSITIVE := 1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'F';
-      end up_1st;
+      end preceding_line;
 
-      function column(Column: POSITIVE := 1) return STRING is
+      -- CHA
+      function horizontal_absolute(Column: POSITIVE := 1) return STRING is
          C : STRING renames Column'Image;
       begin
          return CSI & C(2..C'Last) & 'G';
-      end column;
+      end horizontal_absolute;
 
-      function move(Line, Column: POSITIVE := 1) return STRING is
+      -- CUP
+      function position(Line, Column: POSITIVE := 1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
          return CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
-      end move;
+      end position;
 
+      function home return STRING is
+      begin
+         return CSI & 'H';
+      end home;
+
+      -- VTxxx controls
       function save return STRING is
       begin
          return CSI & 's';
@@ -83,16 +93,17 @@ package body Terminal.Control is
       end show;
    end Cursor;
 
-   -- SGR attributes
-   package body SGR is
-      function foreground(Color: SGR.COLOR) return STRING is
-         C : STRING renames SGR.COLOR'Pos(Color)'Image;
+   ---------------------------------------------------------------------
+   package body Style is
+   ---------------------------------------------------------------------
+      function foreground(Color: Style.COLOR) return STRING is
+         C : STRING renames Style.COLOR'Pos(Color)'Image;
       begin
          return '3' & C(2..C'Last);
       end foreground;
       
-      function background(Color: SGR.COLOR) return STRING is
-         C : STRING renames SGR.COLOR'Pos(Color)'Image;
+      function background(Color: Style.COLOR) return STRING is
+         C : STRING renames Style.COLOR'Pos(Color)'Image;
       begin
          return '4' & C(2..C'Last);
       end background;
@@ -137,7 +148,7 @@ package body Terminal.Control is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
       end attributes;
-   end SGR;
+   end Style;
 
    -- CSI erase
    function display_erase(Mode: Display_Eraser_Mode := Display) return STRING is

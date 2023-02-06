@@ -1,8 +1,9 @@
 ------------------------------------------------------------------------
 package Terminal.Control is
 ------------------------------------------------------------------------
-   -- C0: ASCII Control Characters
+   ---------------------------------------------------------------------
    package ASCII is
+   ---------------------------------------------------------------------
       BEL   : constant CHARACTER := CHARACTER'Val(7);
       BS    : constant CHARACTER := CHARACTER'Val(8);
       HT    : constant CHARACTER := CHARACTER'Val(9);
@@ -12,25 +13,27 @@ package Terminal.Control is
       SI    : constant CHARACTER := CHARACTER'Val(15);
    end ASCII;
 
-   -- CSI cursor
+   ---------------------------------------------------------------------
    package Cursor is
+   ---------------------------------------------------------------------
       function up(Lines: POSITIVE := 1) return STRING with Inline;
       function down(Lines: POSITIVE := 1) return STRING with Inline;
       function forward(Columns: POSITIVE := 1) return STRING with Inline;
       function backward(Columns: POSITIVE := 1) return STRING with Inline;
-      function down_1st(Lines: POSITIVE := 1) return STRING with Inline;
-      function up_1st(Lines: POSITIVE := 1) return STRING with Inline;
-      function column(Column: POSITIVE := 1) return STRING with Inline;
+      function next_line(Lines: POSITIVE := 1) return STRING with Inline;
+      function preceding_line(Lines: POSITIVE := 1) return STRING with Inline;
+      function horizontal_absolute(Column: POSITIVE := 1) return STRING with Inline;
       function home return STRING with Inline;
-      function move(Line, Column: POSITIVE := 1) return STRING with Inline;
+      function position(Line, Column: POSITIVE := 1) return STRING with Inline;
       function save return STRING with Inline;
       function restore return STRING with Inline;
       function hide return STRING with Inline;
       function show return STRING with Inline;
    end Cursor;
 
-   -- SGR attributes
-   package SGR is
+   ---------------------------------------------------------------------
+   package Style is
+   ---------------------------------------------------------------------
       reset          : constant STRING := "0";
       bold           : constant STRING := "1";
       faint          : constant STRING := "2";
@@ -45,8 +48,8 @@ package Terminal.Control is
       --
       type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
       --
-      function foreground(Color: SGR.COLOR) return STRING with Inline;
-      function background(Color: SGR.COLOR) return STRING with Inline;
+      function foreground(Color: Style.COLOR) return STRING with Inline;
+      function background(Color: Style.COLOR) return STRING with Inline;
       --
       function attributes(p0: STRING) return STRING with Inline;
       function attributes(p0, p1: STRING) return STRING with Inline;
@@ -58,7 +61,7 @@ package Terminal.Control is
       function attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
       function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
       function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
-   end SGR;
+   end Style;
 
    -- CSI eraser
    type Display_Eraser_Mode is (Below, Above, Display);

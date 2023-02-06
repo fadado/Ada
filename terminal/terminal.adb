@@ -2,11 +2,11 @@ with Ada.Text_IO;
 ------------------------------------------------------------------------
 package body Terminal is
 ------------------------------------------------------------------------
-   procedure Emit(Code: CHARACTER) is
+   procedure Send(Code: CHARACTER) is
    begin
       Ada.Text_IO.Put(Ada.Text_IO.Standard_Error, Code);
    end;
-   procedure Emit(Code: STRING) is
+   procedure Send(Code: STRING) is
    begin
       Ada.Text_IO.Put(Ada.Text_IO.Standard_Error, Code);
    end;
