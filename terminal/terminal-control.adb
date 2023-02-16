@@ -8,56 +8,56 @@ package body Terminal.Control is
    package body Cursor is
    ---------------------------------------------------------------------
       -- CUU
-      function up(Lines: POSITIVE := 1) return STRING is
+      function up(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'A';
       end up;
 
       -- CUD
-      function down(Lines: POSITIVE := 1) return STRING is
+      function down(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'B';
       end down;
 
       -- CUF
-      function forward(Columns: POSITIVE := 1) return STRING is
+      function forward(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return CSI & C(2..C'Last) & 'C';
       end forward;
 
       -- CUB
-      function backward(Columns: POSITIVE := 1) return STRING is
+      function backward(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return CSI & C(2..C'Last) & 'D';
       end backward;
 
       -- CNL
-      function next_line(Lines: POSITIVE := 1) return STRING is
+      function next_line(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'E';
       end next_line;
 
       -- CPL
-      function preceding_line(Lines: POSITIVE := 1) return STRING is
+      function preceding_line(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return CSI & L(2..L'Last) & 'F';
       end preceding_line;
 
       -- CHA
-      function horizontal_absolute(Column: POSITIVE := 1) return STRING is
+      function horizontal_absolute(Column: POSITIVE:=1) return STRING is
          C : STRING renames Column'Image;
       begin
          return CSI & C(2..C'Last) & 'G';
       end horizontal_absolute;
 
       -- CUP
-      function position(Line, Column: POSITIVE := 1) return STRING is
+      function position(Line, Column: POSITIVE:=1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
@@ -69,19 +69,19 @@ package body Terminal.Control is
          return CSI & 'H';
       end home;
 
-      -- VTxxx controls
+      -- SCP
       function save return STRING is
       begin
          return CSI & 's';
-         --return ESC & '7';
       end save;
 
+      -- RCP
       function restore return STRING is
       begin
          return CSI & 'r';
-         --return ESC & '8';
       end restore;
 
+      -- VT220
       function hide return STRING is
       begin
          return CSI & "?25l";
@@ -91,8 +91,36 @@ package body Terminal.Control is
       begin
          return CSI & "?25h";
       end show;
-   end Cursor;
 
+      -- SU
+      function scroll_up(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'S';
+      end scroll_up;
+
+      -- SD
+      function scroll_down(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'T';
+      end scroll_down;
+   end Cursor;
+   ---------------------------------------------------------------------
+
+   -- CSI erase
+   function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
+      M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+   begin
+      return CSI & M(2..M'Last) & 'J';
+   end erase_display;
+
+   function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
+      M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+   begin
+      return CSI & M(2..M'Last) & 'K';
+   end erase_line;
+   
    ---------------------------------------------------------------------
    package body Style is
    ---------------------------------------------------------------------
@@ -149,32 +177,6 @@ package body Terminal.Control is
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
       end attributes;
    end Style;
-
-   -- CSI erase
-   function display_erase(Mode: Display_Eraser_Mode := Display) return STRING is
-      M : STRING renames Display_Eraser_Mode'Pos(Mode)'Image;
-   begin
-      return CSI & M(2..M'Last) & 'J';
-   end display_erase;
-
-   function display_erase_line(Mode: Line_Eraser_Mode := Line) return STRING is
-      M : STRING renames Line_Eraser_Mode'Pos(Mode)'Image;
-   begin
-      return CSI & M(2..M'Last) & 'K';
-   end display_erase_line;
-   
-   -- CSI scroll
-   function scroll_up(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'S';
-   end scroll_up;
-
-   function scroll_down(Lines: POSITIVE := 1) return STRING is
-      L : STRING renames Lines'Image;
-   begin
-      return CSI & L(2..L'Last) & 'T';
-   end scroll_down;
 
    -- Other
    function reset_device return STRING is

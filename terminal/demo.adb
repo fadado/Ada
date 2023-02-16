@@ -1,49 +1,46 @@
 -- demo.adb
 
 with Terminal.Control;
-use  Terminal;
-use  Terminal.Control;
-
-with Terminal.Display;
-with Ada.Text_IO;
+with Terminal.Device;
 
 procedure demo is
-   -- to move to display module
+   use Terminal.Control;
+   use Terminal.Device;
+
+   -- to move to display module ???
    procedure display_Clear_Display is
    begin
-      Send(Cursor.home);
-      Send(display_erase);
+      Write(Cursor.home & erase_display);
    end;
 
    procedure test_01 is
    begin
-      Send(Cursor.hide);
+      Write(Cursor.hide);
       display_Clear_Display;
-      Send(E_test);
+      Write(E_test);
       delay 2.0;
-      Send(Cursor.show);
+      Write(Cursor.show);
    end;
 
    procedure test_02 is
    begin
-      Send(Style.attributes(
+      Write(Style.attributes(
             Style.foreground(Style.red),
             Style.background(Style.yellow),
             Style.blink,
             Style.bold,
             Style.italic)
       );
-      Send(Cursor.hide);
+      Write(Cursor.hide);
       display_Clear_Display;
-      Send(Cursor.position(1, 7));
-      Terminal.Display.Print("Hi!");
+      Write(Cursor.position(1,7) & "Hi!");
       delay 2.0;
-      Send(Cursor.show);
+      Write(Cursor.show);
    end;
 begin
    test_01;
    test_02;
-   Send(reset_device);
+   Write(reset_device);
 end demo;
 
 -- ¡ISO-8859-1!
