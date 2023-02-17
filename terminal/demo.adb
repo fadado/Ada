@@ -10,7 +10,7 @@ procedure demo is
    -- to move to display module ???
    procedure display_Clear_Display is
    begin
-      Write(Cursor.home & erase_display);
+      Write(Cursor.home & Editor.erase_display);
    end;
 
    procedure test_01 is

@@ -2,7 +2,7 @@
 package body Terminal.Control is
 ------------------------------------------------------------------------
    ESC : constant CHARACTER := CHARACTER'Val(27);
-   CSI : constant STRING := ESC & '['; -- Control Sequence Introduction
+   CSI : constant STRING := ESC & '[';
 
    ---------------------------------------------------------------------
    package body Cursor is
@@ -106,20 +106,24 @@ package body Terminal.Control is
          return CSI & L(2..L'Last) & 'T';
       end scroll_down;
    end Cursor;
+
    ---------------------------------------------------------------------
+   package body Editor is
+   ---------------------------------------------------------------------
+      -- ED
+      function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
+         M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+      begin
+         return CSI & M(2..M'Last) & 'J';
+      end erase_display;
 
-   -- CSI erase
-   function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
-      M : STRING renames Eraser_Mode'Pos(Mode)'Image;
-   begin
-      return CSI & M(2..M'Last) & 'J';
-   end erase_display;
-
-   function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
-      M : STRING renames Eraser_Mode'Pos(Mode)'Image;
-   begin
-      return CSI & M(2..M'Last) & 'K';
-   end erase_line;
+      -- EL
+      function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
+         M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+      begin
+         return CSI & M(2..M'Last) & 'K';
+      end erase_line;
+   end Editor;
    
    ---------------------------------------------------------------------
    package body Style is
@@ -178,7 +182,9 @@ package body Terminal.Control is
       end attributes;
    end Style;
 
+   ---------------------------------------------------------------------
    -- Other
+   ---------------------------------------------------------------------
    function reset_device return STRING is
    begin
       return ESC & 'c';

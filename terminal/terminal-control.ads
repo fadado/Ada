@@ -38,12 +38,12 @@ package Terminal.Control is
    end Cursor;
 
    ---------------------------------------------------------------------
-   -- package Editor ???
+   package Editor is
    ---------------------------------------------------------------------
-   type ERASER_MODE is (From_Start, To_End, All_Of);
-
-   function erase_display(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
-   function erase_line(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
+      type ERASER_MODE is (From_Start, To_End, All_Of);
+      function erase_display(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
+      function erase_line(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
+   end Editor;
 
    ---------------------------------------------------------------------
    package Style is
@@ -61,7 +61,6 @@ package Terminal.Control is
       inverse        : constant STRING := "7";
       --
       type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
-      --
       function foreground(Color: Style.COLOR) return STRING with Inline;
       function background(Color: Style.COLOR) return STRING with Inline;
       --
@@ -77,10 +76,11 @@ package Terminal.Control is
       function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
    end Style;
 
+   ---------------------------------------------------------------------
    -- Other
+   ---------------------------------------------------------------------
    function reset_device return STRING with Inline;
    function E_test return STRING with Inline;
-------------------------------------------------------------------------
 end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
