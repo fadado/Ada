@@ -117,75 +117,75 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
       -- ED
       function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
-         M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+         M : STRING renames ERASER_MODE'Pos(Mode)'Image;
       begin
          return CSI & M(2..M'Last) & 'J';
       end erase_display;
 
       -- EL
       function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
-         M : STRING renames Eraser_Mode'Pos(Mode)'Image;
+         M : STRING renames ERASER_MODE'Pos(Mode)'Image;
       begin
          return CSI & M(2..M'Last) & 'K';
       end erase_line;
    end Editor;
    
    ---------------------------------------------------------------------
-   package body Style is
+   package body Render is
    ---------------------------------------------------------------------
-      function foreground(Color: Style.COLOR) return STRING is
-         C : STRING renames Style.COLOR'Pos(Color)'Image;
+      function fgcolor(Color: Render.COLOR) return STRING is
+         C : STRING renames Render.COLOR'Pos(Color)'Image;
       begin
          return '3' & C(2..C'Last);
-      end foreground;
+      end fgcolor;
       
-      function background(Color: Style.COLOR) return STRING is
-         C : STRING renames Style.COLOR'Pos(Color)'Image;
+      function bgcolor(Color: Render.COLOR) return STRING is
+         C : STRING renames Render.COLOR'Pos(Color)'Image;
       begin
          return '4' & C(2..C'Last);
-      end background;
+      end bgcolor;
       
-      function attributes(p0: STRING) return STRING is
+      function set(p0: STRING) return STRING is
       begin
          return CSI & p0 & 'm';
-      end attributes;
-      function attributes(p0, p1: STRING) return STRING is
+      end set;
+      function set(p0, p1: STRING) return STRING is
       begin
          return CSI & p0&';'&p1 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4, p5: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-      end attributes;
-      function attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+      end set;
+      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-      end attributes;
-   end Style;
+      end set;
+   end Render;
 
    ---------------------------------------------------------------------
    -- Other

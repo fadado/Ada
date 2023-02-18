@@ -7,42 +7,32 @@ procedure demo is
    use Terminal.Control;
    use Terminal.Device;
 
-   -- to move to display module ???
-   procedure display_Clear_Display is
-   begin
-      Write(Cursor.home & Editor.erase_display);
-   end;
-
    procedure test_01 is
    begin
-      Write(Cursor.hide);
-      display_Clear_Display;
-      Write(E_test);
+      Put(Cursor.hide);
+      Put(Cursor.home & Editor.erase_display);
+      Put(E_test);
       delay 2.0;
-      Write(Cursor.show);
+      Put(Cursor.show);
    end;
 
    procedure test_02 is
+      package R renames Render;
    begin
-      Write(Style.attributes(
-            Style.foreground(Style.red),
-            Style.background(Style.yellow),
-            Style.bold,
-            Style.italic)
-      );
-      Write(Cursor.hide);
-      display_Clear_Display;
-      Write(Cursor.position(1,7) & "Hi!");
+      Put(Render.Set(R.fgcolor(R.red), R.bgcolor(R.yellow), R.bold, R.italic));
+      Put(Cursor.hide);
+      Put(Cursor.home & Editor.erase_display);
+      Put(Cursor.position(1,7) & "Hi!");
       for i in 1..20 loop
-         Write(Display.scroll_down);
+         Put(Display.scroll_down);
          delay 0.1;
       end loop;
-      Write(Cursor.show);
+      Put(Cursor.show);
    end;
 begin
    --test_01;
    test_02;
-   Write(reset_device);
+   Put(reset_device);
 end demo;
 
 -- ¡ISO-8859-1!

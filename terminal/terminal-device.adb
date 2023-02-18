@@ -9,22 +9,22 @@ package body Terminal.Device is
 
    Output : Text_IO.File_Type renames Text_IO.Standard_Error;
 
-   procedure Write is
+   procedure Put is
    begin
       Text_IO.Put(Output, New_Line);
    end;
 
-   procedure Write(Item: CHARACTER) is
+   procedure Put(Item: CHARACTER) is
    begin
       Text_IO.Put(Output, Item);
    end;
 
-   procedure Write(Item: STRING) is
+   procedure Put(Item: STRING) is
    begin
       Text_IO.Put(Output, Item);
    end;
 
-   procedure Write(Item: INTEGER; Width: POSITIVE := 1) is
+   procedure Put(Item: INTEGER; Width: POSITIVE := 1) is
    begin
       Integer_IO.Put(Output, Item);
    end;
