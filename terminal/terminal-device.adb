@@ -5,11 +5,13 @@ package body Terminal.Device is
 ------------------------------------------------------------------------
    package Integer_IO is new Text_IO.Integer_IO (Num => INTEGER);
 
+   New_Line : constant STRING := C0.CR & C0.LF;
+
    Output : Text_IO.File_Type renames Text_IO.Standard_Error;
 
    procedure Write is
    begin
-      Text_IO.Put(Output, C0.CR & C0.LF);
+      Text_IO.Put(Output, New_Line);
    end;
 
    procedure Write(Item: CHARACTER) is

@@ -33,9 +33,14 @@ package Terminal.Control is
       function restore return STRING with Inline;
       function hide return STRING with Inline;
       function show return STRING with Inline;
+   end Cursor;
+
+   ---------------------------------------------------------------------
+   package Display is
+   ---------------------------------------------------------------------
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
-   end Cursor;
+   end Display;
 
    ---------------------------------------------------------------------
    package Editor is

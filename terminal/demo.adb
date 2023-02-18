@@ -27,18 +27,20 @@ procedure demo is
       Write(Style.attributes(
             Style.foreground(Style.red),
             Style.background(Style.yellow),
-            Style.blink,
             Style.bold,
             Style.italic)
       );
       Write(Cursor.hide);
       display_Clear_Display;
       Write(Cursor.position(1,7) & "Hi!");
-      delay 2.0;
+      for i in 1..20 loop
+         Write(Display.scroll_down);
+         delay 0.1;
+      end loop;
       Write(Cursor.show);
    end;
 begin
-   test_01;
+   --test_01;
    test_02;
    Write(reset_device);
 end demo;

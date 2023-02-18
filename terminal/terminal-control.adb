@@ -1,8 +1,9 @@
 ------------------------------------------------------------------------
 package body Terminal.Control is
 ------------------------------------------------------------------------
+   -- Introducers
    ESC : constant CHARACTER := CHARACTER'Val(27);
-   CSI : constant STRING := ESC & '[';
+   CSI : constant STRING    := ESC & '[';
 
    ---------------------------------------------------------------------
    package body Cursor is
@@ -91,7 +92,11 @@ package body Terminal.Control is
       begin
          return CSI & "?25h";
       end show;
+   end Cursor;
 
+   ---------------------------------------------------------------------
+   package body Display is
+   ---------------------------------------------------------------------
       -- SU
       function scroll_up(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
@@ -105,7 +110,7 @@ package body Terminal.Control is
       begin
          return CSI & L(2..L'Last) & 'T';
       end scroll_down;
-   end Cursor;
+   end Display;
 
    ---------------------------------------------------------------------
    package body Editor is
