@@ -9,30 +9,32 @@ procedure demo is
 
    procedure test_01 is
    begin
-      Put(Cursor.hide);
-      Put(Cursor.home & Editor.erase_display);
-      Put(E_test);
+      Emit(Cursor.hide);
+      Emit(Cursor.home & Editor.erase_display);
+      Emit(E_test);
       delay 2.0;
-      Put(Cursor.show);
+      Emit(Cursor.show);
    end;
 
    procedure test_02 is
       package R renames Render;
    begin
-      Put(Render.Set(R.fgcolor(R.red), R.bgcolor(R.yellow), R.bold, R.italic));
-      Put(Cursor.hide);
-      Put(Cursor.home & Editor.erase_display);
-      Put(Cursor.position(1,7) & "Hi!");
+      Emit(Render.Set(R.fgcolor(R.red), R.bgcolor(R.yellow), R.bold, R.italic));
+      Emit(Cursor.hide);
+      Emit(Cursor.home & Editor.erase_display);
+      Emit(Cursor.position(1,7));
+      -- Latin1 => UTF-8
+      Print('¿'); Print("¡Hi!"); Print('?');
       for i in 1..20 loop
-         Put(Display.scroll_down);
+         Emit(Display.scroll_down);
          delay 0.1;
       end loop;
-      Put(Cursor.show);
+      Emit(Cursor.show);
    end;
 begin
    --test_01;
    test_02;
-   Put(reset_device);
+   Emit(reset_device);
 end demo;
 
 -- ¡ISO-8859-1!

@@ -145,46 +145,46 @@ package body Terminal.Control is
          return '4' & C(2..C'Last);
       end bgcolor;
       
-      function set(p0: STRING) return STRING is
+      function Set(p0: STRING) return STRING is
       begin
          return CSI & p0 & 'm';
-      end set;
-      function set(p0, p1: STRING) return STRING is
+      end Set;
+      function Set(p0, p1: STRING) return STRING is
       begin
          return CSI & p0&';'&p1 & 'm';
-      end set;
-      function set(p0, p1, p2: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2 & 'm';
-      end set;
-      function set(p0, p1, p2, p3: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4, p5: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-      end set;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+      end Set;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
       begin
          return CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-      end set;
+      end Set;
    end Render;
 
    ---------------------------------------------------------------------

@@ -13,8 +13,8 @@ package Terminal.Control is
       VT    : constant CHARACTER := CHARACTER'Val(11);
       FF    : constant CHARACTER := CHARACTER'Val(12);
       CR    : constant CHARACTER := CHARACTER'Val(13);
-      SO    : constant CHARACTER := CHARACTER'Val(14);
-      SI    : constant CHARACTER := CHARACTER'Val(15);
+      LS1   : constant CHARACTER := CHARACTER'Val(14);
+      LS0   : constant CHARACTER := CHARACTER'Val(15);
    end C0;
 
    ---------------------------------------------------------------------
@@ -69,16 +69,16 @@ package Terminal.Control is
       function fgcolor(Color: Render.COLOR) return STRING with Inline;
       function bgcolor(Color: Render.COLOR) return STRING with Inline;
       --
-      function set(p0: STRING) return STRING with Inline;
-      function set(p0, p1: STRING) return STRING with Inline;
-      function set(p0, p1, p2: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
-      function set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
+      function Set(p0: STRING) return STRING with Inline;
+      function Set(p0, p1: STRING) return STRING with Inline;
+      function Set(p0, p1, p2: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
    end Render;
 
    ---------------------------------------------------------------------
