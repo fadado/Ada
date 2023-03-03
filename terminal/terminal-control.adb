@@ -8,12 +8,19 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package body Cursor is
    ---------------------------------------------------------------------
-      -- CUU
-      function up(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
+      -- CUB
+      function backward(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
       begin
-         return CSI & L(2..L'Last) & 'A';
-      end up;
+         return CSI & C(2..C'Last) & 'D';
+      end backward;
+
+      -- CBT
+      function backward_tab(Tabs: POSITIVE:=1) return STRING is
+         T : STRING renames Tabs'Image;
+      begin
+         return CSI & T(2..T'Last) & 'Z';
+      end backward_tab;
 
       -- CUD
       function down(Lines: POSITIVE:=1) return STRING is
@@ -29,26 +36,11 @@ package body Terminal.Control is
          return CSI & C(2..C'Last) & 'C';
       end forward;
 
-      -- CUB
-      function backward(Columns: POSITIVE:=1) return STRING is
-         C : STRING renames Columns'Image;
+      -- DECTCEM reset
+      function hide return STRING is
       begin
-         return CSI & C(2..C'Last) & 'D';
-      end backward;
-
-      -- CNL
-      function next_line(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
-      begin
-         return CSI & L(2..L'Last) & 'E';
-      end next_line;
-
-      -- CPL
-      function preceding_line(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
-      begin
-         return CSI & L(2..L'Last) & 'F';
-      end preceding_line;
+         return CSI & "?25l";
+      end hide;
 
       -- CHA
       function horizontal_absolute(Column: POSITIVE:=1) return STRING is
@@ -56,6 +48,20 @@ package body Terminal.Control is
       begin
          return CSI & C(2..C'Last) & 'G';
       end horizontal_absolute;
+
+      -- CHT
+      function horizontal_tab(Tabs: POSITIVE:=1) return STRING is
+         T : STRING renames Tabs'Image;
+      begin
+         return CSI & T(2..T'Last) & 'I';
+      end horizontal_tab;
+
+      -- CNL
+      function next_line(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'E';
+      end next_line;
 
       -- CUP
       function position(Line, Column: POSITIVE:=1) return STRING is
@@ -65,37 +71,41 @@ package body Terminal.Control is
          return CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
       end position;
 
-      function home return STRING is
+      -- CPL
+      function preceding_line(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
       begin
-         return CSI & 'H';
-      end home;
+         return CSI & L(2..L'Last) & 'F';
+      end preceding_line;
 
-      -- SCP
-      function save return STRING is
-      begin
-         return CSI & 's';
-      end save;
-
-      -- RCP
+      -- DECRC
       function restore return STRING is
       begin
-         return CSI & 'r';
+         return ESC & '8';
       end restore;
 
-      -- VT220
-      function hide return STRING is
+      -- DECSC
+      function save return STRING is
       begin
-         return CSI & "?25l";
-      end hide;
+         return ESC & '7';
+      end save;
 
+      -- DECTCEM set
       function show return STRING is
       begin
          return CSI & "?25h";
       end show;
+
+      -- CUU
+      function up(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return CSI & L(2..L'Last) & 'A';
+      end up;
    end Cursor;
 
    ---------------------------------------------------------------------
-   package body Display is
+   package body Editor is
    ---------------------------------------------------------------------
       -- SU
       function scroll_up(Lines: POSITIVE:=1) return STRING is
@@ -110,11 +120,6 @@ package body Terminal.Control is
       begin
          return CSI & L(2..L'Last) & 'T';
       end scroll_down;
-   end Display;
-
-   ---------------------------------------------------------------------
-   package body Editor is
-   ---------------------------------------------------------------------
       -- ED
       function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
          M : STRING renames ERASER_MODE'Pos(Mode)'Image;
@@ -190,10 +195,10 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    -- Other
    ---------------------------------------------------------------------
-   function reset_device return STRING is
+   function reset_initial_state return STRING is
    begin
       return ESC & 'c';
-   end reset_device;
+   end reset_initial_state;
 
    function E_test return STRING is
    begin
