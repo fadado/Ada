@@ -4,20 +4,6 @@ package Terminal.Control is
    pragma Pure(Terminal.Control);
 
    ---------------------------------------------------------------------
-   package C0 is
-   ---------------------------------------------------------------------
-      BEL   : constant CHARACTER := CHARACTER'Val(7);
-      BS    : constant CHARACTER := CHARACTER'Val(8);
-      HT    : constant CHARACTER := CHARACTER'Val(9);
-      LF    : constant CHARACTER := CHARACTER'Val(10);
-      VT    : constant CHARACTER := CHARACTER'Val(11);
-      FF    : constant CHARACTER := CHARACTER'Val(12);
-      CR    : constant CHARACTER := CHARACTER'Val(13);
-      LS1   : constant CHARACTER := CHARACTER'Val(14); -- SO
-      LS0   : constant CHARACTER := CHARACTER'Val(15); -- SI
-   end C0;
-
-   ---------------------------------------------------------------------
    package Cursor is
    ---------------------------------------------------------------------
       function backward(Columns: POSITIVE:=1) return STRING with Inline;
@@ -39,7 +25,7 @@ package Terminal.Control is
    end Cursor;
 
    ---------------------------------------------------------------------
-   package Editor is
+   package Edit is
    ---------------------------------------------------------------------
       type ERASER_MODE is (From_Start, To_End, All_Of);
       function erase_display(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
@@ -47,7 +33,22 @@ package Terminal.Control is
       --
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
-   end Editor;
+   end Edit;
+
+   ---------------------------------------------------------------------
+   package Format is
+   ---------------------------------------------------------------------
+      function backspace return CHARACTER with Inline;
+      function carriage_return return CHARACTER with Inline;
+      function form_feed return CHARACTER with Inline;
+      function horizontal_tab return CHARACTER with Inline;
+      function line_feed return CHARACTER with Inline;
+      function vertical_tab return CHARACTER with Inline;
+      function horizontal_tab_set return STRING with Inline;
+      function index return STRING with Inline;
+      function next_line return STRING with Inline;
+      function reverse_index return STRING with Inline;
+   end Format;
 
    ---------------------------------------------------------------------
    package Render is
@@ -68,23 +69,23 @@ package Terminal.Control is
       function fgcolor(Color: Render.COLOR) return STRING with Inline;
       function bgcolor(Color: Render.COLOR) return STRING with Inline;
       --
-      function Set(p0: STRING) return STRING with Inline;
-      function Set(p0, p1: STRING) return STRING with Inline;
-      function Set(p0, p1, p2: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
-      function Set(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
+      function Attributes(p0: STRING) return STRING with Inline;
+      function Attributes(p0, p1: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
    end Render;
 
    ---------------------------------------------------------------------
    -- Other
    ---------------------------------------------------------------------
    function reset_initial_state return STRING with Inline;
-   function E_test return STRING with Inline;
+   function screen_test return STRING with Inline;
 end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

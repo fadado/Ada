@@ -10,8 +10,8 @@ procedure demo is
    procedure test_01 is
    begin
       Emit(Cursor.hide);
-      Emit(Cursor.position & Editor.erase_display);
-      Emit(E_test);
+      Emit(Cursor.position & Edit.erase_display);
+      Emit(screen_test);
       delay 2.0;
       Emit(Cursor.show);
    end;
@@ -19,18 +19,18 @@ procedure demo is
    procedure test_02 is
       package R renames Render;
    begin
-      Emit(Render.Set(
+      Emit(Render.Attributes(
          R.fgcolor(R.red),
          R.bgcolor(R.yellow),
          R.bold,
          R.italic));
       Emit(Cursor.hide);
-      Emit(Cursor.position & Editor.erase_display);
+      Emit(Cursor.position & Edit.erase_display);
       Emit(Cursor.position(1,7));
       -- Latin1 => UTF-8
       Print('¿'); Print("¡Hi!"); Print('?');
       for i in 1..20 loop
-         Emit(Editor.scroll_down);
+         Emit(Edit.scroll_down);
          delay 0.1;
       end loop;
       Emit(Cursor.show);
