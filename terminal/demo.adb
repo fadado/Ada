@@ -17,13 +17,13 @@ procedure demo is
    end;
 
    procedure test_02 is
-      package R renames Render;
+      package SGR renames Format.Select_Graphic_Rendition;
    begin
-      Emit(Render.Attributes(
-         R.fgcolor(R.red),
-         R.bgcolor(R.yellow),
-         R.bold,
-         R.italic));
+      Emit(SGR.Render(
+         SGR.fgcolor(SGR.red),
+         SGR.bgcolor(SGR.yellow),
+         SGR.bold,
+         SGR.italic));
       Emit(Cursor.hide);
       Emit(Cursor.position & Edit.erase_display);
       Emit(Cursor.position(1,7));

@@ -212,64 +212,64 @@ package body Terminal.Control is
       begin
          return C1.RI;
       end reverse_index;
-   end Format;
 
-   ---------------------------------------------------------------------
-   package body Render is
-   ---------------------------------------------------------------------
-      function fgcolor(Color: Render.COLOR) return STRING is
-         C : STRING renames Render.COLOR'Pos(Color)'Image;
-      begin
-         return '3' & C(2..C'Last);
-      end fgcolor;
-      
-      function bgcolor(Color: Render.COLOR) return STRING is
-         C : STRING renames Render.COLOR'Pos(Color)'Image;
-      begin
-         return '4' & C(2..C'Last);
-      end bgcolor;
-      
-      function Attributes(p0: STRING) return STRING is
-      begin
-         return C1.CSI & p0 & 'm';
-      end Attributes;
-      function Attributes(p0, p1: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-      end Attributes;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
-      begin
-         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-      end Attributes;
-   end Render;
+      ------------------------------------------------------------------
+      package body Select_Graphic_Rendition is
+      ------------------------------------------------------------------
+         function fgcolor(Color: COLORS) return STRING is
+            C : STRING renames COLORS'Pos(Color)'Image;
+         begin
+            return '3' & C(2..C'Last);
+         end fgcolor;
+         
+         function bgcolor(Color: COLORS) return STRING is
+            C : STRING renames COLORS'Pos(Color)'Image;
+         begin
+            return '4' & C(2..C'Last);
+         end bgcolor;
+         
+         function Render(p0: STRING) return STRING is
+         begin
+            return C1.CSI & p0 & 'm';
+         end Render;
+         function Render(p0, p1: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1 & 'm';
+         end Render;
+         function Render(p0, p1, p2: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+         begin
+            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
+         end Render;
+      end Select_Graphic_Rendition;
+   end Format;
 
    ---------------------------------------------------------------------
    -- Other

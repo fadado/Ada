@@ -48,38 +48,38 @@ package Terminal.Control is
       function index return STRING with Inline;
       function next_line return STRING with Inline;
       function reverse_index return STRING with Inline;
-   end Format;
 
-   ---------------------------------------------------------------------
-   package Render is
-   ---------------------------------------------------------------------
-      reset          : constant STRING := "0";
-      bold           : constant STRING := "1";
-      faint          : constant STRING := "2";
-      normal         : constant STRING := "22"; -- neither bold nor faint
-      italic         : constant STRING := "3";
-      no_italic      : constant STRING := "23";
-      underline      : constant STRING := "4";
-      no_underline   : constant STRING := "24";
-      blink          : constant STRING := "5";
-      no_blink       : constant STRING := "25";
-      inverse        : constant STRING := "7";
-      --
-      type COLOR is (black, red, green, yellow, blue, magenta, cyan, white);
-      function fgcolor(Color: Render.COLOR) return STRING with Inline;
-      function bgcolor(Color: Render.COLOR) return STRING with Inline;
-      --
-      function Attributes(p0: STRING) return STRING with Inline;
-      function Attributes(p0, p1: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
-      function Attributes(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
-   end Render;
+      ------------------------------------------------------------------
+      package Select_Graphic_Rendition is
+      ------------------------------------------------------------------
+         reset          : constant STRING := "0";
+         bold           : constant STRING := "1";
+         faint          : constant STRING := "2";
+         normal         : constant STRING := "22"; -- neither bold nor faint
+         italic         : constant STRING := "3";
+         no_italic      : constant STRING := "23";
+         underline      : constant STRING := "4";
+         no_underline   : constant STRING := "24";
+         blink          : constant STRING := "5";
+         no_blink       : constant STRING := "25";
+         inverse        : constant STRING := "7";
+         --
+         type COLORS is (black, red, green, yellow, blue, magenta, cyan, white);
+         function fgcolor(Color: COLORS) return STRING with Inline;
+         function bgcolor(Color: COLORS) return STRING with Inline;
+         --
+         function Render(p0: STRING) return STRING with Inline;
+         function Render(p0, p1: STRING) return STRING with Inline;
+         function Render(p0, p1, p2: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
+      end Select_Graphic_Rendition;
+   end Format;
 
    ---------------------------------------------------------------------
    -- Other
