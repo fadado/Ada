@@ -10,27 +10,27 @@ procedure demo is
    procedure test_01 is
    begin
       Emit(Cursor.hide);
-      Emit(Cursor.position & Edit.erase_display);
+      Emit(Cursor.position & Display.erase);
       Emit(screen_test);
       delay 2.0;
       Emit(Cursor.show);
    end;
 
    procedure test_02 is
-      package SGR renames Format.Select_Graphic_Rendition;
+      package S renames Format.Style;
    begin
-      Emit(SGR.Render(
-         SGR.fgcolor(SGR.red),
-         SGR.bgcolor(SGR.yellow),
-         SGR.bold,
-         SGR.italic));
+      Emit(S.Render(
+         S.fgcolor(S.red),
+         S.bgcolor(S.yellow),
+         S.bold,
+         S.italic));
       Emit(Cursor.hide);
-      Emit(Cursor.position & Edit.erase_display);
+      Emit(Cursor.position & Display.erase);
       Emit(Cursor.position(1,7));
       -- Latin1 => UTF-8
       Print('¿'); Print("¡Hi!"); Print('?');
       for i in 1..20 loop
-         Emit(Edit.scroll_down);
+         Emit(Display.scroll_down);
          delay 0.1;
       end loop;
       Emit(Cursor.show);

@@ -25,15 +25,15 @@ package Terminal.Control is
    end Cursor;
 
    ---------------------------------------------------------------------
-   package Edit is
+   package Display is
    ---------------------------------------------------------------------
       type ERASER_MODE is (From_Start, To_End, All_Of);
-      function erase_display(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
+      function erase(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
       function erase_line(Mode: ERASER_MODE:=All_Of) return STRING with Inline;
       --
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
-   end Edit;
+   end Display;
 
    ---------------------------------------------------------------------
    package Format is
@@ -50,7 +50,7 @@ package Terminal.Control is
       function reverse_index return STRING with Inline;
 
       ------------------------------------------------------------------
-      package Select_Graphic_Rendition is
+      package Style is
       ------------------------------------------------------------------
          reset          : constant STRING := "0";
          bold           : constant STRING := "1";
@@ -78,7 +78,7 @@ package Terminal.Control is
          function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
          function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
          function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
-      end Select_Graphic_Rendition;
+      end Style;
    end Format;
 
    ---------------------------------------------------------------------

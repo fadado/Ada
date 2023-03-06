@@ -130,7 +130,7 @@ package body Terminal.Control is
    end Cursor;
 
    ---------------------------------------------------------------------
-   package body Edit is
+   package body Display is
    ---------------------------------------------------------------------
       -- SU
       function scroll_up(Lines: POSITIVE:=1) return STRING is
@@ -146,11 +146,11 @@ package body Terminal.Control is
          return C1.CSI & L(2..L'Last) & 'T';
       end scroll_down;
       -- ED
-      function erase_display(Mode: ERASER_MODE:=All_Of) return STRING is
+      function erase(Mode: ERASER_MODE:=All_Of) return STRING is
          M : STRING renames ERASER_MODE'Pos(Mode)'Image;
       begin
          return C1.CSI & M(2..M'Last) & 'J';
-      end erase_display;
+      end erase;
 
       -- EL
       function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
@@ -158,7 +158,7 @@ package body Terminal.Control is
       begin
          return C1.CSI & M(2..M'Last) & 'K';
       end erase_line;
-   end Edit;
+   end Display;
    
    ---------------------------------------------------------------------
    package body Format is
@@ -214,7 +214,7 @@ package body Terminal.Control is
       end reverse_index;
 
       ------------------------------------------------------------------
-      package body Select_Graphic_Rendition is
+      package body Style is
       ------------------------------------------------------------------
          function fgcolor(Color: COLORS) return STRING is
             C : STRING renames COLORS'Pos(Color)'Image;
@@ -268,7 +268,7 @@ package body Terminal.Control is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
          end Render;
-      end Select_Graphic_Rendition;
+      end Style;
    end Format;
 
    ---------------------------------------------------------------------
