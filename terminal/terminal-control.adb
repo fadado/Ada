@@ -198,20 +198,15 @@ package body Terminal.Control is
          return C1.HTS;
       end horizontal_tab_set;
 
-      function index return STRING is
-      begin
-         return C1.IND;
-      end index;
-
       function next_line return STRING is
       begin
          return C1.NEL;
       end next_line;
 
-      function reverse_index return STRING is
+      function reverse_line_feed return STRING is
       begin
          return C1.RI;
-      end reverse_index;
+      end reverse_line_feed;
 
       ------------------------------------------------------------------
       package body Style is

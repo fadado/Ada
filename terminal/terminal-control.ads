@@ -45,9 +45,8 @@ package Terminal.Control is
       function line_feed return CHARACTER with Inline;
       function vertical_tab return CHARACTER with Inline;
       function horizontal_tab_set return STRING with Inline;
-      function index return STRING with Inline;
       function next_line return STRING with Inline;
-      function reverse_index return STRING with Inline;
+      function reverse_line_feed return STRING with Inline;
 
       ------------------------------------------------------------------
       package Style is
