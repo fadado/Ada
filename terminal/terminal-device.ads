@@ -1,8 +1,12 @@
 ------------------------------------------------------------------------
 package Terminal.Device is
 ------------------------------------------------------------------------
+   NUL : constant CHARACTER := CHARACTER'Val(0);
+   DEL : constant CHARACTER := CHARACTER'Val(127);
+   subtype CODE is CHARACTER range NUL .. DEL;
+
    procedure Emit with Inline;
-   procedure Emit(Item: CHARACTER) with Inline;
+   procedure Emit(Item: CODE) with Inline;
    procedure Emit(Item: STRING) with Inline;
    procedure Emit(Item: INTEGER; Width: POSITIVE := 1) with Inline;
    procedure Print(Item: STRING) with Inline;

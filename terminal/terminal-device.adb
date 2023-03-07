@@ -18,7 +18,7 @@ package body Terminal.Device is
       Text_IO.Put(Output, New_Line);
    end;
 
-   procedure Emit(Item: CHARACTER) is
+   procedure Emit(Item: CODE) is
    begin
       Text_IO.Put(Output, Item);
    end;
