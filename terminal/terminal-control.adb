@@ -34,18 +34,18 @@ package body Terminal.Control is
    package body Cursor is
    ---------------------------------------------------------------------
       -- CUB
-      function backward(Columns: POSITIVE:=1) return STRING is
+      function left(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'D';
-      end backward;
+      end left;
 
       -- CBT
-      function backward_tab(Tabs: POSITIVE:=1) return STRING is
+      function backward_tabulation(Tabs: POSITIVE:=1) return STRING is
          T : STRING renames Tabs'Image;
       begin
          return C1.CSI & T(2..T'Last) & 'Z';
-      end backward_tab;
+      end backward_tabulation;
 
       -- CUD
       function down(Lines: POSITIVE:=1) return STRING is
@@ -55,11 +55,11 @@ package body Terminal.Control is
       end down;
 
       -- CUF
-      function forward(Columns: POSITIVE:=1) return STRING is
+      function right(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'C';
-      end forward;
+      end right;
 
       -- DECTCEM reset
       function hide return STRING is
@@ -68,18 +68,18 @@ package body Terminal.Control is
       end hide;
 
       -- CHA
-      function horizontal_absolute(Column: POSITIVE:=1) return STRING is
+      function character_absolute(Column: POSITIVE:=1) return STRING is
          C : STRING renames Column'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'G';
-      end horizontal_absolute;
+      end character_absolute;
 
       -- CHT
-      function horizontal_tab(Tabs: POSITIVE:=1) return STRING is
+      function forward_tabulation(Tabs: POSITIVE:=1) return STRING is
          T : STRING renames Tabs'Image;
       begin
          return C1.CSI & T(2..T'Last) & 'I';
-      end horizontal_tab;
+      end forward_tabulation;
 
       -- CNL
       function next_line(Lines: POSITIVE:=1) return STRING is
@@ -145,16 +145,17 @@ package body Terminal.Control is
       begin
          return C1.CSI & L(2..L'Last) & 'T';
       end scroll_down;
+
       -- ED
-      function erase(Mode: ERASER_MODE:=All_Of) return STRING is
-         M : STRING renames ERASER_MODE'Pos(Mode)'Image;
+      function erase_page(Mode: ERASE_MODE:=All_Of) return STRING is
+         M : STRING renames ERASE_MODE'Pos(Mode)'Image;
       begin
          return C1.CSI & M(2..M'Last) & 'J';
-      end erase;
+      end erase_page;
 
       -- EL
-      function erase_line(Mode: ERASER_MODE:=All_Of) return STRING is
-         M : STRING renames ERASER_MODE'Pos(Mode)'Image;
+      function erase_line(Mode: ERASE_MODE:=All_Of) return STRING is
+         M : STRING renames ERASE_MODE'Pos(Mode)'Image;
       begin
          return C1.CSI & M(2..M'Last) & 'K';
       end erase_line;
@@ -163,50 +164,102 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package body Format is
    ---------------------------------------------------------------------
+      -- BS
       function backspace return CHARACTER is
       begin
          return C0.BS;
       end backspace;
 
+      -- CR
       function carriage_return return CHARACTER is
       begin
          return C0.CR;
       end carriage_return;
 
+      -- FF
       function form_feed return CHARACTER is
       begin
          return C0.FF;
       end form_feed;
 
-      function horizontal_tab return CHARACTER is
+      -- HT
+      function character_tabulation return CHARACTER is
       begin
          return C0.HT;
-      end horizontal_tab;
+      end character_tabulation;
 
+      -- LF
       function line_feed return CHARACTER is
       begin
          return C0.LF;
       end line_feed;
 
-      function vertical_tab return CHARACTER is
+      -- VT
+      function line_tabulation return CHARACTER is
       begin
          return C0.VT;
-      end vertical_tab;
+      end line_tabulation;
 
-      function horizontal_tab_set return STRING is
-      begin
-         return C1.HTS;
-      end horizontal_tab_set;
-
+      -- NEL
       function next_line return STRING is
       begin
          return C1.NEL;
       end next_line;
 
+      -- RI
       function reverse_line_feed return STRING is
       begin
          return C1.RI;
       end reverse_line_feed;
+
+      -- HPA
+      function character_position_absolute(Column: POSITIVE:=1) return STRING is
+         C : STRING renames Column'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & '`';
+      end character_position_absolute;
+
+      -- HPR
+      function character_position_forward(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'a';
+      end character_position_forward;
+
+      -- VPA
+      function line_position_absolute(Line: POSITIVE:=1) return STRING is
+         L : STRING renames Line'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'd';
+      end line_position_absolute;
+
+      -- VPR
+      function line_position_forward(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'e';
+      end line_position_forward;
+
+      -- HVP
+      function character_line_position(Line, Column: POSITIVE:=1) return STRING is
+         L : STRING renames Line'Image;
+         C : STRING renames Column'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'f';
+      end character_line_position;
+
+      -- HTS
+      function character_tabulation_set return STRING is
+      begin
+         return C1.HTS;
+      end character_tabulation_set;
+
+      -- TBC
+      function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING is
+         M : STRING renames TBC_MODE'Pos(Mode)'Image;
+      begin
+         return C1.CSI & M(2..M'Last) & 'g';
+      end tabulation_clear;
 
       ------------------------------------------------------------------
       package body Style is
@@ -223,46 +276,46 @@ package body Terminal.Control is
             return '4' & C(2..C'Last);
          end bgcolor;
          
-         function Render(p0: STRING) return STRING is
+         function Apply(p0: STRING) return STRING is
          begin
             return C1.CSI & p0 & 'm';
-         end Render;
-         function Render(p0, p1: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1 & 'm';
-         end Render;
-         function Render(p0, p1, p2: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4, p5: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+         end Apply;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-         end Render;
+         end Apply;
       end Style;
    end Format;
 
@@ -270,16 +323,36 @@ package body Terminal.Control is
    -- Other
    ---------------------------------------------------------------------
 
+   -- OSC .. ST
+   function window_title(Title: STRING) return STRING is
+   begin
+      return C1.OSC & "2;" & Title & C1.ST;
+   end window_title;
+
+   -- REP
+   function repeat(Times: POSITIVE) return STRING is
+      T : STRING renames Times'Image;
+   begin
+      return C1.CSI & T(2..T'Last) & 'b';
+   end repeat;
+
+   -- BEL
+   function bell return CHARACTER is
+   begin
+      return C0.BEL;
+   end bell;
+
+   -- RIS
    function reset_initial_state return STRING is
    begin
       return C0.ESC & 'c';
    end reset_initial_state;
 
    -- DECALN
-   function screen_test return STRING is
+   function screen_alignment_test return STRING is
    begin
       return C0.ESC & "#8";
-   end screen_test;
+   end screen_alignment_test;
 end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
