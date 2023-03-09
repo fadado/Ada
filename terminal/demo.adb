@@ -26,8 +26,8 @@ procedure demo is
          S.italic));
       Emit(Cursor.hide);
       Emit(Cursor.position & Display.erase_page);
-      Emit(Cursor.position(1,7));
-      Emit('=' & repeat(79));
+      Emit(Cursor.position(1,1));
+      Emit(repeat('=', 80));
       -- Latin1 => UTF-8
       Emit(Cursor.position(2,7));
       Print('¿'); Print("¡Hi!"); Print('?');

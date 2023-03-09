@@ -90,7 +90,7 @@ package Terminal.Control is
    -- Other
    ---------------------------------------------------------------------
    function bell return CHARACTER with Inline;
-   function repeat(Times: POSITIVE) return STRING with Inline;
+   function repeat(Graphic: CODE; Times: POSITIVE) return STRING with Inline;
    function reset_initial_state return STRING with Inline;
    function screen_alignment_test return STRING with Inline;
    function window_title(Title: STRING) return STRING with Inline;

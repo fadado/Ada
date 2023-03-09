@@ -4,6 +4,7 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package C0 is
    ---------------------------------------------------------------------
+      NUL   : CHARACTER renames Terminal.NUL;
       BEL   : constant CHARACTER := CHARACTER'Val(7);
       BS    : constant CHARACTER := CHARACTER'Val(8);  -- format effector
       HT    : constant CHARACTER := CHARACTER'Val(9);  -- format effector
@@ -11,9 +12,12 @@ package body Terminal.Control is
       VT    : constant CHARACTER := CHARACTER'Val(11); -- format effector
       FF    : constant CHARACTER := CHARACTER'Val(12); -- format effector
       CR    : constant CHARACTER := CHARACTER'Val(13); -- format effector
-      LS1   : constant CHARACTER := CHARACTER'Val(14); -- SO
-      LS0   : constant CHARACTER := CHARACTER'Val(15); -- SI
+      SO    : constant CHARACTER := CHARACTER'Val(14);
+      LS1   : CHARACTER renames SO;
+      SI    : constant CHARACTER := CHARACTER'Val(15);
+      LS0   : CHARACTER renames SI;
       ESC   : constant CHARACTER := CHARACTER'Val(27);
+      DEL   : CHARACTER renames Terminal.DEL;
    end C0;
 
    ---------------------------------------------------------------------
@@ -21,7 +25,6 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
       CSI   : constant STRING := C0.ESC & '[';
       HTS   : constant STRING := C0.ESC & 'H';
-      IND   : constant STRING := C0.ESC & 'D';
       NEL   : constant STRING := C0.ESC & 'E';
       OSC   : constant STRING := C0.ESC & ']';
       RI    : constant STRING := C0.ESC & 'M';
@@ -330,10 +333,11 @@ package body Terminal.Control is
    end window_title;
 
    -- REP
-   function repeat(Times: POSITIVE) return STRING is
-      T : STRING renames Times'Image;
+   function repeat(Graphic: CODE; Times: POSITIVE) return STRING is
+      x : constant POSITIVE := Times-1;
+      T : STRING renames x'Image;
    begin
-      return C1.CSI & T(2..T'Last) & 'b';
+      return Graphic & C1.CSI & T(2..T'Last) & 'b';
    end repeat;
 
    -- BEL
@@ -353,6 +357,7 @@ package body Terminal.Control is
    begin
       return C0.ESC & "#8";
    end screen_alignment_test;
+
 end Terminal.Control;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
