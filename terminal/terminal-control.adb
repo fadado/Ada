@@ -135,19 +135,27 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package body Display is
    ---------------------------------------------------------------------
-      -- SU
-      function scroll_up(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
-      begin
-         return C1.CSI & L(2..L'Last) & 'S';
-      end scroll_up;
 
-      -- SD
-      function scroll_down(Lines: POSITIVE:=1) return STRING is
+      -- DCH
+      function delete_character(Characters: POSITIVE:=1) return STRING is
+         C : STRING renames Characters'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'P';
+      end delete_character;
+
+      -- DL
+      function delete_line(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
-         return C1.CSI & L(2..L'Last) & 'T';
-      end scroll_down;
+         return C1.CSI & L(2..L'Last) & 'M';
+      end delete_line;
+
+      -- ECH
+      function erase_character(Characters: POSITIVE:=1) return STRING is
+         C : STRING renames Characters'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'X';
+      end erase_character;
 
       -- ED
       function erase_page(Mode: ERASE_MODE:=All_Of) return STRING is
@@ -162,6 +170,48 @@ package body Terminal.Control is
       begin
          return C1.CSI & M(2..M'Last) & 'K';
       end erase_line;
+
+      -- ICH
+      function insert_character(Characters: POSITIVE:=1) return STRING is
+         C : STRING renames Characters'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & '@';
+      end insert_character;
+
+      -- IL
+      function insert_line(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'L';
+      end insert_line;
+
+      -- SL
+      function scroll_left(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & " @";
+      end scroll_left;
+
+      -- SR
+      function scroll_right(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & " A";
+      end scroll_right;
+
+      -- SU
+      function scroll_up(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'S';
+      end scroll_up;
+
+      -- SD
+      function scroll_down(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'T';
+      end scroll_down;
    end Display;
    
    ---------------------------------------------------------------------

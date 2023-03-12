@@ -26,16 +26,26 @@ package Terminal.Control is
    package Display is
    ---------------------------------------------------------------------
       type ERASE_MODE is (From_Start, To_End, All_Of);
-      function erase_page(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
+
+      function delete_character(Characters: POSITIVE:=1) return STRING with Inline;
+      function delete_line(Lines: POSITIVE:=1) return STRING with Inline;
+      function erase_character(Characters: POSITIVE:=1) return STRING with Inline;
       function erase_line(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
-      --
-      function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
+      function erase_page(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
+      function insert_character(Characters: POSITIVE:=1) return STRING with Inline;
+      function insert_line(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
+      function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
+      function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
+      function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
    end Display;
 
    ---------------------------------------------------------------------
    package Format is
    ---------------------------------------------------------------------
+      type TBC_MODE is (Current_Column, All_Of);
+      for TBC_MODE use (Current_Column => 0, All_Of => 3);
+
       function backspace return CHARACTER with Inline;
       function carriage_return return CHARACTER with Inline;
       function character_line_position(Line, Column: POSITIVE:=1) return STRING with Inline;
@@ -50,8 +60,6 @@ package Terminal.Control is
       function line_tabulation return CHARACTER with Inline;
       function next_line return STRING with Inline;
       function reverse_line_feed return STRING with Inline;
-
-      type TBC_MODE is (Current_Column, ignore_01, ignore_02, All_Of);
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
 
       ------------------------------------------------------------------
@@ -68,11 +76,11 @@ package Terminal.Control is
          blink          : constant STRING := "5";
          no_blink       : constant STRING := "25";
          inverse        : constant STRING := "7";
-         --
+
          type COLORS is (black, red, green, yellow, blue, magenta, cyan, white);
          function fgcolor(Color: COLORS) return STRING with Inline;
          function bgcolor(Color: COLORS) return STRING with Inline;
-         --
+
          function Apply(p0: STRING) return STRING with Inline;
          function Apply(p0, p1: STRING) return STRING with Inline;
          function Apply(p0, p1, p2: STRING) return STRING with Inline;
