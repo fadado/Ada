@@ -71,11 +71,11 @@ package body Terminal.Control is
       end hide;
 
       -- CHA
-      function character_absolute(Column: POSITIVE:=1) return STRING is
-         C : STRING renames Column'Image;
+      function column(N: POSITIVE:=1) return STRING is
+         C : STRING renames N'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'G';
-      end character_absolute;
+      end column;
 
       -- CHT
       function forward_tabulation(Tabs: POSITIVE:=1) return STRING is
@@ -236,10 +236,10 @@ package body Terminal.Control is
       end form_feed;
 
       -- HT
-      function character_tabulation return CHARACTER is
+      function tabulation return CHARACTER is
       begin
          return C0.HT;
-      end character_tabulation;
+      end tabulation;
 
       -- LF
       function line_feed return CHARACTER is
@@ -248,10 +248,10 @@ package body Terminal.Control is
       end line_feed;
 
       -- VT
-      function line_tabulation return CHARACTER is
-      begin
-         return C0.VT;
-      end line_tabulation;
+    --function line_tabulation return CHARACTER is
+    --begin
+    --   return C0.VT;
+    --end line_tabulation;
 
       -- NEL
       function next_line return STRING is
@@ -260,52 +260,52 @@ package body Terminal.Control is
       end next_line;
 
       -- RI
-      function reverse_line_feed return STRING is
+      function up return STRING is
       begin
          return C1.RI;
-      end reverse_line_feed;
+      end up;
 
       -- HPA
-      function character_position_absolute(Column: POSITIVE:=1) return STRING is
-         C : STRING renames Column'Image;
+      function column(N: POSITIVE:=1) return STRING is
+         C : STRING renames N'Image;
       begin
          return C1.CSI & C(2..C'Last) & '`';
-      end character_position_absolute;
+      end column;
 
       -- HPR
-      function character_position_forward(Columns: POSITIVE:=1) return STRING is
+      function right(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'a';
-      end character_position_forward;
+      end right;
 
       -- VPA
-      function line_position_absolute(Line: POSITIVE:=1) return STRING is
-         L : STRING renames Line'Image;
+      function line(N: POSITIVE:=1) return STRING is
+         L : STRING renames N'Image;
       begin
          return C1.CSI & L(2..L'Last) & 'd';
-      end line_position_absolute;
+      end line;
 
       -- VPR
-      function line_position_forward(Lines: POSITIVE:=1) return STRING is
+      function down(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return C1.CSI & L(2..L'Last) & 'e';
-      end line_position_forward;
+      end down;
 
       -- HVP
-      function character_line_position(Line, Column: POSITIVE:=1) return STRING is
+      function position(Line, Column: POSITIVE:=1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
          return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'f';
-      end character_line_position;
+      end position;
 
       -- HTS
-      function character_tabulation_set return STRING is
+      function tabulation_set return STRING is
       begin
          return C1.HTS;
-      end character_tabulation_set;
+      end tabulation_set;
 
       -- TBC
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING is

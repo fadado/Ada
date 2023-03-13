@@ -4,25 +4,6 @@ package Terminal.Control is
    pragma Pure(Terminal.Control);
 
    ---------------------------------------------------------------------
-   package Cursor is
-   ---------------------------------------------------------------------
-      function backward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
-      function character_absolute(Column: POSITIVE:=1) return STRING with Inline;
-      function down(Lines: POSITIVE:=1) return STRING with Inline;
-      function forward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
-      function hide return STRING with Inline;
-      function left(Columns: POSITIVE:=1) return STRING with Inline;
-      function next_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function position(Line, Column: POSITIVE:=1) return STRING with Inline;
-      function preceding_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function restore return STRING with Inline;
-      function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function save return STRING with Inline;
-      function show return STRING with Inline;
-      function up(Lines: POSITIVE:=1) return STRING with Inline;
-   end Cursor;
-
-   ---------------------------------------------------------------------
    package Display is
    ---------------------------------------------------------------------
       type ERASE_MODE is (From_Start, To_End, All_Of);
@@ -41,6 +22,25 @@ package Terminal.Control is
    end Display;
 
    ---------------------------------------------------------------------
+   package Cursor is
+   ---------------------------------------------------------------------
+      function backward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
+      function column(N: POSITIVE:=1) return STRING with Inline;
+      function down(Lines: POSITIVE:=1) return STRING with Inline;
+      function forward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
+      function hide return STRING with Inline;
+      function left(Columns: POSITIVE:=1) return STRING with Inline;
+      function next_line(Lines: POSITIVE:=1) return STRING with Inline;
+      function position(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function preceding_line(Lines: POSITIVE:=1) return STRING with Inline;
+      function restore return STRING with Inline;
+      function right(Columns: POSITIVE:=1) return STRING with Inline;
+      function save return STRING with Inline;
+      function show return STRING with Inline;
+      function up(Lines: POSITIVE:=1) return STRING with Inline;
+   end Cursor;
+
+   ---------------------------------------------------------------------
    package Format is
    ---------------------------------------------------------------------
       type TBC_MODE is (Current_Column, All_Of);
@@ -48,19 +48,19 @@ package Terminal.Control is
 
       function backspace return CHARACTER with Inline;
       function carriage_return return CHARACTER with Inline;
-      function character_line_position(Line, Column: POSITIVE:=1) return STRING with Inline;
-      function character_position_absolute(Column: POSITIVE:=1) return STRING with Inline;
-      function character_position_forward(Columns: POSITIVE:=1) return STRING with Inline;
-      function character_tabulation return CHARACTER with Inline;
-      function character_tabulation_set return STRING with Inline;
+      function column(N: POSITIVE:=1) return STRING with Inline;
+      function down(Lines: POSITIVE:=1) return STRING with Inline;
       function form_feed return CHARACTER with Inline;
+      function line(N: POSITIVE:=1) return STRING with Inline;
       function line_feed return CHARACTER with Inline;
-      function line_position_absolute(Line: POSITIVE:=1) return STRING with Inline;
-      function line_position_forward(Lines: POSITIVE:=1) return STRING with Inline;
-      function line_tabulation return CHARACTER with Inline;
       function next_line return STRING with Inline;
-      function reverse_line_feed return STRING with Inline;
+      function position(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function right(Columns: POSITIVE:=1) return STRING with Inline;
+      function tabulation return CHARACTER with Inline;
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
+      function tabulation_set return STRING with Inline;
+      function up return STRING with Inline;
+    --function line_tabulation return CHARACTER with Inline;
 
       ------------------------------------------------------------------
       package Style is
