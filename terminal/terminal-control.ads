@@ -49,6 +49,7 @@ package Terminal.Control is
       function backspace return CHARACTER with Inline;
       function carriage_return return CHARACTER with Inline;
       function column(N: POSITIVE:=1) return STRING with Inline;
+      function designate_Gs return STRING with Inline;
       function down(Lines: POSITIVE:=1) return STRING with Inline;
       function form_feed return CHARACTER with Inline;
       function line(N: POSITIVE:=1) return STRING with Inline;
@@ -56,11 +57,51 @@ package Terminal.Control is
       function next_line return STRING with Inline;
       function position(Line, Column: POSITIVE:=1) return STRING with Inline;
       function right(Columns: POSITIVE:=1) return STRING with Inline;
+      function shift_in return CHARACTER with Inline;
+      function shift_out return CHARACTER with Inline;
       function tabulation return CHARACTER with Inline;
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
       function tabulation_set return STRING with Inline;
       function up return STRING with Inline;
     --function line_tabulation return CHARACTER with Inline;
+
+      ------------------------------------------------------------------
+      package DEC is -- DEC Special Graphics Character Set
+      ------------------------------------------------------------------
+         blank                   : constant CHARACTER := CHARACTER'Val(95);
+         diamond                 : constant CHARACTER := CHARACTER'Val(96);
+         checkerboard            : constant CHARACTER := CHARACTER'Val(97);
+         degree_symbol           : constant CHARACTER := CHARACTER'Val(102);
+         lower_right_corner      : constant CHARACTER := CHARACTER'Val(106);
+         upper_right_corner      : constant CHARACTER := CHARACTER'Val(107);
+         upper_left_corner       : constant CHARACTER := CHARACTER'Val(108);
+         lower_left_corner       : constant CHARACTER := CHARACTER'Val(109);
+         crossing_lines          : constant CHARACTER := CHARACTER'Val(110);
+         left_T                  : constant CHARACTER := CHARACTER'Val(116);
+         right_T                 : constant CHARACTER := CHARACTER'Val(117);
+         bottom_T                : constant CHARACTER := CHARACTER'Val(118);
+         top_T                   : constant CHARACTER := CHARACTER'Val(129);
+         vertical_bar            : constant CHARACTER := CHARACTER'Val(120);
+         horizontal_bar          : constant CHARACTER := CHARACTER'Val(113);
+         pi                      : constant CHARACTER := CHARACTER'Val(123);
+         plus_minus              : constant CHARACTER := CHARACTER'Val(103);
+         less_than_equal_to      : constant CHARACTER := CHARACTER'Val(121);
+         greater_than_equal_to   : constant CHARACTER := CHARACTER'Val(122);
+         not_equal_to            : constant CHARACTER := CHARACTER'Val(124);
+         UK_pound_symbol         : constant CHARACTER := CHARACTER'Val(125);
+         centered_dot            : constant CHARACTER := CHARACTER'Val(126);
+         HT_symbol               : constant CHARACTER := CHARACTER'Val(98);
+         FF_symbol               : constant CHARACTER := CHARACTER'Val(99);
+         CR_symbol               : constant CHARACTER := CHARACTER'Val(100);
+         LF_symbol               : constant CHARACTER := CHARACTER'Val(101);
+         NL_symbol               : constant CHARACTER := CHARACTER'Val(104);
+         VT_symbol               : constant CHARACTER := CHARACTER'Val(105);
+         horizontal_line_scan_1  : constant CHARACTER := CHARACTER'Val(111);
+         horizontal_line_scan_3  : constant CHARACTER := CHARACTER'Val(112);
+         horizontal_line_scan_5  : constant CHARACTER := CHARACTER'Val(113);
+         horizontal_line_scan_7  : constant CHARACTER := CHARACTER'Val(114);
+         horizontal_line_scan_9  : constant CHARACTER := CHARACTER'Val(115);
+      end DEC;
 
       ------------------------------------------------------------------
       package Style is

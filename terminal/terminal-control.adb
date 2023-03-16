@@ -13,9 +13,7 @@ package body Terminal.Control is
       FF    : constant CHARACTER := CHARACTER'Val(12); -- format effector
       CR    : constant CHARACTER := CHARACTER'Val(13); -- format effector
       SO    : constant CHARACTER := CHARACTER'Val(14);
-      LS1   : CHARACTER renames SO;
       SI    : constant CHARACTER := CHARACTER'Val(15);
-      LS0   : CHARACTER renames SI;
       ESC   : constant CHARACTER := CHARACTER'Val(27);
       DEL   : CHARACTER renames Terminal.DEL;
    end C0;
@@ -23,14 +21,12 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package C1 is
    ---------------------------------------------------------------------
-      CSI   : constant STRING := C0.ESC & '[';
-      HTS   : constant STRING := C0.ESC & 'H';
-      NEL   : constant STRING := C0.ESC & 'E';
-      OSC   : constant STRING := C0.ESC & ']';
-      RI    : constant STRING := C0.ESC & 'M';
-      SS2   : constant STRING := C0.ESC & 'N';
-      SS3   : constant STRING := C0.ESC & 'O';
-      ST    : constant STRING := C0.ESC & '\';
+      CSI   : constant STRING := (C0.ESC, '[');
+      HTS   : constant STRING := (C0.ESC, 'H');
+      NEL   : constant STRING := (C0.ESC, 'E');
+      OSC   : constant STRING := (C0.ESC, ']');
+      RI    : constant STRING := (C0.ESC, 'M');
+      ST    : constant STRING := (C0.ESC, '\');
    end C1;
 
    ---------------------------------------------------------------------
@@ -217,6 +213,7 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package body Format is
    ---------------------------------------------------------------------
+
       -- BS
       function backspace return CHARACTER is
       begin
@@ -252,6 +249,26 @@ package body Terminal.Control is
     --begin
     --   return C0.VT;
     --end line_tabulation;
+
+      -- SI
+      function shift_in return CHARACTER is
+      begin
+         return C0.SI;
+      end shift_in;
+
+      -- SO
+      function shift_out return CHARACTER is
+      begin
+         return C0.SO;
+      end shift_out;
+
+      --
+      function designate_gs return STRING is
+         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
+         G1 : constant STRING := C0.ESC & ")0"; -- line draw
+      begin
+         return G0 & G1;
+      end designate_gs;
 
       -- NEL
       function next_line return STRING is
