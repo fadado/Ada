@@ -5,7 +5,6 @@ package Terminal.Device is
    ---------------------------------------------------------------------
    -- Controls
    ---------------------------------------------------------------------
-   procedure Emit with Inline;
    procedure Emit(Item: CODE) with Inline;
    procedure Emit(Item: STRING) with Inline;
    procedure Emit(Item: INTEGER; Width: POSITIVE := 1) with Inline;
@@ -13,6 +12,7 @@ package Terminal.Device is
    ---------------------------------------------------------------------
    -- Text
    ---------------------------------------------------------------------
+   procedure Print with Inline;
    procedure Print(Item: STRING) with Inline;
    procedure Print(Item: CHARACTER) with Inline;
 

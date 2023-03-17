@@ -60,12 +60,15 @@ procedure demo is
 
    procedure test_04 is
       package D renames Format.DEC;
+      package S renames Format.Style;
    begin
-      Emit(Cursor.hide);
+      Emit(S.Apply(S.bgcolor(S.white), S.fgcolor(S.black)));
       Emit(Display.erase_page);
+      Emit(Cursor.hide);
       Emit(Format.shift_out);
 
-      Emit(Cursor.position(1,1)); Emit(D.upper_left_corner);
+      Emit(Cursor.position(1,1));
+      Emit(D.upper_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.upper_right_corner);
 
@@ -74,18 +77,17 @@ procedure demo is
          Emit(Cursor.position(i,80)); Emit(D.vertical_bar);
       end loop;
 
-      Emit(Cursor.position(25,1));  Emit(D.lower_left_corner);
+      Emit(Cursor.position(25,1));
+      Emit(D.lower_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.lower_right_corner);
 
-      Emit(Format.shift_in);
       delay 5.5;
+      Emit(Format.shift_in);
       Emit(Cursor.show);
    end;
 
 begin
-   Emit(Format.designate_gs);
-
    Emit(window_title("testing control functions"));
 
  --test_01;

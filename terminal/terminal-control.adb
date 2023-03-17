@@ -208,6 +208,35 @@ package body Terminal.Control is
       begin
          return C1.CSI & L(2..L'Last) & 'T';
       end scroll_down;
+
+      -- SM & RM (modes)
+      function mode_replace return STRING is
+         IRM : constant CHARACTER := '4';
+         RESET : constant CHARACTER := 'l';
+      begin
+         return C1.CSI & IRM & RESET;
+      end mode_replace;
+
+      function mode_insert return STRING is
+         IRM : constant CHARACTER := '4';
+         SET : constant CHARACTER := 'h';
+      begin
+         return C1.CSI & IRM & SET;
+      end mode_insert;
+
+      function echo_on return STRING is
+         SRM : constant STRING := "12";
+         RESET : constant CHARACTER := 'l';
+      begin
+         return C1.CSI & SRM & RESET;
+      end echo_on;
+
+      function echo_off return STRING is
+         SRM : constant STRING := "12";
+         SET : constant CHARACTER := 'h';
+      begin
+         return C1.CSI & SRM & SET;
+      end echo_off;
    end Display;
    
    ---------------------------------------------------------------------

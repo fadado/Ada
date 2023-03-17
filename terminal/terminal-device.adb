@@ -1,6 +1,7 @@
 with Ada.Strings.UTF_Encoding.Strings;
 with Ada.Text_IO; use Ada;
 with Terminal.Control; use Terminal.Control;
+
 ------------------------------------------------------------------------
 package body Terminal.Device is
 ------------------------------------------------------------------------
@@ -13,11 +14,6 @@ package body Terminal.Device is
    ---------------------------------------------------------------------
    -- Send control sequences
    ---------------------------------------------------------------------
-   procedure Emit is
-   begin
-      Text_IO.Put(Output, New_Line);
-   end;
-
    procedure Emit(Item: CODE) is
    begin
       Text_IO.Put(Output, Item);
@@ -36,6 +32,11 @@ package body Terminal.Device is
    ---------------------------------------------------------------------
    -- Print Latin1 input as UTF-8
    ---------------------------------------------------------------------
+   procedure Print is
+   begin
+      Text_IO.Put(Output, New_Line);
+   end;
+
    procedure Print(Item: STRING) is
    begin
       Text_IO.Put(Output, UTF.Encode(Item));
@@ -50,6 +51,12 @@ package body Terminal.Device is
    -- Receive...
    ---------------------------------------------------------------------
    Input : Text_IO.File_Type renames Text_IO.Standard_Input;
+
+------------------------------------------------------------------------
+begin -- initialize device
+------------------------------------------------------------------------
+   Emit(reset_initial_state);
+   Emit(Format.designate_gs);
 
 end Terminal.Device;
 -- ¡ISO-8859-1!

@@ -19,6 +19,10 @@ package Terminal.Control is
       function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
+      function mode_insert return STRING with Inline;
+      function mode_replace return STRING with Inline;
+      function echo_on return STRING with Inline;
+      function echo_off return STRING with Inline;
    end Display;
 
    ---------------------------------------------------------------------
