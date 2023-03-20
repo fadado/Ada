@@ -9,11 +9,9 @@ procedure demo is
 
    procedure test_01 is
    begin
-      Emit(Cursor.hide);
       Emit(Cursor.position & Display.erase_page);
-      Emit(screen_alignment_test);
+      Emit(Tests.screen_alignment);
       delay 2.0;
-      Emit(Cursor.show);
    end;
 
    procedure test_02 is
@@ -24,7 +22,6 @@ procedure demo is
          S.bgcolor(S.yellow),
          S.bold,
          S.italic));
-      Emit(Cursor.hide);
       Emit(Cursor.position & Display.erase_page);
       Emit(Cursor.position(1,1));
       Emit(repeat('=', 80));
@@ -35,7 +32,6 @@ procedure demo is
          Emit(Display.scroll_down);
          delay 0.1;
       end loop;
-      Emit(Cursor.show);
    end;
 
    procedure test_03 is
@@ -64,8 +60,7 @@ procedure demo is
    begin
       Emit(S.Apply(S.bgcolor(S.white), S.fgcolor(S.black)));
       Emit(Display.erase_page);
-      Emit(Cursor.hide);
-      Emit(Format.shift_out);
+      Emit(Format.alternate_character_set);
 
       Emit(Cursor.position(1,1));
       Emit(D.upper_left_corner);
@@ -83,19 +78,26 @@ procedure demo is
       Emit(D.lower_right_corner);
 
       delay 5.5;
-      Emit(Format.shift_in);
-      Emit(Cursor.show);
+      Emit(Format.standard_character_set);
    end;
 
 begin
-   Emit(window_title("testing control functions"));
+   -- initialize
+   Emit(Display.alternate_screen_buffer   &
+        Display.seven_bits_controls       &
+        Display.designate_character_sets  &
+        Cursor.hide);
+   --
+   Emit(Display.window_title("testing control functions"));
 
  --test_01;
  --test_02;
- --test_03; Emit(Format.shift_out); test_03; delay 5.0;
+ --test_03; Emit(Format.alternate_character_set); test_03; delay 5.0;
    test_04;
 
-   Emit(reset_initial_state);
+   -- finalize
+   Emit(Display.normal_screen_buffer   &
+        Cursor.show);
 end demo;
 
 -- ¡ISO-8859-1!

@@ -4,7 +4,7 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package C0 is
    ---------------------------------------------------------------------
-      NUL   : CHARACTER renames Terminal.NUL;
+      NUL   : constant CHARACTER := CHARACTER'Val(0);
       BEL   : constant CHARACTER := CHARACTER'Val(7);
       BS    : constant CHARACTER := CHARACTER'Val(8);  -- format effector
       HT    : constant CHARACTER := CHARACTER'Val(9);  -- format effector
@@ -15,7 +15,7 @@ package body Terminal.Control is
       SO    : constant CHARACTER := CHARACTER'Val(14);
       SI    : constant CHARACTER := CHARACTER'Val(15);
       ESC   : constant CHARACTER := CHARACTER'Val(27);
-      DEL   : CHARACTER renames Terminal.DEL;
+      DEL   : constant CHARACTER := CHARACTER'Val(127);
    end C0;
 
    ---------------------------------------------------------------------
@@ -131,7 +131,6 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
    package body Display is
    ---------------------------------------------------------------------
-
       -- DCH
       function delete_character(Characters: POSITIVE:=1) return STRING is
          C : STRING renames Characters'Image;
@@ -211,7 +210,7 @@ package body Terminal.Control is
 
       -- SM & RM (modes)
       function mode_replace return STRING is
-         IRM : constant CHARACTER := '4';
+         IRM   : constant CHARACTER := '4';
          RESET : constant CHARACTER := 'l';
       begin
          return C1.CSI & IRM & RESET;
@@ -225,7 +224,7 @@ package body Terminal.Control is
       end mode_insert;
 
       function echo_on return STRING is
-         SRM : constant STRING := "12";
+         SRM   : constant STRING := "12";
          RESET : constant CHARACTER := 'l';
       begin
          return C1.CSI & SRM & RESET;
@@ -237,12 +236,55 @@ package body Terminal.Control is
       begin
          return C1.CSI & SRM & SET;
       end echo_off;
+
+      -- BEL
+      function bell return CHARACTER is
+      begin
+         return C0.BEL;
+      end bell;
+
+      -- OSC .. ST
+      function window_title(Title: STRING) return STRING is
+      begin
+         return C1.OSC & "2;" & Title & C1.ST;
+      end window_title;
+
+      --
+      -- Device configuration
+      --
+
+      -- RIS
+      function reset_initial_state return STRING is
+      begin
+         return C0.ESC & 'c';
+      end reset_initial_state;
+
+      function designate_character_sets return STRING is
+         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
+         G1 : constant STRING := C0.ESC & ")0"; -- line draw
+      begin
+         return G0 & G1;
+      end designate_character_sets;
+
+      function alternate_screen_buffer return STRING  is
+      begin
+         return C1.CSI & "?1049h";
+      end alternate_screen_buffer;
+
+      function normal_screen_buffer return STRING  is
+      begin
+         return C1.CSI & "?1049l";
+      end normal_screen_buffer;
+
+      function seven_bits_controls return STRING  is
+      begin
+         return C0.ESC & " F";
+      end seven_bits_controls;
    end Display;
    
    ---------------------------------------------------------------------
    package body Format is
    ---------------------------------------------------------------------
-
       -- BS
       function backspace return CHARACTER is
       begin
@@ -273,31 +315,17 @@ package body Terminal.Control is
          return C0.LF;
       end line_feed;
 
-      -- VT
-    --function line_tabulation return CHARACTER is
-    --begin
-    --   return C0.VT;
-    --end line_tabulation;
-
       -- SI
-      function shift_in return CHARACTER is
+      function standard_character_set return CHARACTER is
       begin
          return C0.SI;
-      end shift_in;
+      end standard_character_set;
 
       -- SO
-      function shift_out return CHARACTER is
+      function alternate_character_set return CHARACTER is
       begin
          return C0.SO;
-      end shift_out;
-
-      --
-      function designate_gs return STRING is
-         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
-         G1 : constant STRING := C0.ESC & ")0"; -- line draw
-      begin
-         return G0 & G1;
-      end designate_gs;
+      end alternate_character_set;
 
       -- NEL
       function next_line return STRING is
@@ -419,15 +447,18 @@ package body Terminal.Control is
    end Format;
 
    ---------------------------------------------------------------------
+   package body Tests is
+   ---------------------------------------------------------------------
+      -- DECALN
+      function screen_alignment return STRING is
+      begin
+         return C0.ESC & "#8";
+      end screen_alignment;
+   end Tests;
+
+   ---------------------------------------------------------------------
    -- Other
    ---------------------------------------------------------------------
-
-   -- OSC .. ST
-   function window_title(Title: STRING) return STRING is
-   begin
-      return C1.OSC & "2;" & Title & C1.ST;
-   end window_title;
-
    -- REP
    function repeat(Graphic: CODE; Times: POSITIVE) return STRING is
       x : constant POSITIVE := Times-1;
@@ -435,24 +466,6 @@ package body Terminal.Control is
    begin
       return Graphic & C1.CSI & T(2..T'Last) & 'b';
    end repeat;
-
-   -- BEL
-   function bell return CHARACTER is
-   begin
-      return C0.BEL;
-   end bell;
-
-   -- RIS
-   function reset_initial_state return STRING is
-   begin
-      return C0.ESC & 'c';
-   end reset_initial_state;
-
-   -- DECALN
-   function screen_alignment_test return STRING is
-   begin
-      return C0.ESC & "#8";
-   end screen_alignment_test;
 
 end Terminal.Control;
 -- ¡ISO-8859-1!

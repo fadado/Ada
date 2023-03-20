@@ -52,12 +52,6 @@ package body Terminal.Device is
    ---------------------------------------------------------------------
    Input : Text_IO.File_Type renames Text_IO.Standard_Input;
 
-------------------------------------------------------------------------
-begin -- initialize device
-------------------------------------------------------------------------
-   Emit(reset_initial_state);
-   Emit(Format.designate_gs);
-
 end Terminal.Device;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

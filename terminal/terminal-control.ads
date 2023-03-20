@@ -8,21 +8,28 @@ package Terminal.Control is
    ---------------------------------------------------------------------
       type ERASE_MODE is (From_Start, To_End, All_Of);
 
+      function alternate_screen_buffer return STRING with Inline;
+      function bell return CHARACTER with Inline;
       function delete_character(Characters: POSITIVE:=1) return STRING with Inline;
       function delete_line(Lines: POSITIVE:=1) return STRING with Inline;
+      function designate_character_sets return STRING with Inline;
+      function echo_off return STRING with Inline;
+      function echo_on return STRING with Inline;
       function erase_character(Characters: POSITIVE:=1) return STRING with Inline;
       function erase_line(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
       function erase_page(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
       function insert_character(Characters: POSITIVE:=1) return STRING with Inline;
       function insert_line(Lines: POSITIVE:=1) return STRING with Inline;
+      function mode_insert return STRING with Inline;
+      function mode_replace return STRING with Inline;
+      function normal_screen_buffer return STRING with Inline;
+      function reset_initial_state return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
-      function mode_insert return STRING with Inline;
-      function mode_replace return STRING with Inline;
-      function echo_on return STRING with Inline;
-      function echo_off return STRING with Inline;
+      function seven_bits_controls return STRING with Inline;
+      function window_title(Title: STRING) return STRING with Inline;
    end Display;
 
    ---------------------------------------------------------------------
@@ -50,10 +57,10 @@ package Terminal.Control is
       type TBC_MODE is (Current_Column, All_Of);
       for TBC_MODE use (Current_Column => 0, All_Of => 3);
 
+      function alternate_character_set return CHARACTER with Inline;
       function backspace return CHARACTER with Inline;
       function carriage_return return CHARACTER with Inline;
       function column(N: POSITIVE:=1) return STRING with Inline;
-      function designate_Gs return STRING with Inline;
       function down(Lines: POSITIVE:=1) return STRING with Inline;
       function form_feed return CHARACTER with Inline;
       function line(N: POSITIVE:=1) return STRING with Inline;
@@ -61,13 +68,47 @@ package Terminal.Control is
       function next_line return STRING with Inline;
       function position(Line, Column: POSITIVE:=1) return STRING with Inline;
       function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function shift_in return CHARACTER with Inline;
-      function shift_out return CHARACTER with Inline;
+      function standard_character_set return CHARACTER with Inline;
       function tabulation return CHARACTER with Inline;
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
       function tabulation_set return STRING with Inline;
       function up return STRING with Inline;
-    --function line_tabulation return CHARACTER with Inline;
+
+      ------------------------------------------------------------------
+      package Style is
+      ------------------------------------------------------------------
+         reset          : constant STRING := "0";
+         bold           : constant STRING := "1";
+         faint          : constant STRING := "2";
+         normal         : constant STRING := "22"; -- neither bold nor faint
+         italic         : constant STRING := "3";
+         no_italic      : constant STRING := "23";
+         underline      : constant STRING := "4";
+         no_underline   : constant STRING := "24";
+         blink          : constant STRING := "5";
+         no_blink       : constant STRING := "25";
+         inverse        : constant STRING := "7";
+         positive       : constant STRING := "27";
+         invisible      : constant STRING := "8";
+         visible        : constant STRING := "28";
+         crossed        : constant STRING := "9";
+         no_crossed     : constant STRING := "29";
+
+         type COLORS is (black, red, green, yellow, blue, magenta, cyan, white);
+         function fgcolor(Color: COLORS) return STRING with Inline;
+         function bgcolor(Color: COLORS) return STRING with Inline;
+
+         function Apply(p0: STRING) return STRING with Inline;
+         function Apply(p0, p1: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
+      end Style;
 
       ------------------------------------------------------------------
       package DEC is -- DEC Special Graphics Character Set
@@ -106,47 +147,18 @@ package Terminal.Control is
          horizontal_line_scan_7  : constant CHARACTER := CHARACTER'Val(114);
          horizontal_line_scan_9  : constant CHARACTER := CHARACTER'Val(115);
       end DEC;
-
-      ------------------------------------------------------------------
-      package Style is
-      ------------------------------------------------------------------
-         reset          : constant STRING := "0";
-         bold           : constant STRING := "1";
-         faint          : constant STRING := "2";
-         normal         : constant STRING := "22"; -- neither bold nor faint
-         italic         : constant STRING := "3";
-         no_italic      : constant STRING := "23";
-         underline      : constant STRING := "4";
-         no_underline   : constant STRING := "24";
-         blink          : constant STRING := "5";
-         no_blink       : constant STRING := "25";
-         inverse        : constant STRING := "7";
-
-         type COLORS is (black, red, green, yellow, blue, magenta, cyan, white);
-         function fgcolor(Color: COLORS) return STRING with Inline;
-         function bgcolor(Color: COLORS) return STRING with Inline;
-
-         function Apply(p0: STRING) return STRING with Inline;
-         function Apply(p0, p1: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
-      end Style;
    end Format;
+
+   ---------------------------------------------------------------------
+   package Tests is
+   ---------------------------------------------------------------------
+      function screen_alignment return STRING with Inline;
+   end Tests;
 
    ---------------------------------------------------------------------
    -- Other
    ---------------------------------------------------------------------
-   function bell return CHARACTER with Inline;
    function repeat(Graphic: CODE; Times: POSITIVE) return STRING with Inline;
-   function reset_initial_state return STRING with Inline;
-   function screen_alignment_test return STRING with Inline;
-   function window_title(Title: STRING) return STRING with Inline;
 
 end Terminal.Control;
 -- ¡ISO-8859-1!
