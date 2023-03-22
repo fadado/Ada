@@ -88,12 +88,12 @@ package body Terminal.Control is
       end next_line;
 
       -- CUP
-      function position(Line, Column: POSITIVE:=1) return STRING is
+      function locate(Line, Column: POSITIVE:=1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
          return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
-      end position;
+      end locate;
 
       -- CPL
       function preceding_line(Lines: POSITIVE:=1) return STRING is
@@ -223,20 +223,6 @@ package body Terminal.Control is
          return C1.CSI & IRM & SET;
       end mode_insert;
 
-      function echo_on return STRING is
-         SRM   : constant STRING := "12";
-         RESET : constant CHARACTER := 'l';
-      begin
-         return C1.CSI & SRM & RESET;
-      end echo_on;
-
-      function echo_off return STRING is
-         SRM : constant STRING := "12";
-         SET : constant CHARACTER := 'h';
-      begin
-         return C1.CSI & SRM & SET;
-      end echo_off;
-
       -- BEL
       function bell return CHARACTER is
       begin
@@ -248,38 +234,6 @@ package body Terminal.Control is
       begin
          return C1.OSC & "2;" & Title & C1.ST;
       end window_title;
-
-      --
-      -- Device configuration
-      --
-
-      -- RIS
-      function reset_initial_state return STRING is
-      begin
-         return C0.ESC & 'c';
-      end reset_initial_state;
-
-      function designate_character_sets return STRING is
-         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
-         G1 : constant STRING := C0.ESC & ")0"; -- line draw
-      begin
-         return G0 & G1;
-      end designate_character_sets;
-
-      function alternate_screen_buffer return STRING  is
-      begin
-         return C1.CSI & "?1049h";
-      end alternate_screen_buffer;
-
-      function normal_screen_buffer return STRING  is
-      begin
-         return C1.CSI & "?1049l";
-      end normal_screen_buffer;
-
-      function seven_bits_controls return STRING  is
-      begin
-         return C0.ESC & " F";
-      end seven_bits_controls;
    end Display;
    
    ---------------------------------------------------------------------
@@ -296,12 +250,6 @@ package body Terminal.Control is
       begin
          return C0.CR;
       end carriage_return;
-
-      -- FF
-      function form_feed return CHARACTER is
-      begin
-         return C0.FF;
-      end form_feed;
 
       -- HT
       function tabulation return CHARACTER is
@@ -368,12 +316,12 @@ package body Terminal.Control is
       end down;
 
       -- HVP
-      function position(Line, Column: POSITIVE:=1) return STRING is
+      function locate(Line, Column: POSITIVE:=1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
          return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'f';
-      end position;
+      end locate;
 
       -- HTS
       function tabulation_set return STRING is
@@ -447,14 +395,56 @@ package body Terminal.Control is
    end Format;
 
    ---------------------------------------------------------------------
-   package body Tests is
+   package body Setup is
    ---------------------------------------------------------------------
       -- DECALN
-      function screen_alignment return STRING is
+      function screen_alignment_test return STRING is
       begin
          return C0.ESC & "#8";
-      end screen_alignment;
-   end Tests;
+      end screen_alignment_test;
+
+      -- RIS
+      function reset_initial_state return STRING is
+      begin
+         return C0.ESC & 'c';
+      end reset_initial_state;
+
+      function alternate_screen_buffer return STRING  is
+      begin
+         return C1.CSI & "?1049h";
+      end alternate_screen_buffer;
+
+      function designate_character_sets return STRING is
+         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
+         G1 : constant STRING := C0.ESC & ")0"; -- line draw
+      begin
+         return G0 & G1;
+      end designate_character_sets;
+
+      function normal_screen_buffer return STRING  is
+      begin
+         return C1.CSI & "?1049l";
+      end normal_screen_buffer;
+
+      function seven_bits_controls return STRING  is
+      begin
+         return C0.ESC & " F";
+      end seven_bits_controls;
+
+      function echo_on return STRING is
+         SRM   : constant STRING := "12";
+         RESET : constant CHARACTER := 'l';
+      begin
+         return C1.CSI & SRM & RESET;
+      end echo_on;
+
+      function echo_off return STRING is
+         SRM : constant STRING := "12";
+         SET : constant CHARACTER := 'h';
+      begin
+         return C1.CSI & SRM & SET;
+      end echo_off;
+   end Setup;
 
    ---------------------------------------------------------------------
    -- Other

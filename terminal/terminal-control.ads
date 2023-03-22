@@ -4,17 +4,26 @@ package Terminal.Control is
    pragma Pure(Terminal.Control);
 
    ---------------------------------------------------------------------
+   package Setup is
+   ---------------------------------------------------------------------
+      function reset_initial_state return STRING with Inline;
+      function alternate_screen_buffer return STRING with Inline;
+      function normal_screen_buffer return STRING with Inline;
+      function designate_character_sets return STRING with Inline;
+      function echo_off return STRING with Inline;
+      function echo_on return STRING with Inline;
+      function seven_bits_controls return STRING with Inline;
+      function screen_alignment_test return STRING with Inline;
+   end Setup;
+
+   ---------------------------------------------------------------------
    package Display is
    ---------------------------------------------------------------------
       type ERASE_MODE is (From_Start, To_End, All_Of);
 
-      function alternate_screen_buffer return STRING with Inline;
       function bell return CHARACTER with Inline;
       function delete_character(Characters: POSITIVE:=1) return STRING with Inline;
       function delete_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function designate_character_sets return STRING with Inline;
-      function echo_off return STRING with Inline;
-      function echo_on return STRING with Inline;
       function erase_character(Characters: POSITIVE:=1) return STRING with Inline;
       function erase_line(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
       function erase_page(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
@@ -22,13 +31,10 @@ package Terminal.Control is
       function insert_line(Lines: POSITIVE:=1) return STRING with Inline;
       function mode_insert return STRING with Inline;
       function mode_replace return STRING with Inline;
-      function normal_screen_buffer return STRING with Inline;
-      function reset_initial_state return STRING with Inline;
       function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
       function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
-      function seven_bits_controls return STRING with Inline;
       function window_title(Title: STRING) return STRING with Inline;
    end Display;
 
@@ -36,19 +42,19 @@ package Terminal.Control is
    package Cursor is
    ---------------------------------------------------------------------
       function backward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
-      function column(N: POSITIVE:=1) return STRING with Inline;
-      function down(Lines: POSITIVE:=1) return STRING with Inline;
       function forward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
-      function hide return STRING with Inline;
-      function left(Columns: POSITIVE:=1) return STRING with Inline;
       function next_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function position(Line, Column: POSITIVE:=1) return STRING with Inline;
       function preceding_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function restore return STRING with Inline;
-      function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function save return STRING with Inline;
-      function show return STRING with Inline;
+      function column(N: POSITIVE:=1) return STRING with Inline;
       function up(Lines: POSITIVE:=1) return STRING with Inline;
+      function down(Lines: POSITIVE:=1) return STRING with Inline;
+      function left(Columns: POSITIVE:=1) return STRING with Inline;
+      function right(Columns: POSITIVE:=1) return STRING with Inline;
+      function locate(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function save return STRING with Inline;
+      function restore return STRING with Inline;
+      function hide return STRING with Inline;
+      function show return STRING with Inline;
    end Cursor;
 
    ---------------------------------------------------------------------
@@ -58,26 +64,25 @@ package Terminal.Control is
       for TBC_MODE use (Current_Column => 0, All_Of => 3);
 
       function alternate_character_set return CHARACTER with Inline;
+      function standard_character_set return CHARACTER with Inline;
       function backspace return CHARACTER with Inline;
+      function tabulation return CHARACTER with Inline;
+      function tabulation_set return STRING with Inline;
+      function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
       function carriage_return return CHARACTER with Inline;
-      function column(N: POSITIVE:=1) return STRING with Inline;
-      function down(Lines: POSITIVE:=1) return STRING with Inline;
-      function form_feed return CHARACTER with Inline;
-      function line(N: POSITIVE:=1) return STRING with Inline;
       function line_feed return CHARACTER with Inline;
       function next_line return STRING with Inline;
-      function position(Line, Column: POSITIVE:=1) return STRING with Inline;
-      function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function standard_character_set return CHARACTER with Inline;
-      function tabulation return CHARACTER with Inline;
-      function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
-      function tabulation_set return STRING with Inline;
+      function column(N: POSITIVE:=1) return STRING with Inline;
+      function line(N: POSITIVE:=1) return STRING with Inline;
       function up return STRING with Inline;
+      function down(Lines: POSITIVE:=1) return STRING with Inline;
+      function right(Columns: POSITIVE:=1) return STRING with Inline;
+      function locate(Line, Column: POSITIVE:=1) return STRING with Inline;
 
       ------------------------------------------------------------------
       package Style is
       ------------------------------------------------------------------
-         reset          : constant STRING := "0";
+         default        : constant STRING := "0";
          bold           : constant STRING := "1";
          faint          : constant STRING := "2";
          normal         : constant STRING := "22"; -- neither bold nor faint
@@ -148,12 +153,6 @@ package Terminal.Control is
          horizontal_line_scan_9  : constant CHARACTER := CHARACTER'Val(115);
       end DEC;
    end Format;
-
-   ---------------------------------------------------------------------
-   package Tests is
-   ---------------------------------------------------------------------
-      function screen_alignment return STRING with Inline;
-   end Tests;
 
    ---------------------------------------------------------------------
    -- Other

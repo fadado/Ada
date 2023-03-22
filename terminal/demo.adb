@@ -9,8 +9,8 @@ procedure demo is
 
    procedure test_01 is
    begin
-      Emit(Cursor.position & Display.erase_page);
-      Emit(Tests.screen_alignment);
+      Emit(Cursor.locate & Display.erase_page);
+      Emit(Setup.screen_alignment_test);
       delay 2.0;
    end;
 
@@ -22,11 +22,11 @@ procedure demo is
          S.bgcolor(S.yellow),
          S.bold,
          S.italic));
-      Emit(Cursor.position & Display.erase_page);
-      Emit(Cursor.position(1,1));
+      Emit(Cursor.locate & Display.erase_page);
+      Emit(Cursor.locate(1,1));
       Emit(repeat('=', 80));
       -- Latin1 => UTF-8
-      Emit(Cursor.position(2,7));
+      Emit(Cursor.locate(2,7));
       Print('¿'); Print("¡Hi!"); Print('?');
       for i in 1..20 loop
          Emit(Display.scroll_down);
@@ -62,17 +62,17 @@ procedure demo is
       Emit(Display.erase_page);
       Emit(Format.alternate_character_set);
 
-      Emit(Cursor.position(1,1));
+      Emit(Cursor.locate(1,1));
       Emit(D.upper_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.upper_right_corner);
 
       for i in 2..24 loop
-         Emit(Cursor.position(i,1));  Emit(D.vertical_bar);
-         Emit(Cursor.position(i,80)); Emit(D.vertical_bar);
+         Emit(Cursor.locate(i,1));  Emit(D.vertical_bar);
+         Emit(Cursor.locate(i,80)); Emit(D.vertical_bar);
       end loop;
 
-      Emit(Cursor.position(25,1));
+      Emit(Cursor.locate(25,1));
       Emit(D.lower_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.lower_right_corner);
@@ -83,9 +83,9 @@ procedure demo is
 
 begin
    -- initialize
-   Emit(Display.alternate_screen_buffer   &
-        Display.seven_bits_controls       &
-        Display.designate_character_sets  &
+   Emit(Setup.alternate_screen_buffer   &
+        Setup.seven_bits_controls       &
+        Setup.designate_character_sets  &
         Cursor.hide);
    --
    Emit(Display.window_title("testing control functions"));
@@ -96,7 +96,7 @@ begin
    test_04;
 
    -- finalize
-   Emit(Display.normal_screen_buffer   &
+   Emit(Setup.normal_screen_buffer   &
         Cursor.show);
 end demo;
 
