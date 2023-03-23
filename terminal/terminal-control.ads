@@ -45,12 +45,12 @@ package Terminal.Control is
       function forward_tabulation(Tabs: POSITIVE:=1) return STRING with Inline;
       function next_line(Lines: POSITIVE:=1) return STRING with Inline;
       function preceding_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function column(N: POSITIVE:=1) return STRING with Inline;
+      function horizontal(N: POSITIVE:=1) return STRING with Inline;
       function up(Lines: POSITIVE:=1) return STRING with Inline;
       function down(Lines: POSITIVE:=1) return STRING with Inline;
       function left(Columns: POSITIVE:=1) return STRING with Inline;
       function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function locate(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function move(Line, Column: POSITIVE:=1) return STRING with Inline;
       function save return STRING with Inline;
       function restore return STRING with Inline;
       function hide return STRING with Inline;
@@ -71,13 +71,14 @@ package Terminal.Control is
       function tabulation_clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
       function carriage_return return CHARACTER with Inline;
       function line_feed return CHARACTER with Inline;
+      function reverse_line_feed return STRING with Inline;
       function next_line return STRING with Inline;
-      function column(N: POSITIVE:=1) return STRING with Inline;
-      function line(N: POSITIVE:=1) return STRING with Inline;
-      function up return STRING with Inline;
-      function down(Lines: POSITIVE:=1) return STRING with Inline;
-      function right(Columns: POSITIVE:=1) return STRING with Inline;
-      function locate(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function new_line return STRING with Inline;
+      function hpa(N: POSITIVE:=1) return STRING with Inline;
+      function hpr(Columns: POSITIVE:=1) return STRING with Inline;
+      function vpa(N: POSITIVE:=1) return STRING with Inline;
+      function vpr(Lines: POSITIVE:=1) return STRING with Inline;
+      function hvp(Line, Column: POSITIVE:=1) return STRING with Inline;
 
       ------------------------------------------------------------------
       package Style is
@@ -103,16 +104,16 @@ package Terminal.Control is
          function fgcolor(Color: COLORS) return STRING with Inline;
          function bgcolor(Color: COLORS) return STRING with Inline;
 
-         function Apply(p0: STRING) return STRING with Inline;
-         function Apply(p0, p1: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
+         function Render(p0: STRING) return STRING with Inline;
+         function Render(p0, p1: STRING) return STRING with Inline;
+         function Render(p0, p1, p2: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING with Inline;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING with Inline;
       end Style;
 
       ------------------------------------------------------------------

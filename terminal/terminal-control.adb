@@ -30,103 +30,56 @@ package body Terminal.Control is
    end C1;
 
    ---------------------------------------------------------------------
-   package body Cursor is
+   package body Setup is
    ---------------------------------------------------------------------
-      -- CUB
-      function left(Columns: POSITIVE:=1) return STRING is
-         C : STRING renames Columns'Image;
+      -- RIS
+      function reset_initial_state return STRING is
       begin
-         return C1.CSI & C(2..C'Last) & 'D';
-      end left;
+         return C0.ESC & 'c';
+      end reset_initial_state;
 
-      -- CBT
-      function backward_tabulation(Tabs: POSITIVE:=1) return STRING is
-         T : STRING renames Tabs'Image;
+      -- DECALN
+      function screen_alignment_test return STRING is
       begin
-         return C1.CSI & T(2..T'Last) & 'Z';
-      end backward_tabulation;
+         return C0.ESC & "#8";
+      end screen_alignment_test;
 
-      -- CUD
-      function down(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
+      function alternate_screen_buffer return STRING  is
       begin
-         return C1.CSI & L(2..L'Last) & 'B';
-      end down;
+         return C1.CSI & "?1049h";
+      end alternate_screen_buffer;
 
-      -- CUF
-      function right(Columns: POSITIVE:=1) return STRING is
-         C : STRING renames Columns'Image;
+      function normal_screen_buffer return STRING  is
       begin
-         return C1.CSI & C(2..C'Last) & 'C';
-      end right;
+         return C1.CSI & "?1049l";
+      end normal_screen_buffer;
 
-      -- DECTCEM reset
-      function hide return STRING is
+      function designate_character_sets return STRING is
+         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
+         G1 : constant STRING := C0.ESC & ")0"; -- line draw
       begin
-         return C1.CSI & "?25l";
-      end hide;
+         return G0 & G1;
+      end designate_character_sets;
 
-      -- CHA
-      function column(N: POSITIVE:=1) return STRING is
-         C : STRING renames N'Image;
+      function echo_on return STRING is
+         SRM   : constant STRING := "12";
+         RESET : constant CHARACTER := 'l';
       begin
-         return C1.CSI & C(2..C'Last) & 'G';
-      end column;
+         return C1.CSI & SRM & RESET;
+      end echo_on;
 
-      -- CHT
-      function forward_tabulation(Tabs: POSITIVE:=1) return STRING is
-         T : STRING renames Tabs'Image;
+      function echo_off return STRING is
+         SRM : constant STRING := "12";
+         SET : constant CHARACTER := 'h';
       begin
-         return C1.CSI & T(2..T'Last) & 'I';
-      end forward_tabulation;
+         return C1.CSI & SRM & SET;
+      end echo_off;
 
-      -- CNL
-      function next_line(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
+      function seven_bits_controls return STRING  is
       begin
-         return C1.CSI & L(2..L'Last) & 'E';
-      end next_line;
-
-      -- CUP
-      function locate(Line, Column: POSITIVE:=1) return STRING is
-         L : STRING renames Line'Image;
-         C : STRING renames Column'Image;
-      begin
-         return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
-      end locate;
-
-      -- CPL
-      function preceding_line(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
-      begin
-         return C1.CSI & L(2..L'Last) & 'F';
-      end preceding_line;
-
-      -- DECRC
-      function restore return STRING is
-      begin
-         return C0.ESC & '8';
-      end restore;
-
-      -- DECSC
-      function save return STRING is
-      begin
-         return C0.ESC & '7';
-      end save;
-
-      -- DECTCEM set
-      function show return STRING is
-      begin
-         return C1.CSI & "?25h";
-      end show;
-
-      -- CUU
-      function up(Lines: POSITIVE:=1) return STRING is
-         L : STRING renames Lines'Image;
-      begin
-         return C1.CSI & L(2..L'Last) & 'A';
-      end up;
-   end Cursor;
+         return C0.ESC & " F";
+      end seven_bits_controls;
+   end Setup;
 
    ---------------------------------------------------------------------
    package body Display is
@@ -237,6 +190,105 @@ package body Terminal.Control is
    end Display;
    
    ---------------------------------------------------------------------
+   package body Cursor is
+   ---------------------------------------------------------------------
+      -- CUB
+      function left(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'D';
+      end left;
+
+      -- CBT
+      function backward_tabulation(Tabs: POSITIVE:=1) return STRING is
+         T : STRING renames Tabs'Image;
+      begin
+         return C1.CSI & T(2..T'Last) & 'Z';
+      end backward_tabulation;
+
+      -- CUD
+      function down(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'B';
+      end down;
+
+      -- CUF
+      function right(Columns: POSITIVE:=1) return STRING is
+         C : STRING renames Columns'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'C';
+      end right;
+
+      -- DECTCEM reset
+      function hide return STRING is
+      begin
+         return C1.CSI & "?25l";
+      end hide;
+
+      -- CHA
+      function horizontal(N: POSITIVE:=1) return STRING is
+         C : STRING renames N'Image;
+      begin
+         return C1.CSI & C(2..C'Last) & 'G';
+      end horizontal;
+
+      -- CHT
+      function forward_tabulation(Tabs: POSITIVE:=1) return STRING is
+         T : STRING renames Tabs'Image;
+      begin
+         return C1.CSI & T(2..T'Last) & 'I';
+      end forward_tabulation;
+
+      -- CNL
+      function next_line(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'E';
+      end next_line;
+
+      -- CUP
+      function move(Line, Column: POSITIVE:=1) return STRING is
+         L : STRING renames Line'Image;
+         C : STRING renames Column'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'H';
+      end move;
+
+      -- CPL
+      function preceding_line(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'F';
+      end preceding_line;
+
+      -- DECRC
+      function restore return STRING is
+      begin
+         return C0.ESC & '8';
+      end restore;
+
+      -- DECSC
+      function save return STRING is
+      begin
+         return C0.ESC & '7';
+      end save;
+
+      -- DECTCEM set
+      function show return STRING is
+      begin
+         return C1.CSI & "?25h";
+      end show;
+
+      -- CUU
+      function up(Lines: POSITIVE:=1) return STRING is
+         L : STRING renames Lines'Image;
+      begin
+         return C1.CSI & L(2..L'Last) & 'A';
+      end up;
+   end Cursor;
+
+   ---------------------------------------------------------------------
    package body Format is
    ---------------------------------------------------------------------
       -- BS
@@ -281,47 +333,52 @@ package body Terminal.Control is
          return C1.NEL;
       end next_line;
 
+      function new_line return STRING is
+      begin
+         return (C0.CR, C0.LF);
+      end new_line;
+
       -- RI
-      function up return STRING is
+      function reverse_line_feed return STRING is
       begin
          return C1.RI;
-      end up;
+      end reverse_line_feed;
 
       -- HPA
-      function column(N: POSITIVE:=1) return STRING is
+      function hpa(N: POSITIVE:=1) return STRING is
          C : STRING renames N'Image;
       begin
          return C1.CSI & C(2..C'Last) & '`';
-      end column;
+      end hpa;
 
       -- HPR
-      function right(Columns: POSITIVE:=1) return STRING is
+      function hpr(Columns: POSITIVE:=1) return STRING is
          C : STRING renames Columns'Image;
       begin
          return C1.CSI & C(2..C'Last) & 'a';
-      end right;
+      end hpr;
 
       -- VPA
-      function line(N: POSITIVE:=1) return STRING is
+      function vpa(N: POSITIVE:=1) return STRING is
          L : STRING renames N'Image;
       begin
          return C1.CSI & L(2..L'Last) & 'd';
-      end line;
+      end vpa;
 
       -- VPR
-      function down(Lines: POSITIVE:=1) return STRING is
+      function vpr(Lines: POSITIVE:=1) return STRING is
          L : STRING renames Lines'Image;
       begin
          return C1.CSI & L(2..L'Last) & 'e';
-      end down;
+      end vpr;
 
       -- HVP
-      function locate(Line, Column: POSITIVE:=1) return STRING is
+      function hvp(Line, Column: POSITIVE:=1) return STRING is
          L : STRING renames Line'Image;
          C : STRING renames Column'Image;
       begin
          return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'f';
-      end locate;
+      end hvp;
 
       -- HTS
       function tabulation_set return STRING is
@@ -351,100 +408,48 @@ package body Terminal.Control is
             return '4' & C(2..C'Last);
          end bgcolor;
          
-         function Apply(p0: STRING) return STRING is
+         function Render(p0: STRING) return STRING is
          begin
             return C1.CSI & p0 & 'm';
-         end Apply;
-         function Apply(p0, p1: STRING) return STRING is
+         end Render;
+         function Render(p0, p1: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-         end Apply;
-         function Apply(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+         end Render;
+         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
          begin
             return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-         end Apply;
+         end Render;
       end Style;
    end Format;
-
-   ---------------------------------------------------------------------
-   package body Setup is
-   ---------------------------------------------------------------------
-      -- DECALN
-      function screen_alignment_test return STRING is
-      begin
-         return C0.ESC & "#8";
-      end screen_alignment_test;
-
-      -- RIS
-      function reset_initial_state return STRING is
-      begin
-         return C0.ESC & 'c';
-      end reset_initial_state;
-
-      function alternate_screen_buffer return STRING  is
-      begin
-         return C1.CSI & "?1049h";
-      end alternate_screen_buffer;
-
-      function designate_character_sets return STRING is
-         G0 : constant STRING := C0.ESC & "(B"; -- USASCII
-         G1 : constant STRING := C0.ESC & ")0"; -- line draw
-      begin
-         return G0 & G1;
-      end designate_character_sets;
-
-      function normal_screen_buffer return STRING  is
-      begin
-         return C1.CSI & "?1049l";
-      end normal_screen_buffer;
-
-      function seven_bits_controls return STRING  is
-      begin
-         return C0.ESC & " F";
-      end seven_bits_controls;
-
-      function echo_on return STRING is
-         SRM   : constant STRING := "12";
-         RESET : constant CHARACTER := 'l';
-      begin
-         return C1.CSI & SRM & RESET;
-      end echo_on;
-
-      function echo_off return STRING is
-         SRM : constant STRING := "12";
-         SET : constant CHARACTER := 'h';
-      begin
-         return C1.CSI & SRM & SET;
-      end echo_off;
-   end Setup;
 
    ---------------------------------------------------------------------
    -- Other

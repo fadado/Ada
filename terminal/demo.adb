@@ -9,7 +9,7 @@ procedure demo is
 
    procedure test_01 is
    begin
-      Emit(Cursor.locate & Display.erase_page);
+      Emit(Cursor.move & Display.erase_page);
       Emit(Setup.screen_alignment_test);
       delay 2.0;
    end;
@@ -17,16 +17,16 @@ procedure demo is
    procedure test_02 is
       package S renames Format.Style;
    begin
-      Emit(S.Apply(
+      Emit(S.Render(
          S.fgcolor(S.red),
          S.bgcolor(S.yellow),
          S.bold,
          S.italic));
-      Emit(Cursor.locate & Display.erase_page);
-      Emit(Cursor.locate(1,1));
+      Emit(Cursor.move & Display.erase_page);
+      Emit(Cursor.move(1,1));
       Emit(repeat('=', 80));
       -- Latin1 => UTF-8
-      Emit(Cursor.locate(2,7));
+      Emit(Cursor.move(2,7));
       Print('¿'); Print("¡Hi!"); Print('?');
       for i in 1..20 loop
          Emit(Display.scroll_down);
@@ -58,21 +58,21 @@ procedure demo is
       package D renames Format.DEC;
       package S renames Format.Style;
    begin
-      Emit(S.Apply(S.bgcolor(S.white), S.fgcolor(S.black)));
+      Emit(S.Render(S.bgcolor(S.white), S.fgcolor(S.black)));
       Emit(Display.erase_page);
       Emit(Format.alternate_character_set);
 
-      Emit(Cursor.locate(1,1));
+      Emit(Cursor.move(1,1));
       Emit(D.upper_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.upper_right_corner);
 
       for i in 2..24 loop
-         Emit(Cursor.locate(i,1));  Emit(D.vertical_bar);
-         Emit(Cursor.locate(i,80)); Emit(D.vertical_bar);
+         Emit(Cursor.move(i,1));  Emit(D.vertical_bar);
+         Emit(Cursor.move(i,80)); Emit(D.vertical_bar);
       end loop;
 
-      Emit(Cursor.locate(25,1));
+      Emit(Cursor.move(25,1));
       Emit(D.lower_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.lower_right_corner);
