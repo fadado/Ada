@@ -4,7 +4,7 @@
 
 all: demo
 
-demo: terminal*.ad[sb]
+demo: terminal*.ad[sb] demo.adb
 	gnatmake demo
 
 clean:

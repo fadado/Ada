@@ -47,18 +47,21 @@ procedure demo is
             end if;
             Emit(ord'Image & ' ' & c);
             if (ord+1) mod 16 = 0 then
-               Emit(Format.next_line);
+               Emit(Format.new_line);
             end if;
          end;
       end loop;
-      Emit(Format.next_line & Format.next_line);
+      Emit(Format.new_line & Format.new_line);
    end;
 
    procedure test_04 is
       package D renames Format.DEC;
       package S renames Format.Style;
+      fc : STRING := S.fgcolor(S.yellow, S.bright);
+      bc : STRING := S.bgcolor(S.cyan,   S.dimmed);
    begin
-      Emit(S.Render(S.bgcolor(S.white), S.fgcolor(S.black)));
+      -- black, red, green, yellow, blue, magenta, cyan, white
+      Emit(S.Render(fc, bc));
       Emit(Display.erase_page);
       Emit(Format.alternate_character_set);
 
@@ -76,7 +79,6 @@ procedure demo is
       Emit(D.lower_left_corner);
       Emit(repeat(D.horizontal_bar, 80-2));
       Emit(D.lower_right_corner);
-
       delay 5.5;
       Emit(Format.standard_character_set);
    end;
