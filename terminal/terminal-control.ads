@@ -3,17 +3,17 @@ package Terminal.Control is
 ------------------------------------------------------------------------
    pragma Pure(Terminal.Control);
 
+   type SWITCH is (Off, On);
+
    ---------------------------------------------------------------------
    package Setup is
    ---------------------------------------------------------------------
       function reset_initial_state return STRING with Inline;
       function soft_reset return STRING with Inline;
-      function alternate_screen_buffer return STRING with Inline;
-      function normal_screen_buffer return STRING with Inline;
+      function alternate_screen(Mode: SWITCH:=On) return STRING with Inline;
       function designate_character_sets return STRING with Inline;
       function seven_bits_controls return STRING with Inline;
-      function echo_off return STRING with Inline;
-      function echo_on return STRING with Inline;
+      function echo(Mode: SWITCH:=On) return STRING with Inline;
       function screen_alignment_test return STRING with Inline;
    end Setup;
 
@@ -34,8 +34,7 @@ package Terminal.Control is
       function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
       function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
-      function mode_insert return STRING with Inline;
-      function mode_replace return STRING with Inline;
+      function mode_insert(Mode: SWITCH:=On) return STRING with Inline;
       function scroll_region(Top, Bottom: POSITIVE) return STRING with Inline;
       function window_title(Title: STRING) return STRING with Inline;
    end Display;
@@ -60,10 +59,8 @@ package Terminal.Control is
       function move(Line, Column: POSITIVE:=1) return STRING with Inline;
       function save return STRING with Inline;
       function restore return STRING with Inline;
-      function hide return STRING with Inline;
-      function show return STRING with Inline;
-      function start_blink return STRING with Inline;
-      function stop_blink return STRING with Inline;
+      function visible(Mode: SWITCH:=On) return STRING with Inline;
+      function blink(Mode: SWITCH:=On) return STRING with Inline;
       function shape(Form: SHAPES:=user_shape) return STRING with Inline;
    end Cursor;
 

@@ -6,10 +6,10 @@ package body Terminal.Control is
    ---------------------------------------------------------------------
       NUL   : constant CHARACTER := CHARACTER'Val(0);
       BEL   : constant CHARACTER := CHARACTER'Val(7);
-      BS    : constant CHARACTER := CHARACTER'Val(8);  -- format effector
-      HT    : constant CHARACTER := CHARACTER'Val(9);  -- format effector
-      LF    : constant CHARACTER := CHARACTER'Val(10); -- format effector
-      CR    : constant CHARACTER := CHARACTER'Val(13); -- format effector
+      BS    : constant CHARACTER := CHARACTER'Val(8);
+      HT    : constant CHARACTER := CHARACTER'Val(9);
+      LF    : constant CHARACTER := CHARACTER'Val(10);
+      CR    : constant CHARACTER := CHARACTER'Val(13);
       SO    : constant CHARACTER := CHARACTER'Val(14);
       SI    : constant CHARACTER := CHARACTER'Val(15);
       ESC   : constant CHARACTER := CHARACTER'Val(27);
@@ -48,16 +48,13 @@ package body Terminal.Control is
       end screen_alignment_test;
 
       -- : W
-      function alternate_screen_buffer return STRING  is
+      function alternate_screen(Mode: SWITCH:=On) return STRING is
       begin
-         return C1.CSI & "?1049h";
-      end alternate_screen_buffer;
-
-      -- : W
-      function normal_screen_buffer return STRING  is
-      begin
-         return C1.CSI & "?1049l";
-      end normal_screen_buffer;
+         case Mode is
+            when On  => return C1.CSI & "?1049h";
+            when Off => return C1.CSI & "?1049l";
+         end case;
+      end alternate_screen;
 
       -- : W
       function designate_character_sets return STRING is
@@ -67,19 +64,13 @@ package body Terminal.Control is
          return G0 & G1;
       end designate_character_sets;
 
-      function echo_on return STRING is
-         SRM   : constant STRING := "12";
-         RESET : constant CHARACTER := 'l';
+      function echo(Mode: SWITCH:=On) return STRING is
       begin
-         return C1.CSI & SRM & RESET;
-      end echo_on;
-
-      function echo_off return STRING is
-         SRM : constant STRING := "12";
-         SET : constant CHARACTER := 'h';
-      begin
-         return C1.CSI & SRM & SET;
-      end echo_off;
+         case Mode is
+            when On  => return C1.CSI & "12l";
+            when Off => return C1.CSI & "12h";
+         end case;
+      end echo;
 
       function seven_bits_controls return STRING  is
       begin
@@ -175,19 +166,13 @@ package body Terminal.Control is
          return C1.CSI & T(2..T'Last) & ';' & B(2..B'Last) & 'r';
       end scroll_region;
 
-      -- SM & RM (modes)
-      function mode_replace return STRING is
-         IRM   : constant CHARACTER := '4';
-         RESET : constant CHARACTER := 'l';
+      --
+      function mode_insert(Mode: SWITCH:=On) return STRING is
       begin
-         return C1.CSI & IRM & RESET;
-      end mode_replace;
-
-      function mode_insert return STRING is
-         IRM : constant CHARACTER := '4';
-         SET : constant CHARACTER := 'h';
-      begin
-         return C1.CSI & IRM & SET;
+         case Mode is
+            when On  => return C1.CSI & "4h";
+            when Off => return C1.CSI & "4l";
+         end case;
       end mode_insert;
 
       -- BEL
@@ -282,29 +267,23 @@ package body Terminal.Control is
          return C0.ESC & '8';
       end restore;
 
-      -- DECTCEM set : W
-      function show return STRING is
+      -- DECTCEM : W
+      function visible(Mode: SWITCH:=On) return STRING is
       begin
-         return C1.CSI & "?25h";
-      end show;
+         case Mode is
+            when On  => return C1.CSI & "?25h";
+            when Off => return C1.CSI & "?25l";
+         end case;
+      end visible;
 
-      -- DECTCEM reset : W
-      function hide return STRING is
+      -- ATT160 : W
+      function blink(Mode: SWITCH:=On) return STRING is
       begin
-         return C1.CSI & "?25l";
-      end hide;
-
-      -- ATT160 set : W
-      function start_blink return STRING is
-      begin
-         return C1.CSI & "?12h";
-      end start_blink;
-
-      -- ATT160 reset : W
-      function stop_blink return STRING is
-      begin
-         return C1.CSI & "?12l";
-      end stop_blink;
+         case Mode is
+            when On  => return C1.CSI & "?12h";
+            when Off => return C1.CSI & "?12l";
+         end case;
+      end blink;
 
       -- DECCUSR : W
       function shape(Form: SHAPES:=user_shape) return STRING is

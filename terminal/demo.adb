@@ -4,32 +4,32 @@ with Terminal.Control;
 with Terminal.Device;
 
 procedure demo is
+   use Terminal;
    use Terminal.Control;
-   use Terminal.Device;
 
    procedure test_01 is
    begin
-      Emit(Cursor.move & Display.erase_page);
-      Emit(Setup.screen_alignment_test);
+      Device.Emit(Cursor.move & Display.erase_page);
+      Device.Emit(Setup.screen_alignment_test);
       delay 2.0;
    end;
 
    procedure test_02 is
       package S renames Format.Style;
    begin
-      Emit(S.Render(
+      Device.Emit(S.Render(
          S.fgcolor(S.red),
          S.bgcolor(S.yellow),
          S.bold,
          S.italic));
-      Emit(Cursor.move & Display.erase_page);
-      Emit(Cursor.move(1,1));
-      Emit(repeat('=', 80));
+      Device.Emit(Cursor.move & Display.erase_page);
+      Device.Emit(Cursor.move(1,1));
+      Device.Emit(repeat('=', 80));
       -- Latin1 => UTF-8
-      Emit(Cursor.move(2,7));
-      Print('¿'); Print("¡Hi!"); Print('?');
+      Device.Emit(Cursor.move(2,7));
+      Device.Print('¿'); Device.Print("¡Hi!"); Device.Print('?');
       for i in 1..20 loop
-         Emit(Display.scroll_down);
+         Device.Emit(Display.scroll_down);
          delay 0.1;
       end loop;
    end;
@@ -43,15 +43,15 @@ procedure demo is
             ord : constant POSITIVE := CHARACTER'Pos(c);
          begin
             if ord < 100 then
-               Emit(' ');
+               Device.Emit(' ');
             end if;
-            Emit(ord'Image & ' ' & c);
+            Device.Emit(ord'Image & ' ' & c);
             if (ord+1) mod 16 = 0 then
-               Emit(Format.new_line);
+               Device.Emit(Format.new_line);
             end if;
          end;
       end loop;
-      Emit(Format.new_line & Format.new_line);
+      Device.Emit(Format.new_line & Format.new_line);
    end;
 
    procedure test_04 is
@@ -61,45 +61,45 @@ procedure demo is
       bc : STRING := S.bgcolor(S.cyan,   S.dimmed);
    begin
       -- black, red, green, yellow, blue, magenta, cyan, white
-      Emit(S.Render(fc, bc));
-      Emit(Display.erase_page);
-      Emit(Format.alternate_character_set);
+      Device.Emit(S.Render(fc, bc));
+      Device.Emit(Display.erase_page);
+      Device.Emit(Format.alternate_character_set);
 
-      Emit(Cursor.move(1,1));
-      Emit(D.upper_left_corner);
-      Emit(repeat(D.horizontal_bar, 80-2));
-      Emit(D.upper_right_corner);
+      Device.Emit(Cursor.move(1,1));
+      Device.Emit(D.upper_left_corner);
+      Device.Emit(repeat(D.horizontal_bar, 80-2));
+      Device.Emit(D.upper_right_corner);
 
       for i in 2..24 loop
-         Emit(Cursor.move(i,1));  Emit(D.vertical_bar);
-         Emit(Cursor.move(i,80)); Emit(D.vertical_bar);
+         Device.Emit(Cursor.move(i,1));  Device.Emit(D.vertical_bar);
+         Device.Emit(Cursor.move(i,80)); Device.Emit(D.vertical_bar);
       end loop;
 
-      Emit(Cursor.move(25,1));
-      Emit(D.lower_left_corner);
-      Emit(repeat(D.horizontal_bar, 80-2));
-      Emit(D.lower_right_corner);
+      Device.Emit(Cursor.move(25,1));
+      Device.Emit(D.lower_left_corner);
+      Device.Emit(repeat(D.horizontal_bar, 80-2));
+      Device.Emit(D.lower_right_corner);
       delay 5.5;
-      Emit(Format.standard_character_set);
+      Device.Emit(Format.standard_character_set);
    end;
 
 begin
    -- initialize
-   Emit(Setup.alternate_screen_buffer   &
-        Setup.seven_bits_controls       &
-        Setup.designate_character_sets  &
-        Cursor.hide);
+   Device.Emit(Setup.alternate_screen(On)     &
+               Setup.seven_bits_controls      &
+               Setup.designate_character_sets &
+               Cursor.visible(Off));
    --
-   Emit(Display.window_title("testing control functions"));
+   Device.Emit(Display.window_title("testing control functions"));
 
  --test_01;
  --test_02;
- --test_03; Emit(Format.alternate_character_set); test_03; delay 5.0;
+ --test_03; Device.Emit(Format.alternate_character_set); test_03; delay 5.0;
    test_04;
 
    -- finalize
-   Emit(Setup.normal_screen_buffer   &
-        Cursor.show);
+   Device.Emit(Setup.alternate_screen(Off)   &
+               Cursor.visible(On));
 end demo;
 
 -- ¡ISO-8859-1!
