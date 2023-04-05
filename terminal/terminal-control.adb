@@ -1,31 +1,9 @@
+with Terminal.Control.C0;
+with Terminal.Control.C1;
+
 ------------------------------------------------------------------------
 package body Terminal.Control is
 ------------------------------------------------------------------------
-   ---------------------------------------------------------------------
-   package C0 is
-   ---------------------------------------------------------------------
-      NUL   : constant CHARACTER := CHARACTER'Val(0);
-      BEL   : constant CHARACTER := CHARACTER'Val(7);
-      BS    : constant CHARACTER := CHARACTER'Val(8);
-      HT    : constant CHARACTER := CHARACTER'Val(9);
-      LF    : constant CHARACTER := CHARACTER'Val(10);
-      CR    : constant CHARACTER := CHARACTER'Val(13);
-      SO    : constant CHARACTER := CHARACTER'Val(14);
-      SI    : constant CHARACTER := CHARACTER'Val(15);
-      ESC   : constant CHARACTER := CHARACTER'Val(27);
-   end C0;
-
-   ---------------------------------------------------------------------
-   package C1 is
-   ---------------------------------------------------------------------
-      CSI   : constant STRING := (C0.ESC, '[');
-      HTS   : constant STRING := (C0.ESC, 'H');
-      NEL   : constant STRING := (C0.ESC, 'E');
-      OSC   : constant STRING := (C0.ESC, ']');
-      RI    : constant STRING := (C0.ESC, 'M');
-      ST    : constant STRING := (C0.ESC, '\');
-   end C1;
-
    ---------------------------------------------------------------------
    package body Setup is
    ---------------------------------------------------------------------
