@@ -330,18 +330,6 @@ package body Terminal.Control is
          return C0.LF;
       end line_feed;
 
-      -- SI
-      function standard_character_set return CHARACTER is
-      begin
-         return C0.SI;
-      end standard_character_set;
-
-      -- SO
-      function alternate_character_set return CHARACTER is
-      begin
-         return C0.SO;
-      end alternate_character_set;
-
       -- NEL
       function nel return STRING is
       begin
@@ -394,70 +382,86 @@ package body Terminal.Control is
       begin
          return C1.CSI & L(2..L'Last) & ';' & C(2..C'Last) & 'f';
       end hvp;
-
-      ------------------------------------------------------------------
-      package body Style is
-      ------------------------------------------------------------------
-         function fgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING is
-            C : constant NATURAL := COLORS'Pos(Color);
-            I : constant NATURAL := (if Light = bright then 60 else 0);
-            P : constant NATURAL := 30 + C + I;
-            S : STRING renames P'Image;
-         begin
-            return S(2..S'Last);
-         end fgcolor;
-         
-         function bgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING is
-            C : constant NATURAL := COLORS'Pos(Color);
-            I : constant NATURAL := (if Light = bright then 60 else 0);
-            P : constant NATURAL := 40 + C + I;
-            S : STRING renames P'Image;
-         begin
-            return S(2..S'Last);
-         end bgcolor;
-         
-         function Render(p0: STRING) return STRING is
-         begin
-            return C1.CSI & p0 & 'm';
-         end Render;
-         function Render(p0, p1: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1 & 'm';
-         end Render;
-         function Render(p0, p1, p2: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
-         end Render;
-         function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
-         begin
-            return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
-         end Render;
-      end Style;
    end Format;
+
+   ---------------------------------------------------------------------
+   package body Style is
+   ---------------------------------------------------------------------
+      function fgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING is
+         C : constant NATURAL := COLORS'Pos(Color);
+         I : constant NATURAL := (if Light = bright then 60 else 0);
+         P : constant NATURAL := 30 + C + I;
+         S : STRING renames P'Image;
+      begin
+         return S(2..S'Last);
+      end fgcolor;
+      
+      function bgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING is
+         C : constant NATURAL := COLORS'Pos(Color);
+         I : constant NATURAL := (if Light = bright then 60 else 0);
+         P : constant NATURAL := 40 + C + I;
+         S : STRING renames P'Image;
+      begin
+         return S(2..S'Last);
+      end bgcolor;
+      
+      function Render(p0: STRING) return STRING is
+      begin
+         return C1.CSI & p0 & 'm';
+      end Render;
+      function Render(p0, p1: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1 & 'm';
+      end Render;
+      function Render(p0, p1, p2: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4, p5: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4, p5, p6: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4, p5, p6, p7: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8 & 'm';
+      end Render;
+      function Render(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: STRING) return STRING is
+      begin
+         return C1.CSI & p0&';'&p1&';'&p2&';'&p3&';'&p4&';'&p5&';'&p6&';'&p7&';'&p8&';'&p9 & 'm';
+      end Render;
+   end Style;
+
+   ---------------------------------------------------------------------
+   package body Drawing is
+   ---------------------------------------------------------------------
+      -- SI
+      function standard_character_set return CHARACTER is
+      begin
+         return C0.SI;
+      end standard_character_set;
+
+      -- SO
+      function alternate_character_set return CHARACTER is
+      begin
+         return C0.SO;
+      end alternate_character_set;
+   end Drawing;
 
    ---------------------------------------------------------------------
    -- Other

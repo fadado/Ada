@@ -8,7 +8,6 @@ package body Terminal.Device is
    package UTF renames Ada.Strings.UTF_Encoding.Strings;
    package Integer_IO is new Text_IO.Integer_IO (Num => INTEGER);
 
-   New_Line : constant STRING := Format.carriage_return & Format.line_feed;
    Output   : Text_IO.File_Type renames Text_IO.Standard_Error;
 
    ---------------------------------------------------------------------
@@ -34,7 +33,7 @@ package body Terminal.Device is
    ---------------------------------------------------------------------
    procedure Print is
    begin
-      Text_IO.Put(Output, New_Line);
+      Text_IO.Put(Output, Format.new_line);
    end;
 
    procedure Print(Item: STRING) is
