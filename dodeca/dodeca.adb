@@ -16,7 +16,7 @@ procedure dodeca is
    -- Consumer
 ------------------------------------------------------------------------
    task player is
-      entry output(vector: in SOLUTION);
+      entry output(vector: SOLUTION);
       entry finish;
    end player;
 
@@ -26,7 +26,7 @@ procedure dodeca is
    begin
       loop
          select
-            accept output(vector: in SOLUTION)
+            accept output(vector: SOLUTION)
             do
                player.vector := vector; -- local copy
             end output;
@@ -50,7 +50,7 @@ procedure dodeca is
       serie : SOLUTION;
 
       -- Try to add one partial solution
-      procedure extend(current: in LEVEL);
+      procedure extend(current: LEVEL);
 
       -- Sets of notes and intervals used
       type INTERVAL is range CHOICE'First..CHOICE'Pred(CHOICE'Last);
@@ -58,39 +58,39 @@ procedure dodeca is
       used_intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
 
       -- Solve the search problem
-      procedure extend(current: in LEVEL) is
+      procedure extend(current: LEVEL) is
          -- local subprograms
-         -- `c` is the choice in the current level
-         function last_interval(c: in CHOICE) return INTERVAL
+         -- `c` is the choice the current level
+         function last_interval(c: CHOICE) return INTERVAL
            with Inline;
-         function reject(c: in CHOICE) return BOOLEAN
+         function reject(c: CHOICE) return BOOLEAN
            with Inline;
-         procedure enter(c: in CHOICE)
+         procedure enter(c: CHOICE)
            with Inline;
-         procedure leave(c: in CHOICE)
+         procedure leave(c: CHOICE)
            with Inline;
 
          -- compute choice/previous interval
-         function last_interval(c: in CHOICE) return INTERVAL is
+         function last_interval(c: CHOICE) return INTERVAL is
             previous : CHOICE renames serie(LEVEL'Pred(current));
          begin
             return INTERVAL(abs (c - previous));
          end;
 
          -- reasons to prune
-         function reject(c: in CHOICE) return BOOLEAN is
+         function reject(c: CHOICE) return BOOLEAN is
          begin
             return used_notes(c) or else used_intervals(last_interval(c));
          end;
 
          -- to wrap the recursive call
-         procedure enter(c: in CHOICE) is
+         procedure enter(c: CHOICE) is
          begin
             used_notes(c) := TRUE;
             used_intervals(last_interval(c)) := TRUE;
          end;
 
-         procedure leave(c: in CHOICE) is
+         procedure leave(c: CHOICE) is
          begin
             used_intervals(last_interval(c)) := FALSE;
             used_notes(c) := FALSE;
@@ -120,7 +120,7 @@ procedure dodeca is
          second : constant := LEVEL'Succ(LEVEL'First);
       begin
          for c in CHOICE'Range loop
-            -- start with each choice in turn
+            -- start with each choice turn
             serie(first) := c;
             -- enter next level
             used_notes(c) := TRUE;
