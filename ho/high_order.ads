@@ -7,7 +7,7 @@ package High_Order is
    generic
       type INDEX   is (<>);
       type ELEMENT is private;
-      type TUPLE   is array (INDEX range<>) of ELEMENT;
+      type TUPLE   is array (INDEX range <>) of ELEMENT;
    package Tuple_Signature is private end;
 
    generic
@@ -15,9 +15,9 @@ package High_Order is
    procedure Swap (X, Y: in out A);
 
    generic
-      type A is private;
-      type B is private;
-      type C is private;
+      type A (<>) is limited private;
+      type B (<>) is limited private;
+      type C (<>) is limited private;
       with function F(x: B) return C;
       with function G(x: A) return B;
    function Compose (x: A) return C;
