@@ -8,17 +8,17 @@ procedure OOP is
 ------------------------------------------------------------------------
    package Root is
 ------------------------------------------------------------------------
-      type    INNER is abstract tagged private;
-      subtype CLASS is INNER'Class;
-      type    PROXY is access all CLASS;
+      type    OBJECT is abstract tagged private;
+      subtype CLASS  is OBJECT'Class;
+      type    PROXY  is access all CLASS;
       -- experiments
-      function Level(self: in INNER) return INTEGER with Inline;
+      function Level(self: in OBJECT) return INTEGER with Inline;
    private
-      type INNER is abstract tagged null record;
+      type OBJECT is abstract tagged null record;
    end Root;
    package body Root is
       -- experiments
-      function Level(self: in INNER) return INTEGER is
+      function Level(self: in OBJECT) return INTEGER is
       begin
          return 0;
       end;
@@ -27,43 +27,43 @@ procedure OOP is
 ------------------------------------------------------------------------
    package Shape is
 ------------------------------------------------------------------------
-      subtype UPPER is Root.INNER;
-      type    INNER is new UPPER with private;
-      subtype CLASS is INNER'Class;
-      type    PROXY is access all CLASS;
+      subtype HYPER  is Root.OBJECT;
+      type    OBJECT is new HYPER with private;
+      subtype CLASS  is OBJECT'Class;
+      type    PROXY  is access all CLASS;
       --
-      procedure Set_X(self: in out INNER; X: in INTEGER) with Inline;
-      procedure Set_Y(self: in out INNER; Y: in INTEGER) with Inline;
-      function  Get_X(self: in INNER) return INTEGER with Inline;
-      function  Get_Y(self: in INNER) return INTEGER with Inline;
+      procedure Set_X(self: in out OBJECT; X: in INTEGER) with Inline;
+      procedure Set_Y(self: in out OBJECT; Y: in INTEGER) with Inline;
+      function  Get_X(self: in OBJECT) return INTEGER with Inline;
+      function  Get_Y(self: in OBJECT) return INTEGER with Inline;
       --
-      function Level(self: in INNER) return INTEGER with Inline;
+      function Level(self: in OBJECT) return INTEGER with Inline;
    private
-      type INNER is new UPPER with
+      type OBJECT is new HYPER with
          record
             X, Y : INTEGER := 0;
          end record;
    end Shape;
    package body Shape is
-      procedure Set_X(self: in out INNER; X: in INTEGER) is
+      procedure Set_X(self: in out OBJECT; X: in INTEGER) is
       begin
          self.X := X;
       end Set_X;
-      function Get_X(self: in INNER) return INTEGER is
+      function Get_X(self: in OBJECT) return INTEGER is
       begin
          return self.X;
       end Get_X;
-      procedure Set_Y(self: in out INNER; Y: in INTEGER) is
+      procedure Set_Y(self: in out OBJECT; Y: in INTEGER) is
       begin
          self.Y := Y;
       end Set_Y;
-      function Get_Y(self: in INNER) return INTEGER is
+      function Get_Y(self: in OBJECT) return INTEGER is
       begin
          return self.Y;
       end Get_Y;
       --
-      function Level(self: in INNER) return INTEGER is
-         super : UPPER renames UPPER(self);
+      function Level(self: in OBJECT) return INTEGER is
+         super : HYPER renames HYPER(self);
       begin
          return 1 + super.Level;
       end;
@@ -72,22 +72,22 @@ procedure OOP is
 ------------------------------------------------------------------------
    package Circle is
 ------------------------------------------------------------------------
-      subtype UPPER is Shape.INNER;
-      type    INNER is new UPPER with private;
-      subtype CLASS is INNER'Class;
-      type    PROXY is access all CLASS;
+      subtype HYPER  is Shape.OBJECT;
+      type    OBJECT is new HYPER with private;
+      subtype CLASS  is OBJECT'Class;
+      type    PROXY  is access all CLASS;
       --
-      function Level(self: in INNER) return INTEGER with Inline;
+      function Level(self: in OBJECT) return INTEGER with Inline;
    private
-      type INNER is new UPPER with
+      type OBJECT is new HYPER with
          record
             R : INTEGER := 1;
          end record;
    end Circle;
    package body Circle is
       --
-      function Level(self: in INNER) return INTEGER is
-         super : UPPER renames UPPER(self);
+      function Level(self: in OBJECT) return INTEGER is
+         super : HYPER renames HYPER(self);
       begin
          return 1 + super.Level;
       end;
@@ -97,7 +97,7 @@ begin
    MAIN:
       declare
          procedure print(str: STRING) renames Ada.Text_IO.put_line;
-         a : Circle.INNER;
+         a : Circle.OBJECT;
       begin
          a.Set_X(33);
          print("X =" & a.Get_X'Image);
