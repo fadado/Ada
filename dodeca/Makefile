@@ -5,7 +5,7 @@
 all: dodeca
 
 dodeca: dodeca.adb
-	gnatmake dodeca
+	gnatmake -O dodeca
 
 clean:
 	rm -f *.o *.ali dodeca

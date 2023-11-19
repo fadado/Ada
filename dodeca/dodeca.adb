@@ -3,6 +3,8 @@
 with Ada.Text_IO;
 
 procedure dodeca is
+   pragma Optimize(Time);
+
    Chromatic_Notes : constant := 12;
 
    -- Set of available choices
