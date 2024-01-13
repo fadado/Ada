@@ -5,14 +5,20 @@ package High_Order is
    pragma Pure(High_Order);
 
    generic
-      type INDEX   is (<>);
-      type ELEMENT is private;
-      type TUPLE   is array (INDEX range <>) of ELEMENT;
-   package Tuple_Signature is private end;
+      type INDEX    is (<>);
+      type ELEMENT  is private;
+      type SEQUENCE is array (INDEX range <>) of ELEMENT;
+   package G_Sequential is private end;
 
    generic
-      type A is private;
-   procedure Swap (X, Y: in out A);
+      type MUTABLE is private;
+   procedure G_Swap (X, Y: in out MUTABLE);
+
+   generic
+      type A (<>) is limited private;
+      with function F(x: A) return A;
+      with function G(x: A) return A;
+   function G_Compose (x: A) return A;
 
    generic
       type A (<>) is limited private;
@@ -20,7 +26,7 @@ package High_Order is
       type C (<>) is limited private;
       with function F(x: B) return C;
       with function G(x: A) return B;
-   function Compose (x: A) return C;
+   function G_Compose_3 (x: A) return C;
 
 end High_Order;
 -- ¡ISO-8859-1!
