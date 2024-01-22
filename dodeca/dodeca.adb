@@ -9,7 +9,7 @@ procedure dodeca is
 
    -- Set of available choices
    type CHOICE   is range 1..Chromatic_Notes;
-   type LEVEL    is range CHOICE'First..CHOICE'Last;
+   type LEVEL    is new CHOICE;
 
    -- Ordered set of choices
    type SOLUTION is array (LEVEL) of CHOICE;
