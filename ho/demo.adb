@@ -7,10 +7,9 @@ use  High_Order;
 
 procedure demo is
    Error : exception;
-begin
-   declare
-      procedure Swap is
-         new G_Swap (INTEGER);
+
+   procedure test_swap is
+      procedure Swap is new G_Swap (INTEGER);
       i, j : INTEGER;
    begin
       i := 1;
@@ -18,14 +17,23 @@ begin
       Swap(i, j);
       if i /= 2 or j /= 1 then raise Error; end if;
    end;
-   
-   declare
+
+   procedure test_compose is
       function square(n: INTEGER) return INTEGER is (n*n);
       function half(n: INTEGER)   return INTEGER is (n/2);
-      function square_and_half is
-         new G_Compose (INTEGER, half, square);
+      function s_h is new G_Compose (INTEGER, half, square);
    begin
-      if square_and_half(5) /= 12 then raise Error; end if;
+      if s_h(5) /= 12 then raise Error; end if;
+   end;
+begin
+   test_swap;
+   test_compose;
+
+   declare
+      package E is new Equality_Concept (INTEGER);
+      package O is new Ordering_Concept (E);
+   begin
+      null;
    end;
 end demo;
 
