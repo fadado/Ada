@@ -5,8 +5,35 @@ with Ada.Text_IO; use Ada.Text_IO;
 with High_Order;
 use  High_Order;
 
+
 procedure demo is
    Error : exception;
+
+   procedure test_stack_1 is
+   begin
+      declare
+         package Character_Stack is new
+            G_Stack_1 (ELEMENT_TYPE => CHARACTER);
+         stack: Character_Stack.T;
+      begin
+        stack.Push('A'); 
+        if stack.Pop /= 'A' then raise Error; end if;
+        if not stack.Void then raise Error; end if;
+      end;
+   end test_stack_1;
+
+   procedure test_stack_2 is
+   begin
+      declare
+         package Character_Stack is new
+            G_Stack_1 (ELEMENT_TYPE => CHARACTER);
+         stack: Character_Stack.T;
+      begin
+        stack.Push('A'); 
+        if stack.Pop /= 'A' then raise Error; end if;
+        if not stack.Void then raise Error; end if;
+      end;
+   end test_stack_2;
 
    procedure test_swap is
       procedure Swap is new G_Swap (INTEGER);
@@ -16,7 +43,7 @@ procedure demo is
       j := 2;
       Swap(i, j);
       if i /= 2 or j /= 1 then raise Error; end if;
-   end;
+   end test_swap;
 
    procedure test_compose is
       function square(n: INTEGER) return INTEGER is (n*n);
@@ -24,8 +51,9 @@ procedure demo is
       function s_h is new G_Compose (INTEGER, half, square);
    begin
       if s_h(5) /= 12 then raise Error; end if;
-   end;
+   end test_compose;
 begin
+   test_stack_1;
    test_swap;
    test_compose;
 

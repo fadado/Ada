@@ -1,9 +1,10 @@
 ------------------------------------------------------------------------
 -- High Order Imperative Programming
 ------------------------------------------------------------------------
-package High_Order is
-   pragma Pure(High_Order);
 
+with Ada.Containers.Vectors;
+
+package High_Order is
    ---------------------------------------------------------------------
    -- Generic subprograms
    ---------------------------------------------------------------------
@@ -40,8 +41,7 @@ package High_Order is
    package Equality_Concept is end;
 
    generic -- Ordering Concept
-      with package Eq is
-         new Equality_Concept (<>);
+      with package Eq is new Equality_Concept (<>);
       use Eq;
       with function "<"(L, R: T) return BOOLEAN is <>;
    package Ordering_Concept is end;
@@ -50,11 +50,23 @@ package High_Order is
    -- Data structures
    ---------------------------------------------------------------------
 
-   generic
-      type INDEX    is (<>);
-      type ELEMENT  is private;
-      type SEQUENCE is array (INDEX range <>) of ELEMENT;
-   package G_Array is end;
+   generic -- Generic Stack 1
+      type ELEMENT_TYPE is private;
+   package G_Stack_1 is
+      type T is tagged private;
+      procedure Push(self: in out T; x: in ELEMENT_TYPE)
+         with Inline;
+      function  Pop(self: in out T) return ELEMENT_TYPE
+         with Inline;
+      function  Void(self: in T) return BOOLEAN
+         with Inline;
+   private
+      use Ada.Containers;
+      package Structure is new
+         Vectors (Index_Type => POSITIVE, 
+                  Element_Type => ELEMENT_TYPE);
+      type T is new Structure.VECTOR with null record;
+   end G_Stack_1;
 
 end High_Order;
 -- ¡ISO-8859-1!
