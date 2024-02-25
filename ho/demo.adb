@@ -16,56 +16,26 @@ procedure demo is
    Error : exception;
 
    ---------------------------------------------------------------------
-   procedure test_stack_1 is
-      package Character_Stack is new
-         G_Stack_1 (ELEMENT_TYPE => CHARACTER);
+   procedure test_stack is
    ---------------------------------------------------------------------
-   begin
-      declare
-         stack: Character_Stack.T;
-      begin
-        stack.Push('A'); 
-        if stack.Pop /= 'A' then raise Error; end if;
-        if not stack.Void then raise Error; end if;
-      end;
-   end test_stack_1;
-
-   ---------------------------------------------------------------------
-   procedure test_stack_2 is
-   ---------------------------------------------------------------------
-      package Structure is new Ada.Containers.Vectors
+      package Vector_Structure is new Ada.Containers.Vectors
          (Index_Type   => POSITIVE, 
           Element_Type => CHARACTER);
-      package Character_Stack is new G_Stack_2 (Structure);
-   begin
-      declare
-         stack: Character_Stack.T;
-      begin
-        stack.Push('A'); 
-        if stack.Pop /= 'A' then raise Error; end if;
-        if not stack.Void then raise Error; end if;
-      end;
-   end test_stack_2;
-
-   ---------------------------------------------------------------------
-   procedure test_stack_3 is
-   ---------------------------------------------------------------------
-      package Structure is new Ada.Containers.Vectors
-         (Index_Type   => POSITIVE, 
+      use Vector_Structure;
+      package LIFO_Signature is new Signatures.LIFO
+         (Structure    => VECTOR,
           Element_Type => CHARACTER);
-      use Structure;
-      package Signature is new LIFO_Signature(T => VECTOR, Element_Type => CHARACTER);
-      package Character_Stack is new G_Stack_3 (Signature);
+      package Character_Stack is new Functors.Stack
+         (Signature    => LIFO_Signature);
    begin
       declare
---         stack: Character_Stack.T;
+           stack: Character_Stack.T;
       begin
---        stack.Push('A'); 
---        if stack.Pop /= 'A' then raise Error; end if;
---        if not stack.Void then raise Error; end if;
-        null;
+          stack.Push('A'); 
+          if stack.Pop /= 'A' then raise Error; end if;
+          if not stack.Void then raise Error; end if;
       end;
-   end test_stack_3;
+   end test_stack;
 
    ---------------------------------------------------------------------
    procedure test_swap is
@@ -92,8 +62,7 @@ procedure demo is
 -- main
 ------------------------------------------------------------------------
 begin
-   test_stack_1;
-   test_stack_2;
+   test_stack;
    test_swap;
    test_compose;
 
