@@ -31,22 +31,6 @@ package High_Order is
       with Inline;
 
    ---------------------------------------------------------------------
-   -- Concepts
-   ---------------------------------------------------------------------
-
-   generic -- Equality Concept
-      type T;
-      with function "="(L, R: T) return BOOLEAN is <>;
-      -- with function "/=" provided automatically
-   package Equality_Concept is end;
-
-   generic -- Ordering Concept
-      with package Eq is new Equality_Concept (<>);
-      use Eq;
-      with function "<"(L, R: T) return BOOLEAN is <>;
-   package Ordering_Concept is end;
-
-   ---------------------------------------------------------------------
    -- Data structures
    ---------------------------------------------------------------------
 
@@ -74,7 +58,8 @@ package High_Order is
 
          procedure Push(self: in out T; x: in ELEMENT_TYPE) with Inline;
          function  Pop(self: in out T) return ELEMENT_TYPE with Inline;
-         function  Void(self: in T) return BOOLEAN with Inline;
+         function  Peek(self: in T) return ELEMENT_TYPE with Inline;
+         function  Is_Empty(self: in T) return BOOLEAN with Inline;
 
       private
          subtype PARENT is Signature.STRUCTURE;

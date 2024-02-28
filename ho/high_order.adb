@@ -47,11 +47,18 @@ package body High_Order is
             return result;
          end Pop;
 
-         function Void(self: in T) return BOOLEAN is
+         function Peek(self: in T) return ELEMENT_TYPE is
+            super: PARENT renames PARENT(self);
+         begin
+            -- require not empty
+            return Last_Element(super);
+         end Peek;
+
+         function Is_Empty(self: in T) return BOOLEAN is
             super: PARENT renames PARENT(self);
          begin
             return Is_Empty(super);
-         end Void;
+         end Is_Empty;
       end Stack;
    end Functors;
 

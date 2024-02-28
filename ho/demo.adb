@@ -18,22 +18,45 @@ procedure demo is
    ---------------------------------------------------------------------
    procedure test_stack is
    ---------------------------------------------------------------------
-      package Vector_Structure is new Ada.Containers.Vectors
-         (Index_Type   => POSITIVE, 
-          Element_Type => CHARACTER);
-      use Vector_Structure;
-      package LIFO_Signature is new Signatures.LIFO
-         (Structure    => VECTOR,
-          Element_Type => CHARACTER);
-      package Character_Stack is new Functors.Stack
-         (Signature    => LIFO_Signature);
-   begin
-      declare
-           stack: Character_Stack.T;
+      generic
+         with package LIFO is new Signatures.LIFO
+           (Element_Type => CHARACTER, others => <>);
+      procedure test;
+
+      procedure test is
+         package Character_Stack is new Functors.Stack
+           (Signature => LIFO);
+         stack: Character_Stack.T;
       begin
           stack.Push('A'); 
           if stack.Pop /= 'A' then raise Error; end if;
-          if not stack.Void then raise Error; end if;
+          if not stack.Is_Empty then raise Error; end if;
+      end test;
+
+   begin
+      declare
+         package Vector_Structure is new Ada.Containers.Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
+         use Vector_Structure;
+         package Vector_Signature is new Signatures.LIFO
+           (Structure    => VECTOR,
+            Element_Type => CHARACTER);
+         procedure run is new test(Vector_Signature);
+      begin
+          run;
+      end;
+
+      declare
+         package List_Structure is new Ada.Containers.Doubly_Linked_Lists
+           (Element_Type => CHARACTER);
+         use List_Structure;
+         package List_Signature is new Signatures.LIFO
+           (Structure    => LIST,
+            Element_Type => CHARACTER);
+         procedure run is new test(List_Signature);
+      begin
+          run;
       end;
    end test_stack;
 
@@ -65,13 +88,6 @@ begin
    test_stack;
    test_swap;
    test_compose;
-
-   declare
-      package E is new Equality_Concept (INTEGER);
-      package O is new Ordering_Concept (E);
-   begin
-      null;
-   end;
 end demo;
 
 -- ¡ISO-8859-1!
