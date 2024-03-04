@@ -45,13 +45,13 @@ package High_Order is
          with function  Last_Element(Container: in STRUCTURE) return ELEMENT_TYPE is <>;
          with procedure Delete_Last(Container: in out STRUCTURE; Count: Count_Type:=1) is <>;
          with function  Is_Empty(Container: in STRUCTURE) return BOOLEAN is <>;
-      package LIFO is private end;
+      package Stack is private end;
    end Signatures;
 
    ---------------------------------------------------------------------
    package Functors is
       generic
-         with package Signature is new Signatures.LIFO (<>);
+         with package Signature is new Signatures.Stack (<>);
       package Stack is
          type T is tagged private;
          subtype ELEMENT_TYPE is Signature.ELEMENT_TYPE;

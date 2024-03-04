@@ -20,13 +20,13 @@ procedure demo is
    procedure test_stack is
    ---------------------------------------------------------------------
       generic
-         with package LIFO is new Signatures.LIFO
+         with package Signature is new Signatures.Stack
            (Element_Type => CHARACTER, others => <>);
       procedure test;
 
       procedure test is
          package Character_Stack is new Functors.Stack
-           (Signature => LIFO);
+           (Signature => Signature);
          stack: Character_Stack.T;
       begin
           stack.Push('Z'); 
@@ -40,11 +40,11 @@ procedure demo is
 
    begin
       declare
-         package Vector_Structure is new AC.Vectors
+         package Structure is new AC.Vectors
            (Index_Type   => POSITIVE, 
             Element_Type => CHARACTER);
-         use Vector_Structure;
-         package Signature is new Signatures.LIFO
+         use Structure;
+         package Signature is new Signatures.Stack
            (Structure    => VECTOR,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
@@ -53,10 +53,10 @@ procedure demo is
       end;
 
       declare
-         package List_Structure is new AC.Doubly_Linked_Lists
+         package Structure is new AC.Doubly_Linked_Lists
            (Element_Type => CHARACTER);
-         use List_Structure;
-         package Signature is new Signatures.LIFO
+         use Structure;
+         package Signature is new Signatures.Stack
            (Structure    => LIST,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
@@ -65,12 +65,12 @@ procedure demo is
       end;
 
       declare
-         package Bounded_Vector_Structure is new AC.Bounded_Vectors
+         package Structure is new AC.Bounded_Vectors
            (Index_Type   => POSITIVE, 
             Element_Type => CHARACTER);
-         use Bounded_Vector_Structure;
-         subtype VECTOR is Bounded_Vector_Structure.VECTOR(11);
-         package Signature is new Signatures.LIFO
+         use Structure;
+         subtype VECTOR is Structure.VECTOR(11);
+         package Signature is new Signatures.Stack
            (Structure    => VECTOR,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
