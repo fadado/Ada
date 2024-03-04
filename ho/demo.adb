@@ -6,11 +6,12 @@ with High_Order;
 use  High_Order;
 
 with Ada.Containers.Vectors;
-with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Bounded_Vectors;
+with Ada.Containers.Indefinite_Vectors;
+
 with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Containers.Bounded_Doubly_Linked_Lists;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 
 procedure demo is
    Error : exception;
@@ -28,33 +29,51 @@ procedure demo is
            (Signature => LIFO);
          stack: Character_Stack.T;
       begin
+          stack.Push('Z'); 
           stack.Push('A'); 
           if stack.Pop /= 'A' then raise Error; end if;
+          if stack.Pop /= 'Z' then raise Error; end if;
           if not stack.Is_Empty then raise Error; end if;
       end test;
 
+      package AC renames Ada.Containers;
+
    begin
       declare
-         package Vector_Structure is new Ada.Containers.Vectors
+         package Vector_Structure is new AC.Vectors
            (Index_Type   => POSITIVE, 
             Element_Type => CHARACTER);
          use Vector_Structure;
-         package Vector_Signature is new Signatures.LIFO
+         package Signature is new Signatures.LIFO
            (Structure    => VECTOR,
             Element_Type => CHARACTER);
-         procedure run is new test(Vector_Signature);
+         procedure run is new test(Signature);
       begin
           run;
       end;
 
       declare
-         package List_Structure is new Ada.Containers.Doubly_Linked_Lists
+         package List_Structure is new AC.Doubly_Linked_Lists
            (Element_Type => CHARACTER);
          use List_Structure;
-         package List_Signature is new Signatures.LIFO
+         package Signature is new Signatures.LIFO
            (Structure    => LIST,
             Element_Type => CHARACTER);
-         procedure run is new test(List_Signature);
+         procedure run is new test(Signature);
+      begin
+          run;
+      end;
+
+      declare
+         package Bounded_Vector_Structure is new AC.Bounded_Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
+         use Bounded_Vector_Structure;
+         subtype VECTOR is Bounded_Vector_Structure.VECTOR(11);
+         package Signature is new Signatures.LIFO
+           (Structure    => VECTOR,
+            Element_Type => CHARACTER);
+         procedure run is new test(Signature);
       begin
           run;
       end;
