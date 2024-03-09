@@ -5,10 +5,10 @@ with Ada.Text_IO;
 procedure dodeca is
    pragma Optimize(Time);
 
-   Chromatic_Notes : constant := 12;
+   Chromatic_Notes: constant := 12;
 
    -- Set of available choices
-   type CHOICE   is range 1..Chromatic_Notes;
+   type CHOICE   is range 1 .. Chromatic_Notes;
    type LEVEL    is new CHOICE;
 
    -- Ordered set of choices
@@ -24,7 +24,7 @@ procedure dodeca is
 
    task body player is
       use Ada.Text_IO;
-      vector : SOLUTION;
+      vector: SOLUTION;
    begin
       loop
          select
@@ -49,43 +49,35 @@ procedure dodeca is
    task solver;
    task body solver is
       -- Vector with current (partial) solution
-      serie : SOLUTION;
-
-      -- Try to add one partial solution
-      procedure extend(current: LEVEL);
+      serie: SOLUTION;
 
       -- Sets of notes and intervals used
-      type INTERVAL is range CHOICE'First..CHOICE'Pred(CHOICE'Last);
+      type INTERVAL is range CHOICE'First .. CHOICE'Pred(CHOICE'Last);
       used_notes     : array (CHOICE)   of BOOLEAN := (others => FALSE);
       used_intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
 
-      -- Solve the search problem
+      -- Try to add one partial solution
       procedure extend(current: LEVEL) is
-         -- local subprograms
-         -- `c` is the choice the current level
-         function last_interval(c: CHOICE) return INTERVAL
-           with Inline;
-         function reject(c: CHOICE) return BOOLEAN
-           with Inline;
-         procedure enter(c: CHOICE)
-           with Inline;
-         procedure leave(c: CHOICE)
-           with Inline;
+         function  last_interval(c: CHOICE) return INTERVAL with Inline;
+         function  reject(c: CHOICE) return BOOLEAN with Inline;
+         procedure enter(c: CHOICE) with Inline;
+         procedure leave(c: CHOICE) with Inline;
 
          -- compute choice/previous interval
          function last_interval(c: CHOICE) return INTERVAL is
-            previous : CHOICE renames serie(LEVEL'Pred(current));
+            previous: CHOICE renames serie(LEVEL'Pred(current));
          begin
-            return INTERVAL(abs (c - previous));
+            return INTERVAL(abs(c - previous));
          end;
 
          -- reasons to prune
          function reject(c: CHOICE) return BOOLEAN is
          begin
-            return used_notes(c) or else used_intervals(last_interval(c));
+            return used_notes(c)
+               or else used_intervals(last_interval(c));
          end;
 
-         -- to wrap the recursive call
+         -- to wrap the recursive calls
          procedure enter(c: CHOICE) is
          begin
             used_notes(c) := TRUE;
@@ -100,14 +92,16 @@ procedure dodeca is
 
       begin
          -- try to extend solution with each choice
-         for c in CHOICE'Range loop
+         for c in CHOICE loop
             if reject(c) then
                null; -- fail
             else
                serie(current) := c;
+               -- at the bottom?
                if current = LEVEL'Last then
                   player.output(serie);
                else
+                  -- descend one level
                   enter(c);
                   extend(current => LEVEL'Succ(current));
                   leave(c);
@@ -118,17 +112,13 @@ procedure dodeca is
 
    begin
       declare
-         first  : constant := LEVEL'First;
-         second : constant := LEVEL'Succ(LEVEL'First);
+         first: constant := LEVEL'First;
       begin
-         for c in CHOICE'Range loop
-            -- start with each choice turn
+         for c in CHOICE loop
             serie(first) := c;
-            -- enter next level
+            -- descend one level
             used_notes(c) := TRUE;
-            -- extend solution with next = second
-            extend(current => second);
-            -- return from next level
+            extend(current => LEVEL'Succ(first));
             used_notes(c) := FALSE;
          end loop;
          player.finish;
