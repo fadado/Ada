@@ -24,40 +24,40 @@ package body High_Order is
    end G_Compose_3;
 
    ---------------------------------------------------------------------
-   -- Data PARENTs
+   -- Data structures
    ---------------------------------------------------------------------
 
    package body Functors is
       package body Stack is
          use Signature;
 
-         procedure Push(self: in out T; x: in ELEMENT_TYPE) is
-            super: PARENT renames PARENT(self);
+         procedure Push(Container: in out T; x: in Element_Type) is
+            C: Data renames Data(Container);
          begin
-            Append(super, x);
+            Append(C, x);
          end Push;
 
-         function Pop(self: in out T) return ELEMENT_TYPE is
-            super: PARENT renames PARENT(self);
-            result: ELEMENT_TYPE;
+         function Pop(Container: in out T) return Element_Type is
+            C: Data renames Data(Container);
+            result: Element_Type;
          begin
             -- require not empty
-            result := Last_Element(super);
-            Delete_Last(super);
+            result := Last_Element(C);
+            Delete_Last(C);
             return result;
          end Pop;
 
-         function Peek(self: in T) return ELEMENT_TYPE is
-            super: PARENT renames PARENT(self);
+         function Peek(Container: in T) return Element_Type is
+            C: Data renames Data(Container);
          begin
             -- require not empty
-            return Last_Element(super);
+            return Last_Element(C);
          end Peek;
 
-         function Is_Empty(self: in T) return BOOLEAN is
-            super: PARENT renames PARENT(self);
+         function Is_Empty(Container: in T) return BOOLEAN is
+            C: Data renames Data(Container);
          begin
-            return Is_Empty(super);
+            return Is_Empty(C);
          end Is_Empty;
       end Stack;
    end Functors;

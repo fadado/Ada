@@ -23,7 +23,6 @@ procedure demo is
          with package Signature is new Signatures.Stack
            (Element_Type => CHARACTER, others => <>);
       procedure test;
-
       procedure test is
          package Character_Stack is new Functors.Stack
            (Signature => Signature);
@@ -37,7 +36,6 @@ procedure demo is
       end test;
 
       package AC renames Ada.Containers;
-
    begin
       declare
          package Structure is new AC.Vectors
@@ -45,7 +43,7 @@ procedure demo is
             Element_Type => CHARACTER);
          use Structure;
          package Signature is new Signatures.Stack
-           (Structure    => VECTOR,
+           (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
       begin
@@ -57,7 +55,7 @@ procedure demo is
            (Element_Type => CHARACTER);
          use Structure;
          package Signature is new Signatures.Stack
-           (Structure    => LIST,
+           (Data_Type    => LIST,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
       begin
@@ -71,7 +69,7 @@ procedure demo is
          use Structure;
          subtype VECTOR is Structure.VECTOR(11);
          package Signature is new Signatures.Stack
-           (Structure    => VECTOR,
+           (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
          procedure run is new test(Signature);
       begin

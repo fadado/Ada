@@ -39,12 +39,12 @@ package High_Order is
       subtype Count_Type is Ada.Containers.Count_Type;
 
       generic
-         type STRUCTURE is tagged private;
-         type ELEMENT_TYPE is private;
-         with procedure Append(Container: in out STRUCTURE; New_Item: ELEMENT_TYPE) is <>;
-         with function  Last_Element(Container: in STRUCTURE) return ELEMENT_TYPE is <>;
-         with procedure Delete_Last(Container: in out STRUCTURE; Count: Count_Type:=1) is <>;
-         with function  Is_Empty(Container: in STRUCTURE) return BOOLEAN is <>;
+         type Data_Type is tagged private;
+         type Element_Type is private;
+         with procedure Append(Container: in out Data_Type; New_Item: Element_Type) is <>;
+         with function  Last_Element(Container: in Data_Type) return Element_Type is <>;
+         with procedure Delete_Last(Container: in out Data_Type; Count: Count_Type:=1) is <>;
+         with function  Is_Empty(Container: in Data_Type) return BOOLEAN is <>;
       package Stack is private end;
    end Signatures;
 
@@ -54,16 +54,16 @@ package High_Order is
          with package Signature is new Signatures.Stack (<>);
       package Stack is
          type T is tagged private;
-         subtype ELEMENT_TYPE is Signature.ELEMENT_TYPE;
+         subtype Element_Type is Signature.Element_Type;
 
-         procedure Push(self: in out T; x: in ELEMENT_TYPE) with Inline;
-         function  Pop(self: in out T) return ELEMENT_TYPE with Inline;
-         function  Peek(self: in T) return ELEMENT_TYPE with Inline;
-         function  Is_Empty(self: in T) return BOOLEAN with Inline;
+         procedure Push(Container: in out T; x: in Element_Type) with Inline;
+         function  Pop(Container: in out T) return Element_Type with Inline;
+         function  Peek(Container: in T) return Element_Type with Inline;
+         function  Is_Empty(Container: in T) return BOOLEAN with Inline;
 
       private
-         subtype PARENT is Signature.STRUCTURE;
-         type T is new PARENT with null record;
+         subtype Data is Signature.Data_Type;
+         type T is new Data with null record;
       end Stack;
    end Functors;
 
