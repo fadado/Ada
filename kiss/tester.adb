@@ -28,9 +28,9 @@ begin
       package Signature is new Kiss.Signatures.Stack
          (Data_Type    => VECTOR,
           Element_Type => CHARACTER);
-      procedure run is new Tests.Stack (Signature);
+      procedure run_test is new Tests.Stack (Signature);
    begin
-      run;
+      run_test;
    end;
 
    -- Implement stack on unbounded lists
@@ -41,9 +41,9 @@ begin
       package Signature is new Kiss.Signatures.Stack
          (Data_Type    => LIST,
           Element_Type => CHARACTER);
-      procedure run is new Tests.Stack (Signature);
+      procedure run_test is new Tests.Stack (Signature);
    begin
-      run;
+      run_test;
    end;
 
    -- Implement stack on bounded vectors
@@ -56,9 +56,9 @@ begin
       package Signature is new Kiss.Signatures.Stack
          (Data_Type    => VECTOR,
           Element_Type => CHARACTER);
-      procedure run is new Tests.Stack (Signature);
+      procedure run_test is new Tests.Stack (Signature);
    begin
-      run;
+      run_test;
    end;
 end Tester;
 
