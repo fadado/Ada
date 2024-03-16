@@ -2,10 +2,10 @@
 
 .SILENT:
 
-all: demo
+all: tester
 
-demo: kiss.ad[sb] kiss-*.ad[sb] demo.adb
-	gnatmake demo
+tester: kiss.ad[sb] kiss-*.ad[sb] tests.ad[sb] tests-*.ad[sb] tester.adb
+	gnatmake tester
 
 clean:
-	rm -f *.o *.ali demo *.ads.* *.adb.*
+	rm -f *.o *.ali tester *.ads.* *.adb.*
