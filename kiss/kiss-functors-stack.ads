@@ -6,11 +6,14 @@ with Kiss.Signatures.Stack;
 
 generic
    with package Signature is new Signatures.Stack (<>);
+   use Signature;
+   -- type Data_Type is tagged private;
+   -- type Element_Type is private;
+   -- ...
 
 package Kiss.Functors.Stack is
 
    type T is tagged private;
-   subtype Element_Type is Signature.Element_Type;
 
    procedure Push(Container: in out T; x: in Element_Type) with Inline;
    function  Pop(Container: in out T) return Element_Type with Inline;
@@ -18,8 +21,8 @@ package Kiss.Functors.Stack is
    function  Is_Empty(Container: in T) return BOOLEAN with Inline;
 
 private
-   subtype Data is Signature.Data_Type;
-   type T is new Data with null record;
+   subtype Data_Type is Signature.Data_Type;
+   type T is new Data_Type with null record;
 
 end Kiss.Functors.Stack;
 

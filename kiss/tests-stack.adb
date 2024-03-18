@@ -4,7 +4,10 @@
 
 with Kiss.Functors.Stack;
 
+-- with package Signature is new Kiss.Signatures.Stack...
+
 procedure Tests.Stack is
+
    package Character_Stack is new Kiss.Functors.Stack
       (Signature => Signature);
 
