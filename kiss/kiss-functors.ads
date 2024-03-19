@@ -4,7 +4,7 @@
 
 package Kiss.Functors is
 
-   pragma Pure(Kiss.Functors);
+   pragma Pure (Kiss.Functors);
 
 end Kiss.Functors;
 

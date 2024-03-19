@@ -2,18 +2,7 @@
 -- 
 ------------------------------------------------------------------------
 
-with Kiss.Functors.Stack;
-
--- with package Signature is
---    new Kiss.Signatures.Stack
---      (Data_Type    => <>,
---       Element_Type => CHARACTER,
---       others       => <>);
-
-procedure Tests.Stack is
-
-   package Character_Stack is
-      new Kiss.Functors.Stack (Signature);
+procedure Tests.XStack is
 
    the_stack: Character_Stack.T;
 
@@ -24,7 +13,7 @@ begin
    if the_stack.Pop /= 'Z' then raise Error; end if;
    if not the_stack.Is_Empty then raise Error; end if;
 
-end Tests.Stack;
+end Tests.XStack;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

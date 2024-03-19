@@ -16,47 +16,78 @@ with Tests.Stack;
 with Kiss.Signatures.Stack;
 --  Signature with subprograms required to implement stacks.
 
+--with Kiss.Functors.Stack;
+--with Tests.XStack;
+--  X
+
 procedure Tester is
 begin
 
+   -- X
+-- declare
+--    package Structure is new Ada.Containers.Vectors
+--       (Index_Type   => POSITIVE, 
+--        Element_Type => CHARACTER);
+--    use Structure;
+--    package Signature is new Kiss.Signatures.Stack
+--       (Data_Type    => VECTOR,
+--        Element_Type => CHARACTER);
+--    package Functor is new Kiss.Functors.Stack
+--       (Signature);
+--    procedure run_test is new Tests.XStack
+--       (Functor);
+-- begin
+--    null;
+--    run_test;
+-- end;
+
    -- Implement stack on unbounded vectors
    declare
-      package Structure is new Ada.Containers.Vectors
-         (Index_Type   => POSITIVE, 
-          Element_Type => CHARACTER);
+      package Structure is
+         new Ada.Containers.Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
       use Structure;
-      package Signature is new Kiss.Signatures.Stack
-         (Data_Type    => VECTOR,
-          Element_Type => CHARACTER);
-      procedure run_test is new Tests.Stack (Signature);
+      package Signature is
+         new Kiss.Signatures.Stack
+           (Data_Type    => VECTOR,
+            Element_Type => CHARACTER);
+      procedure run_test is
+         new Tests.Stack (Signature);
    begin
       run_test;
    end;
 
    -- Implement stack on unbounded lists
    declare
-      package Structure is new Ada.Containers.Doubly_Linked_Lists
-         (Element_Type => CHARACTER);
+      package Structure is
+         new Ada.Containers.Doubly_Linked_Lists
+            (Element_Type => CHARACTER);
       use Structure;
-      package Signature is new Kiss.Signatures.Stack
-         (Data_Type    => LIST,
-          Element_Type => CHARACTER);
-      procedure run_test is new Tests.Stack (Signature);
+      package Signature is
+         new Kiss.Signatures.Stack
+           (Data_Type    => LIST,
+            Element_Type => CHARACTER);
+      procedure run_test is
+         new Tests.Stack (Signature);
    begin
       run_test;
    end;
 
    -- Implement stack on bounded vectors
    declare
-      package Structure is new Ada.Containers.Bounded_Vectors
-         (Index_Type   => POSITIVE, 
-          Element_Type => CHARACTER);
+      package Structure is
+         new Ada.Containers.Bounded_Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
       use Structure;
       subtype VECTOR is Structure.VECTOR(11);
-      package Signature is new Kiss.Signatures.Stack
-         (Data_Type    => VECTOR,
-          Element_Type => CHARACTER);
-      procedure run_test is new Tests.Stack (Signature);
+      package Signature is
+         new Kiss.Signatures.Stack
+           (Data_Type    => VECTOR,
+            Element_Type => CHARACTER);
+      procedure run_test is
+         new Tests.Stack (Signature);
    begin
       run_test;
    end;

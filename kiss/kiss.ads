@@ -4,7 +4,7 @@
 
 package Kiss is
 
-   pragma Pure(Kiss);
+   pragma Pure (Kiss);
 
 end Kiss;
 

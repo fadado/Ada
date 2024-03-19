@@ -5,7 +5,9 @@
 with Kiss.Signatures.Stack;
 
 generic
-   with package Signature is new Signatures.Stack (<>);
+   with package Signature is
+      new Signatures.Stack (others => <>);
+
    use Signature;
    -- type Data_Type is tagged private;
    -- type Element_Type is private;

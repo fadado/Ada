@@ -6,7 +6,7 @@ with Ada.Containers;
 
 package Kiss.Signatures is
 
-   pragma Pure(Kiss.Signatures);
+   pragma Pure (Kiss.Signatures);
 
    subtype Count_Type is Ada.Containers.Count_Type;
    --  Renamed type for easy reference.
