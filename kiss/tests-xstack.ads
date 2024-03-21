@@ -6,7 +6,7 @@ with Kiss.Functors.Stack;
 
 generic
    with package Character_Stack is
-      new Kiss.Functors.Stack (others => <>);
+      new Kiss.Functors.Stack (<>);
 procedure Tests.XStack;
 
 -- ¡ISO-8859-1!

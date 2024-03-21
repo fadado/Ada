@@ -16,32 +16,38 @@ with Tests.Stack;
 with Kiss.Signatures.Stack;
 --  Signature with subprograms required to implement stacks.
 
---with Kiss.Functors.Stack;
---with Tests.XStack;
---  X
+with Kiss.Functors.Stack;
+--!!!with Tests.XStack;
+-- 
 
 procedure Tester is
 begin
 
    -- X
--- declare
---    package Structure is new Ada.Containers.Vectors
---       (Index_Type   => POSITIVE, 
---        Element_Type => CHARACTER);
---    use Structure;
---    package Signature is new Kiss.Signatures.Stack
---       (Data_Type    => VECTOR,
---        Element_Type => CHARACTER);
---    package Functor is new Kiss.Functors.Stack
---       (Signature);
---    procedure run_test is new Tests.XStack
---       (Functor);
--- begin
---    null;
---    run_test;
--- end;
+   declare
+      package Structure is new Ada.Containers.Vectors
+         (Index_Type   => POSITIVE, 
+          Element_Type => CHARACTER);
+      use Structure;
+      package Signature is new Kiss.Signatures.Stack
+         (Data_Type    => VECTOR,
+          Element_Type => CHARACTER);
+      package LIFO is new Kiss.Functors.Stack
+         (Signature);
+    --!!!procedure run_test is new Tests.XStack
+    --!!!   (Character_Stack => LIFO);
+      the_stack: LIFO.T;
+   begin
+      --!!!null;
+      --!!!run_test;
+      the_stack.Push('Z'); 
+      the_stack.Push('A'); 
+      if the_stack.Pop /= 'A' then raise Tests.Error; end if;
+      if the_stack.Pop /= 'Z' then raise Tests.Error; end if;
+      if not the_stack.Is_Empty then raise Tests.Error; end if;
+   end;
 
-   -- Implement stack on unbounded vectors
+   -- Implement an stack on unbounded vectors
    declare
       package Structure is
          new Ada.Containers.Vectors
@@ -58,7 +64,7 @@ begin
       run_test;
    end;
 
-   -- Implement stack on unbounded lists
+   -- Implement an stack on unbounded lists
    declare
       package Structure is
          new Ada.Containers.Doubly_Linked_Lists
@@ -74,7 +80,7 @@ begin
       run_test;
    end;
 
-   -- Implement stack on bounded vectors
+   -- Implement an stack on bounded vectors
    declare
       package Structure is
          new Ada.Containers.Bounded_Vectors

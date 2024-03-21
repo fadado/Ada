@@ -2,6 +2,8 @@
 -- 
 ------------------------------------------------------------------------
 
+--with Kiss.Functors.Stack;
+
 procedure Tests.XStack is
 
    the_stack: Character_Stack.T;

@@ -29,8 +29,8 @@ Exploring better abstractions on top of `Ada.Containers`.
    package Character_Stack is
       new Kiss.Functors.Stack (Signature);
 
--- kiss.functors.stack
+-- kiss.functors.stack.ads
    with package Signature is
-      new Signatures.Stack (others => <>);
+      new Signatures.Stack (<>);
    use Signature;
 ```
