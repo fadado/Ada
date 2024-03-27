@@ -18,6 +18,7 @@ procedure Tests.Stack is
    the_stack: Character_Stack.T;
 
 begin
+
    the_stack.Push('Z'); 
    the_stack.Push('A'); 
    if the_stack.Pop /= 'A' then raise Error; end if;

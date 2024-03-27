@@ -2,12 +2,11 @@
 -- 
 ------------------------------------------------------------------------
 
-with Kiss.Functors.Stack;
+package Kiss.Interfaces is
 
-generic
-   with package Character_Stack is
-      new Kiss.Functors.Stack (<>);
-procedure Tests.XStack;
+   pragma Pure (Kiss.Interfaces);
+
+end Kiss.Interfaces;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

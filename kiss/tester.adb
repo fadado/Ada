@@ -17,13 +17,15 @@ with Kiss.Signatures.Stack;
 --  Signature with subprograms required to implement stacks.
 
 with Kiss.Functors.Stack;
---!!!with Tests.XStack;
--- 
+--  Makes a new structure from a signature.
+
+with Kiss.Interfaces.Stack;
+--  Programming 'against' the interface
 
 procedure Tester is
 begin
 
-   -- X
+   -- Unrolling cascade
    declare
       package Structure is new Ada.Containers.Vectors
          (Index_Type   => POSITIVE, 
@@ -34,12 +36,8 @@ begin
           Element_Type => CHARACTER);
       package LIFO is new Kiss.Functors.Stack
          (Signature);
-    --!!!procedure run_test is new Tests.XStack
-    --!!!   (Character_Stack => LIFO);
       the_stack: LIFO.T;
    begin
-      --!!!null;
-      --!!!run_test;
       the_stack.Push('Z'); 
       the_stack.Push('A'); 
       if the_stack.Pop /= 'A' then raise Tests.Error; end if;
