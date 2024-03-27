@@ -5,6 +5,7 @@
 with Kiss.Signatures.Stack;
 
 generic
+
    with package Signature is
       new Signatures.Stack (<>);
 
@@ -23,6 +24,7 @@ package Kiss.Functors.Stack is
    function  Is_Empty(Container: in T) return BOOLEAN with Inline;
 
 private
+
    subtype Data_Type is Signature.Data_Type;
    type T is new Data_Type with null record;
 

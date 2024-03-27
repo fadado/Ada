@@ -2,20 +2,11 @@
 -- 
 ------------------------------------------------------------------------
 
-with Kiss.Interfaces.Stack;
+package Kiss.Interfaces is
 
-package Tests is
+   pragma Pure (Kiss.Interfaces);
 
-   --pragma Pure (Tests);
-
-   Error : exception;
-
-   package PStackC is new Kiss.Interfaces.Stack
-      (Element_Type => CHARACTER);
-   subtype IStackC is PStackC.T;
-   -- Interface to stack of characters
-
-end Tests;
+end Kiss.Interfaces;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

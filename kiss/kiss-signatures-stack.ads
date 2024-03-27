@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------
 
 generic
+
    type Data_Type is tagged private;
    type Element_Type is private;
 

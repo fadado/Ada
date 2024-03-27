@@ -2,11 +2,10 @@
 -- 
 ------------------------------------------------------------------------
 
-with Kiss.Functors.Stack;
-
 generic
-   with package Character_Stack is
-      new Kiss.Functors.Stack (<>);
+
+   type IStack is interface and IStackC;
+
 procedure Tests.XStack;
 
 -- ¡ISO-8859-1!

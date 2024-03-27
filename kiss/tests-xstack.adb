@@ -2,13 +2,12 @@
 -- 
 ------------------------------------------------------------------------
 
---with Kiss.Functors.Stack;
-
 procedure Tests.XStack is
 
-   the_stack: Character_Stack.T;
+   the_stack: IStack;
 
 begin
+
    the_stack.Push('Z'); 
    the_stack.Push('A'); 
    if the_stack.Pop /= 'A' then raise Error; end if;
