@@ -2,11 +2,9 @@
 -- 
 ------------------------------------------------------------------------
 
-with Kiss.Interfaces.Stack;
-
 package Tests is
 
-   --pragma Pure (Tests);
+   pragma Pure (Tests);
 
    Error : exception;
 

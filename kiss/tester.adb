@@ -19,13 +19,10 @@ with Kiss.Signatures.Stack;
 with Kiss.Functors.Stack;
 --  Makes a new structure from a signature.
 
-with Kiss.Interfaces.Stack;
---  Programming 'against' the interface
-
 procedure Tester is
 begin
 
-   -- Unrolling cascade
+   -- Complete cascade
    declare
       package Structure is new Ada.Containers.Vectors
          (Index_Type   => POSITIVE, 
@@ -66,7 +63,7 @@ begin
    declare
       package Structure is
          new Ada.Containers.Doubly_Linked_Lists
-            (Element_Type => CHARACTER);
+           (Element_Type => CHARACTER);
       use Structure;
       package Signature is
          new Kiss.Signatures.Stack
