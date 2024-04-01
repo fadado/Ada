@@ -24,16 +24,16 @@ begin
 
    -- Complete cascade
    declare
-      package Structure is new Ada.Containers.Vectors
+      package Container is new Ada.Containers.Vectors
          (Index_Type   => POSITIVE, 
           Element_Type => CHARACTER);
-      use Structure;
-      package Signature is new Kiss.Signatures.Stack
+      use Container;
+      package Stack_Signature is new Kiss.Signatures.Stack
          (Data_Type    => VECTOR,
           Element_Type => CHARACTER);
-      package LIFO is new Kiss.Functors.Stack
-         (Signature);
-      the_stack: LIFO.T;
+      package Character_Stack is new Kiss.Functors.Stack
+         (Stack_Signature);
+      the_stack: Character_Stack.T;
    begin
       the_stack.Push('Z'); 
       the_stack.Push('A'); 
