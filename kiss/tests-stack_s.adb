@@ -10,7 +10,7 @@ with Kiss.Functors.Stack;
 --       Element_Type => CHARACTER,
 --       others       => <>);
 
-procedure Tests.Stack is
+procedure Tests.Stack_S is
 
    package Character_Stack is
       new Kiss.Functors.Stack (Signature);
@@ -23,9 +23,9 @@ begin
    the_stack.Push('A'); 
    if the_stack.Pop /= 'A' then raise Error; end if;
    if the_stack.Pop /= 'Z' then raise Error; end if;
-   if not the_stack.Is_Empty then raise Error; end if;
+   if not the_stack.void then raise Error; end if;
 
-end Tests.Stack;
+end Tests.Stack_S;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

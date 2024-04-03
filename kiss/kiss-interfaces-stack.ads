@@ -13,7 +13,7 @@ package Kiss.Interfaces.Stack is
    procedure Push(Container: in out I; x: in Element_Type) is abstract;
    function  Pop(Container: in out I) return Element_Type is abstract;
    function  Peek(Container: in I) return Element_Type is abstract;
-   function  Is_Empty(Container: in I) return BOOLEAN is abstract;
+   function  void(Container: in I) return BOOLEAN is abstract;
 
 end Kiss.Interfaces.Stack;
 

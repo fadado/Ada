@@ -30,11 +30,11 @@ package body Kiss.Functors.Stack is
       return Last_Element(parent);
    end Peek;
 
-   function Is_Empty(Container: in T) return BOOLEAN is
+   function void(Container: in T) return BOOLEAN is
       parent: Data_Type renames Data_Type(Container);
    begin
       return Is_Empty(parent);
-   end Is_Empty;
+   end void;
 
 end Kiss.Functors.Stack;
 

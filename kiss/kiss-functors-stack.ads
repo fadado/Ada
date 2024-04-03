@@ -21,7 +21,7 @@ package Kiss.Functors.Stack is
    procedure Push(Container: in out T; x: in Element_Type) with Inline;
    function  Pop(Container: in out T) return Element_Type with Inline;
    function  Peek(Container: in T) return Element_Type with Inline;
-   function  Is_Empty(Container: in T) return BOOLEAN with Inline;
+   function  void(Container: in T) return BOOLEAN with Inline;
 
 private
 

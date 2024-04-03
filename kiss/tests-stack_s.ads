@@ -12,7 +12,7 @@ generic
          Element_Type => CHARACTER,
          others       => <>);
 
-procedure Tests.Stack;
+procedure Tests.Stack_S;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
