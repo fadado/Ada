@@ -55,7 +55,7 @@ begin
       the_stack.Push('A'); 
       if the_stack.Pop /= 'A' then raise Tests.Error; end if;
       if the_stack.Pop /= 'Z' then raise Tests.Error; end if;
-      if not the_stack.void then raise Tests.Error; end if;
+      if not the_stack.Void then raise Tests.Error; end if;
    end Inline_Test;
 
    ---------------------------------------------------------------------

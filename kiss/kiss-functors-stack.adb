@@ -23,18 +23,18 @@ package body Kiss.Functors.Stack is
       return result;
    end Pop;
 
-   function Peek(Container: in T) return Element_Type is
+   function Top(Container: in T) return Element_Type is
       parent: Data_Type renames Data_Type(Container);
    begin
       -- require not empty
       return Last_Element(parent);
-   end Peek;
+   end Top;
 
-   function void(Container: in T) return BOOLEAN is
+   function Void(Container: in T) return BOOLEAN is
       parent: Data_Type renames Data_Type(Container);
    begin
       return Is_Empty(parent);
-   end void;
+   end Void;
 
 end Kiss.Functors.Stack;
 

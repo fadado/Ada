@@ -23,7 +23,7 @@ begin
    the_stack.Push('A'); 
    if the_stack.Pop /= 'A' then raise Error; end if;
    if the_stack.Pop /= 'Z' then raise Error; end if;
-   if not the_stack.void then raise Error; end if;
+   if not the_stack.Void then raise Error; end if;
 
 end Tests.Stack_S;
 
