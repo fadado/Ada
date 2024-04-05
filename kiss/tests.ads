@@ -4,6 +4,7 @@
 
 with Kiss.Interfaces.Stack;
 with Kiss.Signatures.Stack;
+with Kiss.Signatures.Queue;
 
 package Tests is
 
@@ -23,6 +24,14 @@ package Tests is
             Element_Type => CHARACTER,
             others       => <>);
    procedure Stack_S;
+
+   generic
+      with package Queue_Signature is
+         new Kiss.Signatures.Queue
+           (Data_Type    => <>,
+            Element_Type => CHARACTER,
+            others       => <>);
+   procedure Queue;
 
 end Tests;
 

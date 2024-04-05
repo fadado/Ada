@@ -14,9 +14,11 @@ with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 --  List structures
 
 with Kiss.Signatures.Stack;
---  Signature with subprograms required to implement stacks
+with Kiss.Signatures.Queue;
+--  Signatures with subprograms required to implement ADTs
 
 with Kiss.Functors.Stack;
+with Kiss.Functors.Queue;
 --  Makes a new structure from a signature
 
 with Kiss.Interfaces.Stack;
@@ -149,6 +151,24 @@ begin
    ---------------------------------------------------------------------
    -- Signature based Queue tests
    ---------------------------------------------------------------------
+
+   Queue_List_Test:
+   declare
+      package Container is
+         new Ada.Containers.Doubly_Linked_Lists
+           (Element_Type => CHARACTER);
+      use Container;
+
+      package Queue_Signature is
+         new Kiss.Signatures.Queue
+           (Data_Type    => LIST,
+            Element_Type => CHARACTER);
+
+      procedure run_test is
+         new Tests.Queue (Queue_Signature);
+   begin
+      run_test;
+   end Queue_List_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Deque tests

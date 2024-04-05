@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------
 
 with Kiss.Functors.Stack;
+with Kiss.Functors.Queue;
 
 package body Tests is
 
@@ -29,6 +30,18 @@ package body Tests is
       if the_stack.Pop /= 'Z' then raise Error; end if;
       if not the_stack.Void then raise Error; end if;
    end Stack_S;
+
+   procedure Queue is
+      package Character_Queue is
+         new Kiss.Functors.Queue (Queue_Signature);
+      the_queue: Character_Queue.T;
+   begin
+      the_queue.Enqueue('Z'); 
+      the_queue.Enqueue('A'); 
+      if the_queue.Dequeue /= 'Z' then raise Error; end if;
+      if the_queue.Dequeue /= 'A' then raise Error; end if;
+      if not the_queue.Void then raise Error; end if;
+   end Queue;
 
 end Tests;
 
