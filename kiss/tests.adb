@@ -31,7 +31,19 @@ package body Tests is
       if not the_stack.Void then raise Error; end if;
    end Stack_S;
 
-   procedure Queue is
+   package body Queue_I is
+      procedure run_test(the_queue: in out IQueueC.I'Class)
+      is
+      begin
+         the_queue.Enqueue('Z'); 
+         the_queue.Enqueue('A'); 
+         if the_queue.Dequeue /= 'Z' then raise Error; end if;
+         if the_queue.Dequeue /= 'A' then raise Error; end if;
+         if not the_queue.Void then raise Error; end if;
+      end run_test;
+   end Queue_I;
+
+   procedure Queue_S is
       package Character_Queue is
          new Kiss.Functors.Queue (Queue_Signature);
       the_queue: Character_Queue.T;
@@ -41,7 +53,7 @@ package body Tests is
       if the_queue.Dequeue /= 'Z' then raise Error; end if;
       if the_queue.Dequeue /= 'A' then raise Error; end if;
       if not the_queue.Void then raise Error; end if;
-   end Queue;
+   end Queue_S;
 
 end Tests;
 

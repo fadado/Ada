@@ -165,10 +165,29 @@ begin
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Queue (Queue_Signature);
+         new Tests.Queue_S (Queue_Signature);
    begin
       run_test;
    end Queue_List_Test;
+
+   Vector_List_Test:
+   declare
+      package Container is
+         new Ada.Containers.Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
+      use Container;
+
+      package Queue_Signature is
+         new Kiss.Signatures.Queue
+           (Data_Type    => VECTOR,
+            Element_Type => CHARACTER);
+
+      procedure run_test is
+         new Tests.Queue_S (Queue_Signature);
+   begin
+      run_test;
+   end Vector_List_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Deque tests

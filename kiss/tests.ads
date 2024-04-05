@@ -4,6 +4,7 @@
 
 with Kiss.Interfaces.Stack;
 with Kiss.Signatures.Stack;
+with Kiss.Interfaces.Queue;
 with Kiss.Signatures.Queue;
 
 package Tests is
@@ -25,13 +26,20 @@ package Tests is
             others       => <>);
    procedure Stack_S;
 
+   package Queue_I is
+      package IQueueC is
+         new Kiss.Interfaces.Queue
+           (Element_Type => CHARACTER);
+      procedure run_test(the_queue: in out IQueueC.I'Class);
+   end Queue_I;
+
    generic
       with package Queue_Signature is
          new Kiss.Signatures.Queue
            (Data_Type    => <>,
             Element_Type => CHARACTER,
             others       => <>);
-   procedure Queue;
+   procedure Queue_S;
 
 end Tests;
 
