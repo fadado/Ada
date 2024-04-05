@@ -22,17 +22,14 @@ with Kiss.Functors.Stack;
 with Kiss.Interfaces.Stack;
 --  Interfaces to bless types
 
-with Tests.Stack_S;
---  Signature based stack test
-
-with Tests.Stack_I;
---  Interface based stack test
+with Tests;
+--  Algorithms for testing
 
 procedure Tester is
 begin
 
    ---------------------------------------------------------------------
-   -- Inlined algorithm test
+   -- Inlined stack test
    ---------------------------------------------------------------------
 
    Inline_Test:
@@ -59,7 +56,7 @@ begin
    end Inline_Test;
 
    ---------------------------------------------------------------------
-   -- Interface based test
+   -- Interface based stack test
    ---------------------------------------------------------------------
 
    Bless_Test:
