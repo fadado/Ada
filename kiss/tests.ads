@@ -6,16 +6,22 @@ with Kiss.Interfaces.Stack;
 with Kiss.Signatures.Stack;
 with Kiss.Interfaces.Queue;
 with Kiss.Signatures.Queue;
+with Kiss.Interfaces.Deque;
+with Kiss.Signatures.Deque;
 
 package Tests is
 
    Error : exception;
 
+   ---------------------------------------------------------------------
+   -- Stack tests
+   ---------------------------------------------------------------------
+
    package Stack_I is
       package IStackC is
          new Kiss.Interfaces.Stack
            (Element_Type => CHARACTER);
-      procedure run_test(the_stack: in out IStackC.I'Class);
+      procedure run_test(ADT: in out IStackC.I'Class);
    end Stack_I;
 
    generic
@@ -26,11 +32,15 @@ package Tests is
             others       => <>);
    procedure Stack_S;
 
+   ---------------------------------------------------------------------
+   -- Queue tests
+   ---------------------------------------------------------------------
+
    package Queue_I is
       package IQueueC is
          new Kiss.Interfaces.Queue
            (Element_Type => CHARACTER);
-      procedure run_test(the_queue: in out IQueueC.I'Class);
+      procedure run_test(ADT: in out IQueueC.I'Class);
    end Queue_I;
 
    generic
@@ -40,6 +50,25 @@ package Tests is
             Element_Type => CHARACTER,
             others       => <>);
    procedure Queue_S;
+
+   ---------------------------------------------------------------------
+   -- Deque tests
+   ---------------------------------------------------------------------
+
+   package Deque_I is
+      package IDequeC is
+         new Kiss.Interfaces.Deque
+           (Element_Type => CHARACTER);
+      procedure run_test(ADT: in out IDequeC.I'Class);
+   end Deque_I;
+
+   generic
+      with package Deque_Signature is
+         new Kiss.Signatures.Deque
+           (Data_Type    => <>,
+            Element_Type => CHARACTER,
+            others       => <>);
+   procedure Deque_S;
 
 end Tests;
 

@@ -16,7 +16,7 @@ generic
    with function  Is_Empty(Container: in Data_Type) return BOOLEAN is <>;
    --  Subprograms required to implement double ended queues.
 
-package Kiss.Signatures.Queue is private end;
+package Kiss.Signatures.Deque is private end;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -15,14 +15,13 @@ with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 
 with Kiss.Signatures.Stack;
 with Kiss.Signatures.Queue;
+with Kiss.Signatures.Deque;
 --  Signatures with subprograms required to implement ADTs
 
 with Kiss.Functors.Stack;
 with Kiss.Functors.Queue;
+with Kiss.Functors.Deque;
 --  Makes a new structure from a signature
-
-with Kiss.Interfaces.Stack;
---  Interfaces to bless types
 
 with Tests;
 --  Algorithms for testing
@@ -170,7 +169,7 @@ begin
       run_test;
    end Queue_List_Test;
 
-   Vector_List_Test:
+   Queue_Vector_Test:
    declare
       package Container is
          new Ada.Containers.Vectors
@@ -187,11 +186,30 @@ begin
          new Tests.Queue_S (Queue_Signature);
    begin
       run_test;
-   end Vector_List_Test;
+   end Queue_Vector_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Deque tests
    ---------------------------------------------------------------------
+
+   Deque_Vector_Test:
+   declare
+      package Container is
+         new Ada.Containers.Vectors
+           (Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER);
+      use Container;
+
+      package Deque_Signature is
+         new Kiss.Signatures.Deque
+           (Data_Type    => VECTOR,
+            Element_Type => CHARACTER);
+
+      procedure run_test is
+         new Tests.Deque_S (Deque_Signature);
+   begin
+      run_test;
+   end Deque_Vector_Test;
 
 end Tester;
 
