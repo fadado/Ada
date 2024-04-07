@@ -40,12 +40,12 @@ begin
           Element_Type => CHARACTER);
       use Container;
 
-      package Stack_Signature is new Kiss.Signatures.Stack
+      package Signature is new Kiss.Signatures.Stack
          (Data_Type    => VECTOR,
           Element_Type => CHARACTER);
 
       package Character_Stack is new Kiss.Functors.Stack
-         (Stack_Signature);
+         (Signature);
 
       the_stack: Character_Stack.T;
    begin
@@ -67,14 +67,14 @@ begin
           Element_Type => CHARACTER);
       use Container;
 
-      package Stack_Signature is new Kiss.Signatures.Stack
+      package Signature is new Kiss.Signatures.Stack
          (Data_Type    => VECTOR,
           Element_Type => CHARACTER);
 
       package Character_Stack is new Kiss.Functors.Stack
-         (Stack_Signature);
+         (Signature);
 
-      subtype IStack is Tests.Stack_I.IStackC.I;
+      subtype IStack is Tests.Stack_I.API.I;
 
       type T is new Character_Stack.T
          and IStack with null record;
@@ -97,13 +97,13 @@ begin
             Element_Type => CHARACTER);
       use Container;
 
-      package Stack_Signature is
+      package Signature is
          new Kiss.Signatures.Stack
            (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Stack_S (Stack_Signature);
+         new Tests.Stack_S (Signature);
    begin
       run_test;
    end Unbounded_Vector_Test;
@@ -115,13 +115,13 @@ begin
            (Element_Type => CHARACTER);
       use Container;
 
-      package Stack_Signature is
+      package Signature is
          new Kiss.Signatures.Stack
            (Data_Type    => LIST,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Stack_S (Stack_Signature);
+         new Tests.Stack_S (Signature);
    begin
       run_test;
    end Unbounded_List_Test;
@@ -136,13 +136,13 @@ begin
 
       subtype VECTOR is Container.VECTOR(11);
 
-      package Stack_Signature is
+      package Signature is
          new Kiss.Signatures.Stack
            (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Stack_S (Stack_Signature);
+         new Tests.Stack_S (Signature);
    begin
       run_test;
    end Bounded_Vector_Test;
@@ -158,13 +158,13 @@ begin
            (Element_Type => CHARACTER);
       use Container;
 
-      package Queue_Signature is
+      package Signature is
          new Kiss.Signatures.Queue
            (Data_Type    => LIST,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Queue_S (Queue_Signature);
+         new Tests.Queue_S (Signature);
    begin
       run_test;
    end Queue_List_Test;
@@ -177,13 +177,13 @@ begin
             Element_Type => CHARACTER);
       use Container;
 
-      package Queue_Signature is
+      package Signature is
          new Kiss.Signatures.Queue
            (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Queue_S (Queue_Signature);
+         new Tests.Queue_S (Signature);
    begin
       run_test;
    end Queue_Vector_Test;
@@ -200,13 +200,13 @@ begin
             Element_Type => CHARACTER);
       use Container;
 
-      package Deque_Signature is
+      package Signature is
          new Kiss.Signatures.Deque
            (Data_Type    => VECTOR,
             Element_Type => CHARACTER);
 
       procedure run_test is
-         new Tests.Deque_S (Deque_Signature);
+         new Tests.Deque_S (Signature);
    begin
       run_test;
    end Deque_Vector_Test;

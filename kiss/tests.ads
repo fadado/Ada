@@ -18,14 +18,15 @@ package Tests is
    ---------------------------------------------------------------------
 
    package Stack_I is
-      package IStackC is
+      package API is
          new Kiss.Interfaces.Stack
            (Element_Type => CHARACTER);
-      procedure run_test(ADT: in out IStackC.I'Class);
+
+      procedure run_test(ADT: in out API.I'Class);
    end Stack_I;
 
    generic
-      with package Stack_Signature is
+      with package Signature is
          new Kiss.Signatures.Stack
            (Data_Type    => <>,
             Element_Type => CHARACTER,
@@ -37,14 +38,15 @@ package Tests is
    ---------------------------------------------------------------------
 
    package Queue_I is
-      package IQueueC is
+      package API is
          new Kiss.Interfaces.Queue
            (Element_Type => CHARACTER);
-      procedure run_test(ADT: in out IQueueC.I'Class);
+
+      procedure run_test(ADT: in out API.I'Class);
    end Queue_I;
 
    generic
-      with package Queue_Signature is
+      with package Signature is
          new Kiss.Signatures.Queue
            (Data_Type    => <>,
             Element_Type => CHARACTER,
@@ -56,14 +58,15 @@ package Tests is
    ---------------------------------------------------------------------
 
    package Deque_I is
-      package IDequeC is
+      package API is
          new Kiss.Interfaces.Deque
            (Element_Type => CHARACTER);
-      procedure run_test(ADT: in out IDequeC.I'Class);
+
+      procedure run_test(ADT: in out API.I'Class);
    end Deque_I;
 
    generic
-      with package Deque_Signature is
+      with package Signature is
          new Kiss.Signatures.Deque
            (Data_Type    => <>,
             Element_Type => CHARACTER,
