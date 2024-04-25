@@ -3,11 +3,11 @@
 with Ada.Text_IO;
 
 separate (Dodeca)
-procedure Output(Solved: SOLUTION)
+procedure Output(serie: TONE_ROW)
 is
    use Ada.Text_IO;
 begin
-   for item of Solved loop
+   for item of serie loop
       Put(item'Image);
    end loop;
    New_Line;

@@ -3,106 +3,126 @@
 procedure Dodeca is
    pragma Optimize(Time);
 
-   Chromatic_Notes: constant := 12;
+   ---------------------------------------------------------------------
+   -- Client side types
+   ---------------------------------------------------------------------
 
-   M: constant := Chromatic_Notes;
-   -- Number of items to choose
+   type TONE is range 1..12;
+   -- 12 chromatic notes
 
-   N: constant := Chromatic_Notes;
-   -- Solution vector size
+   type ORDER is range 1..12;
+   -- Position inside the serie
 
-   type LEVEL is range 1..N;
-   -- Search tree levels
+   type TONE_ROW is array (ORDER) of TONE;
+   -- dodecaphonic serie
 
-   type CHOICE is range 1..M;
-   -- Set of available choices
-
-   type SOLUTION is array (LEVEL) of CHOICE;
-   -- Ordered set of choices
-
-   procedure Output(Solved: SOLUTION) is separate;
+   procedure Output(serie: TONE_ROW) is separate;
    -- Called for each solution
 
    ---------------------------------------------------------------------
    -- Constraints
    ---------------------------------------------------------------------
 
-   type INTERVAL is range 1..(N-1);
+   type INTERVAL is range 1..11;
    -- Constraining unique intervals
 
-   Used_Notes     : array (CHOICE)   of BOOLEAN := (others => FALSE);
+   Used_Notes     : array (TONE)     of BOOLEAN := (others => FALSE);
    Used_Intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
    -- Sets of notes and intervals in use
 
-   Path: SOLUTION;
-   -- Vector with (partial) solution
+   -- Compute interval
+   function last_interval(path:  in TONE_ROW;
+                          depth: in ORDER;
+                          item:  in TONE) return INTERVAL with Inline
+   is
+      -- previous tone
+      item_up: TONE renames path(ORDER'Pred(depth));
+   begin
+      return INTERVAL(abs(item - item_up));
+   end;
+
+   -- Reasons to prune
+   function Reject(path:  in TONE_ROW;
+                   depth: in ORDER;
+                   item:  in TONE) return BOOLEAN is
+   begin
+      return  Used_Notes(item)
+      or else Used_Intervals(last_interval(path, depth, item));
+   end;
+
+   -- Wrap the recursive calls
+   procedure Enter(path:  in TONE_ROW;
+                   depth: in ORDER;
+                   item:  in TONE) is
+   begin
+      Used_Notes(item) := TRUE;
+      if depth > ORDER'First then
+         Used_Intervals(last_interval(path, depth, item)) := TRUE;
+      end if;
+   end;
+
+   procedure Leave(path:  in TONE_ROW;
+                   depth: in ORDER;
+                   item:  in TONE) is
+   begin
+      Used_Notes(item) := FALSE;
+      if depth > ORDER'First then
+         Used_Intervals(last_interval(path, depth, item)) := FALSE;
+      end if;
+   end;
 
    ---------------------------------------------------------------------
    -- Walk the tree
    ---------------------------------------------------------------------
 
+   subtype CHOICE is TONE;
+   -- Set of available choices
+
+   subtype LEVEL is ORDER;
+   -- Search tree levels
+
+   subtype SOLUTION is TONE_ROW;
+   -- Ordered set of choices
+
+   path: SOLUTION; -- Vector with (partial) solution
+
    -- Try to add one step to the partial solution
-   procedure Descend(L: in LEVEL) is
-      -- compute interval
-      function last_interval(item: in CHOICE) return INTERVAL is
-         item_up: CHOICE renames Path(LEVEL'Pred(L));
-      begin
-         return INTERVAL(abs(item - item_up));
-      end;
-
-      -- reasons to prune
-      function reject(item: in CHOICE) return BOOLEAN is
-      begin
-         return  Used_Notes(item)
-         or else Used_Intervals(last_interval(item));
-      end;
-
-      -- to wrap the recursive calls
-      procedure enter(item: in CHOICE) is
-      begin
-         Used_Notes(item) := TRUE;
-         Used_Intervals(last_interval(item)) := TRUE;
-      end;
-
-      procedure leave(item: in CHOICE) is
-      begin
-         Used_Intervals(last_interval(item)) := FALSE;
-         Used_Notes(item) := FALSE;
-      end;
-
+   procedure Extend(depth: in LEVEL) is
    begin
       -- try to extend the solution with each choice
       for item in CHOICE loop
-         if reject(item) then
+         if Reject(path, depth, item) then
             null; -- fail
          else
-            Path(L) := item;
-            if L = LEVEL'Last then
-               -- Path is completed: one solution found
-               Output(Path);
+            path(depth) := item;
+            if depth = LEVEL'Last then
+               -- path is completed: one solution found
+               Output(path);
             else
                -- descend one level
-               enter(item);
-               Descend(LEVEL'Succ(L));
-               leave(item);
+               Enter(path, depth, item);
+               Extend(LEVEL'Succ(depth));
+               Leave(path, depth, item);
             end if;
          end if;
       end loop;
-   end Descend;
+   end Extend;
 
    procedure Walk is
-      root: constant := LEVEL'First;
    begin
       for item in CHOICE loop
-         Path(root) := item;
-         Used_Notes(item) := TRUE;
-         Descend(LEVEL'Succ(root));
-         Used_Notes(item) := FALSE;
+         path(LEVEL'First) := item;
+
+         Enter(path, LEVEL'First, item);
+         Extend(LEVEL'Succ(LEVEL'First));
+         Leave(path, LEVEL'First, item);
       end loop;
    end Walk;
 
 begin
+
    Walk;
+
 end Dodeca;
 
 -- ¡ISO-8859-1!
