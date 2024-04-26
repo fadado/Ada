@@ -4,6 +4,75 @@ procedure Dodeca is
    pragma Optimize(Time);
 
    ---------------------------------------------------------------------
+   -- Walk the tree
+   ---------------------------------------------------------------------
+
+   generic
+      type CHOICE is (<>);
+      -- Set of available choices
+
+      type LEVEL is (<>);
+      -- Search tree levels
+
+      type SOLUTION is array (LEVEL) of CHOICE;
+      -- Vector of choices
+
+      with procedure Output(goal: SOLUTION) is <>;
+      -- Called for each solution found
+
+      with function Reject(path: SOLUTION; depth: LEVEL; item: CHOICE)
+         return BOOLEAN is <>;
+      -- Check constraints for the current node
+
+      with procedure Enter(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
+      -- Hook to run before entering one level down
+
+      with procedure Leave(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
+      -- Hook to run after exiting one level down
+
+   package DFS is
+      procedure Search;
+   end DFS;
+
+   package body DFS is
+
+      path: SOLUTION; -- Vector with (partial) solution
+
+      -- Try to add one step to the partial solution
+      procedure Extend(depth: LEVEL) is
+      begin
+         -- try to extend the solution with each choice
+         for item in CHOICE loop
+            if not Reject(path, depth, item) then
+               -- accept item for the current level
+               path(depth) := item;
+               -- if path is completed: one solution found
+               if depth = LEVEL'Last then
+                  Output(path);
+               else
+                  -- descend one level
+                  Enter(path, depth, item);
+                  Extend(LEVEL'Succ(depth));
+                  Leave(path, depth, item);
+               end if;
+            end if;
+         end loop;
+      end Extend;
+
+      procedure Search is
+      begin
+         for item in CHOICE loop
+            path(LEVEL'First) := item;
+
+            Enter(path, LEVEL'First, item);
+            Extend(LEVEL'Succ(LEVEL'First));
+            Leave(path, LEVEL'First, item);
+         end loop;
+      end Search;
+
+   end DFS ;
+
+   ---------------------------------------------------------------------
    -- Client side types
    ---------------------------------------------------------------------
 
@@ -31,9 +100,9 @@ procedure Dodeca is
    -- Sets of notes and intervals in use
 
    -- Compute interval
-   function last_interval(path:  in TONE_ROW;
-                          depth: in ORDER;
-                          item:  in TONE) return INTERVAL with Inline
+   function last_interval(path:  TONE_ROW;
+                          depth: ORDER;
+                          item:  TONE) return INTERVAL with Inline
    is
       -- previous tone
       item_up: TONE renames path(ORDER'Pred(depth));
@@ -42,18 +111,18 @@ procedure Dodeca is
    end;
 
    -- Reasons to prune
-   function Reject(path:  in TONE_ROW;
-                   depth: in ORDER;
-                   item:  in TONE) return BOOLEAN is
+   function Reject(path:  TONE_ROW;
+                   depth: ORDER;
+                   item:  TONE) return BOOLEAN is
    begin
       return  Used_Notes(item)
       or else Used_Intervals(last_interval(path, depth, item));
    end;
 
    -- Wrap the recursive calls
-   procedure Enter(path:  in TONE_ROW;
-                   depth: in ORDER;
-                   item:  in TONE) is
+   procedure Enter(path:  TONE_ROW;
+                   depth: ORDER;
+                   item:  TONE) is
    begin
       Used_Notes(item) := TRUE;
       if depth > ORDER'First then
@@ -61,9 +130,9 @@ procedure Dodeca is
       end if;
    end;
 
-   procedure Leave(path:  in TONE_ROW;
-                   depth: in ORDER;
-                   item:  in TONE) is
+   procedure Leave(path:  TONE_ROW;
+                   depth: ORDER;
+                   item:  TONE) is
    begin
       Used_Notes(item) := FALSE;
       if depth > ORDER'First then
@@ -71,57 +140,23 @@ procedure Dodeca is
       end if;
    end;
 
-   ---------------------------------------------------------------------
-   -- Walk the tree
-   ---------------------------------------------------------------------
-
-   subtype CHOICE is TONE;
-   -- Set of available choices
-
-   subtype LEVEL is ORDER;
-   -- Search tree levels
-
-   subtype SOLUTION is TONE_ROW;
-   -- Ordered set of choices
-
-   path: SOLUTION; -- Vector with (partial) solution
-
-   -- Try to add one step to the partial solution
-   procedure Extend(depth: in LEVEL) is
-   begin
-      -- try to extend the solution with each choice
-      for item in CHOICE loop
-         if Reject(path, depth, item) then
-            null; -- fail
-         else
-            path(depth) := item;
-            if depth = LEVEL'Last then
-               -- path is completed: one solution found
-               Output(path);
-            else
-               -- descend one level
-               Enter(path, depth, item);
-               Extend(LEVEL'Succ(depth));
-               Leave(path, depth, item);
-            end if;
-         end if;
-      end loop;
-   end Extend;
-
-   procedure Walk is
-   begin
-      for item in CHOICE loop
-         path(LEVEL'First) := item;
-
-         Enter(path, LEVEL'First, item);
-         Extend(LEVEL'Succ(LEVEL'First));
-         Leave(path, LEVEL'First, item);
-      end loop;
-   end Walk;
-
 begin
-
-   Walk;
+   ---------------------------------------------------------------------
+   -- Generate all panintervalic twelve-tone tone-rows
+   ---------------------------------------------------------------------
+   declare
+      package Dodecaphonic_Panintervalic_Series is new DFS (
+         CHOICE   => TONE,
+         LEVEL    => ORDER,
+         SOLUTION => TONE_ROW
+       --Output   => Dodeca.Output,
+       --Reject   => Dodeca.Reject,
+       --Enter    => Dodeca.Enter,
+       --Leave    => Dodeca.Leave
+      );
+   begin
+      Dodecaphonic_Panintervalic_Series.Search;
+   end;
 
 end Dodeca;
 
