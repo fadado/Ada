@@ -1,76 +1,9 @@
 -- dodeca.adb
 
+with DFS;
+
 procedure Dodeca is
    pragma Optimize(Time);
-
-   ---------------------------------------------------------------------
-   -- Walk the tree
-   ---------------------------------------------------------------------
-
-   generic
-      type CHOICE is (<>);
-      -- Set of available choices
-
-      type LEVEL is (<>);
-      -- Search tree levels
-
-      type SOLUTION is array (LEVEL) of CHOICE;
-      -- Vector of choices
-
-      with procedure Output(goal: SOLUTION) is <>;
-      -- Called for each solution found
-
-      with function Reject(path: SOLUTION; depth: LEVEL; item: CHOICE)
-         return BOOLEAN is <>;
-      -- Check constraints for the current node
-
-      with procedure Enter(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
-      -- Hook to run before entering one level down
-
-      with procedure Leave(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
-      -- Hook to run after exiting one level down
-
-   package DFS is
-      procedure Search;
-   end DFS;
-
-   package body DFS is
-
-      path: SOLUTION; -- Vector with (partial) solution
-
-      -- Try to add one step to the partial solution
-      procedure Extend(depth: LEVEL) is
-      begin
-         -- try to extend the solution with each choice
-         for item in CHOICE loop
-            if not Reject(path, depth, item) then
-               -- accept item for the current level
-               path(depth) := item;
-               -- if path is completed: one solution found
-               if depth = LEVEL'Last then
-                  Output(path);
-               else
-                  -- descend one level
-                  Enter(path, depth, item);
-                  Extend(LEVEL'Succ(depth));
-                  Leave(path, depth, item);
-               end if;
-            end if;
-         end loop;
-      end Extend;
-
-      procedure Search is
-      begin
-         for item in CHOICE loop
-            path(LEVEL'First) := item;
-
-            Enter(path, LEVEL'First, item);
-            Extend(LEVEL'Succ(LEVEL'First));
-            Leave(path, LEVEL'First, item);
-         end loop;
-      end Search;
-
-   end DFS ;
 
    ---------------------------------------------------------------------
    -- Client side types
@@ -148,11 +81,11 @@ begin
       package Dodecaphonic_Panintervalic_Series is new DFS (
          CHOICE   => TONE,
          LEVEL    => ORDER,
-         SOLUTION => TONE_ROW
-       --Output   => Dodeca.Output,
-       --Reject   => Dodeca.Reject,
-       --Enter    => Dodeca.Enter,
-       --Leave    => Dodeca.Leave
+         SOLUTION => TONE_ROW,
+         Output   => Output,
+         Reject   => Reject,
+         Enter    => Enter,
+         Leave    => Leave
       );
    begin
       Dodecaphonic_Panintervalic_Series.Search;
