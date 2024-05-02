@@ -27,7 +27,7 @@ package body Tests is
    procedure Stack_S is
       package Character_Stack is
          new Kiss.Functors.Stack (Signature);
-      ADT: Character_Stack.T;
+      ADT : Character_Stack.T;
    begin
       ADT.Push('Z'); 
       ADT.Push('A'); 
@@ -51,7 +51,7 @@ package body Tests is
    procedure Queue_S is
       package Character_Queue is
          new Kiss.Functors.Queue (Signature);
-      ADT: Character_Queue.T;
+      ADT : Character_Queue.T;
    begin
       ADT.Enqueue('Z'); 
       ADT.Enqueue('A'); 
@@ -75,7 +75,7 @@ package body Tests is
    procedure Deque_S is
       package Character_Deque is
          new Kiss.Functors.Deque (Signature);
-      ADT: Character_Deque.T;
+      ADT : Character_Deque.T;
    begin
       -- as queue
       ADT.Push_Front('A'); 

@@ -7,7 +7,7 @@ with Kiss.Signatures.Stack;
 generic
 
    with package Signature is
-      new Signatures.Stack (<>);
+     new Signatures.Stack (<>);
 
    use Signature;
    -- type Data_Type is tagged private;
@@ -27,7 +27,8 @@ package Kiss.Functors.Stack is
 private
 
    subtype Data_Type is Signature.Data_Type;
-   type T is new Data_Type with null record;
+   type T is
+      new Data_Type with null record;
 
 end Kiss.Functors.Stack;
 

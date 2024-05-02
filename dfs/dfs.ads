@@ -10,17 +10,30 @@ generic
    type SOLUTION is array (LEVEL) of CHOICE;
    -- Vector of choices
 
-   with procedure Output(goal: SOLUTION) is <>;
+   with procedure Output (
+         goal : SOLUTION
+     ) is <>;
    -- Called for each solution found
 
-   with function Reject(path: SOLUTION; depth: LEVEL; item: CHOICE)
-      return BOOLEAN is <>;
+   with function Reject (
+         path  : SOLUTION;
+         depth : LEVEL;
+         item  : CHOICE
+     ) return BOOLEAN is <>;
    -- Check constraints for the current node
 
-   with procedure Enter(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
+   with procedure Enter (
+         path  : SOLUTION;
+         depth : LEVEL;
+         item  : CHOICE
+     ) is <>;
    -- Hook to run before entering one level down
 
-   with procedure Leave(path: SOLUTION; depth: LEVEL; item: CHOICE) is <>;
+   with procedure Leave (
+         path  : SOLUTION;
+         depth : LEVEL;
+         item  : CHOICE
+     ) is <>;
    -- Hook to run after exiting one level down
 
 package DFS is

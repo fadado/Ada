@@ -35,19 +35,24 @@ begin
 
    Inline_Test:
    declare
-      package Container is new Ada.Containers.Vectors
-         (Index_Type   => POSITIVE, 
-          Element_Type => CHARACTER);
+      package Container is
+         new Ada.Containers.Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
-      package Signature is new Kiss.Signatures.Stack
-         (Data_Type    => VECTOR,
-          Element_Type => CHARACTER);
+      package Signature is
+         new Kiss.Signatures.Stack (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
-      package Character_Stack is new Kiss.Functors.Stack
-         (Signature);
+      package Character_Stack is 
+         new Kiss.Functors.Stack (Signature);
 
       the_stack: Character_Stack.T;
+
    begin
       the_stack.Push('Z'); 
       the_stack.Push('A'); 
@@ -62,25 +67,31 @@ begin
 
    Bless_Test:
    declare
-      package Container is new Ada.Containers.Vectors
-         (Index_Type   => POSITIVE, 
-          Element_Type => CHARACTER);
+      package Container is
+         new Ada.Containers.Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
-      package Signature is new Kiss.Signatures.Stack
-         (Data_Type    => VECTOR,
-          Element_Type => CHARACTER);
+      package Signature is
+         new Kiss.Signatures.Stack (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
-      package Character_Stack is new Kiss.Functors.Stack
-         (Signature);
+      package Character_Stack is
+         new Kiss.Functors.Stack (Signature);
 
       subtype IStack is Tests.Stack_I.API.I;
 
-      type T is new Character_Stack.T
-         and IStack with null record;
+      type T is
+         new Character_Stack.T
+           and IStack with null record;
       --  Bless T with an stack interface.
 
       the_stack: T;
+
    begin
       Tests.Stack_I.run_test(the_stack);
    end Bless_Test;
@@ -92,18 +103,21 @@ begin
    Unbounded_Vector_Test:
    declare
       package Container is
-         new Ada.Containers.Vectors
-           (Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER);
+         new Ada.Containers.Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
       package Signature is
-         new Kiss.Signatures.Stack
-           (Data_Type    => VECTOR,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Stack (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Stack_S (Signature);
+
    begin
       run_test;
    end Unbounded_Vector_Test;
@@ -111,14 +125,16 @@ begin
    Unbounded_List_Test:
    declare
       package Container is
-         new Ada.Containers.Doubly_Linked_Lists
-           (Element_Type => CHARACTER);
+         new Ada.Containers.Doubly_Linked_Lists (
+           Element_Type => CHARACTER
+         );
       use Container;
 
       package Signature is
-         new Kiss.Signatures.Stack
-           (Data_Type    => LIST,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Stack (
+           Data_Type    => LIST,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Stack_S (Signature);
@@ -129,17 +145,19 @@ begin
    Bounded_Vector_Test:
    declare
       package Container is
-         new Ada.Containers.Bounded_Vectors
-           (Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER);
+         new Ada.Containers.Bounded_Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
       subtype VECTOR is Container.VECTOR(11);
 
       package Signature is
-         new Kiss.Signatures.Stack
-           (Data_Type    => VECTOR,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Stack (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Stack_S (Signature);
@@ -154,14 +172,16 @@ begin
    Queue_List_Test:
    declare
       package Container is
-         new Ada.Containers.Doubly_Linked_Lists
-           (Element_Type => CHARACTER);
+         new Ada.Containers.Doubly_Linked_Lists (
+           Element_Type => CHARACTER
+         );
       use Container;
 
       package Signature is
-         new Kiss.Signatures.Queue
-           (Data_Type    => LIST,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Queue (
+           Data_Type    => LIST,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Queue_S (Signature);
@@ -172,15 +192,17 @@ begin
    Queue_Vector_Test:
    declare
       package Container is
-         new Ada.Containers.Vectors
-           (Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER);
+         new Ada.Containers.Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
       package Signature is
-         new Kiss.Signatures.Queue
-           (Data_Type    => VECTOR,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Queue (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Queue_S (Signature);
@@ -195,15 +217,17 @@ begin
    Deque_Vector_Test:
    declare
       package Container is
-         new Ada.Containers.Vectors
-           (Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER);
+         new Ada.Containers.Vectors (
+           Index_Type   => POSITIVE, 
+           Element_Type => CHARACTER
+         );
       use Container;
 
       package Signature is
-         new Kiss.Signatures.Deque
-           (Data_Type    => VECTOR,
-            Element_Type => CHARACTER);
+         new Kiss.Signatures.Deque (
+           Data_Type    => VECTOR,
+           Element_Type => CHARACTER
+         );
 
       procedure run_test is
          new Tests.Deque_S (Signature);

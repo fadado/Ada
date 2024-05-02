@@ -8,14 +8,14 @@ package body Kiss.Functors.Stack is
    -- ...
 
    procedure Push(Container: in out T; x: in Element_Type) is
-      parent: Data_Type renames Data_Type(Container);
+      parent : Data_Type renames Data_Type(Container);
    begin
       Append(parent, x);
    end Push;
 
    function Pop(Container: in out T) return Element_Type is
-      parent: Data_Type renames Data_Type(Container);
-      result: Element_Type;
+      parent : Data_Type renames Data_Type(Container);
+      result : Element_Type;
    begin
       -- require not empty
       result := Last_Element(parent);
@@ -24,14 +24,14 @@ package body Kiss.Functors.Stack is
    end Pop;
 
    function Top(Container: in T) return Element_Type is
-      parent: Data_Type renames Data_Type(Container);
+      parent : Data_Type renames Data_Type(Container);
    begin
       -- require not empty
       return Last_Element(parent);
    end Top;
 
    function Void(Container: in T) return BOOLEAN is
-      parent: Data_Type renames Data_Type(Container);
+      parent : Data_Type renames Data_Type(Container);
    begin
       return Is_Empty(parent);
    end Void;

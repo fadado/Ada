@@ -28,46 +28,57 @@ procedure Dodeca is
    type INTERVAL is range 1..11;
    -- Constraining unique intervals
 
-   Used_Notes     : array (TONE)     of BOOLEAN := (others => FALSE);
+   Used_Tones     : array (TONE)     of BOOLEAN := (others => FALSE);
    Used_Intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
    -- Sets of notes and intervals in use
 
    -- Compute interval
-   function last_interval(path:  TONE_ROW;
-                          depth: ORDER;
-                          item:  TONE) return INTERVAL with Inline
+   function last_interval (
+         path  : TONE_ROW;
+         depth : ORDER;
+         item  : TONE
+     )
+     return INTERVAL
+     with Inline
    is
       -- previous tone
-      item_up: TONE renames path(ORDER'Pred(depth));
+      item_up : TONE renames path(ORDER'Pred(depth));
    begin
       return INTERVAL(abs(item - item_up));
    end;
 
    -- Reasons to prune
-   function Reject(path:  TONE_ROW;
-                   depth: ORDER;
-                   item:  TONE) return BOOLEAN is
+   function Reject (
+         path  : TONE_ROW;
+         depth : ORDER;
+         item  : TONE
+     )
+     return BOOLEAN is
    begin
-      return  Used_Notes(item)
+      return  Used_Tones(item)
       or else Used_Intervals(last_interval(path, depth, item));
    end;
 
    -- Wrap the recursive calls
-   procedure Enter(path:  TONE_ROW;
-                   depth: ORDER;
-                   item:  TONE) is
+   procedure Enter (
+         path  : TONE_ROW;
+         depth : ORDER;
+         item  : TONE
+     ) is
    begin
-      Used_Notes(item) := TRUE;
+      Used_Tones(item) := TRUE;
       if depth > ORDER'First then
          Used_Intervals(last_interval(path, depth, item)) := TRUE;
       end if;
    end;
 
-   procedure Leave(path:  TONE_ROW;
-                   depth: ORDER;
-                   item:  TONE) is
+   procedure Leave (
+         path  : TONE_ROW;
+         depth : ORDER;
+         item  : TONE
+     ) is
    begin
-      Used_Notes(item) := FALSE;
+      Used_Tones(item) := FALSE;
       if depth > ORDER'First then
          Used_Intervals(last_interval(path, depth, item)) := FALSE;
       end if;
@@ -78,15 +89,16 @@ begin
    -- Generate all panintervalic twelve-tone tone-rows
    ---------------------------------------------------------------------
    declare
-      package Dodecaphonic_Panintervalic_Series is new DFS (
-         CHOICE   => TONE,
-         LEVEL    => ORDER,
-         SOLUTION => TONE_ROW,
-         Output   => Output,
-         Reject   => Reject,
-         Enter    => Enter,
-         Leave    => Leave
-      );
+      package Dodecaphonic_Panintervalic_Series is
+         new DFS (
+           CHOICE   => TONE,
+           LEVEL    => ORDER,
+           SOLUTION => TONE_ROW
+         --Output   => Output,
+         --Reject   => Reject,
+         --Enter    => Enter,
+         --Leave    => Leave
+         );
    begin
       Dodecaphonic_Panintervalic_Series.Search;
    end;

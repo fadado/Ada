@@ -29,7 +29,8 @@ package Kiss.Functors.Deque is
 private
 
    subtype Data_Type is Signature.Data_Type;
-   type T is new Data_Type with null record;
+   type T is 
+      new Data_Type with null record;
 
 end Kiss.Functors.Deque;
 

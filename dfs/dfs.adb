@@ -2,7 +2,7 @@
 
 package body DFS is
 
-   path: SOLUTION; -- Vector with (partial) solution
+   path : SOLUTION; -- Vector with (partial) solution
 
    -- Try to add one step to the partial solution
    procedure extend(depth: LEVEL) is
