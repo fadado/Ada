@@ -4,7 +4,7 @@
 
 all: dodeca
 
-dodeca: dodeca.adb
+dodeca: dodeca.adb dfs.ad?
 	gnatmake -O dodeca
 
 clean:

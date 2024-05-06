@@ -7,9 +7,10 @@ procedure Output(serie: TONE_ROW)
 is
    use Ada.Text_IO;
 begin
-   for item of serie loop
-      Put(item'Image);
-   end loop;
+   Show_Each_Tone:
+      for item of serie loop
+         Put(item'Image);
+      end loop Show_Each_Tone;
    New_Line;
 end;
 

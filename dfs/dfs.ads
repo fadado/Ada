@@ -11,7 +11,7 @@ generic
    -- Vector of choices
 
    with procedure Output (
-         goal : SOLUTION
+         path : SOLUTION
      ) is <>;
    -- Called for each solution found
 

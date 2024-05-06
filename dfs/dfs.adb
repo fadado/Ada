@@ -8,33 +8,36 @@ package body DFS is
    procedure extend(depth: LEVEL) is
    begin
       -- try to extend the solution with each choice
-      for item in CHOICE loop
-         if not Reject(path, depth, item) then
-            -- accept item for the current level
-            path(depth) := item;
-            -- if path is completed: one solution found
-            if depth = LEVEL'Last then
-               Output(path);
-            else
-               -- descend one level
-               Enter(path, depth, item);
-               extend(LEVEL'Succ(depth));
-               Leave(path, depth, item);
+      Each_Level_Loop:
+         for item in CHOICE loop
+            if not Reject(path, depth, item) then
+               -- accept item for the current level
+               path(depth) := item;
+               -- if path is completed: one solution found
+               if depth = LEVEL'Last then
+                  Output(path);
+                  exit Each_Level_Loop; -- not really necessary
+               else
+                  -- descend one level
+                  Enter(path, depth, item);
+                  extend(LEVEL'Succ(depth));
+                  Leave(path, depth, item);
+               end if;
             end if;
-         end if;
-      end loop;
+         end loop Each_Level_Loop;
    end extend;
 
    -- Walk the tree prunning when a node is rejected
    procedure Search is
    begin
-      for item in CHOICE loop
-         path(LEVEL'First) := item;
+      Top_Level_Loop:
+         for item in CHOICE loop
+            path(LEVEL'First) := item;
 
-         Enter(path, LEVEL'First, item);
-         extend(LEVEL'Succ(LEVEL'First));
-         Leave(path, LEVEL'First, item);
-      end loop;
+            Enter(path, LEVEL'First, item);
+            extend(LEVEL'Succ(LEVEL'First));
+            Leave(path, LEVEL'First, item);
+         end loop Top_Level_Loop;
    end Search;
 
 end DFS ;

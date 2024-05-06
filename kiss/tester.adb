@@ -34,206 +34,206 @@ begin
    ---------------------------------------------------------------------
 
    Inline_Test:
-   declare
-      package Container is
-         new Ada.Containers.Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Stack (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Stack (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      package Character_Stack is 
-         new Kiss.Functors.Stack (Signature);
+         package Character_Stack is 
+            new Kiss.Functors.Stack (Signature);
 
-      the_stack: Character_Stack.T;
+         the_stack: Character_Stack.T;
 
-   begin
-      the_stack.Push('Z'); 
-      the_stack.Push('A'); 
-      if the_stack.Pop /= 'A' then raise Tests.Error; end if;
-      if the_stack.Pop /= 'Z' then raise Tests.Error; end if;
-      if not the_stack.Void then raise Tests.Error; end if;
-   end Inline_Test;
+      begin
+         the_stack.Push('Z'); 
+         the_stack.Push('A'); 
+         if the_stack.Pop /= 'A' then raise Tests.Error; end if;
+         if the_stack.Pop /= 'Z' then raise Tests.Error; end if;
+         if not the_stack.Void then raise Tests.Error; end if;
+      end Inline_Test;
 
    ---------------------------------------------------------------------
    -- Interface based stack test
    ---------------------------------------------------------------------
 
    Bless_Test:
-   declare
-      package Container is
-         new Ada.Containers.Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Stack (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Stack (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      package Character_Stack is
-         new Kiss.Functors.Stack (Signature);
+         package Character_Stack is
+            new Kiss.Functors.Stack (Signature);
 
-      subtype IStack is Tests.Stack_I.API.I;
+         subtype IStack is Tests.Stack_I.API.I;
 
-      type T is
-         new Character_Stack.T
-           and IStack with null record;
-      --  Bless T with an stack interface.
+         type T is
+            new Character_Stack.T
+            and IStack with null record;
+         --  Bless T with an stack interface.
 
-      the_stack: T;
+         the_stack: T;
 
-   begin
-      Tests.Stack_I.run_test(the_stack);
-   end Bless_Test;
+      begin
+         Tests.Stack_I.run_test(the_stack);
+      end Bless_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Stack tests
    ---------------------------------------------------------------------
 
    Unbounded_Vector_Test:
-   declare
-      package Container is
-         new Ada.Containers.Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Stack (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Stack (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Stack_S (Signature);
+         procedure run_test is
+            new Tests.Stack_S (Signature);
 
-   begin
-      run_test;
-   end Unbounded_Vector_Test;
+      begin
+         run_test;
+      end Unbounded_Vector_Test;
 
    Unbounded_List_Test:
-   declare
-      package Container is
-         new Ada.Containers.Doubly_Linked_Lists (
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Doubly_Linked_Lists (
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Stack (
-           Data_Type    => LIST,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Stack (
+            Data_Type    => LIST,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Stack_S (Signature);
-   begin
-      run_test;
-   end Unbounded_List_Test;
+         procedure run_test is
+            new Tests.Stack_S (Signature);
+      begin
+         run_test;
+      end Unbounded_List_Test;
 
    Bounded_Vector_Test:
-   declare
-      package Container is
-         new Ada.Containers.Bounded_Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Bounded_Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      subtype VECTOR is Container.VECTOR(11);
+         subtype VECTOR is Container.VECTOR(11);
 
-      package Signature is
-         new Kiss.Signatures.Stack (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Stack (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Stack_S (Signature);
-   begin
-      run_test;
-   end Bounded_Vector_Test;
+         procedure run_test is
+            new Tests.Stack_S (Signature);
+      begin
+         run_test;
+      end Bounded_Vector_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Queue tests
    ---------------------------------------------------------------------
 
    Queue_List_Test:
-   declare
-      package Container is
-         new Ada.Containers.Doubly_Linked_Lists (
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Doubly_Linked_Lists (
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Queue (
-           Data_Type    => LIST,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Queue (
+            Data_Type    => LIST,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Queue_S (Signature);
-   begin
-      run_test;
-   end Queue_List_Test;
+         procedure run_test is
+            new Tests.Queue_S (Signature);
+      begin
+         run_test;
+      end Queue_List_Test;
 
    Queue_Vector_Test:
-   declare
-      package Container is
-         new Ada.Containers.Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Queue (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Queue (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Queue_S (Signature);
-   begin
-      run_test;
-   end Queue_Vector_Test;
+         procedure run_test is
+            new Tests.Queue_S (Signature);
+      begin
+         run_test;
+      end Queue_Vector_Test;
 
    ---------------------------------------------------------------------
    -- Signature based Deque tests
    ---------------------------------------------------------------------
 
    Deque_Vector_Test:
-   declare
-      package Container is
-         new Ada.Containers.Vectors (
-           Index_Type   => POSITIVE, 
-           Element_Type => CHARACTER
-         );
-      use Container;
+      declare
+         package Container is
+            new Ada.Containers.Vectors (
+            Index_Type   => POSITIVE, 
+            Element_Type => CHARACTER
+            );
+         use Container;
 
-      package Signature is
-         new Kiss.Signatures.Deque (
-           Data_Type    => VECTOR,
-           Element_Type => CHARACTER
-         );
+         package Signature is
+            new Kiss.Signatures.Deque (
+            Data_Type    => VECTOR,
+            Element_Type => CHARACTER
+            );
 
-      procedure run_test is
-         new Tests.Deque_S (Signature);
-   begin
-      run_test;
-   end Deque_Vector_Test;
+         procedure run_test is
+            new Tests.Deque_S (Signature);
+      begin
+         run_test;
+      end Deque_Vector_Test;
 
 end Tester;
 
