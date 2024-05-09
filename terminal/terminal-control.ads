@@ -8,13 +8,13 @@ package Terminal.Control is
    ---------------------------------------------------------------------
    package Setup is
    ---------------------------------------------------------------------
-      function reset_initial_state return STRING with Inline;
-      function soft_reset return STRING with Inline;
-      function alternate_screen(Mode: SWITCH:=On) return STRING with Inline;
-      function designate_character_sets return STRING with Inline;
-      function seven_bits_controls return STRING with Inline;
-      function echo(Mode: SWITCH:=On) return STRING with Inline;
-      function screen_alignment_test return STRING with Inline;
+      function reset_initial_state                 return STRING with Inline;
+      function soft_reset                          return STRING with Inline;
+      function alternate_screen(Mode: SWITCH:=On)  return STRING with Inline;
+      function designate_character_sets            return STRING with Inline;
+      function seven_bits_controls                 return STRING with Inline;
+      function echo(Mode: SWITCH:=On)              return STRING with Inline;
+      function screen_alignment_test               return STRING with Inline;
    end Setup;
 
    ---------------------------------------------------------------------
@@ -22,21 +22,21 @@ package Terminal.Control is
    ---------------------------------------------------------------------
       type ERASE_MODE is (From_Start, To_End, All_Of);
 
-      function bell return CHARACTER with Inline;
+      function bell                                      return CHARACTER with Inline;
       function delete_character(Characters: POSITIVE:=1) return STRING with Inline;
-      function delete_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function erase_character(Characters: POSITIVE:=1) return STRING with Inline;
-      function erase_line(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
-      function erase_page(Mode: ERASE_MODE:=All_Of) return STRING with Inline;
+      function delete_line(Lines: POSITIVE:=1)           return STRING with Inline;
+      function erase_character(Characters: POSITIVE:=1)  return STRING with Inline;
+      function erase_line(Mode: ERASE_MODE:=All_Of)      return STRING with Inline;
+      function erase_page(Mode: ERASE_MODE:=All_Of)      return STRING with Inline;
       function insert_character(Characters: POSITIVE:=1) return STRING with Inline;
-      function insert_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function scroll_down(Lines: POSITIVE:=1) return STRING with Inline;
-      function scroll_left(Columns: POSITIVE:=1) return STRING with Inline;
-      function scroll_right(Columns: POSITIVE:=1) return STRING with Inline;
-      function scroll_up(Lines: POSITIVE:=1) return STRING with Inline;
-      function mode_insert(Mode: SWITCH:=On) return STRING with Inline;
-      function scroll_region(Top, Bottom: POSITIVE) return STRING with Inline;
-      function window_title(Title: STRING) return STRING with Inline;
+      function insert_line(Lines: POSITIVE:=1)           return STRING with Inline;
+      function scroll_down(Lines: POSITIVE:=1)           return STRING with Inline;
+      function scroll_left(Columns: POSITIVE:=1)         return STRING with Inline;
+      function scroll_right(Columns: POSITIVE:=1)        return STRING with Inline;
+      function scroll_up(Lines: POSITIVE:=1)             return STRING with Inline;
+      function mode_insert(Mode: SWITCH:=On)             return STRING with Inline;
+      function scroll_region(Top, Bottom: POSITIVE)      return STRING with Inline;
+      function window_title(Title: STRING)               return STRING with Inline;
    end Display;
 
    ---------------------------------------------------------------------
@@ -46,22 +46,23 @@ package Terminal.Control is
          user_shape,
          blinking_block, steady_block,
          blinking_underline, steady_underline,
-         blinking_bar, steady_bar);
+         blinking_bar, steady_bar
+        );
 
-      function next_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function preceding_line(Lines: POSITIVE:=1) return STRING with Inline;
-      function column(N: POSITIVE:=1) return STRING with Inline;
-      function line(N: POSITIVE:=1) return STRING with Inline;
-      function up(Lines: POSITIVE:=1) return STRING with Inline;
-      function down(Lines: POSITIVE:=1) return STRING with Inline;
-      function forward(Columns: POSITIVE:=1) return STRING with Inline;
-      function backward(Columns: POSITIVE:=1) return STRING with Inline;
-      function move(Line, Column: POSITIVE:=1) return STRING with Inline;
-      function save return STRING with Inline;
-      function restore return STRING with Inline;
-      function visible(Mode: SWITCH:=On) return STRING with Inline;
-      function blink(Mode: SWITCH:=On) return STRING with Inline;
-      function shape(Form: SHAPES:=user_shape) return STRING with Inline;
+      function next_line(Lines: POSITIVE:=1)       return STRING with Inline;
+      function preceding_line(Lines: POSITIVE:=1)  return STRING with Inline;
+      function column(N: POSITIVE:=1)              return STRING with Inline;
+      function line(N: POSITIVE:=1)                return STRING with Inline;
+      function up(Lines: POSITIVE:=1)              return STRING with Inline;
+      function down(Lines: POSITIVE:=1)            return STRING with Inline;
+      function forward(Columns: POSITIVE:=1)       return STRING with Inline;
+      function backward(Columns: POSITIVE:=1)      return STRING with Inline;
+      function move(Line, Column: POSITIVE:=1)     return STRING with Inline;
+      function save                                return STRING with Inline;
+      function restore                             return STRING with Inline;
+      function visible(Mode: SWITCH:=On)           return STRING with Inline;
+      function blink(Mode: SWITCH:=On)             return STRING with Inline;
+      function shape(Form: SHAPES:=user_shape)     return STRING with Inline;
    end Cursor;
 
    ---------------------------------------------------------------------
@@ -69,33 +70,35 @@ package Terminal.Control is
    ---------------------------------------------------------------------
       type TBC_MODE is (Current_Column, All_Of);
 
-      function set_stop return STRING with Inline;
-      function clear(Mode: TBC_MODE:=Current_Column) return STRING with Inline;
-      function backward(Tabs: POSITIVE:=1) return STRING with Inline;
-      function forward(Tabs: POSITIVE:=1) return STRING with Inline;
+      function set_stop                               return STRING with Inline;
+      function clear(Mode: TBC_MODE:=Current_Column)  return STRING with Inline;
+      function backward(Tabs: POSITIVE:=1)            return STRING with Inline;
+      function forward(Tabs: POSITIVE:=1)             return STRING with Inline;
    end Tabulator;
 
    ---------------------------------------------------------------------
    package Format is
    ---------------------------------------------------------------------
-      function backspace return CHARACTER with Inline;
-      function horizontal_tabulation return CHARACTER with Inline;
-      function carriage_return return CHARACTER with Inline;
-      function line_feed return CHARACTER with Inline;
-      function reverse_line_feed return STRING with Inline;
-      function new_line return STRING with Inline;
-      function nel return STRING with Inline;
-      function hpa(N: POSITIVE:=1) return STRING with Inline;
-      function hpr(Columns: POSITIVE:=1) return STRING with Inline;
-      function vpa(N: POSITIVE:=1) return STRING with Inline;
-      function vpr(Lines: POSITIVE:=1) return STRING with Inline;
-      function hvp(Line, Column: POSITIVE:=1) return STRING with Inline;
+      function backspace                        return CHARACTER with Inline;
+      function horizontal_tabulation            return CHARACTER with Inline;
+      function carriage_return                  return CHARACTER with Inline;
+      function line_feed                        return CHARACTER with Inline;
+      function reverse_line_feed                return STRING with Inline;
+      function new_line                         return STRING with Inline;
+      function nel                              return STRING with Inline;
+      function hpa(N: POSITIVE:=1)              return STRING with Inline;
+      function hpr(Columns: POSITIVE:=1)        return STRING with Inline;
+      function vpa(N: POSITIVE:=1)              return STRING with Inline;
+      function vpr(Lines: POSITIVE:=1)          return STRING with Inline;
+      function hvp(Line, Column: POSITIVE:=1)   return STRING with Inline;
    end Format;
 
    ---------------------------------------------------------------------
    package Style is
    ---------------------------------------------------------------------
-      type COLORS is (black, red, green, yellow, blue, magenta, cyan, white);
+      type COLORS is (
+         black, red, green, yellow, blue, magenta, cyan, white
+        );
       type INTENSITY is (dimmed, bright);
 
       default        : constant STRING := "0";
@@ -117,6 +120,7 @@ package Terminal.Control is
 
       function fgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING with Inline;
       function bgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING with Inline;
+
       function Render(p0: STRING) return STRING with Inline;
       function Render(p0, p1: STRING) return STRING with Inline;
       function Render(p0, p1, p2: STRING) return STRING with Inline;
@@ -167,7 +171,7 @@ package Terminal.Control is
       horizontal_line_scan_9  : constant CHARACTER := CHARACTER'Val(115);
 
       function alternate_character_set return CHARACTER with Inline;
-      function standard_character_set return CHARACTER with Inline;
+      function standard_character_set  return CHARACTER with Inline;
    end Drawing;
 
    ---------------------------------------------------------------------

@@ -8,7 +8,7 @@ package body Terminal.Device is
    package UTF renames Ada.Strings.UTF_Encoding.Strings;
    package Integer_IO is new Text_IO.Integer_IO (Num => INTEGER);
 
-   Output   : Text_IO.File_Type renames Text_IO.Standard_Error;
+   Output : Text_IO.File_Type renames Text_IO.Standard_Error;
 
    ---------------------------------------------------------------------
    -- Send control sequences
