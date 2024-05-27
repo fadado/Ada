@@ -18,13 +18,13 @@ procedure Dodeca is
    type TONE_ROW is array (ORDER) of TONE;
    -- dodecaphonic serie
 
-   package Printer is
-      procedure On is null;
-      procedure Off is null;
-      procedure Output(serie: TONE_ROW);
+   task Printer is
+      entry On;
+      entry Off;
+      entry Output(serie: TONE_ROW);
    end Printer;
-   package body Printer is separate;
-   -- Called for each solution
+   task body Printer is separate;
+   -- Accept calls to print series
 
    ---------------------------------------------------------------------
    -- Constraints
