@@ -18,7 +18,12 @@ procedure Dodeca is
    type TONE_ROW is array (ORDER) of TONE;
    -- dodecaphonic serie
 
-   procedure Output(serie: TONE_ROW) is separate;
+   package Printer is
+      procedure On is null;
+      procedure Off is null;
+      procedure Output(serie: TONE_ROW);
+   end Printer;
+   package body Printer is separate;
    -- Called for each solution
 
    ---------------------------------------------------------------------
@@ -93,14 +98,16 @@ begin
          new DFS (
            CHOICE   => TONE,
            LEVEL    => ORDER,
-           SOLUTION => TONE_ROW
-         --Output   => Output,
+           SOLUTION => TONE_ROW,
+           Output   => Printer.Output
          --Reject   => Reject,
          --Enter    => Enter,
          --Leave    => Leave
          );
    begin
+      Printer.On;
       Dodecaphonic_Panintervalic_Series.Search;
+      Printer.Off;
    end;
 
 end Dodeca;
