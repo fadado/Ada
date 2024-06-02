@@ -19,8 +19,6 @@ procedure Dodeca is
    -- dodecaphonic serie
 
    task Printer is
-      entry On;
-      entry Off;
       entry Output(serie: TONE_ROW);
    end Printer;
    task body Printer is separate;
@@ -105,9 +103,7 @@ begin
          --Leave    => Leave
          );
    begin
-      Printer.On;
       Dodecaphonic_Panintervalic_Series.Search;
-      Printer.Off;
    end;
 
 end Dodeca;

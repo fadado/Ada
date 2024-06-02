@@ -44,8 +44,8 @@ begin
 
          package Signature is
             new Kiss.Signatures.Stack (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          package Character_Stack is 
@@ -69,15 +69,15 @@ begin
       declare
          package Container is
             new Ada.Containers.Vectors (
-            Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER
+               Index_Type   => POSITIVE, 
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Stack (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          package Character_Stack is
@@ -104,15 +104,15 @@ begin
       declare
          package Container is
             new Ada.Containers.Vectors (
-            Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER
+               Index_Type   => POSITIVE, 
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Stack (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is
@@ -126,14 +126,14 @@ begin
       declare
          package Container is
             new Ada.Containers.Doubly_Linked_Lists (
-            Element_Type => CHARACTER
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Stack (
-            Data_Type    => LIST,
-            Element_Type => CHARACTER
+               Data_Type    => LIST,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is
@@ -146,8 +146,8 @@ begin
       declare
          package Container is
             new Ada.Containers.Bounded_Vectors (
-            Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER
+               Index_Type   => POSITIVE, 
+               Element_Type => CHARACTER
             );
          use Container;
 
@@ -155,8 +155,8 @@ begin
 
          package Signature is
             new Kiss.Signatures.Stack (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is
@@ -173,14 +173,14 @@ begin
       declare
          package Container is
             new Ada.Containers.Doubly_Linked_Lists (
-            Element_Type => CHARACTER
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Queue (
-            Data_Type    => LIST,
-            Element_Type => CHARACTER
+               Data_Type    => LIST,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is
@@ -193,15 +193,15 @@ begin
       declare
          package Container is
             new Ada.Containers.Vectors (
-            Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER
+               Index_Type   => POSITIVE, 
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Queue (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is
@@ -218,15 +218,15 @@ begin
       declare
          package Container is
             new Ada.Containers.Vectors (
-            Index_Type   => POSITIVE, 
-            Element_Type => CHARACTER
+               Index_Type   => POSITIVE, 
+               Element_Type => CHARACTER
             );
          use Container;
 
          package Signature is
             new Kiss.Signatures.Deque (
-            Data_Type    => VECTOR,
-            Element_Type => CHARACTER
+               Data_Type    => VECTOR,
+               Element_Type => CHARACTER
             );
 
          procedure run_test is

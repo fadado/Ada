@@ -7,7 +7,6 @@ task body Printer is
    use Ada.Text_IO;
    serie : TONE_ROW;
 begin
-   accept On;
    Printing:
       loop
          select
@@ -18,9 +17,8 @@ begin
                Put(tone'Image);
             end loop;
             New_Line;
-         or 
-            accept Off;
-            exit Printing;
+         or
+            terminate;
          end select;
       end loop Printing;
 end Printer;
