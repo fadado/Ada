@@ -14,7 +14,7 @@ procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   LIMIT : constant := 2000;
+   LIMIT : constant := 100;
 
    ------------------------------------------------------------
    --
@@ -52,31 +52,33 @@ procedure sieve is
    ------------------------------------------------------------
    task Odds_Generator;
    task body Odds_Generator is
-      odds : aliased QUEUE;
+      Output_Channel : aliased QUEUE;
       candidate : POSITIVE := 2;
    begin
-      -- print first prime (2)
       Put_Line(candidate'Image);
+      -- print first prime (2)
 
-      -- generate candidates and send them to odds
-      candidate := 3;
+      -- first filter
       declare
-         F : access_FILTER := New_Filter(odds'Unchecked_Access);
+         F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
       begin null; end;
-      --
+
+      -- send odd numbers to filter
+      candidate := 3;
       while candidate <= LIMIT loop
-         odds.Enqueue(candidate);
+         Output_Channel.Enqueue(candidate);
          candidate := candidate + 2;
       end loop;
-      --
-      delay 1.1111; -- TODO!
-      GNAT.OS_Lib.OS_Exit(0);
-   exception
-      when X : others =>
-         Put_Line(Exception_Name(X));
-         Put_Line(Exception_Message(X));
-         Put_Line(Exception_Information(X));
-         raise;
+
+      -- send 1 as a token to end and waits until exit
+      Output_Channel.Enqueue(1);
+      loop delay 1.1; end loop;
+ --exception
+ --   when X : others =>
+ --      Put_Line(Exception_Name(X));
+ --      Put_Line(Exception_Message(X));
+ --      Put_Line(Exception_Information(X));
+ --      raise;
    end Odds_Generator;
 
    ------------------------------------------------------------
@@ -86,8 +88,13 @@ procedure sieve is
       Output_Channel : aliased QUEUE;
       prime, candidate : POSITIVE;
    begin
-      -- get and print a prime
+      -- receive a prime or 1
       Input_Channel.Dequeue(prime);
+      -- exit?
+      if prime = 1 then
+         GNAT.OS_Lib.OS_Exit(0); -- exit the program!
+      end if;
+      --
       Put_Line(prime'Image);
 
       -- search next primes
@@ -101,20 +108,16 @@ procedure sieve is
             Output_Channel.Enqueue(candidate);
          end if;
       end loop;
-   exception
-      when X : others =>
-         Put_Line(Exception_Name(X));
-         Put_Line(Exception_Message(X));
-         Put_Line(Exception_Information(X));
-         raise;
+ --exception
+ --   when X : others =>
+ --      Put_Line(Exception_Name(X));
+ --      Put_Line(Exception_Message(X));
+ --      Put_Line(Exception_Information(X));
+ --      raise;
    end Prime_Filter;
 
 begin
-   ------------------------------------------------------------
-   --
-   ------------------------------------------------------------
    null;
-
 end sieve;
 
 -- ¡ISO-8859-1!
