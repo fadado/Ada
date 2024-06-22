@@ -16,10 +16,12 @@ procedure sieve is
    ------------------------------------------------------------
    LIMIT : constant := 100;
 
-   procedure Print(N: POSITIVE) is
+   procedure Print(N: POSITIVE)
+     with Inline is
    begin
       Put_Line(N'Image);
    end;
+
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
@@ -54,21 +56,21 @@ procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   task Odds_Generator;
+   task type Odds_Generator;
    task body Odds_Generator is
       Output_Channel : aliased QUEUE;
-      candidate : POSITIVE := 2;
+      candidate : POSITIVE := 3; -- start at the first odd prime
    begin
-      Print(candidate);
-      -- print first prime (2)
+      -- print first prime
+      Print(2);
 
       -- first filter
-      declare
-         F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
-      begin null; end;
+      run_filter:
+         declare
+            F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
+         begin null; end run_filter;
 
       -- send odd numbers to filter
-      candidate := 3;
       while candidate <= LIMIT loop
          Output_Channel.Enqueue(candidate);
          candidate := candidate + 2;
@@ -77,12 +79,6 @@ procedure sieve is
       -- send 1 as a token to end and waits until exit
       Output_Channel.Enqueue(1);
       loop delay 1.1; end loop;
- --exception
- --   when X : others =>
- --      Put_Line(Exception_Name(X));
- --      Put_Line(Exception_Message(X));
- --      Put_Line(Exception_Information(X));
- --      raise;
    end Odds_Generator;
 
    ------------------------------------------------------------
@@ -94,17 +90,21 @@ procedure sieve is
    begin
       -- receive a prime or 1
       Input_Channel.Dequeue(prime);
+
       -- exit?
       if prime = 1 then
+         -- this is the last filter in the chain
          GNAT.OS_Lib.OS_Exit(0); -- exit the program!
       end if;
+
       --
       Print(prime);
 
       -- search next primes
-      declare
-         F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
-      begin null; end;
+      run_filter:
+         declare
+            F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
+         begin null; end run_filter;
       --
       loop
          Input_Channel.Dequeue(candidate);
@@ -112,16 +112,19 @@ procedure sieve is
             Output_Channel.Enqueue(candidate);
          end if;
       end loop;
- --exception
- --   when X : others =>
- --      Put_Line(Exception_Name(X));
- --      Put_Line(Exception_Message(X));
- --      Put_Line(Exception_Information(X));
- --      raise;
    end Prime_Filter;
 
 begin
-   null;
+   run_generator:
+      declare
+         O : Odds_Generator;
+      begin null; end run_generator;
+      -- here suspend until all tasks terminate!
+   exception
+      when X : others =>
+         Put_Line(Exception_Name(X));
+         Put_Line(Exception_Message(X));
+         Put_Line(Exception_Information(X));
 end sieve;
 
 -- ¡ISO-8859-1!
