@@ -16,6 +16,10 @@ procedure sieve is
    ------------------------------------------------------------
    LIMIT : constant := 100;
 
+   procedure Print(N: POSITIVE) is
+   begin
+      Put_Line(N'Image);
+   end;
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
@@ -55,7 +59,7 @@ procedure sieve is
       Output_Channel : aliased QUEUE;
       candidate : POSITIVE := 2;
    begin
-      Put_Line(candidate'Image);
+      Print(candidate);
       -- print first prime (2)
 
       -- first filter
@@ -95,7 +99,7 @@ procedure sieve is
          GNAT.OS_Lib.OS_Exit(0); -- exit the program!
       end if;
       --
-      Put_Line(prime'Image);
+      Print(prime);
 
       -- search next primes
       declare
