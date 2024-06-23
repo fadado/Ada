@@ -2,35 +2,18 @@
 
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
+
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
-with Ada.Exceptions;
+
 with GNAT.OS_Lib;
 
 procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   LIMIT : constant := 999;
+   subtype NUMBER is INTEGER range 2 .. INTEGER'Last;
 
-   subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
-
-   Count : NATURAL := 0;
- --pragma Atomic (Count);
-
-   procedure Print(N: NUMBER) with Inline
-   is
-      use Ada.Text_IO;
-      use Ada.Integer_Text_IO;
-   begin
-      Count := Count + 1;
-      Put(N, Width => 7);
-      if (Count rem 10) = 0 then New_Line; end if;
-   end;
-
-   ------------------------------------------------------------
-   --
-   ------------------------------------------------------------
    package SQI is
       new Ada.Containers.Synchronized_Queue_Interfaces (
          Element_Type => NUMBER
@@ -38,110 +21,100 @@ procedure sieve is
    package BSQ is
       new Ada.Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => SQI,
-         Default_Capacity => 7
+         Default_Capacity => 1
       );
 
    subtype QUEUE is BSQ.Queue;
-   type access_QUEUE is access all QUEUE;
+   type access_QUEUE is access QUEUE;
 
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   task type Prime_Filter(Input_Channel: access_QUEUE);
-   type access_FILTER is access Prime_Filter;
+   task type Odds_Generator (
+      Output_Queue: access_QUEUE
+   );
+   type access_GENERATOR is access Odds_Generator;
 
-   function New_Filter(Channel: access_QUEUE)
-     return access_FILTER
-     with Inline is
-   begin
-      return F : access_FILTER do
-         F := new Prime_Filter(Channel);
-      end return;
-   end New_Filter;
-
-   ------------------------------------------------------------
-   --
-   ------------------------------------------------------------
-   task type Odds_Generator(Output_Channel: access_QUEUE);
    task body Odds_Generator is
-      candidate : NUMBER := 3; -- start at the first odd prime
+      candidate : NUMBER := 3;
+      -- start at the first odd prime
    begin
-      -- print first prime
-      Print(2);
-
-      -- first filter
-      run_filter:
-         declare
-            F : access_FILTER := New_Filter(Output_Channel);
-         begin null; end run_filter;
-
-      -- send odd numbers to filter
-      while candidate <= LIMIT loop
-         Output_Channel.Enqueue(candidate);
+      loop
+         Output_Queue.Enqueue(candidate);
          candidate := candidate + 2;
       end loop;
-
-      -- send 1 as a token to end and waits until exit
-      Output_Channel.Enqueue(1);
-      loop delay 1.1; end loop;
    end Odds_Generator;
 
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
+   task type Prime_Filter(
+      Input_Queue  : access_QUEUE;
+      Output_Queue : access_QUEUE;
+      Prime        : NUMBER
+   );
+   type access_FILTER is access Prime_Filter;
+
    task body Prime_Filter is
-      Output_Channel : aliased QUEUE;
-      prime, candidate : NUMBER;
+      candidate : NUMBER;
    begin
-      -- receive a prime or 1
-      Input_Channel.Dequeue(prime);
-
-      -- exit?
-      if prime = 1 then
-         -- this is the last filter in the chain
-         Ada.Text_IO.New_Line;
-         GNAT.OS_Lib.OS_Exit(0); -- exit the program!
-      end if;
-
-      --
-      Print(prime);
-
-      -- search next primes
-      run_filter:
-         declare
-            F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
-         begin null; end run_filter;
-      --
       loop
-         Input_Channel.Dequeue(candidate);
-         if (candidate rem prime) /= 0 then
-            Output_Channel.Enqueue(candidate);
+         Input_Queue.Dequeue(candidate);
+         if (candidate rem Prime) /= 0 then
+            Output_Queue.Enqueue(candidate);
          end if;
       end loop;
    end Prime_Filter;
+
+   ------------------------------------------------------------
+   --
+   ------------------------------------------------------------
+   Count : NATURAL := 0;
+
+   procedure Print with Inline is
+   begin
+      Ada.Text_IO.New_Line;
+   end;
+
+   procedure Print(N: NUMBER) with Inline is
+   begin
+      Count := Count + 1;
+
+      Ada.Integer_Text_IO.Put(N, Width => 7);
+      if (Count rem 10) = 0 then Print; end if;
+   end;
 
 ------------------------------------------------------------------------
 --
 ------------------------------------------------------------------------
 begin
-   run_generator:
-      declare
-         use Ada.Text_IO;
-         use Ada.Exceptions;
+   declare
+      LIMIT : constant := 999;
 
-         input : access_QUEUE := new QUEUE;
-         --output : access_QUEUE;
+      prime         : NUMBER;
+      input, output : access_QUEUE;
+      generator     : access_GENERATOR;
+      filter        : access_FILTER;
+   begin
+      input := new QUEUE;
+      generator := new Odds_Generator (input);
 
-         -- first task in the chain
-         O : Odds_Generator(input);
-      begin
-         null;
-      exception
-         when X : others =>
-            Put_Line(Standard_Error, Exception_Name(X));
-            Put_Line(Standard_Error, Exception_Message(X));
-            Put_Line(Standard_Error, Exception_Information(X));
-      end run_generator;
+      Print(2);
+      loop
+         input.Dequeue(prime);
+         exit when prime > LIMIT;
+
+         Print(prime);
+
+         output := new QUEUE;
+         filter := new Prime_Filter (input, output, prime);
+
+         input := output;
+      end loop;
+      Print;
+
+      GNAT.OS_Lib.OS_Exit(0);
+   end;
 end sieve;
 
 -- ¡ISO-8859-1!
