@@ -84,37 +84,39 @@ procedure sieve is
       if (Count rem 10) = 0 then Print; end if;
    end;
 
-------------------------------------------------------------------------
---
-------------------------------------------------------------------------
-begin
-   declare
-      LIMIT : constant := 999;
-
+   ------------------------------------------------------------
+   --
+   ------------------------------------------------------------
+   procedure Main(Limit: NUMBER) is
       prime         : NUMBER;
       input, output : access_QUEUE;
-      generator     : access_GENERATOR;
-      filter        : access_FILTER;
+      odds          : access_GENERATOR;
+      layer         : access_FILTER;
    begin
       input := new QUEUE;
-      generator := new Odds_Generator (input);
+      odds  := new Odds_Generator (input);
 
       Print(2);
       loop
          input.Dequeue(prime);
-         exit when prime > LIMIT;
+         exit when prime > Limit;
 
          Print(prime);
 
          output := new QUEUE;
-         filter := new Prime_Filter (input, output, prime);
-
-         input := output;
+         layer  := new Prime_Filter (input, output, prime);
+         input  := output;
       end loop;
       Print;
+   end Main;
 
-      GNAT.OS_Lib.OS_Exit(0);
-   end;
+------------------------------------------------------------------------
+--
+------------------------------------------------------------------------
+begin
+   Main(Limit => 541);
+
+   GNAT.OS_Lib.OS_Exit(0);
 end sieve;
 
 -- ¡ISO-8859-1!
