@@ -1,36 +1,42 @@
 -- sieve.adb
 
 with Ada.Text_IO;
+with Ada.Integer_Text_IO;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
 with Ada.Exceptions;
 with GNAT.OS_Lib;
 
-use Ada.Text_IO;
-use Ada.Containers;
-use Ada.Exceptions;
-
 procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   LIMIT : constant := 100;
+   LIMIT : constant := 999;
 
-   procedure Print(N: POSITIVE)
-     with Inline is
+   subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
+
+   Count : NATURAL := 0;
+ --pragma Atomic (Count);
+
+   procedure Print(N: NUMBER) with Inline
+   is
+      use Ada.Text_IO;
+      use Ada.Integer_Text_IO;
    begin
-      Put_Line(N'Image);
+      Count := Count + 1;
+      Put(N, Width => 7);
+      if (Count rem 10) = 0 then New_Line; end if;
    end;
 
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
    package SQI is
-      new Synchronized_Queue_Interfaces (
-         Element_Type => POSITIVE
+      new Ada.Containers.Synchronized_Queue_Interfaces (
+         Element_Type => NUMBER
       );
    package BSQ is
-      new Bounded_Synchronized_Queues (
+      new Ada.Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => SQI,
          Default_Capacity => 7
       );
@@ -56,10 +62,9 @@ procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   task type Odds_Generator;
+   task type Odds_Generator(Output_Channel: access_QUEUE);
    task body Odds_Generator is
-      Output_Channel : aliased QUEUE;
-      candidate : POSITIVE := 3; -- start at the first odd prime
+      candidate : NUMBER := 3; -- start at the first odd prime
    begin
       -- print first prime
       Print(2);
@@ -67,7 +72,7 @@ procedure sieve is
       -- first filter
       run_filter:
          declare
-            F : access_FILTER := New_Filter(Output_Channel'Unchecked_Access);
+            F : access_FILTER := New_Filter(Output_Channel);
          begin null; end run_filter;
 
       -- send odd numbers to filter
@@ -86,7 +91,7 @@ procedure sieve is
    ------------------------------------------------------------
    task body Prime_Filter is
       Output_Channel : aliased QUEUE;
-      prime, candidate : POSITIVE;
+      prime, candidate : NUMBER;
    begin
       -- receive a prime or 1
       Input_Channel.Dequeue(prime);
@@ -94,6 +99,7 @@ procedure sieve is
       -- exit?
       if prime = 1 then
          -- this is the last filter in the chain
+         Ada.Text_IO.New_Line;
          GNAT.OS_Lib.OS_Exit(0); -- exit the program!
       end if;
 
@@ -114,17 +120,28 @@ procedure sieve is
       end loop;
    end Prime_Filter;
 
+------------------------------------------------------------------------
+--
+------------------------------------------------------------------------
 begin
    run_generator:
       declare
-         O : Odds_Generator;
-      begin null; end run_generator;
-      -- here suspend until all tasks terminate!
-   exception
-      when X : others =>
-         Put_Line(Exception_Name(X));
-         Put_Line(Exception_Message(X));
-         Put_Line(Exception_Information(X));
+         use Ada.Text_IO;
+         use Ada.Exceptions;
+
+         input : access_QUEUE := new QUEUE;
+         --output : access_QUEUE;
+
+         -- first task in the chain
+         O : Odds_Generator(input);
+      begin
+         null;
+      exception
+         when X : others =>
+            Put_Line(Standard_Error, Exception_Name(X));
+            Put_Line(Standard_Error, Exception_Message(X));
+            Put_Line(Standard_Error, Exception_Information(X));
+      end run_generator;
 end sieve;
 
 -- ¡ISO-8859-1!

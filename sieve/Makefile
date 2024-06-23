@@ -5,7 +5,7 @@
 all: sieve
 
 sieve: sieve.adb
-	gnatmake sieve
+	gnatmake -q sieve
 
 clean:
 	rm -f *.o *.ali sieve *.ads.* *.adb.*
