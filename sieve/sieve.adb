@@ -2,9 +2,12 @@
 
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
-
+with Ada.IO_Exceptions;
+with Ada.Command_Line;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
+
+use Ada;
 
 with GNAT.OS_Lib;
 
@@ -12,16 +15,18 @@ procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   subtype NUMBER is INTEGER range 2 .. INTEGER'Last;
+   subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
+
+   QUEUE_SIZE : constant := 2;
 
    package SQI is
-      new Ada.Containers.Synchronized_Queue_Interfaces (
+      new Containers.Synchronized_Queue_Interfaces (
          Element_Type => NUMBER
       );
    package BSQ is
-      new Ada.Containers.Bounded_Synchronized_Queues (
+      new Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => SQI,
-         Default_Capacity => 1
+         Default_Capacity => QUEUE_SIZE
       );
 
    subtype QUEUE is BSQ.Queue;
@@ -73,14 +78,14 @@ procedure sieve is
 
    procedure Print with Inline is
    begin
-      Ada.Text_IO.New_Line;
+      Text_IO.New_Line;
    end;
 
    procedure Print(N: NUMBER) with Inline is
    begin
       Count := Count + 1;
 
-      Ada.Integer_Text_IO.Put(N, Width => 7);
+      Integer_Text_IO.Put(N, Width => 7);
       if (Count rem 10) = 0 then Print; end if;
    end;
 
@@ -114,7 +119,25 @@ procedure sieve is
 --
 ------------------------------------------------------------------------
 begin
-   Main(Limit => 541);
+   declare
+      use Command_Line;
+
+      LIMIT_100 : constant := 541; -- first 100 primes
+      limit : NUMBER;
+      last  : POSITIVE;
+   begin
+      if Argument_Count = 0 then
+         limit := LIMIT_100;
+      else
+         begin
+            Integer_Text_IO.Get(Argument(1), limit, last);
+         exception
+            when IO_Exceptions.Data_Error | Constraint_Error
+               => return;
+         end;
+      end if;
+      Main(Limit => limit);
+   end;
 
    GNAT.OS_Lib.OS_Exit(0);
 end sieve;
