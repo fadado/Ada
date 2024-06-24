@@ -1,4 +1,5 @@
 -- sieve.adb
+-- require -gnat2020
 
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
@@ -9,15 +10,14 @@ with Ada.Containers.Bounded_Synchronized_Queues;
 
 use Ada;
 
-with GNAT.OS_Lib;
-
 procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
    subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
 
-   QUEUE_SIZE : constant := 2;
+   Close_Filter : constant NUMBER := 1;
+   Queue_Size   : constant := 2;
 
    package SQI is
       new Containers.Synchronized_Queue_Interfaces (
@@ -26,7 +26,7 @@ procedure sieve is
    package BSQ is
       new Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => SQI,
-         Default_Capacity => QUEUE_SIZE
+         Default_Capacity => Queue_Size
       );
 
    subtype QUEUE is BSQ.Queue;
@@ -36,18 +36,19 @@ procedure sieve is
    --
    ------------------------------------------------------------
    task type Odds_Generator (
-      Output_Queue: access_QUEUE
+      Limit        : NUMBER;
+      Output_Queue : access_QUEUE
    );
    type access_GENERATOR is access Odds_Generator;
 
    task body Odds_Generator is
-      candidate : NUMBER := 3;
-      -- start at the first odd prime
+      candidate : NUMBER := 3; -- first odd prime
    begin
-      loop
+      while candidate <= Limit loop
          Output_Queue.Enqueue(candidate);
-         candidate := candidate + 2;
+         candidate := @ + 2;
       end loop;
+      Output_Queue.Enqueue(Close_Filter);
    end Odds_Generator;
 
    ------------------------------------------------------------
@@ -65,10 +66,12 @@ procedure sieve is
    begin
       loop
          Input_Queue.Dequeue(candidate);
+         exit when candidate = Close_Filter;
          if (candidate rem Prime) /= 0 then
             Output_Queue.Enqueue(candidate);
          end if;
       end loop;
+      Output_Queue.Enqueue(Close_Filter);
    end Prime_Filter;
 
    ------------------------------------------------------------
@@ -77,16 +80,24 @@ procedure sieve is
    Count : NATURAL := 0;
 
    procedure Print with Inline is
+      use Text_IO;
    begin
-      Text_IO.New_Line;
+      New_Line;
    end;
 
    procedure Print(N: NUMBER) with Inline is
-   begin
-      Count := Count + 1;
+      use Text_IO;
+      use Integer_Text_IO;
 
-      Integer_Text_IO.Put(N, Width => 7);
-      if (Count rem 10) = 0 then Print; end if;
+      Field_Size : constant := 7;
+      Columns    : constant := 10;
+   begin
+      Count := @ + 1;
+
+      Put(N, Width => Field_Size);
+      if (Count rem Columns) = 0 then
+         New_Line;
+      end if;
    end;
 
    ------------------------------------------------------------
@@ -99,12 +110,12 @@ procedure sieve is
       layer         : access_FILTER;
    begin
       input := new QUEUE;
-      odds  := new Odds_Generator (input);
+      odds  := new Odds_Generator (Limit, input);
 
       Print(2);
       loop
          input.Dequeue(prime);
-         exit when prime > Limit;
+         exit when prime = Close_Filter;
 
          Print(prime);
 
@@ -121,25 +132,25 @@ procedure sieve is
 begin
    declare
       use Command_Line;
+      use IO_Exceptions;
 
-      LIMIT_100 : constant := 541; -- first 100 primes
       limit : NUMBER;
       last  : POSITIVE;
    begin
       if Argument_Count = 0 then
-         limit := LIMIT_100;
+         limit := 541; -- first 100 primes
       else
          begin
             Integer_Text_IO.Get(Argument(1), limit, last);
+            if Limit = 1 then return; end if;
          exception
-            when IO_Exceptions.Data_Error | Constraint_Error
+            when Data_Error | Constraint_Error
                => return;
          end;
       end if;
+
       Main(Limit => limit);
    end;
-
-   GNAT.OS_Lib.OS_Exit(0);
 end sieve;
 
 -- ¡ISO-8859-1!
