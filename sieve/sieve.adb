@@ -3,7 +3,6 @@
 
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
-with Ada.IO_Exceptions;
 with Ada.Command_Line;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
@@ -17,7 +16,11 @@ procedure sieve is
    subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
 
    Close_Filter : constant NUMBER := 1;
-   Queue_Size   : constant := 2;
+
+   ------------------------------------------------------------
+   --
+   ------------------------------------------------------------
+   Queue_Size : constant := 2;
 
    package SQI is
       new Containers.Synchronized_Queue_Interfaces (
@@ -54,7 +57,7 @@ procedure sieve is
    ------------------------------------------------------------
    --
    ------------------------------------------------------------
-   task type Prime_Filter(
+   task type Prime_Filter (
       Input_Queue  : access_QUEUE;
       Output_Queue : access_QUEUE;
       Prime        : NUMBER
@@ -88,12 +91,10 @@ procedure sieve is
    procedure Print(N: NUMBER) with Inline is
       use Text_IO;
       use Integer_Text_IO;
-
       Field_Size : constant := 7;
       Columns    : constant := 10;
    begin
       Count := @ + 1;
-
       Put(N, Width => Field_Size);
       if (Count rem Columns) = 0 then
          New_Line;
@@ -111,14 +112,11 @@ procedure sieve is
    begin
       input := new QUEUE;
       odds  := new Odds_Generator (Limit, input);
-
       Print(2);
       loop
          input.Dequeue(prime);
          exit when prime = Close_Filter;
-
          Print(prime);
-
          output := new QUEUE;
          layer  := new Prime_Filter (input, output, prime);
          input  := output;
@@ -132,24 +130,27 @@ procedure sieve is
 begin
    declare
       use Command_Line;
-      use IO_Exceptions;
-
+      procedure Usage is
+         use Text_IO;
+      begin
+         Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");
+         Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
+      end;
       limit : NUMBER;
-      last  : POSITIVE;
    begin
+      Set_Exit_Status(Failure);
       if Argument_Count = 0 then
          limit := 541; -- first 100 primes
       else
          begin
-            Integer_Text_IO.Get(Argument(1), limit, last);
-            if Limit = 1 then return; end if;
+            limit := NUMBER'Value(Argument(1));
+            if limit = 1 then raise Constraint_Error; end if;
          exception
-            when Data_Error | Constraint_Error
-               => return;
+            when Constraint_Error => Usage; return;
          end;
       end if;
-
       Main(Limit => limit);
+      Set_Exit_Status(Success);
    end;
 end sieve;
 
