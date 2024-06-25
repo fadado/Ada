@@ -11,16 +11,20 @@ use Ada;
 
 procedure sieve is
    ------------------------------------------------------------
-   --
+   -- Set of numbers to search for primes
    ------------------------------------------------------------
+
    subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
 
    Close_Filter : constant NUMBER := 1;
+   -- We use 1 as a token to signal task's ending
 
    ------------------------------------------------------------
-   --
+   -- Channels between tasks
    ------------------------------------------------------------
+
    Queue_Size : constant := 2;
+   -- A greater size does not improve performance
 
    package SQI is
       new Containers.Synchronized_Queue_Interfaces (
@@ -36,8 +40,9 @@ procedure sieve is
    type access_QUEUE is access QUEUE;
 
    ------------------------------------------------------------
-   --
+   -- Task to generate odd numbers starting at 3
    ------------------------------------------------------------
+
    task type Odds_Generator (
       Limit        : NUMBER;
       Output_Queue : access_QUEUE
@@ -45,7 +50,7 @@ procedure sieve is
    type access_GENERATOR is access Odds_Generator;
 
    task body Odds_Generator is
-      candidate : NUMBER := 3; -- first odd prime
+      candidate : NUMBER := 3;
    begin
       while candidate <= Limit loop
          Output_Queue.Enqueue(candidate);
@@ -55,8 +60,9 @@ procedure sieve is
    end Odds_Generator;
 
    ------------------------------------------------------------
-   --
+   -- Task to reject (or pass) prime cadidates
    ------------------------------------------------------------
+
    task type Prime_Filter (
       Input_Queue  : access_QUEUE;
       Output_Queue : access_QUEUE;
@@ -78,8 +84,9 @@ procedure sieve is
    end Prime_Filter;
 
    ------------------------------------------------------------
-   --
+   -- Output utilities
    ------------------------------------------------------------
+
    Count : NATURAL := 0;
 
    procedure Print with Inline is
@@ -102,9 +109,10 @@ procedure sieve is
    end;
 
    ------------------------------------------------------------
-   --
+   -- Build a chain of filters
    ------------------------------------------------------------
-   procedure Main(Limit: NUMBER) is
+
+   procedure Build_Sieve(Limit: NUMBER) is
       prime         : NUMBER;
       input, output : access_QUEUE;
       odds          : access_GENERATOR;
@@ -122,11 +130,12 @@ procedure sieve is
          input  := output;
       end loop;
       Print;
-   end Main;
+   end Build_Sieve;
 
 ------------------------------------------------------------------------
---
+-- Manage command line and start the sieve
 ------------------------------------------------------------------------
+
 begin
    declare
       use Command_Line;
@@ -149,7 +158,7 @@ begin
             when Constraint_Error => Usage; return;
          end;
       end if;
-      Main(Limit => limit);
+      Build_Sieve(Limit => limit);
       Set_Exit_Status(Success);
    end;
 end sieve;
