@@ -36,20 +36,20 @@ procedure sieve is
          Default_Capacity => Queue_Size
       );
 
-   subtype QUEUE is BSQ.Queue;
-   type access_QUEUE is access QUEUE;
+   subtype monitor_QUEUE is BSQ.Queue;
+   type QUEUE is access monitor_QUEUE;
 
    ------------------------------------------------------------
    -- Task to generate odd numbers starting at 3
    ------------------------------------------------------------
 
-   task type Odds_Generator (
+   task type task_GENERATOR (
       Limit        : NUMBER;
-      Output_Queue : access_QUEUE
+      Output_Queue : QUEUE
    );
-   type access_GENERATOR is access Odds_Generator;
+   type GENERATOR is access task_GENERATOR;
 
-   task body Odds_Generator is
+   task body task_GENERATOR is
       candidate : NUMBER := 3;
    begin
       while candidate <= Limit loop
@@ -57,20 +57,20 @@ procedure sieve is
          candidate := @ + 2;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end Odds_Generator;
+   end task_GENERATOR;
 
    ------------------------------------------------------------
    -- Task to reject (or pass) prime cadidates
    ------------------------------------------------------------
 
-   task type Prime_Filter (
-      Input_Queue  : access_QUEUE;
-      Output_Queue : access_QUEUE;
+   task type task_FILTER (
+      Input_Queue  : QUEUE;
+      Output_Queue : QUEUE;
       Prime        : NUMBER
    );
-   type access_FILTER is access Prime_Filter;
+   type FILTER is access task_FILTER;
 
-   task body Prime_Filter is
+   task body task_FILTER is
       candidate : NUMBER;
    begin
       loop
@@ -81,7 +81,7 @@ procedure sieve is
          end if;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end Prime_Filter;
+   end task_FILTER;
 
    ------------------------------------------------------------
    -- Output utilities
@@ -114,19 +114,19 @@ procedure sieve is
 
    procedure Build_Sieve(Limit: NUMBER) is
       prime         : NUMBER;
-      input, output : access_QUEUE;
-      odds          : access_GENERATOR;
-      layer         : access_FILTER;
+      input, output : QUEUE;
+      odds          : GENERATOR;
+      layer         : FILTER;
    begin
-      input := new QUEUE;
-      odds  := new Odds_Generator (Limit, input);
+      input := new monitor_QUEUE;
+      odds  := new task_GENERATOR (Limit, input);
       Print(2);
       loop
          input.Dequeue(prime);
          exit when prime = Close_Filter;
          Print(prime);
-         output := new QUEUE;
-         layer  := new Prime_Filter (input, output, prime);
+         output := new monitor_QUEUE;
+         layer  := new task_FILTER (input, output, prime);
          input  := output;
       end loop;
       Print;
