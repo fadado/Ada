@@ -36,20 +36,20 @@ procedure sieve is
          Default_Capacity => Queue_Size
       );
 
-   subtype monitor_QUEUE is BSQ.Queue;
-   type QUEUE is access monitor_QUEUE;
+   subtype T_QUEUE is BSQ.Queue;
+   type QUEUE is access T_QUEUE;
 
    ------------------------------------------------------------
    -- Task to generate odd numbers starting at 3
    ------------------------------------------------------------
 
-   task type task_GENERATOR (
+   task type T_GENERATOR (
       Limit        : NUMBER;
       Output_Queue : QUEUE
    );
-   type GENERATOR is access task_GENERATOR;
+   type GENERATOR is access T_GENERATOR;
 
-   task body task_GENERATOR is
+   task body T_GENERATOR is
       candidate : NUMBER := 3;
    begin
       while candidate <= Limit loop
@@ -57,20 +57,20 @@ procedure sieve is
          candidate := @ + 2;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end task_GENERATOR;
+   end T_GENERATOR;
 
    ------------------------------------------------------------
    -- Task to reject (or pass) prime cadidates
    ------------------------------------------------------------
 
-   task type task_FILTER (
+   task type T_FILTER (
       Input_Queue  : QUEUE;
       Output_Queue : QUEUE;
       Prime        : NUMBER
    );
-   type FILTER is access task_FILTER;
+   type FILTER is access T_FILTER;
 
-   task body task_FILTER is
+   task body T_FILTER is
       candidate : NUMBER;
    begin
       loop
@@ -81,7 +81,7 @@ procedure sieve is
          end if;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end task_FILTER;
+   end T_FILTER;
 
    ------------------------------------------------------------
    -- Output utilities
@@ -118,15 +118,15 @@ procedure sieve is
       odds          : GENERATOR;
       layer         : FILTER;
    begin
-      input := new monitor_QUEUE;
-      odds  := new task_GENERATOR (Limit, input);
+      input := new T_QUEUE;
+      odds  := new T_GENERATOR (Limit, input);
       Print(2);
       loop
          input.Dequeue(prime);
          exit when prime = Close_Filter;
          Print(prime);
-         output := new monitor_QUEUE;
-         layer  := new task_FILTER (input, output, prime);
+         output := new T_QUEUE;
+         layer  := new T_FILTER (input, output, prime);
          input  := output;
       end loop;
       Print;
