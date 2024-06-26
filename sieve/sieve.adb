@@ -84,33 +84,11 @@ procedure sieve is
    end T_FILTER;
 
    ------------------------------------------------------------
-   -- Output utilities
-   ------------------------------------------------------------
-
-   Count : NATURAL := 0;
-
-   procedure Print with Inline is
-      use Text_IO;
-   begin
-      New_Line;
-   end;
-
-   procedure Print(N: NUMBER) with Inline is
-      use Text_IO;
-      use Integer_Text_IO;
-      Field_Size : constant := 7;
-      Columns    : constant := 10;
-   begin
-      Count := @ + 1;
-      Put(N, Width => Field_Size);
-      if (Count rem Columns) = 0 then
-         New_Line;
-      end if;
-   end;
-
-   ------------------------------------------------------------
    -- Build a chain of filters
    ------------------------------------------------------------
+
+   procedure Print with Inline;
+   procedure Print(N: NUMBER) with Inline;
 
    procedure Build_Sieve(Limit: NUMBER) is
       prime         : NUMBER;
@@ -131,6 +109,31 @@ procedure sieve is
       end loop;
       Print;
    end Build_Sieve;
+
+   ------------------------------------------------------------
+   -- Output utilities
+   ------------------------------------------------------------
+
+   Count : NATURAL := 0;
+
+   procedure Print is
+      use Text_IO;
+   begin
+      New_Line;
+   end;
+
+   procedure Print(N: NUMBER) is
+      use Text_IO;
+      use Integer_Text_IO;
+      Field_Size : constant := 7;
+      Columns    : constant := 10;
+   begin
+      Count := @ + 1;
+      Put(N, Width => Field_Size);
+      if (Count rem Columns) = 0 then
+         New_Line;
+      end if;
+   end;
 
 ------------------------------------------------------------------------
 -- Manage command line and start the sieve
