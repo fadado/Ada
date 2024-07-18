@@ -1,11 +1,14 @@
 -- pingpong.adb
 
+pragma Restrictions (No_Select_Statements);
+
+with Ada.Dispatching;
 with Ada.Text_IO;
 
 with Conveyors;
-use  Conveyors;
 
 procedure pingpong is
+   use  Conveyors;
 
    ---------------------------------------------------------------------
    --
@@ -57,16 +60,19 @@ begin
    --
    ---------------------------------------------------------------------
    declare
+      use Ada.Dispatching;
+
       ping : aliased CONVEYOR;
       pong : aliased CONVEYOR;
-      ping_player : Ping_Task (ping'Access, pong'Access);
-      pong_player : Pong_Task (pong'Access, ping'Access);
+      ping_thread : Ping_Task (ping'Access, pong'Access);
+      pong_thread : Pong_Task (pong'Access, ping'Access);
 
       hello : aliased CONVEYOR;
       hello_thread : Hello_Task (hello'Access);
    begin
       hello.Call;
-      delay 0.1;
+      while not hello_thread'Terminated loop Yield; end loop;
+
       ping.Call;
    end;
 

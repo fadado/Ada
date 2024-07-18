@@ -15,6 +15,7 @@ package Mutexes is
       renames Ada.Synchronous_Task_Control.Set_True;
 
    function Make_Mutex return MUTEX;
+
 end Mutexes;
 
 -- ¡ISO-8859-1!

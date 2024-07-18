@@ -9,17 +9,17 @@ package body Conveyors is
 
    procedure Call(self: in out CONVEYOR) is
    begin
-      self.back := self.here'Unchecked_Access;
       Notify(self.here);
    end Call;
 
    procedure Resume(self, other: in out CONVEYOR; W: BOOLEAN := True) is
    begin
-      if self.back /= null then
-         other.back := self.back;
-      else
-         other.back := self.here'Unchecked_Access;
-      end if;
+      other.back := (
+         if self.back = null
+         then self.here'Unchecked_Access
+         else self.back
+      );
+
       Notify(other.here);
       if W then
          Wait(self.here);
@@ -31,6 +31,7 @@ package body Conveyors is
       if self.back = null then
          raise Conveyor_Error;
       end if;
+
       Notify(self.back.all);
       Wait(self.here);
    end Yield;

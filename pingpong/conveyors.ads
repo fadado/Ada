@@ -1,6 +1,6 @@
 -- conveyors.ads
 
-with Signals; use Signals;
+with Signals;
 
 package Conveyors is
 
@@ -14,6 +14,7 @@ package Conveyors is
    Conveyor_Error : exception;
 
 private
+   use Signals;
 
    type CONVEYOR is tagged limited
       record
