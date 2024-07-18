@@ -7,7 +7,7 @@ package body Mutexes is
       use Ada.Synchronous_Task_Control;
    begin
       return S:MUTEX do
-         -- by default suspension objects are set to `False`
+         -- suspension objects are by default set to `False`
          Set_True(S);
       end return;
    end Make_Mutex;

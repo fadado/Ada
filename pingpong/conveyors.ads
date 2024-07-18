@@ -6,9 +6,10 @@ package Conveyors is
 
    type CONVEYOR is tagged limited private;
 
-   procedure Call(self: in out CONVEYOR);
-   procedure Suspend(self: in out CONVEYOR);
-   procedure Resume(self, other: in out CONVEYOR; W: BOOLEAN := True);
+   procedure Call(self: in out CONVEYOR) with Inline;
+   procedure Suspend(self: in out CONVEYOR) with Inline;
+   procedure Resume(self: in out CONVEYOR; other: access CONVEYOR) with Inline;
+   procedure Resume(self: in out CONVEYOR; other: in out CONVEYOR);
    procedure Yield(self: in out CONVEYOR);
 
    Conveyor_Error : exception;

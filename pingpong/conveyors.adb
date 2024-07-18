@@ -2,17 +2,31 @@
 
 package body Conveyors is
 
-   procedure Suspend(self: in out CONVEYOR) is
-   begin
-      Wait(self.here);
-   end Suspend;
-
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Call(self: in out CONVEYOR) is
    begin
       Notify(self.here);
    end Call;
 
-   procedure Resume(self, other: in out CONVEYOR; W: BOOLEAN := True) is
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   procedure Suspend(self: in out CONVEYOR) is
+   begin
+      Wait(self.here);
+   end Suspend;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   procedure Resume(self: in out CONVEYOR; other: access CONVEYOR) is
+   begin
+      Resume(self, other.all); -- inlined in spec
+   end Resume;
+
+   procedure Resume(self: in out CONVEYOR; other: in out CONVEYOR) is
    begin
       other.back := (
          if self.back = null
@@ -21,11 +35,12 @@ package body Conveyors is
       );
 
       Notify(other.here);
-      if W then
-         Wait(self.here);
-      end if;
+      Wait(self.here);
    end Resume;
 
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Yield(self: in out CONVEYOR) is
    begin
       if self.back = null then
