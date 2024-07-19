@@ -5,11 +5,9 @@ pragma Restrictions (No_Select_Statements);
 with Ada.Dispatching;
 with Ada.Text_IO;
 
-with Conveyors;
+with Conveyors; use  Conveyors;
 
 procedure pingpong is
-   use  Conveyors;
-
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
@@ -41,7 +39,7 @@ procedure pingpong is
          if i < 10 then
             This.Resume(That);
          else
-            That.Call;
+            That.Run;
          end if;
       end loop;
    end Ping_Task;
@@ -71,12 +69,10 @@ begin
       hello : aliased CONVEYOR;
       hello_thread : Hello_Task (hello'Access);
    begin
-      hello.Call;
-      while not hello_thread'Terminated loop
-         Ada.Dispatching.Yield;
-      end loop;
+      hello.Run;
+      while not hello_thread'Terminated loop Ada.Dispatching.Yield; end loop;
 
-      ping.Call;
+      ping.Run;
    end;
 
 end pingpong;

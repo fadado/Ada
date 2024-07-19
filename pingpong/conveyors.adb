@@ -1,14 +1,16 @@
 -- conveyors.adb
 
+with Ada.Dispatching;
+
 package body Conveyors is
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
-   procedure Call(self: in out CONVEYOR) is
+   procedure Run(self: in out CONVEYOR) is
    begin
       Notify(self.here);
-   end Call;
+   end Run;
 
    ---------------------------------------------------------------------
    --
@@ -21,11 +23,32 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
-   procedure Resume(self: in out CONVEYOR; other: access CONVEYOR) is
+   procedure Call(self: in out CONVEYOR) is
    begin
-      Resume(self, other.all); -- inlined in spec
-   end Resume;
+      Notify(self.here);
+      while Busy(self.here) loop Ada.Dispatching.Yield; end loop;
+      Wait(self.here);
+   end Call;
 
+   procedure Finish(self: in out CONVEYOR) is
+   begin
+      Notify(self.here);
+   end Finish;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   procedure Yield(self: in out CONVEYOR) is
+   begin
+      --if self.back = null then raise Conveyor_Error; end if;
+
+      Notify(self.back.all);
+      Wait(self.here);
+   end Yield;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR; other: in out CONVEYOR) is
    begin
       other.back := (
@@ -38,18 +61,10 @@ package body Conveyors is
       Wait(self.here);
    end Resume;
 
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-   procedure Yield(self: in out CONVEYOR) is
+   procedure Resume(self: in out CONVEYOR; other: access CONVEYOR) is
    begin
-      if self.back = null then
-         raise Conveyor_Error;
-      end if;
-
-      Notify(self.back.all);
-      Wait(self.here);
-   end Yield;
+      Resume(self, other.all); -- inlined in spec
+   end Resume;
 
 end Conveyors;
 
