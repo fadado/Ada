@@ -7,14 +7,6 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
-   procedure Run(self: in out CONVEYOR) is
-   begin
-      Notify(self.here);
-   end Run;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
    procedure Suspend(self: in out CONVEYOR) is
    begin
       Wait(self.here);
@@ -23,48 +15,41 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
-   procedure Call(self: in out CONVEYOR) is
+   procedure Resume(self: in out CONVEYOR) is
    begin
       Notify(self.here);
-      while Busy(self.here) loop Ada.Dispatching.Yield; end loop;
-      Wait(self.here);
-   end Call;
+   end Resume;
 
-   procedure Finish(self: in out CONVEYOR) is
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR) is
    begin
-      Notify(self.here);
-   end Finish;
+      target.back := (
+         if self.back = null
+         then self.here'Unchecked_Access
+         else self.back
+      );
+
+      Notify(target.here);
+      Wait(self.here);
+   end Resume;
+
+   procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) is
+   begin
+      Resume(self, target.all); -- inlined in spec
+   end Resume;
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
    procedure Yield(self: in out CONVEYOR) is
    begin
-      --if self.back = null then raise Conveyor_Error; end if;
+      if self.back = null then raise Conveyor_Error; end if;
 
       Notify(self.back.all);
       Wait(self.here);
    end Yield;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-   procedure Resume(self: in out CONVEYOR; other: in out CONVEYOR) is
-   begin
-      other.back := (
-         if self.back = null
-         then self.here'Unchecked_Access
-         else self.back
-      );
-
-      Notify(other.here);
-      Wait(self.here);
-   end Resume;
-
-   procedure Resume(self: in out CONVEYOR; other: access CONVEYOR) is
-   begin
-      Resume(self, other.all); -- inlined in spec
-   end Resume;
 
 end Conveyors;
 

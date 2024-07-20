@@ -38,10 +38,9 @@ procedure pingpong is
          Put("PING!  ");
          if i < 10 then
             This.Resume(That);
-         else
-            That.Run;
          end if;
       end loop;
+      That.Resume;
    end Ping_Task;
 
    task body Pong_Task is
@@ -51,8 +50,9 @@ procedure pingpong is
 
       for i in 1..10 loop
          Put_Line("PONG!");
-         exit when i = 10;
-         This.Resume(That);
+         if i < 10 then
+            This.Resume(That);
+         end if;
       end loop;
    end Pong_Task;
 
@@ -69,10 +69,10 @@ begin
       hello : aliased CONVEYOR;
       hello_thread : Hello_Task (hello'Access);
    begin
-      hello.Run;
+      hello.Resume;
       while not hello_thread'Terminated loop Ada.Dispatching.Yield; end loop;
 
-      ping.Run;
+      ping.Resume;
    end;
 
 end pingpong;
