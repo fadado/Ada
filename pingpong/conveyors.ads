@@ -1,27 +1,31 @@
 -- conveyors.ads
 
+with Ada.Task_Identification;
+
 with Signals;
 
 package Conveyors is
 
    type CONVEYOR is tagged limited private;
 
-   procedure Continue(self: in out CONVEYOR) with Inline;
-   procedure Go_Back(self: in out CONVEYOR) with Inline;
+   procedure Suspend(self: in out CONVEYOR);
    procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) with Inline;
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR);
-   procedure Suspend(self: in out CONVEYOR) with Inline;
    procedure Yield(self: in out CONVEYOR);
+   procedure Continue(self: in out CONVEYOR);
+   procedure Go_Back(self: in out CONVEYOR);
 
    Conveyor_Error : exception;
 
 private
+   use Ada.Task_Identification;
    use Signals;
 
    type CONVEYOR is tagged limited
       record
-         here: aliased SIGNAL; -- defaults to false
-         back: access  SIGNAL; -- defaults to null
+         id   : TASK_ID;
+         here : aliased SIGNAL; -- defaults to false
+         back : access  SIGNAL; -- defaults to null
       end record;
 
 end Conveyors;

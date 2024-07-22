@@ -2,9 +2,8 @@
 
 pragma Restrictions (No_Select_Statements);
 
-with Ada.Dispatching;
 with Ada.Text_IO; use Ada.Text_IO;
-with Conveyors; use  Conveyors;
+with Conveyors; use Conveyors;
 
 procedure pingpong is
    ---------------------------------------------------------------------
