@@ -15,10 +15,10 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
-   procedure Resume(self: in out CONVEYOR) is
+   procedure Continue(self: in out CONVEYOR) is
    begin
       Notify(self.here);
-   end Resume;
+   end Continue;
 
    ---------------------------------------------------------------------
    --
@@ -37,7 +37,7 @@ package body Conveyors is
 
    procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) is
    begin
-      Resume(self, target.all); -- inlined in spec
+      Resume(self, target.all);
    end Resume;
 
    ---------------------------------------------------------------------
@@ -50,6 +50,16 @@ package body Conveyors is
       Notify(self.back.all);
       Wait(self.here);
    end Yield;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   procedure Go_Back(self: in out CONVEYOR) is
+   begin
+      if self.back = null then raise Conveyor_Error; end if;
+
+      Notify(self.back.all);
+   end Go_Back;
 
 end Conveyors;
 
