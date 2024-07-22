@@ -7,6 +7,16 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+   procedure Reset(self: in out CONVEYOR) is
+   begin
+      Clear(self.here);
+      self.id := Null_Task_Id;
+      self.back := null;
+   end Reset;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Suspend(self: in out CONVEYOR) is
    begin
       if self.id = Null_Task_Id then
@@ -27,6 +37,7 @@ package body Conveyors is
 
       while target.id = Null_Task_Id loop
          Ada.Dispatching.Yield;
+         -- TODO: check time!
       end loop;
 
       if self.id = target.id then
@@ -53,7 +64,7 @@ package body Conveyors is
    ---------------------------------------------------------------------
    procedure Yield(self: in out CONVEYOR) is
    begin
-      if self.id = Current_Task then
+      if self.id /= Current_Task then
          raise Conveyor_Error;
       end if;
 
@@ -68,6 +79,22 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+   procedure YieldX(self: in out CONVEYOR) is
+   begin
+      if self.id /= Current_Task then
+         raise Conveyor_Error;
+      end if;
+
+      if self.back = null then
+         raise Conveyor_Error;
+      end if;
+
+      Notify(self.back.all);
+   end YieldX;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Continue(self: in out CONVEYOR) is
    begin
       if self.id = Current_Task then
@@ -76,18 +103,6 @@ package body Conveyors is
 
       Notify(self.here);
    end Continue;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-   procedure Go_Back(self: in out CONVEYOR) is
-   begin
-      if self.back = null then
-         raise Conveyor_Error;
-      end if;
-
-      Notify(self.back.all);
-   end Go_Back;
 
 end Conveyors;
 

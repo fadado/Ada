@@ -17,6 +17,9 @@ package Signals is
    function Busy(S: in SIGNAL) return BOOLEAN
       renames Ada.Synchronous_Task_Control.Current_State;
 
+   procedure Clear(S: in out SIGNAL)
+      renames Ada.Synchronous_Task_Control.Set_False;
+
 end Signals;
 
 -- ¡ISO-8859-1!

@@ -18,7 +18,10 @@ procedure pingpong is
 
       Put_Line("Hello, world!");
 
-      This.Go_Back;
+      This.YieldX;
+   exception
+      when others => Put_Line(Standard_Error, "Oops at Hello_Task!");
+      raise;
    end Hello_Task;
 
    ---------------------------------------------------------------------
@@ -40,6 +43,9 @@ procedure pingpong is
       end loop;
 
       That.Continue;
+   exception
+      when others => Put_Line(Standard_Error, "Oops at Ping_Task!");
+      raise;
    end Ping_Task;
 
    task body Pong_Task is
@@ -53,32 +59,39 @@ procedure pingpong is
          end if;
       end loop;
 
-      This.Go_Back;
+      This.YieldX;
+   exception
+      when others => Put_Line(Standard_Error, "Oops at Pong_Task!");
+      raise;
    end Pong_Task;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   Conveyer : CONVEYOR;
 
 begin
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
    declare
-      Top   : CONVEYOR;
       hello : aliased CONVEYOR;
       hello_thread : Hello_Task (hello'Access);
    begin
-      Top.Resume(hello);
+      Conveyer.Resume(hello);
+      Conveyer.Reset;
    end;
 
    Put_Line("The players are ready...");
    New_Line;
 
    declare
-      Top  : CONVEYOR;
       ping : aliased CONVEYOR;
       pong : aliased CONVEYOR;
       ping_thread : Ping_Task (ping'Access, pong'Access);
       pong_thread : Pong_Task (pong'Access, ping'Access);
    begin
-      Top.Resume(ping);
+      Conveyer.Resume(ping);
    end;
 
    New_Line;
