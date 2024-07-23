@@ -27,7 +27,7 @@ procedure pingpong is
 
       Put_Line("1-Hello, world!");
 
-      This.YieldX;
+      This.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Hello_Task_1!");
@@ -68,7 +68,7 @@ procedure pingpong is
       Put(", world"); This.Yield;
       Put_Line("!");
 
-      This.YieldX;
+      This.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Hello_Task_3!");
@@ -113,7 +113,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      This.YieldX;
+      This.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Pong_Task!");

@@ -31,9 +31,9 @@ package body Conveyors is
    ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR) is
    begin
-      if self.id = Current_Task then
-         raise Conveyor_Error;
-      end if;
+      while self.id = Null_Task_Id loop
+         Ada.Dispatching.Yield; -- TODO: check time!
+      end loop;
 
       Notify(self.here);
    end Resume;
@@ -48,8 +48,7 @@ package body Conveyors is
       end if;
 
       while target.id = Null_Task_Id loop
-         Ada.Dispatching.Yield;
-         -- TODO: check time!
+         Ada.Dispatching.Yield; -- TODO: check time!
       end loop;
 
       if self.id = target.id then
@@ -74,7 +73,7 @@ package body Conveyors is
    ---------------------------------------------------------------------
    -- Suspend the current task after resuming the first resumer
    ---------------------------------------------------------------------
-   procedure Yield(self: in out CONVEYOR) is
+   procedure Yield(self: in out CONVEYOR; Await: BOOLEAN := TRUE) is
    begin
       if self.id /= Current_Task then
          raise Conveyor_Error;
@@ -85,24 +84,10 @@ package body Conveyors is
       end if;
 
       Notify(self.back.all);
-      Wait(self.here);
+      if Await then
+         Wait(self.here);
+      end if;
    end Yield;
-
-   ---------------------------------------------------------------------
-   -- Resume the first resumer, and continue
-   ---------------------------------------------------------------------
-   procedure YieldX(self: in out CONVEYOR) is
-   begin
-      if self.id /= Current_Task then
-         raise Conveyor_Error;
-      end if;
-
-      if self.back = null then
-         raise Conveyor_Error;
-      end if;
-
-      Notify(self.back.all);
-   end YieldX;
 
 end Conveyors;
 

@@ -13,8 +13,7 @@ package Conveyors is
    procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) with Inline;
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR);
    procedure Resume(self: in out CONVEYOR);
-   procedure Yield(self: in out CONVEYOR);
-   procedure YieldX(self: in out CONVEYOR);
+   procedure Yield(self: in out CONVEYOR; Await: BOOLEAN := TRUE);
 
    Conveyor_Error : exception;
 
