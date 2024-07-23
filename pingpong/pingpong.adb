@@ -3,9 +3,18 @@
 pragma Restrictions (No_Select_Statements);
 
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Exceptions; use Ada.Exceptions;
+
 with Conveyors; use Conveyors;
 
 procedure pingpong is
+
+   procedure Report_Exception(X: Exception_Occurrence) is
+   begin
+      Put_Line(Standard_Error, Exception_Name(X));
+      Put_Line(Standard_Error, Exception_Message(X));
+   end Report_Exception;
+
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
@@ -20,8 +29,10 @@ procedure pingpong is
 
       This.YieldX;
    exception
-      when others => Put_Line(Standard_Error, "Oops at Hello_Task_1!");
-      raise;
+      when X: others =>
+         Put_Line(Standard_Error, "Oops at Hello_Task_1!");
+         Report_Exception(X);
+         raise;
    end Hello_Task_1;
 
    ---------------------------------------------------------------------
@@ -36,8 +47,10 @@ procedure pingpong is
 
       Put_Line("2-Hello, world!");
    exception
-      when others => Put_Line(Standard_Error, "Oops at Hello_Task_2!");
-      raise;
+      when X: others =>
+         Put_Line(Standard_Error, "Oops at Hello_Task_2!");
+         Report_Exception(X);
+         raise;
    end Hello_Task_2;
 
    ---------------------------------------------------------------------
@@ -50,17 +63,17 @@ procedure pingpong is
    begin
       This.Suspend;
 
-      Put("3-");
-      This.Yield;
-      Put("Hello");
-      This.Yield;
-      Put(", world");
-      This.Yield;
+      Put("3-");      This.Yield;
+      Put("Hello");   This.Yield;
+      Put(", world"); This.Yield;
       Put_Line("!");
+
       This.YieldX;
    exception
-      when others => Put_Line(Standard_Error, "Oops at Hello_Task_3!");
-      raise;
+      when X: others =>
+         Put_Line(Standard_Error, "Oops at Hello_Task_3!");
+         Report_Exception(X);
+         raise;
    end Hello_Task_3;
 
    ---------------------------------------------------------------------
@@ -83,8 +96,10 @@ procedure pingpong is
 
       That.Resume;
    exception
-      when others => Put_Line(Standard_Error, "Oops at Ping_Task!");
-      raise;
+      when X: others =>
+         Put_Line(Standard_Error, "Oops at Ping_Task!");
+         Report_Exception(X);
+         raise;
    end Ping_Task;
 
    task body Pong_Task is
@@ -100,8 +115,10 @@ procedure pingpong is
 
       This.YieldX;
    exception
-      when others => Put_Line(Standard_Error, "Oops at Pong_Task!");
-      raise;
+      when X: others =>
+         Put_Line(Standard_Error, "Oops at Pong_Task!");
+         Report_Exception(X);
+         raise;
    end Pong_Task;
 
 begin

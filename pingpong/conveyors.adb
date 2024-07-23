@@ -5,7 +5,7 @@ with Ada.Dispatching;
 package body Conveyors is
 
    ---------------------------------------------------------------------
-   --
+   -- (Re)initialize a CONVEYOR to default values
    ---------------------------------------------------------------------
    procedure Reset(self: in out CONVEYOR) is
    begin
@@ -15,7 +15,7 @@ package body Conveyors is
    end Reset;
 
    ---------------------------------------------------------------------
-   --
+   -- Put current task to await until a SIGNAL is received
    ---------------------------------------------------------------------
    procedure Suspend(self: in out CONVEYOR) is
    begin
@@ -27,7 +27,7 @@ package body Conveyors is
    end Suspend;
 
    ---------------------------------------------------------------------
-   --
+   -- Notify a task, different to the current task, to resume
    ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR) is
    begin
@@ -39,7 +39,7 @@ package body Conveyors is
    end Resume;
 
    ---------------------------------------------------------------------
-   --
+   -- Notify the target task to resume, and wait for the baton
    ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR) is
    begin
@@ -72,7 +72,7 @@ package body Conveyors is
    end Resume;
 
    ---------------------------------------------------------------------
-   --
+   -- Suspend the current task after resuming the first resumer
    ---------------------------------------------------------------------
    procedure Yield(self: in out CONVEYOR) is
    begin
@@ -89,7 +89,7 @@ package body Conveyors is
    end Yield;
 
    ---------------------------------------------------------------------
-   --
+   -- Resume the first resumer, and continue
    ---------------------------------------------------------------------
    procedure YieldX(self: in out CONVEYOR) is
    begin
