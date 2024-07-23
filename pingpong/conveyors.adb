@@ -29,6 +29,18 @@ package body Conveyors is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+   procedure Resume(self: in out CONVEYOR) is
+   begin
+      if self.id = Current_Task then
+         raise Conveyor_Error;
+      end if;
+
+      Notify(self.here);
+   end Resume;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR) is
    begin
       if self.id = Null_Task_Id then
@@ -91,18 +103,6 @@ package body Conveyors is
 
       Notify(self.back.all);
    end YieldX;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-   procedure Continue(self: in out CONVEYOR) is
-   begin
-      if self.id = Current_Task then
-         raise Conveyor_Error;
-      end if;
-
-      Notify(self.here);
-   end Continue;
 
 end Conveyors;
 
