@@ -9,13 +9,23 @@ package Conveyors is
    type CONVEYOR is tagged limited private;
 
    procedure Reset(self: in out CONVEYOR);
+   -- (Re)initialize a CONVEYOR to default values
+
    procedure Suspend(self: in out CONVEYOR);
-   procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) with Inline;
+   -- Wait until a SIGNAL is notified
+
+   procedure Resume(target: in out CONVEYOR);
+   -- Resume a task different to the current task
+
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR);
-   procedure Resume(self: in out CONVEYOR);
+   -- Resume the target task, and wait until a SIGNAL is notified
+
    procedure Yield(self: in out CONVEYOR; Await: BOOLEAN := TRUE);
+   -- Suspend the current task after resuming the first resumer
 
    Conveyor_Error : exception;
+
+   procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) with Inline;
 
 private
    use Ada.Task_Identification;
@@ -23,7 +33,7 @@ private
 
    type CONVEYOR is tagged limited
       record
-         id   : TASK_ID;
+         id   : TASK_ID;        -- defaults to Null_Task_Id
          here : aliased SIGNAL; -- defaults to false
          back : access  SIGNAL; -- defaults to null
       end record;

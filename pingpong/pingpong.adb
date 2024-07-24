@@ -12,6 +12,7 @@ procedure pingpong is
    procedure Report_Exception(X: Exception_Occurrence) is
    begin
       Put_Line(Standard_Error, Exception_Name(X));
+      Put_Line(Standard_Error, Exception_Information(X));
       Put_Line(Standard_Error, Exception_Message(X));
    end Report_Exception;
 

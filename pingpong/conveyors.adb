@@ -4,9 +4,6 @@ with Ada.Dispatching;
 
 package body Conveyors is
 
-   ---------------------------------------------------------------------
-   -- (Re)initialize a CONVEYOR to default values
-   ---------------------------------------------------------------------
    procedure Reset(self: in out CONVEYOR) is
    begin
       Clear(self.here);
@@ -14,44 +11,55 @@ package body Conveyors is
       self.back := null;
    end Reset;
 
-   ---------------------------------------------------------------------
-   -- Put current task to await until a SIGNAL is received
-   ---------------------------------------------------------------------
    procedure Suspend(self: in out CONVEYOR) is
    begin
       if self.id = Null_Task_Id then
+         -- initialize ID
          self.id := Current_Task;
+      end if;
+
+      if self.id /= Current_Task then
+         -- only can suspend current task
+         raise Conveyor_Error;
       end if;
 
       Wait(self.here);
    end Suspend;
 
-   ---------------------------------------------------------------------
-   -- Notify a task, different to the current task, to resume
-   ---------------------------------------------------------------------
-   procedure Resume(self: in out CONVEYOR) is
+   procedure Resume(target: in out CONVEYOR) is
    begin
-      while self.id = Null_Task_Id loop
+      while target.id = Null_Task_Id loop
+         -- the resumee must have to be suspended once at least
          Ada.Dispatching.Yield; -- TODO: check time!
       end loop;
 
-      Notify(self.here);
+      if target.id = Current_Task then
+         -- cannot resume current task
+         raise Conveyor_Error;
+      end if;
+
+      Notify(target.here);
    end Resume;
 
-   ---------------------------------------------------------------------
-   -- Notify the target task to resume, and wait for the baton
-   ---------------------------------------------------------------------
    procedure Resume(self: in out CONVEYOR; target: in out CONVEYOR) is
    begin
       if self.id = Null_Task_Id then
+         -- initialize ID
          self.id := Current_Task;
       end if;
 
+      if self.id /= Current_Task then
+         -- only can resume from current task
+         raise Conveyor_Error;
+      end if;
+
       while target.id = Null_Task_Id loop
+         -- the resumee must have to be suspended once at least
          Ada.Dispatching.Yield; -- TODO: check time!
       end loop;
 
       if self.id = target.id then
+         -- cannot resume to itself
          raise Conveyor_Error;
       end if;
 
@@ -65,21 +73,15 @@ package body Conveyors is
       Wait(self.here);
    end Resume;
 
-   procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) is
-   begin
-      Resume(self, target.all); -- inlined at spec
-   end Resume;
-
-   ---------------------------------------------------------------------
-   -- Suspend the current task after resuming the first resumer
-   ---------------------------------------------------------------------
    procedure Yield(self: in out CONVEYOR; Await: BOOLEAN := TRUE) is
    begin
       if self.id /= Current_Task then
+         -- cannot yield to the current task
          raise Conveyor_Error;
       end if;
 
       if self.back = null then
+         -- cannot yield to null
          raise Conveyor_Error;
       end if;
 
@@ -88,6 +90,15 @@ package body Conveyors is
          Wait(self.here);
       end if;
    end Yield;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+
+   procedure Resume(self: in out CONVEYOR; target: access CONVEYOR) is
+   begin
+      Resume(self, target.all); -- inlined at spec
+   end Resume;
 
 end Conveyors;
 
