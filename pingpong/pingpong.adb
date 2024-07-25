@@ -5,7 +5,7 @@ pragma Restrictions (No_Select_Statements);
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 
-with Conveyors; use Conveyors;
+with Control; use Control;
 
 procedure pingpong is
 
@@ -23,7 +23,7 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_1(Hello: access CONVEYOR);
+   task type Hello_Task_1(Hello: access CONTROLLER);
 
    task body Hello_Task_1 is
    begin
@@ -43,7 +43,7 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_2(Hello: access CONVEYOR);
+   task type Hello_Task_2(Hello: access CONTROLLER);
 
    task body Hello_Task_2 is
    begin
@@ -61,7 +61,7 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_3(Hello: access CONVEYOR);
+   task type Hello_Task_3(Hello: access CONTROLLER);
 
    task body Hello_Task_3 is
    begin
@@ -84,8 +84,8 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Ping_Task(Ping, Pong: access CONVEYOR);
-   task type Pong_Task(Pong, Ping: access CONVEYOR);
+   task type Ping_Task(Ping, Pong: access CONTROLLER);
+   task type Pong_Task(Pong, Ping: access CONTROLLER);
 
    task body Ping_Task is
    begin
@@ -130,42 +130,42 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      Conveyer : CONVEYOR;
-      hello : aliased CONVEYOR;
+      main  : CONTROLLER;
+      hello : aliased CONTROLLER;
       hello_thread : Hello_Task_1 (hello'Access);
    begin
-      Conveyer.Resume(hello);
+      main.Resume(hello);
    end;
 
    declare
-      hello : aliased CONVEYOR;
+      hello : aliased CONTROLLER;
       hello_thread : Hello_Task_2 (hello'Access);
    begin
       hello.Resume;
    end;
 
    declare
-      Conveyer : CONVEYOR;
-      hello : aliased CONVEYOR;
+      main  : CONTROLLER;
+      hello : aliased CONTROLLER;
       hello_thread : Hello_Task_3 (hello'Access);
    begin
-      Conveyer.Resume(hello);
-      Conveyer.Resume(hello);
-      Conveyer.Resume(hello);
-      Conveyer.Resume(hello);
+      main.Resume(hello);
+      main.Resume(hello);
+      main.Resume(hello);
+      main.Resume(hello);
    end;
 
    declare
-      Conveyer : CONVEYOR;
-      ping : aliased CONVEYOR;
-      pong : aliased CONVEYOR;
+      main : CONTROLLER;
+      ping : aliased CONTROLLER;
+      pong : aliased CONTROLLER;
       ping_thread : Ping_Task (ping'Access, pong'Access);
       pong_thread : Pong_Task (pong'Access, ping'Access);
    begin
       New_Line;
       Put_Line("The players are ready...");
       New_Line;
-      Conveyer.Resume(ping);
+      main.Resume(ping);
       New_Line;
       Put_Line("Game Over");
    end;

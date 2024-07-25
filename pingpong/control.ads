@@ -1,43 +1,43 @@
--- conveyors.ads
+-- control.ads
 
 with Ada.Task_Identification;
 
 with Signals;
 
-package Conveyors is
+package Control is
 
-   type CONVEYOR is tagged limited private;
+   type CONTROLLER is tagged limited private;
 
-   Conveyor_Error : exception;
+   Control_Error : exception;
 
-   procedure Reset(C: in out CONVEYOR);
-   -- (Re)initialize a CONVEYOR to default values
+   procedure Reset(C: in out CONTROLLER);
+   -- (Re)initialize a CONTROLLER to default values
 
-   procedure Suspend(here: in out CONVEYOR);
+   procedure Suspend(here: in out CONTROLLER);
    -- Wait until a SIGNAL is received here
 
-   procedure Resume(there: in out CONVEYOR);
+   procedure Resume(there: in out CONTROLLER);
    -- Resume a task different to the current task
 
-   procedure Resume(here: in out CONVEYOR; there: in out CONVEYOR);
-   procedure Resume(here: in out CONVEYOR; there: access CONVEYOR) with Inline;
+   procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER);
+   procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) with Inline;
    -- Resume there, and wait until a SIGNAL is notified here
 
-   procedure Yield(here: in out CONVEYOR; await: BOOLEAN := TRUE);
+   procedure Yield(here: in out CONTROLLER; await: BOOLEAN := TRUE);
    -- Suspend the current task after resuming here.back.all
 
 private
    use Ada.Task_Identification;
    use Signals;
 
-   type CONVEYOR is tagged limited
+   type CONTROLLER is tagged limited
       record
          id   : TASK_ID;        -- defaults to Null_Task_Id
          flag : aliased SIGNAL; -- defaults to false
          back : access  SIGNAL; -- defaults to null
       end record;
 
-end Conveyors;
+end Control;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

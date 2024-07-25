@@ -4,7 +4,7 @@
 
 all: pingpong
 
-pingpong: pingpong.adb signals.ad? conveyors.ad?
+pingpong: pingpong.adb signals.ad? control.ad?
 	@gnatmake pingpong
 
 clean:
