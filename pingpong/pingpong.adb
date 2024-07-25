@@ -10,25 +10,28 @@ with Conveyors; use Conveyors;
 procedure pingpong is
 
    procedure Report_Exception(X: Exception_Occurrence) is
+      msg : STRING := Exception_Message(X);
    begin
       Put_Line(Standard_Error, Exception_Name(X));
       Put_Line(Standard_Error, Exception_Information(X));
-      Put_Line(Standard_Error, Exception_Message(X));
+      if msg /= "" then
+         Put_Line(Standard_Error, msg);
+      end if;
    end Report_Exception;
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_1(This: access CONVEYOR);
+   task type Hello_Task_1(Hello: access CONVEYOR);
 
    task body Hello_Task_1 is
    begin
-      This.Suspend;
+      Hello.Suspend;
 
       Put_Line("1-Hello, world!");
 
-      This.Yield(Await => FALSE);
+      Hello.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Hello_Task_1!");
@@ -40,11 +43,11 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_2(This: access CONVEYOR);
+   task type Hello_Task_2(Hello: access CONVEYOR);
 
    task body Hello_Task_2 is
    begin
-      This.Suspend;
+      Hello.Suspend;
 
       Put_Line("2-Hello, world!");
    exception
@@ -58,18 +61,18 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_3(This: access CONVEYOR);
+   task type Hello_Task_3(Hello: access CONVEYOR);
 
    task body Hello_Task_3 is
    begin
-      This.Suspend;
+      Hello.Suspend;
 
-      Put("3-");      This.Yield;
-      Put("Hello");   This.Yield;
-      Put(", world"); This.Yield;
+      Put("3-");      Hello.Yield;
+      Put("Hello");   Hello.Yield;
+      Put(", world"); Hello.Yield;
       Put_Line("!");
 
-      This.Yield(Await => FALSE);
+      Hello.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Hello_Task_3!");
@@ -81,21 +84,21 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Ping_Task(This, That: access CONVEYOR);
-   task type Pong_Task(This, That: access CONVEYOR);
+   task type Ping_Task(Ping, Pong: access CONVEYOR);
+   task type Pong_Task(Pong, Ping: access CONVEYOR);
 
    task body Ping_Task is
    begin
-      This.Suspend;
+      Ping.Suspend;
 
       for i in 1..10 loop
          Put("PING!  ");
          if i < 10 then
-            This.Resume(That);
+            Ping.Resume(Pong);
          end if;
       end loop;
 
-      That.Resume;
+      Pong.Resume;
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Ping_Task!");
@@ -105,16 +108,16 @@ procedure pingpong is
 
    task body Pong_Task is
    begin
-      This.Suspend;
+      Pong.Suspend;
 
       for i in 1..10 loop
          Put_Line("PONG!");
          if i < 10 then
-            This.Resume(That);
+            Pong.Resume(Ping);
          end if;
       end loop;
 
-      This.Yield(Await => FALSE);
+      Pong.Yield(Await => FALSE);
    exception
       when X: others =>
          Put_Line(Standard_Error, "Oops at Pong_Task!");
