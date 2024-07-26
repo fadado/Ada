@@ -1,6 +1,13 @@
 -- pingpong.adb
 
-pragma Restrictions (No_Select_Statements);
+pragma Restrictions (
+   No_Select_Statements,
+   No_Task_Allocators,
+   No_Protected_Type_Allocators,
+   No_Requeue_Statements,
+   No_Local_Protected_Objects,
+   No_Abort_Statements
+);
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
@@ -9,9 +16,10 @@ with Control; use Control;
 
 procedure pingpong is
 
-   procedure Report_Exception(X: Exception_Occurrence) is
+   procedure Report_Exception(X: Exception_Occurrence; S: STRING) is
       msg : STRING := Exception_Message(X);
    begin
+      Put_Line(Standard_Error, S);
       Put_Line(Standard_Error, Exception_Name(X));
       Put_Line(Standard_Error, Exception_Information(X));
       if msg /= "" then
@@ -34,9 +42,7 @@ procedure pingpong is
       Hello.Yield(Await => FALSE);
    exception
       when X: others =>
-         Put_Line(Standard_Error, "Oops at Hello_Task_1!");
-         Report_Exception(X);
-         raise;
+         Report_Exception(X, "Oops at Hello_Task_1!");
    end Hello_Task_1;
 
    ---------------------------------------------------------------------
@@ -52,9 +58,7 @@ procedure pingpong is
       Put_Line("2-Hello, world!");
    exception
       when X: others =>
-         Put_Line(Standard_Error, "Oops at Hello_Task_2!");
-         Report_Exception(X);
-         raise;
+         Report_Exception(X, "Oops at Hello_Task_2!");
    end Hello_Task_2;
 
    ---------------------------------------------------------------------
@@ -75,9 +79,7 @@ procedure pingpong is
       Hello.Yield(Await => FALSE);
    exception
       when X: others =>
-         Put_Line(Standard_Error, "Oops at Hello_Task_3!");
-         Report_Exception(X);
-         raise;
+         Report_Exception(X, "Oops at Hello_Task_3!");
    end Hello_Task_3;
 
    ---------------------------------------------------------------------
@@ -101,9 +103,7 @@ procedure pingpong is
       Pong.Resume;
    exception
       when X: others =>
-         Put_Line(Standard_Error, "Oops at Ping_Task!");
-         Report_Exception(X);
-         raise;
+         Report_Exception(X, "Oops at Ping_Task!");
    end Ping_Task;
 
    task body Pong_Task is
@@ -120,9 +120,7 @@ procedure pingpong is
       Pong.Yield(Await => FALSE);
    exception
       when X: others =>
-         Put_Line(Standard_Error, "Oops at Pong_Task!");
-         Report_Exception(X);
-         raise;
+         Report_Exception(X, "Oops at Pong_Task!");
    end Pong_Task;
 
 begin
