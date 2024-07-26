@@ -5,6 +5,17 @@ with Ada.Real_Time;
 
 package body Control is
 
+   procedure initialize(c: in out CONTROLLER) with Inline is
+   begin
+      if c.id = Null_Task_Id then
+         c.id := Current_Task;
+      end if;
+
+      if c.id /= Current_Task then
+         raise Control_Error with "only can initialize current task";
+      end if;
+   end initialize;
+
    procedure await_initialized(c: in out CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
@@ -18,6 +29,8 @@ package body Control is
       end loop;
    end await_initialized;
 
+   ---------------------------------------------------------------------
+
    procedure Reset(c: in out CONTROLLER) is
    begin
       Clear(c.flag);
@@ -27,13 +40,7 @@ package body Control is
 
    procedure Suspend(here: in out CONTROLLER) is
    begin
-      if here.id = Null_Task_Id then
-         here.id := Current_Task; -- initialize ID
-      end if;
-
-      if here.id /= Current_Task then
-         raise Control_Error with "only can suspend current task";
-      end if;
+      initialize(here);
 
       Wait(here.flag);
    end Suspend;
@@ -51,13 +58,7 @@ package body Control is
 
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
    begin
-      if here.id = Null_Task_Id then
-         here.id := Current_Task; -- initialize ID
-      end if;
-
-      if here.id /= Current_Task then
-         raise Control_Error with "only can resume from current task";
-      end if;
+      initialize(here);
 
       await_initialized(there);
 
@@ -91,8 +92,6 @@ package body Control is
       end if;
    end Yield;
 
-   ---------------------------------------------------------------------
-   --
    ---------------------------------------------------------------------
 
    procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) is
