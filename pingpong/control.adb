@@ -1,14 +1,15 @@
 -- control.adb
 
 with Ada.Dispatching;
+with Ada.Real_Time;
 
 package body Control is
 
-   procedure Reset(C: in out CONTROLLER) is
+   procedure Reset(c: in out CONTROLLER) is
    begin
-      Clear(C.flag);
-      C.id := Null_Task_Id;
-      C.back := null;
+      Clear(c.flag);
+      c.id := Null_Task_Id;
+      c.back := null;
    end Reset;
 
    procedure Suspend(here: in out CONTROLLER) is
@@ -25,9 +26,17 @@ package body Control is
    end Suspend;
 
    procedure Resume(there: in out CONTROLLER) is
+      use Ada.Real_Time;
+      stop : TIME;
    begin
+      stop := Clock + Milliseconds(100);
+
       while there.id = Null_Task_Id loop -- await initialization
-         Ada.Dispatching.Yield; -- TODO: check time!
+         if Clock > stop then
+            raise Control_Error with "loop timed out";
+         end if;
+
+         Ada.Dispatching.Yield;
       end loop;
 
       if there.id = Current_Task then
@@ -38,6 +47,8 @@ package body Control is
    end Resume;
 
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
+      use Ada.Real_Time;
+      stop : TIME;
    begin
       if here.id = Null_Task_Id then
          here.id := Current_Task; -- initialize ID
@@ -47,8 +58,14 @@ package body Control is
          raise Control_Error with "only can resume from current task";
       end if;
 
+      stop := Clock + Milliseconds(100);
+
       while there.id = Null_Task_Id loop -- await initialization
-         Ada.Dispatching.Yield; -- TODO: check time!
+         if Clock > stop then
+            raise Control_Error with "loop timed out";
+         end if;
+
+         Ada.Dispatching.Yield;
       end loop;
 
       if here.id = there.id then
