@@ -5,6 +5,19 @@ with Ada.Real_Time;
 
 package body Control is
 
+   procedure await_initialized(c: in out CONTROLLER) with Inline is
+      use Ada.Real_Time;
+      stop : TIME := Clock + Milliseconds(100);
+   begin
+      while c.id = Null_Task_Id loop
+         if Clock > stop then
+            raise Control_Error with "loop timed out";
+         end if;
+
+         Ada.Dispatching.Yield;
+      end loop;
+   end await_initialized;
+
    procedure Reset(c: in out CONTROLLER) is
    begin
       Clear(c.flag);
@@ -26,18 +39,8 @@ package body Control is
    end Suspend;
 
    procedure Resume(there: in out CONTROLLER) is
-      use Ada.Real_Time;
-      stop : TIME;
    begin
-      stop := Clock + Milliseconds(100);
-
-      while there.id = Null_Task_Id loop -- await initialization
-         if Clock > stop then
-            raise Control_Error with "loop timed out";
-         end if;
-
-         Ada.Dispatching.Yield;
-      end loop;
+      await_initialized(there);
 
       if there.id = Current_Task then
          raise Control_Error with "cannot resume current task";
@@ -47,8 +50,6 @@ package body Control is
    end Resume;
 
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
-      use Ada.Real_Time;
-      stop : TIME;
    begin
       if here.id = Null_Task_Id then
          here.id := Current_Task; -- initialize ID
@@ -58,15 +59,7 @@ package body Control is
          raise Control_Error with "only can resume from current task";
       end if;
 
-      stop := Clock + Milliseconds(100);
-
-      while there.id = Null_Task_Id loop -- await initialization
-         if Clock > stop then
-            raise Control_Error with "loop timed out";
-         end if;
-
-         Ada.Dispatching.Yield;
-      end loop;
+      await_initialized(there);
 
       if here.id = there.id then
          raise Control_Error with "cannot resume to itself";
