@@ -4,7 +4,7 @@
 
 all: pingpong
 
-pingpong: pingpong.adb signals.ad? control.ad?
+pingpong: pingpong.adb signals.ad[s] control.ad[sb]
 	@gnatmake pingpong
 
 clean:

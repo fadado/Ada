@@ -16,7 +16,7 @@ with Control; use Control;
 
 procedure pingpong is
 
-   procedure Report_Exception(X: Exception_Occurrence; S: STRING) is
+   procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       msg : STRING := Exception_Message(X);
    begin
       Put_Line(Standard_Error, S);
@@ -31,9 +31,9 @@ procedure pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_1(Hello: access CONTROLLER);
+   task type HELLO_TASK_1(Hello: access CONTROLLER);
 
-   task body Hello_Task_1 is
+   task body HELLO_TASK_1 is
    begin
       Hello.Suspend;
 
@@ -42,8 +42,8 @@ procedure pingpong is
       Hello.Yield(Await => FALSE);
    exception
       when X: others =>
-         Report_Exception(X, "Oops at Hello_Task_1!");
-   end Hello_Task_1;
+         Report_Exception(X, "Oops at HELLO_TASK_1!");
+   end HELLO_TASK_1;
 
    ---------------------------------------------------------------------
    --
@@ -51,23 +51,23 @@ procedure pingpong is
 
    task type Hello_Task_2(Hello: access CONTROLLER);
 
-   task body Hello_Task_2 is
+   task body HELLO_TASK_2 is
    begin
       Hello.Suspend;
 
       Put_Line("2-Hello, world!");
    exception
       when X: others =>
-         Report_Exception(X, "Oops at Hello_Task_2!");
-   end Hello_Task_2;
+         Report_Exception(X, "Oops at HELLO_TASK_2!");
+   end HELLO_TASK_2;
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
 
-   task type Hello_Task_3(Hello: access CONTROLLER);
+   task type HELLO_TASK_3(Hello: access CONTROLLER);
 
-   task body Hello_Task_3 is
+   task body HELLO_TASK_3 is
    begin
       Hello.Suspend;
 
@@ -79,17 +79,17 @@ procedure pingpong is
       Hello.Yield(Await => FALSE);
    exception
       when X: others =>
-         Report_Exception(X, "Oops at Hello_Task_3!");
-   end Hello_Task_3;
+         Report_Exception(X, "Oops at HELLO_TASK_3!");
+   end HELLO_TASK_3;
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
 
-   task type Ping_Task(Ping, Pong: access CONTROLLER);
-   task type Pong_Task(Pong, Ping: access CONTROLLER);
+   task type PING_TASK(Ping, Pong: access CONTROLLER);
+   task type PONG_TASK(Pong, Ping: access CONTROLLER);
 
-   task body Ping_Task is
+   task body PING_TASK is
    begin
       Ping.Suspend;
 
@@ -103,10 +103,10 @@ procedure pingpong is
       Pong.Resume;
    exception
       when X: others =>
-         Report_Exception(X, "Oops at Ping_Task!");
-   end Ping_Task;
+         Report_Exception(X, "Oops at PING_TASK!");
+   end PING_TASK;
 
-   task body Pong_Task is
+   task body PONG_TASK is
    begin
       Pong.Suspend;
 
@@ -120,50 +120,50 @@ procedure pingpong is
       Pong.Yield(Await => FALSE);
    exception
       when X: others =>
-         Report_Exception(X, "Oops at Pong_Task!");
-   end Pong_Task;
+         Report_Exception(X, "Oops at PONG_TASK!");
+   end PONG_TASK;
 
 begin
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
    declare
-      main  : CONTROLLER;
-      hello : aliased CONTROLLER;
-      hello_thread : Hello_Task_1 (hello'Access);
+      main : CONTROLLER;
+      hello_control : aliased CONTROLLER;
+      hello_thread : HELLO_TASK_1 (hello_control'Access);
    begin
-      main.Resume(hello);
+      main.Resume(hello_control);
    end;
 
    declare
-      hello : aliased CONTROLLER;
-      hello_thread : Hello_Task_2 (hello'Access);
+      hello_control : aliased CONTROLLER;
+      hello_thread : HELLO_TASK_2 (hello_control'Access);
    begin
-      hello.Resume;
-   end;
-
-   declare
-      main  : CONTROLLER;
-      hello : aliased CONTROLLER;
-      hello_thread : Hello_Task_3 (hello'Access);
-   begin
-      main.Resume(hello);
-      main.Resume(hello);
-      main.Resume(hello);
-      main.Resume(hello);
+      hello_control.Resume;
    end;
 
    declare
       main : CONTROLLER;
-      ping : aliased CONTROLLER;
-      pong : aliased CONTROLLER;
-      ping_thread : Ping_Task (ping'Access, pong'Access);
-      pong_thread : Pong_Task (pong'Access, ping'Access);
+      hello_control : aliased CONTROLLER;
+      hello_thread : HELLO_TASK_3 (hello_control'Access);
+   begin
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+   end;
+
+   declare
+      main : CONTROLLER;
+      ping_control : aliased CONTROLLER;
+      pong_control : aliased CONTROLLER;
+      ping_thread : PING_TASK (ping_control'Access, pong_control'Access);
+      pong_thread : PONG_TASK (pong_control'Access, ping_control'Access);
    begin
       New_Line;
       Put_Line("The players are ready...");
       New_Line;
-      main.Resume(ping);
+      main.Resume(ping_control);
       New_Line;
       Put_Line("Game Over");
    end;

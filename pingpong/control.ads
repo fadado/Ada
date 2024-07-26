@@ -32,9 +32,9 @@ private
 
    type CONTROLLER is tagged limited
       record
-         id   : TASK_ID;        -- defaults to Null_Task_Id
-         flag : aliased SIGNAL; -- defaults to false
-         back : access  SIGNAL; -- defaults to null
+         id   : TASK_ID;        -- := Null_Task_Id
+         flag : aliased SIGNAL; -- := FALSE
+         back : access  SIGNAL; -- := null
       end record;
 
 end Control;

@@ -5,7 +5,7 @@ with Ada.Synchronous_Task_Control;
 package Mutexes is
 
    -- Private semaphore like; works only for *two* tasks
-   subtype MUTEX is Ada.Synchronous_Task_Control.Suspension_Object;
+   subtype MUTEX is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;
 
    -- Operations for `True` initialized semaphores (mutexes)
    procedure Seize(S: in out MUTEX)
