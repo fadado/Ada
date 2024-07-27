@@ -16,15 +16,15 @@ package Control is
    procedure Suspend(here: in out CONTROLLER);
    -- Wait until a SIGNAL is received here
 
-   procedure Resume(there: in out CONTROLLER);
-   -- Resume a task different to the current task
-
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER);
    procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) with Inline;
    -- Resume there, and wait until a SIGNAL is notified here
 
    procedure Yield(here: in out CONTROLLER; await: BOOLEAN := TRUE);
    -- Suspend the current task after resuming here.back.all
+
+   procedure Go(there: in out CONTROLLER);
+   -- Resume a task different to the current task
 
 private
    use Ada.Task_Identification;

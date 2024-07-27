@@ -45,17 +45,6 @@ package body Control is
       Wait(here.flag);
    end Suspend;
 
-   procedure Resume(there: in out CONTROLLER) is
-   begin
-      await_initialized(there);
-
-      if there.id = Current_Task then
-         raise Control_Error with "cannot resume current task";
-      end if;
-
-      Notify(there.flag);
-   end Resume;
-
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
    begin
       initialize(here);
@@ -91,6 +80,17 @@ package body Control is
          Wait(here.flag);
       end if;
    end Yield;
+
+   procedure Go(there: in out CONTROLLER) is
+   begin
+      await_initialized(there);
+
+      if there.id = Current_Task then
+         raise Control_Error with "cannot resume current task";
+      end if;
+
+      Notify(there.flag);
+   end Go;
 
    ---------------------------------------------------------------------
 

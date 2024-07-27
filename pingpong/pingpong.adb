@@ -100,7 +100,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      Pong.Resume;
+      Pong.Go;
    exception
       when X: others =>
          Report_Exception(X, "Oops at PING_TASK!");
@@ -139,7 +139,7 @@ begin
       hello_control : aliased CONTROLLER;
       hello_thread : HELLO_TASK_2 (hello_control'Access);
    begin
-      hello_control.Resume;
+      hello_control.Go;
    end;
 
    declare
