@@ -39,7 +39,7 @@ procedure hello is
 
       Put_Line("1-Hello, world!");
 
-      Hello.Yield(Await => FALSE);
+      Hello.Finish;
    exception
       when X: others =>
          Report_Exception(X, "Oops at HELLO_TASK_1!");
@@ -76,7 +76,7 @@ procedure hello is
       Put(", world"); Hello.Yield;
       Put_Line("!");
 
-      Hello.Yield(Await => FALSE);
+      Hello.Finish;
    exception
       when X: others =>
          Report_Exception(X, "Oops at HELLO_TASK_3!");

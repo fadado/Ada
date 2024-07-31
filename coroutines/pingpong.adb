@@ -62,7 +62,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      Pong.Yield(Await => FALSE);
+      Pong.Finish;
    exception
       when X: others =>
          Report_Exception(X, "Oops at PONG_TASK!");

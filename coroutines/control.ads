@@ -20,8 +20,11 @@ package Control is
    procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) with Inline;
    -- Resume there, and wait until a SIGNAL is notified here
 
-   procedure Yield(here: in out CONTROLLER; await: BOOLEAN := TRUE);
+   procedure Yield(here: in out CONTROLLER);
    -- Suspend the current task after resuming here.back.all
+
+   procedure Finish(here: in out CONTROLLER);
+   -- Finish the current task resuming here.back.all
 
    procedure Go(there: in out CONTROLLER);
    -- Resume a task different to the current task

@@ -65,10 +65,10 @@ package body Control is
       Wait(here.flag);
    end Resume;
 
-   procedure Yield(here: in out CONTROLLER; await: BOOLEAN := TRUE) is
+   procedure Yield(here: in out CONTROLLER) is
    begin
       if here.id /= Current_Task then
-         raise Control_Error with "cannot yield to the current task";
+         raise Control_Error with "only can yield from the current task";
       end if;
 
       if here.back = null then
@@ -76,10 +76,21 @@ package body Control is
       end if;
 
       Notify(here.back.all);
-      if await then
-         Wait(here.flag);
-      end if;
+      Wait(here.flag);
    end Yield;
+
+   procedure Finish(here: in out CONTROLLER) is
+   begin
+      if here.id /= Current_Task then
+         raise Control_Error with "only can finish from the current task";
+      end if;
+
+      if here.back = null then
+         raise Control_Error with "cannot return to null";
+      end if;
+
+      Notify(here.back.all);
+   end Finish;
 
    procedure Go(there: in out CONTROLLER) is
    begin
