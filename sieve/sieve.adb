@@ -1,5 +1,4 @@
 -- sieve.adb
--- require -gnat2020
 
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
@@ -54,7 +53,7 @@ procedure sieve is
    begin
       while candidate <= Limit loop
          Output_Queue.Enqueue(candidate);
-         candidate := @ + 2;
+         candidate := candidate + 2;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
    end T_GENERATOR;
@@ -128,7 +127,7 @@ procedure sieve is
       Field_Size : constant := 7;
       Columns    : constant := 10;
    begin
-      Count := @ + 1;
+      Count := Count + 1;
       Put(N, Width => Field_Size);
       if (Count rem Columns) = 0 then
          New_Line;
