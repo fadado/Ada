@@ -29,6 +29,15 @@ package body Control is
       end loop;
    end await_initialized;
 
+   procedure check_initialized(c: in out CONTROLLER) with Inline is
+   begin
+      if c.id /= Current_Task then
+         raise Control_Error with "must be called from the current task";
+      elsif c.back = null then
+         raise Control_Error with "cannot go back to null";
+      end if;
+   end check_initialized;
+
    ---------------------------------------------------------------------
 
    procedure Reset(c: in out CONTROLLER) is
@@ -67,13 +76,7 @@ package body Control is
 
    procedure Yield(here: in out CONTROLLER) is
    begin
-      if here.id /= Current_Task then
-         raise Control_Error with "only can yield from the current task";
-      end if;
-
-      if here.back = null then
-         raise Control_Error with "cannot yield to null";
-      end if;
+      check_initialized(here);
 
       Notify(here.back.all);
       Wait(here.flag);
@@ -81,13 +84,7 @@ package body Control is
 
    procedure Finish(here: in out CONTROLLER) is
    begin
-      if here.id /= Current_Task then
-         raise Control_Error with "only can finish from the current task";
-      end if;
-
-      if here.back = null then
-         raise Control_Error with "cannot return to null";
-      end if;
+      check_initialized(here);
 
       Notify(here.back.all);
    end Finish;

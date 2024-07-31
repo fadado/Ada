@@ -14,7 +14,7 @@ package Control is
    -- (Re)initialize a CONTROLLER to default values
 
    procedure Suspend(here: in out CONTROLLER);
-   -- Wait until a SIGNAL is received here
+   -- Wait until a SIGNAL is notified here
 
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER);
    procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) with Inline;
