@@ -10,9 +10,6 @@ package Control is
 
    Control_Error : exception;
 
-   procedure Reset(c: in out CONTROLLER);
-   -- (Re)initialize a CONTROLLER to default values
-
    procedure Suspend(here: in out CONTROLLER);
    -- Wait until a SIGNAL is notified here
 

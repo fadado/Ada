@@ -1,22 +1,24 @@
 -- control.adb
 
+pragma Assertion_Policy(Ignore); -- Check / Ignore
+
 with Ada.Dispatching;
 with Ada.Real_Time;
 
 package body Control is
 
-   procedure initialize(c: in out CONTROLLER) with Inline is
+   procedure set_ident(c: in out CONTROLLER) with Inline is
    begin
       if c.id = Null_Task_Id then
          c.id := Current_Task;
-      end if;
-
-      if c.id /= Current_Task then
+      elsif c.id = Current_Task then
+         null;
+      else
          raise Control_Error with "only can initialize current task";
       end if;
-   end initialize;
+   end set_ident;
 
-   procedure await_initialized(c: in out CONTROLLER) with Inline is
+   procedure await_ident(c: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
@@ -27,42 +29,33 @@ package body Control is
 
          Ada.Dispatching.Yield;
       end loop;
-   end await_initialized;
+   end await_ident;
 
-   procedure check_initialized(c: in out CONTROLLER) with Inline is
+   procedure check_initialized(c: in CONTROLLER) with Inline is
    begin
       if c.id /= Current_Task then
          raise Control_Error with "must be called from the current task";
-      elsif c.back = null then
+      end if;
+      if c.back = null then
          raise Control_Error with "cannot go back to null";
       end if;
    end check_initialized;
 
    ---------------------------------------------------------------------
 
-   procedure Reset(c: in out CONTROLLER) is
-   begin
-      Clear(c.flag);
-      c.id := Null_Task_Id;
-      c.back := null;
-   end Reset;
-
    procedure Suspend(here: in out CONTROLLER) is
    begin
-      initialize(here);
+      set_ident(here);
 
       Wait(here.flag);
    end Suspend;
 
    procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
    begin
-      initialize(here);
+      set_ident(here);
+      await_ident(there);
 
-      await_initialized(there);
-
-      if here.id = there.id then
-         raise Control_Error with "cannot resume to itself";
-      end if;
+      pragma Assert(here.id /= there.id, "cannot resume to itself");
 
       there.back := (
          if here.back = null
@@ -73,6 +66,15 @@ package body Control is
       Notify(there.flag);
       Wait(here.flag);
    end Resume;
+
+   procedure Go(there: in out CONTROLLER) is
+   begin
+      await_ident(there);
+
+      pragma Assert(there.id /= Current_Task, "cannot resume current task");
+
+      Notify(there.flag);
+   end Go;
 
    procedure Yield(here: in out CONTROLLER) is
    begin
@@ -87,18 +89,10 @@ package body Control is
       check_initialized(here);
 
       Notify(here.back.all);
+
+      here.id   := Null_Task_Id;
+      here.back := null;
    end Finish;
-
-   procedure Go(there: in out CONTROLLER) is
-   begin
-      await_initialized(there);
-
-      if there.id = Current_Task then
-         raise Control_Error with "cannot resume current task";
-      end if;
-
-      Notify(there.flag);
-   end Go;
 
    ---------------------------------------------------------------------
 
