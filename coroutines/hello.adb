@@ -82,6 +82,27 @@ procedure hello is
          Report_Exception(X, "Oops at HELLO_TASK_3!");
    end HELLO_TASK_3;
 
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+
+   task type HELLO_TASK_4(Hello, Master: access CONTROLLER);
+
+   task body HELLO_TASK_4 is
+   begin
+      Hello.Suspend;
+
+      Put("4-");      Hello.Resume(Master);
+      Put("Hello");   Hello.Resume(Master);
+      Put(", world"); Hello.Resume(Master);
+      Put_Line("!");
+
+      Master.Go;
+   exception
+      when X: others =>
+         Report_Exception(X, "Oops at HELLO_TASK_4!");
+   end HELLO_TASK_4;
+
 begin
    ---------------------------------------------------------------------
    --
@@ -105,6 +126,17 @@ begin
       main : CONTROLLER;
       hello_control : aliased CONTROLLER;
       hello_thread : HELLO_TASK_3 (hello_control'Access);
+   begin
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+   end;
+
+   declare
+      main : aliased CONTROLLER;
+      hello_control : aliased CONTROLLER;
+      hello_thread : HELLO_TASK_4 (hello_control'Access, main'Access);
    begin
       main.Resume(hello_control);
       main.Resume(hello_control);
