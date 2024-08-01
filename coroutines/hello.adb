@@ -16,7 +16,7 @@ with Control; use Control;
 
 procedure hello is
 
-   procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
+   procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       msg : STRING := Exception_Message(X);
    begin
       Put_Line(Standard_Error, S);
@@ -25,123 +25,116 @@ procedure hello is
       if msg /= "" then
          Put_Line(Standard_Error, msg);
       end if;
-   end Report_Exception;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-
-   task type HELLO_TASK_1(Hello: access CONTROLLER);
-
-   task body HELLO_TASK_1 is
-   begin
-      Hello.Suspend;
-
-      Put_Line("1-Hello, world!");
-
-      Hello.Finish;
-   exception
-      when X: others =>
-         Report_Exception(X, "Oops at HELLO_TASK_1!");
-   end HELLO_TASK_1;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-
-   task type Hello_Task_2(Hello: access CONTROLLER);
-
-   task body HELLO_TASK_2 is
-   begin
-      Hello.Suspend;
-
-      Put_Line("2-Hello, world!");
-   exception
-      when X: others =>
-         Report_Exception(X, "Oops at HELLO_TASK_2!");
-   end HELLO_TASK_2;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-
-   task type HELLO_TASK_3(Hello: access CONTROLLER);
-
-   task body HELLO_TASK_3 is
-   begin
-      Hello.Suspend;
-
-      Put("3-");      Hello.Yield;
-      Put("Hello");   Hello.Yield;
-      Put(", world"); Hello.Yield;
-      Put_Line("!");
-
-      Hello.Finish;
-   exception
-      when X: others =>
-         Report_Exception(X, "Oops at HELLO_TASK_3!");
-   end HELLO_TASK_3;
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-
-   task type HELLO_TASK_4(Hello, Master: access CONTROLLER);
-
-   task body HELLO_TASK_4 is
-   begin
-      Hello.Suspend;
-
-      Put("4-");      Hello.Resume(Master);
-      Put("Hello");   Hello.Resume(Master);
-      Put(", world"); Hello.Resume(Master);
-      Put_Line("!");
-
-      Master.Go;
-   exception
-      when X: others =>
-         Report_Exception(X, "Oops at HELLO_TASK_4!");
-   end HELLO_TASK_4;
+   end report_exception;
 
 begin
    ---------------------------------------------------------------------
-   --
+   -- 1
    ---------------------------------------------------------------------
    declare
-      main : CONTROLLER;
+      task type HELLO_TASK(Hello: access CONTROLLER);
+
+      task body HELLO_TASK is
+      begin
+         Hello.Co_Begin;
+
+         Put_Line("1-Hello, world!");
+
+         Hello.Co_End;
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK!");
+      end HELLO_TASK;
+
+      main_control  : CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread : HELLO_TASK_1 (hello_control'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      main.Resume(hello_control);
+      main_control.Resume(hello_control);
    end;
 
+   ---------------------------------------------------------------------
+   -- 2
+   ---------------------------------------------------------------------
    declare
+      task type HELLO_TASK(Hello: access CONTROLLER);
+
+      task body HELLO_TASK is
+      begin
+         Hello.Co_Begin;
+
+         Put_Line("2-Hello, world!");
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK!");
+      end HELLO_TASK;
+
       hello_control : aliased CONTROLLER;
-      hello_thread : HELLO_TASK_2 (hello_control'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access);
    begin
       hello_control.Go;
    end;
 
+   ---------------------------------------------------------------------
+   -- 3
+   ---------------------------------------------------------------------
    declare
-      main : CONTROLLER;
+      task type HELLO_TASK(Hello: access CONTROLLER);
+
+      task body HELLO_TASK is
+      begin
+         Hello.Co_Begin;
+
+         Put("3-");      Hello.Yield;
+         Put("Hello");   Hello.Yield;
+         Put(", world"); Hello.Yield;
+         Put_Line("!");
+
+         Hello.Co_End;
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK!");
+      end HELLO_TASK;
+
+      main_control  : CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread : HELLO_TASK_3 (hello_control'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
    end;
 
+   ---------------------------------------------------------------------
+   -- 4
+   ---------------------------------------------------------------------
    declare
-      main : aliased CONTROLLER;
+      task type HELLO_TASK(Hello, Main: access CONTROLLER);
+
+      task body HELLO_TASK is
+      begin
+         Hello.Co_Begin;
+
+         Put("4-");      Hello.Resume(Main);
+         Put("Hello");   Hello.Resume(Main);
+         Put(", world"); Hello.Resume(Main);
+         Put_Line("!");
+
+         Main.Go;
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK!");
+      end HELLO_TASK;
+
+      main_control  : aliased CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread : HELLO_TASK_4 (hello_control'Access, main'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access, main_control'Access);
    begin
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
+      main_control.Resume(hello_control);
    end;
 
 end hello;

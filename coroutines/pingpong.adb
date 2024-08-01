@@ -16,7 +16,7 @@ with Control; use Control;
 
 procedure pingpong is
 
-   procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
+   procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       msg : STRING := Exception_Message(X);
    begin
       Put_Line(Standard_Error, S);
@@ -25,7 +25,7 @@ procedure pingpong is
       if msg /= "" then
          Put_Line(Standard_Error, msg);
       end if;
-   end Report_Exception;
+   end report_exception;
 
    ---------------------------------------------------------------------
    --
@@ -36,7 +36,7 @@ procedure pingpong is
 
    task body PING_TASK is
    begin
-      Ping.Suspend;
+      Ping.Co_Begin;
 
       for i in 1..10 loop
          Put("PING!  ");
@@ -48,12 +48,12 @@ procedure pingpong is
       Pong.Go;
    exception
       when X: others =>
-         Report_Exception(X, "Oops at PING_TASK!");
+         report_exception(X, "Oops at PING_TASK!");
    end PING_TASK;
 
    task body PONG_TASK is
    begin
-      Pong.Suspend;
+      Pong.Co_Begin;
 
       for i in 1..10 loop
          Put_Line("PONG!");
@@ -62,10 +62,10 @@ procedure pingpong is
          end if;
       end loop;
 
-      Pong.Finish;
+      Pong.Co_End;
    exception
       when X: others =>
-         Report_Exception(X, "Oops at PONG_TASK!");
+         report_exception(X, "Oops at PONG_TASK!");
    end PONG_TASK;
 
 begin
@@ -73,7 +73,7 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      main : CONTROLLER;
+      main_control : CONTROLLER;
       ping_control : aliased CONTROLLER;
       pong_control : aliased CONTROLLER;
       ping_thread : PING_TASK (ping_control'Access, pong_control'Access);
@@ -82,7 +82,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Resume(ping_control);
+      main_control.Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");

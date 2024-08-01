@@ -1,104 +1,102 @@
 -- control.adb
 
-pragma Assertion_Policy(Ignore); -- Check / Ignore
+pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Dispatching;
 with Ada.Real_Time;
 
 package body Control is
 
-   procedure set_ident(c: in out CONTROLLER) with Inline is
+   procedure set_ident(co: in out CONTROLLER) with Inline is
    begin
-      if c.id = Null_Task_Id then
-         c.id := Current_Task;
-      elsif c.id = Current_Task then
+      if co.id = Current_Task then
          null;
+      elsif co.id = Null_Task_Id then
+         co.id := Current_Task;
       else
          raise Control_Error with "only can initialize current task";
       end if;
    end set_ident;
 
-   procedure await_ident(c: in CONTROLLER) with Inline is
+   procedure await_ident(co: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
-      while c.id = Null_Task_Id loop
-         if Clock > stop then
-            raise Control_Error with "loop timed out";
-         end if;
+      if co.id = Null_Task_Id then
+         loop
+            if Clock > stop then
+               raise Control_Error with "loop timed out";
+            end if;
 
-         Ada.Dispatching.Yield;
-      end loop;
+            Ada.Dispatching.Yield;
+
+            exit when co.id /= Null_Task_Id;
+         end loop;
+      end if;
    end await_ident;
 
-   procedure check_initialized(c: in CONTROLLER) with Inline is
+   ---------------------------------------------------------------------
+
+   procedure Co_Begin(self: in out CONTROLLER) is
    begin
-      if c.id /= Current_Task then
-         raise Control_Error with "must be called from the current task";
-      end if;
-      if c.back = null then
-         raise Control_Error with "cannot go back to null";
-      end if;
-   end check_initialized;
+      set_ident(self);
+
+      Wait(self.here);
+   end Co_Begin;
+
+   procedure Co_End(self: in out CONTROLLER) is
+   begin
+      pragma Assert(self.back /= null, "cannot go back to null");
+
+      Notify(self.back.all);
+
+      -- initialize controller to default values
+      Clear(self.here);
+      self.id   := Null_Task_Id;
+      self.back := null;
+   end Co_End;
 
    ---------------------------------------------------------------------
 
-   procedure Suspend(here: in out CONTROLLER) is
+   procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
-      set_ident(here);
+      set_ident(self);
+      await_ident(co);
 
-      Wait(here.flag);
-   end Suspend;
+      pragma Assert(self.id /= co.id, "cannot resume to itself");
 
-   procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER) is
-   begin
-      set_ident(here);
-      await_ident(there);
-
-      pragma Assert(here.id /= there.id, "cannot resume to itself");
-
-      there.back := (
-         if here.back = null
-         then here.flag'Unchecked_Access
-         else here.back
+      co.back := (
+         if self.back = null
+         then self.here'Unchecked_Access
+         else self.back
       );
 
-      Notify(there.flag);
-      Wait(here.flag);
+      Notify(co.here);
+      Wait(self.here);
    end Resume;
 
-   procedure Go(there: in out CONTROLLER) is
+   procedure Go(self: in out CONTROLLER) is
    begin
-      await_ident(there);
+      await_ident(self);
 
-      pragma Assert(there.id /= Current_Task, "cannot resume current task");
+      pragma Assert(self.id /= Current_Task, "cannot resume current task");
 
-      Notify(there.flag);
+      Notify(self.here);
    end Go;
 
-   procedure Yield(here: in out CONTROLLER) is
+   procedure Yield(self: in out CONTROLLER) is
    begin
-      check_initialized(here);
+      pragma Assert(self.back /= null, "cannot go back to null");
 
-      Notify(here.back.all);
-      Wait(here.flag);
+      Notify(self.back.all);
+      Wait(self.here);
    end Yield;
-
-   procedure Finish(here: in out CONTROLLER) is
-   begin
-      check_initialized(here);
-
-      Notify(here.back.all);
-
-      here.id   := Null_Task_Id;
-      here.back := null;
-   end Finish;
 
    ---------------------------------------------------------------------
 
-   procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) is
+   procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) is
    begin
-      Resume(here, there.all); -- inlined at spec
+      Resume(self, co.all); -- inlined at spec
    end Resume;
 
 end Control;

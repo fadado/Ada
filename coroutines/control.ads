@@ -10,20 +10,20 @@ package Control is
 
    Control_Error : exception;
 
-   procedure Suspend(here: in out CONTROLLER);
-   -- Wait until a SIGNAL is notified here
+   procedure Co_Begin(self: in out CONTROLLER);
+   -- Wait until a SIGNAL is notified
 
-   procedure Resume(here: in out CONTROLLER; there: in out CONTROLLER);
-   procedure Resume(here: in out CONTROLLER; there: access CONTROLLER) with Inline;
-   -- Resume there, and wait until a SIGNAL is notified here
+   procedure Co_End(self: in out CONTROLLER);
+   -- Finish the current task resuming self.back.all
 
-   procedure Yield(here: in out CONTROLLER);
-   -- Suspend the current task after resuming here.back.all
+   procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER);
+   procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
+   -- Resume co, and wait until a SIGNAL is notified
 
-   procedure Finish(here: in out CONTROLLER);
-   -- Finish the current task resuming here.back.all
+   procedure Yield(self: in out CONTROLLER);
+   -- Suspend the current task after resuming self.back.all
 
-   procedure Go(there: in out CONTROLLER);
+   procedure Go(self: in out CONTROLLER);
    -- Resume a task different to the current task
 
 private
@@ -33,7 +33,7 @@ private
    type CONTROLLER is tagged limited
       record
          id   : TASK_ID;        -- := Null_Task_Id
-         flag : aliased SIGNAL; -- := FALSE
+         here : aliased SIGNAL; -- := FALSE
          back : access  SIGNAL; -- := null
       end record;
 
