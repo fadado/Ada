@@ -73,7 +73,7 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      main_control : CONTROLLER;
+      master : CONTROLLER;
       ping_control : aliased CONTROLLER;
       pong_control : aliased CONTROLLER;
       ping_thread : PING_TASK (ping_control'Access, pong_control'Access);
@@ -82,7 +82,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main_control.Resume(ping_control);
+      master.Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");

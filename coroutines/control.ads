@@ -8,8 +8,6 @@ package Control is
 
    type CONTROLLER is tagged limited private;
 
-   Control_Error : exception;
-
    procedure Co_Begin(self: in out CONTROLLER);
    -- Wait until a SIGNAL is notified
 

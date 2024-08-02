@@ -7,69 +7,88 @@ with Ada.Real_Time;
 
 package body Control is
 
-   procedure set_ident(co: in out CONTROLLER) with Inline is
-   begin
-      if co.id = Current_Task then
-         null;
-      elsif co.id = Null_Task_Id then
-         co.id := Current_Task;
-      else
-         raise Control_Error with "only can initialize current task";
-      end if;
-   end set_ident;
+   type CO_STATE is (RESETED, PAIRED, LINKED);
 
-   procedure await_ident(co: in CONTROLLER) with Inline is
+   function state(co: in CONTROLLER) return CO_STATE with Inline is
+   begin
+      if co.id = Null_Task_Id then
+         return RESETED;
+      end if;
+
+      if co.back = NULL then
+         return PAIRED;
+      end if;
+
+      -- co.back /= NULL
+      return LINKED;
+   end state;
+
+   ---------------------------------------------------------------------
+
+   procedure await_pairing(co: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
-      if co.id = Null_Task_Id then
+      if state(co) = RESETED then
          loop
             if Clock > stop then
-               raise Control_Error with "loop timed out";
+               raise Program_Error with "loop timed out";
             end if;
 
             Ada.Dispatching.Yield;
 
-            exit when co.id /= Null_Task_Id;
+            exit when state(co) /= RESETED;
          end loop;
       end if;
-   end await_ident;
+
+      pragma Assert(state(co) /= RESETED);
+   end await_pairing;
 
    ---------------------------------------------------------------------
 
    procedure Co_Begin(self: in out CONTROLLER) is
    begin
-      set_ident(self);
+      pragma Assert(state(self) = RESETED);
+
+      self.id := Current_Task;
+      pragma Assert(state(self) = PAIRED);
 
       Wait(self.here);
    end Co_Begin;
 
    procedure Co_End(self: in out CONTROLLER) is
    begin
-      pragma Assert(self.back /= null, "cannot go back to null");
+      pragma Assert(state(self) /= RESETED);
 
       Notify(self.back.all);
 
       -- initialize controller to default values
       Clear(self.here);
       self.id   := Null_Task_Id;
-      self.back := null;
+      self.back := NULL;
+
+      pragma Assert(state(self) = RESETED);
    end Co_End;
 
    ---------------------------------------------------------------------
 
    procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
-      set_ident(self);
-      await_ident(co);
+      if state(self) = RESETED then
+         self.id := Current_Task;
+      end if;
+      pragma Assert(state(self) in PAIRED..LINKED); -- fragile...
 
-      pragma Assert(self.id /= co.id, "cannot resume to itself");
+      await_pairing(co);
+
+      pragma Assert(self.id /= co.id);
 
       co.back := (
-         if self.back = null
+         if self.back = NULL
          then self.here'Unchecked_Access
          else self.back
       );
+      pragma Assert(state(co) = LINKED);
 
       Notify(co.here);
       Wait(self.here);
@@ -77,16 +96,16 @@ package body Control is
 
    procedure Go(self: in out CONTROLLER) is
    begin
-      await_ident(self);
+      await_pairing(self);
 
-      pragma Assert(self.id /= Current_Task, "cannot resume current task");
+      pragma Assert(self.id /= Current_Task);
 
       Notify(self.here);
    end Go;
 
    procedure Yield(self: in out CONTROLLER) is
    begin
-      pragma Assert(self.back /= null, "cannot go back to null");
+      pragma Assert(state(self) = LINKED);
 
       Notify(self.back.all);
       Wait(self.here);

@@ -46,15 +46,15 @@ begin
             report_exception(X, "Oops at HELLO_TASK!");
       end HELLO_TASK;
 
-      main_control  : CONTROLLER;
+      master : CONTROLLER;
       hello_control : aliased CONTROLLER;
       hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      main_control.Resume(hello_control);
+      master.Resume(hello_control);
    end;
 
    ---------------------------------------------------------------------
-   -- 2
+   -- 2 TO BE ELIMINATED!
    ---------------------------------------------------------------------
    declare
       task type HELLO_TASK(Hello: access CONTROLLER);
@@ -96,14 +96,14 @@ begin
             report_exception(X, "Oops at HELLO_TASK!");
       end HELLO_TASK;
 
-      main_control  : CONTROLLER;
+      master : CONTROLLER;
       hello_control : aliased CONTROLLER;
       hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
    end;
 
    ---------------------------------------------------------------------
@@ -127,14 +127,14 @@ begin
             report_exception(X, "Oops at HELLO_TASK!");
       end HELLO_TASK;
 
-      main_control  : aliased CONTROLLER;
+      master : aliased CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access, main_control'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access, master'Access);
    begin
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
-      main_control.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
+      master.Resume(hello_control);
    end;
 
 end hello;
