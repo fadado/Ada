@@ -17,8 +17,11 @@ package Signals is
    procedure Clear(S: in out SIGNAL)
       renames Ada.Synchronous_Task_Control.Set_False;
 
- --function Busy(S: in SIGNAL) return BOOLEAN
- --   renames Ada.Synchronous_Task_Control.Current_State;
+   function Is_Set(S: in SIGNAL) return BOOLEAN
+      renames Ada.Synchronous_Task_Control.Current_State;
+
+   function Is_Clean(S: in SIGNAL) return BOOLEAN
+      is (not Is_Set(S)) with Inline;
 
 end Signals;
 
