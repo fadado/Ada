@@ -56,24 +56,27 @@ begin
    ---------------------------------------------------------------------
    -- 2 TO BE ELIMINATED!
    ---------------------------------------------------------------------
-   declare
-      task type HELLO_TASK(Hello: access CONTROLLER);
+ --declare
+ --   task type HELLO_TASK(Hello: access CONTROLLER);
 
-      task body HELLO_TASK is
-      begin
-         Hello.Co_Begin;
+ --   task body HELLO_TASK is
+ --   begin
+ --      Hello.Co_Begin;
 
-         Put_Line("2-Hello, world!");
-      exception
-         when X: others =>
-            report_exception(X, "Oops at HELLO_TASK!");
-      end HELLO_TASK;
+ --      Put_Line("2-Hello, world!");
+ --   exception
+ --      when X: others =>
+ --         report_exception(X, "Oops at HELLO_TASK!");
+ --   end HELLO_TASK;
 
-      hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access);
-   begin
-      hello_control.Go;
-   end;
+ --   hello_control : aliased CONTROLLER;
+ --   hello_thread  : HELLO_TASK (hello_control'Access);
+ --begin
+ --   hello_control.Go;
+ --exception
+ --   when X: others =>
+ --      report_exception(X, "Oops at HELLO_TASK!");
+ --end;
 
    ---------------------------------------------------------------------
    -- 3
@@ -121,7 +124,8 @@ begin
          Put(", world"); Hello.Resume(Main);
          Put_Line("!");
 
-         Main.Go;
+         --Main.Go;
+         Hello.Co_End;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK!");

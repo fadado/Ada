@@ -96,6 +96,8 @@ package body Control is
 
    procedure Go(self: in out CONTROLLER) is
    begin
+      pragma Assert(state(self) = LINKED);
+
       await_pairing(self);
 
       pragma Assert(self.id /= Current_Task);
