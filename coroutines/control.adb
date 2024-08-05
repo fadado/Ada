@@ -7,6 +7,16 @@ with Ada.Real_Time;
 
 package body Control is
 
+   -- initialize controller to default values
+   procedure reset(co: in out CONTROLLER) with Inline is
+   begin
+      Clear(co.here);
+      co.id := Null_Task_Id;
+      co.back := NULL;
+   end reset;
+
+   ---------------------------------------------------------------------
+
    type CO_STATE is (RESETED, PAIRED, LINKED);
 
    function state(co: in CONTROLLER) return CO_STATE with Inline is
@@ -45,6 +55,8 @@ package body Control is
    end await_pairing;
 
    ---------------------------------------------------------------------
+   -- CONTROLLER methods
+   ---------------------------------------------------------------------
 
    procedure Co_Begin(self: in out CONTROLLER) is
    begin
@@ -62,10 +74,7 @@ package body Control is
 
       Notify(self.back.all);
 
-      -- initialize controller to default values
-      Clear(self.here);
-      self.id   := Null_Task_Id;
-      self.back := NULL;
+      reset(self);
 
       pragma Assert(state(self) = RESETED);
    end Co_End;
@@ -77,7 +86,7 @@ package body Control is
       if state(self) = RESETED then
          self.id := Current_Task;
       end if;
-      pragma Assert(state(self) in PAIRED..LINKED); -- fragile...
+      pragma Assert(state(self) /= RESETED);
 
       await_pairing(co);
 
@@ -94,16 +103,18 @@ package body Control is
       Wait(self.here);
    end Resume;
 
-   procedure Go(self: in out CONTROLLER) is
+   procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
       pragma Assert(state(self) = LINKED);
 
-      await_pairing(self);
+      await_pairing(co);
 
-      pragma Assert(self.id /= Current_Task);
+      Notify(co.here);
 
-      Notify(self.here);
-   end Go;
+      reset(self);
+
+      pragma Assert(state(self) = RESETED);
+   end Jump;
 
    procedure Yield(self: in out CONTROLLER) is
    begin
@@ -119,6 +130,11 @@ package body Control is
    begin
       Resume(self, co.all); -- inlined at spec
    end Resume;
+
+   procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) is
+   begin
+      Jump(self, co.all); -- inlined at spec
+   end Jump;
 
 end Control;
 

@@ -45,7 +45,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      Pong.Go;
+      Ping.Jump(Pong);
    exception
       when X: others =>
          report_exception(X, "Oops at PING_TASK!");

@@ -21,8 +21,9 @@ package Control is
    procedure Yield(self: in out CONTROLLER);
    -- Suspend the current task after resuming self.back.all
 
-   procedure Go(self: in out CONTROLLER);
-   -- Resume a task different to the current task
+   procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER);
+   procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
+   -- Resume co, but do not wait; reset self to default values
 
 private
    use Ada.Task_Identification;
