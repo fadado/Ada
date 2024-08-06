@@ -12,14 +12,14 @@ package Control is
    -- Wait until a SIGNAL is notified
 
    procedure Co_End(self: in out CONTROLLER);
-   -- Finish the current task resuming self.back.all
+   -- Finish the current task resuming ...
 
    procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER);
    procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
    -- Resume co, and wait until a SIGNAL is notified
 
    procedure Yield(self: in out CONTROLLER);
-   -- Suspend the current task after resuming self.back.all
+   -- Suspend the current task after resuming ...
 
    procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER);
    procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
@@ -33,7 +33,7 @@ private
       record
          id   : TASK_ID;        -- := Null_Task_Id
          here : aliased SIGNAL; -- := FALSE
-         back : access  SIGNAL; -- := null
+         back : access  SIGNAL; -- := NULL
       end record;
 
 end Control;

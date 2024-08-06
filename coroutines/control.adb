@@ -84,6 +84,7 @@ package body Control is
    procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
       if state(self) = RESETED then
+         -- I'm the master controller; this is the first Resume call!
          self.id := Current_Task;
       end if;
       pragma Assert(state(self) /= RESETED);
@@ -92,13 +93,7 @@ package body Control is
 
       pragma Assert(self.id /= co.id);
 
-      -- ???
       co.back := self.here'Unchecked_Access;
-    --co.back := (
-    --   if self.back = NULL
-    --   then self.here'Unchecked_Access
-    --   else self.back
-    --);
       pragma Assert(state(co) = LINKED);
 
       Notify(co.here);
