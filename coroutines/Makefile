@@ -2,7 +2,7 @@
 
 .SILENT:
 
-all: hello pingpong
+all: hello pingpong pinxponx
 
 hello: hello.adb signals.ad[s] control.ad[sb]
 	@gnatmake hello
@@ -10,5 +10,8 @@ hello: hello.adb signals.ad[s] control.ad[sb]
 pingpong: pingpong.adb signals.ad[s] control.ad[sb]
 	@gnatmake pingpong
 
+pinxponx: pinxponx.adb signals.ad[s] control.ad[sb]
+	@gnatmake pinxponx
+
 clean:
-	@rm -f *.o *.ali pingpong hello *.ads.* *.adb.*
+	@rm -f *.o *.ali pingpong pinxponx hello *.ads.* *.adb.*

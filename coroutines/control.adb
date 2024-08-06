@@ -92,16 +92,26 @@ package body Control is
 
       pragma Assert(self.id /= co.id);
 
-      co.back := (
-         if self.back = NULL
-         then self.here'Unchecked_Access
-         else self.back
-      );
+      -- ???
+      co.back := self.here'Unchecked_Access;
+    --co.back := (
+    --   if self.back = NULL
+    --   then self.here'Unchecked_Access
+    --   else self.back
+    --);
       pragma Assert(state(co) = LINKED);
 
       Notify(co.here);
       Wait(self.here);
    end Resume;
+
+   procedure Yield(self: in out CONTROLLER) is
+   begin
+      pragma Assert(state(self) = LINKED);
+
+      Notify(self.back.all);
+      Wait(self.here);
+   end Yield;
 
    procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
@@ -115,14 +125,6 @@ package body Control is
 
       pragma Assert(state(self) = RESETED);
    end Jump;
-
-   procedure Yield(self: in out CONTROLLER) is
-   begin
-      pragma Assert(state(self) = LINKED);
-
-      Notify(self.back.all);
-      Wait(self.here);
-   end Yield;
 
    ---------------------------------------------------------------------
 
