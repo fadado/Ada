@@ -47,7 +47,7 @@ package body Control is
 
             Ada.Dispatching.Yield;
 
-            exit when state(co) /= RESETED;
+            exit when state(co) = PAIRED;
          end loop;
       end if;
 
@@ -72,7 +72,7 @@ package body Control is
    begin
       pragma Assert(state(self) /= RESETED);
 
-      Notify(self.back.all);
+      Notify(self.back.here);
 
       reset(self);
 
@@ -84,7 +84,7 @@ package body Control is
    procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
       if state(self) = RESETED then
-         -- I'm the master controller; this is the first Resume call!
+         -- self is the master controller; this is the first Resume call!
          self.id := Current_Task;
       end if;
       pragma Assert(state(self) /= RESETED);
@@ -93,7 +93,12 @@ package body Control is
 
       pragma Assert(self.id /= co.id);
 
-      co.back := self.here'Unchecked_Access;
+      co.back := (
+         if self.back = null
+         then self'Unchecked_Access
+         else self.back
+      );
+
       pragma Assert(state(co) = LINKED);
 
       Notify(co.here);
@@ -104,7 +109,7 @@ package body Control is
    begin
       pragma Assert(state(self) = LINKED);
 
-      Notify(self.back.all);
+      Notify(self.back.here);
       Wait(self.here);
    end Yield;
 
