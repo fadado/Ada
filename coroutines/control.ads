@@ -8,11 +8,8 @@ package Control is
 
    type CONTROLLER is tagged limited private;
 
-   procedure Co_Begin(self: in out CONTROLLER);
+   procedure Suspend(self: in out CONTROLLER);
    -- Wait until a SIGNAL is notified
-
-   procedure Co_End(self: in out CONTROLLER);
-   -- Finish the current task resuming back
 
    procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER);
    procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
@@ -20,6 +17,9 @@ package Control is
 
    procedure Yield(self: in out CONTROLLER);
    -- Suspend the current task after resuming back
+
+   procedure Detach(self: in out CONTROLLER);
+   -- Finish the current task jumping back
 
    procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER);
    procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) with Inline;

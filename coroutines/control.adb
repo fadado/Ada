@@ -58,7 +58,7 @@ package body Control is
    -- CONTROLLER methods
    ---------------------------------------------------------------------
 
-   procedure Co_Begin(self: in out CONTROLLER) is
+   procedure Suspend(self: in out CONTROLLER) is
    begin
       pragma Assert(state(self) = RESETED);
 
@@ -66,18 +66,7 @@ package body Control is
       pragma Assert(state(self) = PAIRED);
 
       Wait(self.here);
-   end Co_Begin;
-
-   procedure Co_End(self: in out CONTROLLER) is
-   begin
-      pragma Assert(state(self) /= RESETED);
-
-      Notify(self.back.here);
-
-      reset(self);
-
-      pragma Assert(state(self) = RESETED);
-   end Co_End;
+   end Suspend;
 
    ---------------------------------------------------------------------
 
@@ -105,6 +94,8 @@ package body Control is
       Wait(self.here);
    end Resume;
 
+   ---------------------------------------------------------------------
+
    procedure Yield(self: in out CONTROLLER) is
    begin
       pragma Assert(state(self) = LINKED);
@@ -112,6 +103,21 @@ package body Control is
       Notify(self.back.here);
       Wait(self.here);
    end Yield;
+
+   ---------------------------------------------------------------------
+
+   procedure Detach(self: in out CONTROLLER) is
+   begin
+      pragma Assert(state(self) /= RESETED);
+
+      Notify(self.back.here);
+
+      reset(self);
+
+      pragma Assert(state(self) = RESETED);
+   end Detach;
+
+   ---------------------------------------------------------------------
 
    procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER) is
    begin
