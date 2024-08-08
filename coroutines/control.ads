@@ -8,22 +8,22 @@ package Control is
 
    type CONTROLLER is tagged limited private;
 
-   procedure Co_Begin(self: in out CONTROLLER);
-   -- Wait until a SIGNAL is notified
+   procedure Attach(self: in out CONTROLLER);
+   -- Attach self with the current task
 
-   procedure Co_End(self: in out CONTROLLER);
-   -- Finish the current task resuming back
-
-   procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER);
-   procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
-   -- Resume co, and wait until a SIGNAL is notified
+   procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER);
+   procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
+   -- Suspend the current task after resuming target
 
    procedure Yield(self: in out CONTROLLER);
-   -- Suspend the current task after resuming back
+   -- Suspend the current task after resuming master
 
-   procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER);
-   procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) with Inline;
-   -- Resume co, but do not wait; reset self to default values
+   procedure Detach(self: in out CONTROLLER);
+   -- Detach self from the current task and resume master
+
+   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER);
+   procedure Detach(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
+   -- Detach self from the current task and resume target
 
 private
    use Ada.Task_Identification;
@@ -31,9 +31,9 @@ private
 
    type CONTROLLER is tagged limited
       record
-         id   : TASK_ID;            -- := Null_Task_Id
-         here : aliased SIGNAL;     -- := FALSE
-         back : access CONTROLLER;  -- := NULL
+         id     : TASK_ID;            -- := Null_Task_Id
+         here   : aliased SIGNAL;     -- := FALSE
+         master : access CONTROLLER;  -- := NULL
       end record;
 
 end Control;

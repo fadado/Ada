@@ -12,12 +12,12 @@ package body Control is
    begin
       Clear(co.here);
       co.id := Null_Task_Id;
-      co.back := NULL;
+      co.master := NULL;
    end reset;
 
    ---------------------------------------------------------------------
 
-   type CO_STATE is (RESETED, PAIRED, LINKED);
+   type CO_STATE is (RESETED, ATTACHED, LINKED);
 
    function state(co: in CONTROLLER) return CO_STATE with Inline is
    begin
@@ -25,17 +25,17 @@ package body Control is
          return RESETED;
       end if;
 
-      if co.back = NULL then
-         return PAIRED;
+      if co.master = NULL then
+         return ATTACHED;
       end if;
 
-      -- co.back /= NULL
+      -- co.master /= NULL
       return LINKED;
    end state;
 
    ---------------------------------------------------------------------
 
-   procedure await_pairing(co: in CONTROLLER) with Inline is
+   procedure await_attach(co: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
@@ -47,96 +47,109 @@ package body Control is
 
             Ada.Dispatching.Yield;
 
-            exit when state(co) = PAIRED;
+            exit when state(co) = ATTACHED;
          end loop;
       end if;
 
       pragma Assert(state(co) /= RESETED);
-   end await_pairing;
+   end await_attach;
 
    ---------------------------------------------------------------------
    -- CONTROLLER methods
    ---------------------------------------------------------------------
 
-   procedure Co_Begin(self: in out CONTROLLER) is
+   procedure Attach(self: in out CONTROLLER) is
    begin
       pragma Assert(state(self) = RESETED);
 
       self.id := Current_Task;
-      pragma Assert(state(self) = PAIRED);
+      pragma Assert(state(self) = ATTACHED);
 
       Wait(self.here);
-   end Co_Begin;
-
-   procedure Co_End(self: in out CONTROLLER) is
-   begin
-      pragma Assert(state(self) /= RESETED);
-
-      Notify(self.back.here);
-
-      reset(self);
-
-      pragma Assert(state(self) = RESETED);
-   end Co_End;
+   end Attach;
 
    ---------------------------------------------------------------------
 
-   procedure Resume(self: in out CONTROLLER; co: in out CONTROLLER) is
+   procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
       if state(self) = RESETED then
-         -- self is the master controller; this is the first Resume call!
+         -- self is the master controller
          self.id := Current_Task;
+         pragma Assert(state(self) = ATTACHED);
       end if;
+
       pragma Assert(state(self) /= RESETED);
 
-      await_pairing(co);
+      await_attach(target);
 
-      pragma Assert(self.id /= co.id);
+      pragma Assert(self.id /= target.id);
 
-      co.back := (
-         if self.back = null
-         then self'Unchecked_Access
-         else self.back
-      );
+      if self.master = NULL then
+         target.master := self'Unchecked_Access;
+      else
+         -- TODO: preserve NULL in master itself?
+         target.master := self.master;
+      end if;
 
-      pragma Assert(state(co) = LINKED);
+      pragma Assert(state(target) = LINKED);
 
-      Notify(co.here);
+      Notify(target.here);
       Wait(self.here);
    end Resume;
 
+   ---------------------------------------------------------------------
+
    procedure Yield(self: in out CONTROLLER) is
+      master : CONTROLLER renames self.master.all;
    begin
       pragma Assert(state(self) = LINKED);
 
-      Notify(self.back.here);
+      Notify(master.here);
       Wait(self.here);
    end Yield;
 
-   procedure Jump(self: in out CONTROLLER; co: in out CONTROLLER) is
+   ---------------------------------------------------------------------
+
+   procedure Detach(self: in out CONTROLLER) is
+      master : CONTROLLER renames self.master.all;
    begin
-      pragma Assert(state(self) = LINKED);
+      pragma Assert(state(self) /= RESETED);
 
-      await_pairing(co);
-
-      Notify(co.here);
+      Notify(master.here);
 
       reset(self);
 
       pragma Assert(state(self) = RESETED);
-   end Jump;
+   end Detach;
 
    ---------------------------------------------------------------------
 
-   procedure Resume(self: in out CONTROLLER; co: access CONTROLLER) is
+   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
-      Resume(self, co.all); -- inlined at spec
+      pragma Assert(state(self) = LINKED);
+
+      await_attach(target);
+
+      pragma Assert(self.id /= target.id);
+
+      Notify(target.here);
+
+      reset(self);
+
+      pragma Assert(state(self) = RESETED);
+   end Detach;
+
+   ---------------------------------------------------------------------
+
+   procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) is
+   begin
+      Resume(self, target.all); -- inlined at spec
    end Resume;
 
-   procedure Jump(self: in out CONTROLLER; co: access CONTROLLER) is
+   procedure Detach(self: in out CONTROLLER; target: access CONTROLLER) is
    begin
-      Jump(self, co.all); -- inlined at spec
-   end Jump;
+      Detach(self, target.all); -- inlined at spec
+   end Detach;
 
 end Control;
 

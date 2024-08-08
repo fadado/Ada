@@ -36,7 +36,7 @@ procedure pingpong is
 
    task body PING_TASK is
    begin
-      Ping.Co_Begin;
+      Ping.Attach;
 
       for i in 1..10 loop
          Put("PING!  ");
@@ -45,7 +45,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      Ping.Jump(Pong);
+      Ping.Detach(Pong);
    exception
       when X: others =>
          report_exception(X, "Oops at PING_TASK!");
@@ -53,7 +53,7 @@ procedure pingpong is
 
    task body PONG_TASK is
    begin
-      Pong.Co_Begin;
+      Pong.Attach;
 
       for i in 1..10 loop
          Put_Line("PONG!");
@@ -62,7 +62,7 @@ procedure pingpong is
          end if;
       end loop;
 
-      Pong.Co_End;
+      Pong.Detach;
    exception
       when X: others =>
          report_exception(X, "Oops at PONG_TASK!");

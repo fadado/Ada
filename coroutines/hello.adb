@@ -36,11 +36,11 @@ begin
 
       task body HELLO_TASK is
       begin
-         Hello.Co_Begin;
+         Hello.Attach;
 
          Put_Line("1-Hello, world!");
 
-         Hello.Co_End;
+         Hello.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK!");
@@ -61,14 +61,14 @@ begin
 
       task body HELLO_TASK is
       begin
-         Hello.Co_Begin;
+         Hello.Attach;
 
          Put("3-");      Hello.Yield;
          Put("Hello");   Hello.Yield;
          Put(", world"); Hello.Yield;
          Put_Line("!");
 
-         Hello.Co_End;
+         Hello.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK!");
@@ -92,14 +92,14 @@ begin
 
       task body HELLO_TASK is
       begin
-         Hello.Co_Begin;
+         Hello.Attach;
 
          Put("4-");      Hello.Resume(Main);
          Put("Hello");   Hello.Resume(Main);
          Put(", world"); Hello.Resume(Main);
          Put_Line("!");
 
-         Hello.Co_End;
+         Hello.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK!");
