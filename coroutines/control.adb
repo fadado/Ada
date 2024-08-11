@@ -10,7 +10,7 @@ package body Control is
    -- initialize controller to default values
    procedure reset(co: in out CONTROLLER) with Inline is
    begin
-      Clear(co.here);
+      Clear(co.flag);
       co.id := Null_Task_Id;
       co.master := NULL;
    end reset;
@@ -23,14 +23,11 @@ package body Control is
    begin
       if co.id = Null_Task_Id then
          return RESETED;
-      end if;
-
-      if co.master = NULL then
+      elsif co.master = NULL then
          return ATTACHED;
+      else
+         return LINKED;
       end if;
-
-      -- co.master /= NULL
-      return LINKED;
    end state;
 
    ---------------------------------------------------------------------
@@ -65,7 +62,7 @@ package body Control is
       self.id := Current_Task;
       pragma Assert(state(self) = ATTACHED);
 
-      Wait(self.here);
+      Wait(self.flag);
    end Attach;
 
    ---------------------------------------------------------------------
@@ -76,25 +73,22 @@ package body Control is
          -- self is the master controller
          self.id := Current_Task;
          pragma Assert(state(self) = ATTACHED);
-      end if;
 
-      pragma Assert(state(self) /= RESETED);
+         -- circular node to mark start
+         self.master := self'Unchecked_Access;
+      end if;
+      pragma Assert(state(self) = LINKED);
 
       await_attach(target);
-
       pragma Assert(self.id /= target.id);
 
-      if self.master = NULL then
-         target.master := self'Unchecked_Access;
-      else
-         -- TODO: preserve NULL in master itself?
+      if target.master = NULL then
          target.master := self.master;
       end if;
-
       pragma Assert(state(target) = LINKED);
 
-      Notify(target.here);
-      Wait(self.here);
+      Notify(target.flag);
+      Wait(self.flag);
    end Resume;
 
    ---------------------------------------------------------------------
@@ -104,8 +98,8 @@ package body Control is
    begin
       pragma Assert(state(self) = LINKED);
 
-      Notify(master.here);
-      Wait(self.here);
+      Notify(master.flag);
+      Wait(self.flag);
    end Yield;
 
    ---------------------------------------------------------------------
@@ -115,8 +109,7 @@ package body Control is
    begin
       pragma Assert(state(self) /= RESETED);
 
-      Notify(master.here);
-
+      Notify(master.flag);
       reset(self);
 
       pragma Assert(state(self) = RESETED);
@@ -129,11 +122,9 @@ package body Control is
       pragma Assert(state(self) = LINKED);
 
       await_attach(target);
-
       pragma Assert(self.id /= target.id);
 
-      Notify(target.here);
-
+      Notify(target.flag);
       reset(self);
 
       pragma Assert(state(self) = RESETED);
