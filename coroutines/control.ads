@@ -11,19 +11,21 @@ package Control is
    procedure Attach(self: in out CONTROLLER);
    -- Attach self with the current task
 
+   procedure Detach(self: in out CONTROLLER) with Inline;
+   -- Detach self from the current task and resume master
+
+   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER);
+   -- Detach self from the current task and resume target
+
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER);
-   procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
    -- Suspend the current task after resuming target
 
    procedure Yield(self: in out CONTROLLER);
    -- Suspend the current task after resuming master
 
-   procedure Detach(self: in out CONTROLLER);
-   -- Detach self from the current task and resume master
-
-   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER);
+   -- syntactic sugar
+   procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
    procedure Detach(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
-   -- Detach self from the current task and resume target
 
 private
    use Ada.Task_Identification;

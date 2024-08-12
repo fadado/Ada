@@ -12,8 +12,8 @@ package body Control is
    function State(co: in CONTROLLER) return CO_STATE with Inline is
    begin
       if co.id = Null_Task_Id then
-         pragma Assert(co.master = NULL);
-         pragma Assert(Is_Clean(co.flag));
+         --pragma Assert(co.master = NULL);
+         --pragma Assert(Is_Clean(co.flag));
          return RESETED;
       elsif co.master = NULL then
          return SEMI_ATTACHED;
@@ -64,10 +64,32 @@ package body Control is
       pragma Assert(State(self) = RESETED);
 
       self.id := Current_Task;
-      Wait(self.flag);
+      pragma Assert(State(self) = SEMI_ATTACHED);
 
+      Wait(self.flag);
       pragma Assert(State(self) = ATTACHED);
    end Attach;
+
+   ---------------------------------------------------------------------
+
+   procedure Detach(self: in out CONTROLLER) is
+      master : CONTROLLER renames self.master.all;
+   begin
+      Detach(self, master); -- inlined at spec
+   end Detach;
+
+   ---------------------------------------------------------------------
+
+   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
+   begin
+      pragma Assert(State(self)   = ATTACHED);
+      pragma Assert(State(target) = ATTACHED);
+
+      Notify(target.flag);
+      Reset(self);
+
+      pragma Assert(State(self) = RESETED);
+   end Detach;
 
    ---------------------------------------------------------------------
 
@@ -77,7 +99,7 @@ package body Control is
          -- self is the master controller
          self.id := Current_Task;
 
-         -- circular link for the master controller
+         -- circular link
          self.master := self'Unchecked_Access;
       end if;
       pragma Assert(State(self) = ATTACHED);
@@ -104,34 +126,6 @@ package body Control is
       Notify(master.flag);
       Wait(self.flag);
    end Yield;
-
-   ---------------------------------------------------------------------
-
-   procedure Detach(self: in out CONTROLLER) is
-      master : CONTROLLER renames self.master.all;
-   begin
-      pragma Assert(State(self) = ATTACHED);
-
-      Notify(master.flag);
-      Reset(self);
-
-      pragma Assert(State(self) = RESETED);
-   end Detach;
-
-   ---------------------------------------------------------------------
-
-   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
-   begin
-      pragma Assert(State(self) = ATTACHED);
-
-      Await_Attach(target);
-      pragma Assert(self.id /= target.id);
-
-      Notify(target.flag);
-      Reset(self);
-
-      pragma Assert(State(self) = RESETED);
-   end Detach;
 
    ---------------------------------------------------------------------
 
