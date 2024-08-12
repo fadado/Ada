@@ -7,36 +7,40 @@ with Ada.Real_Time;
 
 package body Control is
 
+   type CO_STATE is (RESETED, SEMI_ATTACHED, ATTACHED);
+
+   function State(co: in CONTROLLER) return CO_STATE with Inline is
+   begin
+      if co.id = Null_Task_Id then
+         pragma Assert(co.master = NULL);
+         pragma Assert(Is_Clean(co.flag));
+         return RESETED;
+      elsif co.master = NULL then
+         return SEMI_ATTACHED;
+      else
+         return ATTACHED;
+      end if;
+   end State;
+
+   ---------------------------------------------------------------------
+
    -- initialize controller to default values
-   procedure reset(co: in out CONTROLLER) with Inline is
+   procedure Reset(co: in out CONTROLLER) with Inline is
    begin
       Clear(co.flag);
       co.id := Null_Task_Id;
       co.master := NULL;
-   end reset;
+
+      pragma Assert(State(co) = RESETED);
+   end Reset;
 
    ---------------------------------------------------------------------
 
-   type CO_STATE is (RESETED, ATTACHED, LINKED);
-
-   function state(co: in CONTROLLER) return CO_STATE with Inline is
-   begin
-      if co.id = Null_Task_Id then
-         return RESETED;
-      elsif co.master = NULL then
-         return ATTACHED;
-      else
-         return LINKED;
-      end if;
-   end state;
-
-   ---------------------------------------------------------------------
-
-   procedure await_attach(co: in CONTROLLER) with Inline is
+   procedure Await_Attach(co: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
-      if state(co) = RESETED then
+      if State(co) = RESETED then
          loop
             if Clock > stop then
                raise Program_Error with "loop timed out";
@@ -44,12 +48,12 @@ package body Control is
 
             Ada.Dispatching.Yield;
 
-            exit when state(co) = ATTACHED;
+            exit when State(co) = SEMI_ATTACHED;
          end loop;
       end if;
 
-      pragma Assert(state(co) /= RESETED);
-   end await_attach;
+      pragma Assert(State(co) /= RESETED);
+   end Await_Attach;
 
    ---------------------------------------------------------------------
    -- CONTROLLER methods
@@ -57,35 +61,34 @@ package body Control is
 
    procedure Attach(self: in out CONTROLLER) is
    begin
-      pragma Assert(state(self) = RESETED);
+      pragma Assert(State(self) = RESETED);
 
       self.id := Current_Task;
-      pragma Assert(state(self) = ATTACHED);
-
       Wait(self.flag);
+
+      pragma Assert(State(self) = ATTACHED);
    end Attach;
 
    ---------------------------------------------------------------------
 
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
-      if state(self) = RESETED then
+      if State(self) = RESETED then
          -- self is the master controller
          self.id := Current_Task;
-         pragma Assert(state(self) = ATTACHED);
 
-         -- circular node to mark start
+         -- circular link for the master controller
          self.master := self'Unchecked_Access;
       end if;
-      pragma Assert(state(self) = LINKED);
+      pragma Assert(State(self) = ATTACHED);
 
-      await_attach(target);
+      Await_Attach(target);
       pragma Assert(self.id /= target.id);
 
       if target.master = NULL then
          target.master := self.master;
       end if;
-      pragma Assert(state(target) = LINKED);
+      pragma Assert(State(target) = ATTACHED);
 
       Notify(target.flag);
       Wait(self.flag);
@@ -96,7 +99,7 @@ package body Control is
    procedure Yield(self: in out CONTROLLER) is
       master : CONTROLLER renames self.master.all;
    begin
-      pragma Assert(state(self) = LINKED);
+      pragma Assert(State(self) = ATTACHED);
 
       Notify(master.flag);
       Wait(self.flag);
@@ -107,27 +110,27 @@ package body Control is
    procedure Detach(self: in out CONTROLLER) is
       master : CONTROLLER renames self.master.all;
    begin
-      pragma Assert(state(self) /= RESETED);
+      pragma Assert(State(self) = ATTACHED);
 
       Notify(master.flag);
-      reset(self);
+      Reset(self);
 
-      pragma Assert(state(self) = RESETED);
+      pragma Assert(State(self) = RESETED);
    end Detach;
 
    ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
-      pragma Assert(state(self) = LINKED);
+      pragma Assert(State(self) = ATTACHED);
 
-      await_attach(target);
+      Await_Attach(target);
       pragma Assert(self.id /= target.id);
 
       Notify(target.flag);
-      reset(self);
+      Reset(self);
 
-      pragma Assert(state(self) = RESETED);
+      pragma Assert(State(self) = RESETED);
    end Detach;
 
    ---------------------------------------------------------------------
