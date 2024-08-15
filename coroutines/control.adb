@@ -7,35 +7,36 @@ with Ada.Real_Time;
 
 package body Control is
 
+   ---------------------------------------------------------------------
+   -- Local types and subprograms
+   ---------------------------------------------------------------------
+
    type CO_STATE is (RESETED, SEMI_ATTACHED, ATTACHED);
 
    function State(co: in CONTROLLER) return CO_STATE with Inline is
    begin
       if co.id = Null_Task_Id then
-         --pragma Assert(co.master = NULL);
+         --pragma Assert(co.caller = NULL);
          --pragma Assert(Is_Clean(co.flag));
          return RESETED;
-      elsif co.master = NULL then
+      elsif co.caller = NULL then
          return SEMI_ATTACHED;
       else
          return ATTACHED;
       end if;
    end State;
 
-   ---------------------------------------------------------------------
-
-   -- initialize controller to default values
+   -- Initialize controller to default values.
    procedure Reset(co: in out CONTROLLER) with Inline is
    begin
       Clear(co.flag);
       co.id := Null_Task_Id;
-      co.master := NULL;
+      co.caller := NULL;
 
       pragma Assert(State(co) = RESETED);
    end Reset;
 
-   ---------------------------------------------------------------------
-
+   -- Ensure controller is attached or semi-attached.
    procedure Await_Attach(co: in CONTROLLER) with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
@@ -73,12 +74,10 @@ package body Control is
    ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER) is
-      master : CONTROLLER renames self.master.all;
+      caller : CONTROLLER renames self.caller.all;
    begin
-      Detach(self, master); -- inlined at spec
+      Detach(self, caller); -- inlined at spec
    end Detach;
-
-   ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
@@ -100,16 +99,14 @@ package body Control is
          self.id := Current_Task;
 
          -- circular link
-         self.master := self'Unchecked_Access;
+         self.caller := self'Unchecked_Access;
       end if;
       pragma Assert(State(self) = ATTACHED);
 
       Await_Attach(target);
       pragma Assert(self.id /= target.id);
 
-      if target.master = NULL then
-         target.master := self.master;
-      end if;
+      target.caller := self'Unchecked_Access;
       pragma Assert(State(target) = ATTACHED);
 
       Notify(target.flag);
@@ -119,15 +116,39 @@ package body Control is
    ---------------------------------------------------------------------
 
    procedure Yield(self: in out CONTROLLER) is
-      master : CONTROLLER renames self.master.all;
+      caller : CONTROLLER renames self.caller.all;
    begin
       pragma Assert(State(self) = ATTACHED);
 
-      Notify(master.flag);
+      Notify(caller.flag);
       Wait(self.flag);
    end Yield;
 
    ---------------------------------------------------------------------
+
+   procedure Transfer(self: in out CONTROLLER; target: in out CONTROLLER) is
+   begin
+      if State(self) = RESETED then
+         -- self is the master controller
+         self.id := Current_Task;
+
+         -- circular link
+         self.caller := self'Unchecked_Access;
+      end if;
+      pragma Assert(State(self) = ATTACHED);
+
+      Await_Attach(target);
+      pragma Assert(self.id /= target.id);
+
+      target.caller := self.caller;
+      pragma Assert(State(target) = ATTACHED);
+
+      Notify(target.flag);
+      Wait(self.flag);
+   end Transfer;
+
+   ---------------------------------------------------------------------
+   -- syntactic sugar
 
    procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) is
    begin
@@ -138,6 +159,11 @@ package body Control is
    begin
       Detach(self, target.all); -- inlined at spec
    end Detach;
+
+   procedure Transfer(self: in out CONTROLLER; target: access CONTROLLER) is
+   begin
+      Transfer(self, target.all); -- inlined at spec
+   end Transfer;
 
 end Control;
 

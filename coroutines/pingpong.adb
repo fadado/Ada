@@ -41,11 +41,12 @@ procedure pingpong is
       for i in 1..10 loop
          Put("PING!  ");
          if i < 10 then
-            Ping.Resume(Pong);
+            Ping.Transfer(Pong);
+         else
+            Ping.Detach(Pong); -- transfer without suspension
          end if;
       end loop;
 
-      Ping.Detach(Pong);
    exception
       when X: others =>
          report_exception(X, "Oops at PING_TASK!");
@@ -58,11 +59,12 @@ procedure pingpong is
       for i in 1..10 loop
          Put_Line("PONG!");
          if i < 10 then
-            Pong.Resume(Ping);
+            Pong.Transfer(Ping);
+         else
+            Pong.Detach;
          end if;
       end loop;
 
-      Pong.Detach;
    exception
       when X: others =>
          report_exception(X, "Oops at PONG_TASK!");
@@ -82,7 +84,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      master.Resume(ping_control);
+      master.Transfer(ping_control);
 
       New_Line;
       Put_Line("Game Over");

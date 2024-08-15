@@ -9,23 +9,30 @@ package Control is
    type CONTROLLER is tagged limited private;
 
    procedure Attach(self: in out CONTROLLER);
-   -- Attach self with the current task
+   -- Attach self with the current task. 
+   -- Mandatory tasks first call.
 
    procedure Detach(self: in out CONTROLLER) with Inline;
-   -- Detach self from the current task and resume master
+   -- Detach self from the current task and transfer control to caller.
+   -- Mandatory asymmetric coroutines last call.
 
    procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER);
-   -- Detach self from the current task and resume target
+   -- Detach self from the current task and transfer control to target
+   -- Mandatory symmetric coroutines last call, except for the last to finish.
 
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER);
-   -- Suspend the current task after resuming target
+   -- Symmetric coroutines transfer of control.
 
    procedure Yield(self: in out CONTROLLER);
-   -- Suspend the current task after resuming master
+   -- Suspend the current task after resuming the caller.
 
-   -- syntactic sugar
+   procedure Transfer(self: in out CONTROLLER; target: in out CONTROLLER);
+   -- Asymmetric coroutines transfer of control.
+
+   -- Syntactic sugar
    procedure Resume(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
    procedure Detach(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
+   procedure Transfer(self: in out CONTROLLER; target: access CONTROLLER) with Inline;
 
 private
    use Ada.Task_Identification;
@@ -35,7 +42,7 @@ private
       record
          id     : TASK_ID;            -- := Null_Task_Id
          flag   : aliased SIGNAL;     -- := FALSE
-         master : access CONTROLLER;  -- := NULL
+         caller : access CONTROLLER;  -- := NULL
       end record;
 
 end Control;

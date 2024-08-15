@@ -94,9 +94,9 @@ begin
       begin
          Hello.Attach;
 
-         Put("4-");      Hello.Resume(Main);
-         Put("Hello");   Hello.Resume(Main);
-         Put(", world"); Hello.Resume(Main);
+         Put("4-");      Hello.Transfer(Main);
+         Put("Hello");   Hello.Transfer(Main);
+         Put(", world"); Hello.Transfer(Main);
          Put_Line("!");
 
          Hello.Detach;
@@ -109,10 +109,10 @@ begin
       hello_control : aliased CONTROLLER;
       hello_thread  : HELLO_TASK (hello_control'Access, master'Access);
    begin
-      master.Resume(hello_control);
-      master.Resume(hello_control);
-      master.Resume(hello_control);
-      master.Resume(hello_control);
+      master.Transfer(hello_control);
+      master.Transfer(hello_control);
+      master.Transfer(hello_control);
+      master.Transfer(hello_control);
    end;
 
 end hello;
