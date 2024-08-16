@@ -8,7 +8,7 @@ with Ada.Real_Time;
 package body Control is
 
    ---------------------------------------------------------------------
-   -- Local types and subprograms
+   -- Local subprograms
    ---------------------------------------------------------------------
 
    type CO_STATE is (RESETED, SEMI_ATTACHED, ATTACHED);
@@ -16,10 +16,11 @@ package body Control is
    function State(co: in CONTROLLER) return CO_STATE with Inline is
    begin
       if co.id = Null_Task_Id then
-         --pragma Assert(co.caller = NULL);
+         --pragma Assert(co.invoker = NULL);
          --pragma Assert(Is_Clean(co.flag));
+         --pragma Assert(co.mode = UNDEFINED);
          return RESETED;
-      elsif co.caller = NULL then
+      elsif co.invoker = NULL then
          return SEMI_ATTACHED;
       else
          return ATTACHED;
@@ -31,7 +32,8 @@ package body Control is
    begin
       Clear(co.flag);
       co.id := Null_Task_Id;
-      co.caller := NULL;
+      co.invoker := NULL;
+      co.mode := UNDEFINED;
 
       pragma Assert(State(co) = RESETED);
    end Reset;
@@ -74,15 +76,12 @@ package body Control is
    ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER) is
-      caller : CONTROLLER renames self.caller.all;
-   begin
-      Detach(self, caller); -- inlined at spec
-   end Detach;
-
-   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
+      target : CONTROLLER renames self.invoker.all;
    begin
       pragma Assert(State(self)   = ATTACHED);
       pragma Assert(State(target) = ATTACHED);
+
+      pragma Assert(self.mode = target.mode);
 
       Notify(target.flag);
       Reset(self);
@@ -94,20 +93,28 @@ package body Control is
 
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
+
       if State(self) = RESETED then
          -- self is the master controller
          self.id := Current_Task;
 
          -- circular link
-         self.caller := self'Unchecked_Access;
+         self.invoker := self'Unchecked_Access;
+
+         --
+         self.mode := ASYMMETRIC;
       end if;
       pragma Assert(State(self) = ATTACHED);
+      pragma Assert(self.mode = ASYMMETRIC);
 
       Await_Attach(target);
       pragma Assert(self.id /= target.id);
 
-      target.caller := self'Unchecked_Access;
+      target.invoker := self'Unchecked_Access;
+      target.mode    := ASYMMETRIC;
       pragma Assert(State(target) = ATTACHED);
+
+      pragma Assert(target.mode = ASYMMETRIC);
 
       Notify(target.flag);
       Wait(self.flag);
@@ -116,11 +123,12 @@ package body Control is
    ---------------------------------------------------------------------
 
    procedure Yield(self: in out CONTROLLER) is
-      caller : CONTROLLER renames self.caller.all;
+      invoker : CONTROLLER renames self.invoker.all;
    begin
       pragma Assert(State(self) = ATTACHED);
+      pragma Assert(self.mode = ASYMMETRIC);
 
-      Notify(caller.flag);
+      Notify(invoker.flag);
       Wait(self.flag);
    end Yield;
 
@@ -133,19 +141,41 @@ package body Control is
          self.id := Current_Task;
 
          -- circular link
-         self.caller := self'Unchecked_Access;
+         self.invoker := self'Unchecked_Access;
+
+         --
+         self.mode := SYMMETRIC;
       end if;
       pragma Assert(State(self) = ATTACHED);
 
       Await_Attach(target);
       pragma Assert(self.id /= target.id);
 
-      target.caller := self.caller;
+      target.invoker := self.invoker;
+      target.mode    := SYMMETRIC;
       pragma Assert(State(target) = ATTACHED);
+
+      pragma Assert(self.mode = target.mode);
 
       Notify(target.flag);
       Wait(self.flag);
    end Transfer;
+
+   ---------------------------------------------------------------------
+
+   procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
+   begin
+      pragma Assert(State(self)   = ATTACHED);
+      pragma Assert(State(target) = ATTACHED);
+
+      pragma Assert(self.mode   = SYMMETRIC);
+      pragma Assert(target.mode = SYMMETRIC);
+
+      Notify(target.flag);
+      Reset(self);
+
+      pragma Assert(State(self) = RESETED);
+   end Detach;
 
    ---------------------------------------------------------------------
    -- syntactic sugar
