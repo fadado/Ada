@@ -1,4 +1,4 @@
--- pingpong.adb
+-- test_pingpong.adb
 
 pragma Restrictions (
    No_Select_Statements,
@@ -14,7 +14,7 @@ with Ada.Exceptions; use Ada.Exceptions;
 
 with Control; use Control;
 
-procedure pingpong is
+procedure test_pingpong is
 
    procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       msg : STRING := Exception_Message(X);
@@ -90,7 +90,7 @@ begin
       Put_Line("Game Over");
    end;
 
-end pingpong;
+end test_pingpong;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -85,8 +85,6 @@ package body Control is
 
       Notify(target.flag);
       Reset(self);
-
-      pragma Assert(State(self) = RESETED);
    end Detach;
 
    ---------------------------------------------------------------------
@@ -111,10 +109,9 @@ package body Control is
       pragma Assert(self.id /= target.id);
 
       target.invoker := self'Unchecked_Access;
-      target.mode    := ASYMMETRIC;
       pragma Assert(State(target) = ATTACHED);
 
-      pragma Assert(target.mode = ASYMMETRIC);
+      target.mode := ASYMMETRIC;
 
       Notify(target.flag);
       Wait(self.flag);
@@ -125,8 +122,11 @@ package body Control is
    procedure Yield(self: in out CONTROLLER) is
       invoker : CONTROLLER renames self.invoker.all;
    begin
-      pragma Assert(State(self) = ATTACHED);
-      pragma Assert(self.mode = ASYMMETRIC);
+      pragma Assert(State(self)    = ATTACHED);
+      pragma Assert(State(invoker) = ATTACHED);
+
+      pragma Assert(self.mode      = ASYMMETRIC);
+      pragma Assert(invoker.mode   = ASYMMETRIC);
 
       Notify(invoker.flag);
       Wait(self.flag);
@@ -152,8 +152,9 @@ package body Control is
       pragma Assert(self.id /= target.id);
 
       target.invoker := self.invoker;
-      target.mode    := SYMMETRIC;
       pragma Assert(State(target) = ATTACHED);
+
+      target.mode := SYMMETRIC;
 
       pragma Assert(self.mode = target.mode);
 
@@ -173,8 +174,6 @@ package body Control is
 
       Notify(target.flag);
       Reset(self);
-
-      pragma Assert(State(self) = RESETED);
    end Detach;
 
    ---------------------------------------------------------------------

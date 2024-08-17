@@ -1,4 +1,4 @@
--- hello.adb
+-- test_hello.adb
 
 pragma Restrictions (
    No_Select_Statements,
@@ -14,7 +14,7 @@ with Ada.Exceptions; use Ada.Exceptions;
 
 with Control; use Control;
 
-procedure hello is
+procedure test_hello is
 
    procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       msg : STRING := Exception_Message(X);
@@ -115,7 +115,7 @@ begin
       master.Transfer(hello_control);
    end;
 
-end hello;
+end test_hello;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
