@@ -2,7 +2,7 @@
 
 .SILENT:
 
-all: hello test_pingpong
+all: test_hello test_pingpong
 
 test_hello: test_hello.adb signals.ad[s] control.ad[sb]
 	@gnatmake test_hello

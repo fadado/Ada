@@ -55,6 +55,7 @@ package body Control is
          end loop;
       end if;
 
+      pragma Assert(co.id /= Current_Task);
       pragma Assert(State(co) /= RESETED);
    end Await_Attach;
 
@@ -81,6 +82,7 @@ package body Control is
       pragma Assert(State(self)   = ATTACHED);
       pragma Assert(State(target) = ATTACHED);
 
+      pragma Assert(self.id   = Current_Task);
       pragma Assert(self.mode = target.mode);
 
       Notify(target.flag);
@@ -91,7 +93,6 @@ package body Control is
 
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
-
       if State(self) = RESETED then
          -- self is the master controller
          self.id := Current_Task;
@@ -103,10 +104,11 @@ package body Control is
          self.mode := ASYMMETRIC;
       end if;
       pragma Assert(State(self) = ATTACHED);
+      pragma Assert(self.id = Current_Task);
       pragma Assert(self.mode = ASYMMETRIC);
 
       Await_Attach(target);
-      pragma Assert(self.id /= target.id);
+      pragma Assert(target.id /= Current_Task);
 
       target.invoker := self'Unchecked_Access;
       pragma Assert(State(target) = ATTACHED);
@@ -125,6 +127,7 @@ package body Control is
       pragma Assert(State(self)    = ATTACHED);
       pragma Assert(State(invoker) = ATTACHED);
 
+      pragma Assert(self.id        = Current_Task);
       pragma Assert(self.mode      = ASYMMETRIC);
       pragma Assert(invoker.mode   = ASYMMETRIC);
 
@@ -147,15 +150,15 @@ package body Control is
          self.mode := SYMMETRIC;
       end if;
       pragma Assert(State(self) = ATTACHED);
+      pragma Assert(self.id     = Current_Task);
 
       Await_Attach(target);
-      pragma Assert(self.id /= target.id);
+      pragma Assert(target.id /= Current_Task);
 
       target.invoker := self.invoker;
       pragma Assert(State(target) = ATTACHED);
 
       target.mode := SYMMETRIC;
-
       pragma Assert(self.mode = target.mode);
 
       Notify(target.flag);
@@ -169,6 +172,7 @@ package body Control is
       pragma Assert(State(self)   = ATTACHED);
       pragma Assert(State(target) = ATTACHED);
 
+      pragma Assert(self.id     = Current_Task);
       pragma Assert(self.mode   = SYMMETRIC);
       pragma Assert(target.mode = SYMMETRIC);
 
