@@ -82,8 +82,10 @@ package body Control is
       pragma Assert(State(self)   = ATTACHED);
       pragma Assert(State(target) = ATTACHED);
 
-      pragma Assert(self.id   = Current_Task);
-      pragma Assert(self.mode = target.mode);
+      pragma Assert(self.id    = Current_Task);
+      pragma Assert(target.id /= Current_Task);
+
+      pragma Assert(self.mode  = target.mode);
 
       Notify(target.flag);
       Reset(self);
@@ -94,7 +96,7 @@ package body Control is
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
       if State(self) = RESETED then
-         -- self is the master controller
+         -- self is the main controller
          self.id := Current_Task;
 
          -- circular link
@@ -114,6 +116,7 @@ package body Control is
       pragma Assert(State(target) = ATTACHED);
 
       target.mode := ASYMMETRIC;
+      pragma Assert(self.mode = target.mode);
 
       Notify(target.flag);
       Wait(self.flag);
@@ -128,6 +131,8 @@ package body Control is
       pragma Assert(State(invoker) = ATTACHED);
 
       pragma Assert(self.id        = Current_Task);
+      pragma Assert(invoker.id    /= Current_Task);
+
       pragma Assert(self.mode      = ASYMMETRIC);
       pragma Assert(invoker.mode   = ASYMMETRIC);
 
@@ -140,7 +145,7 @@ package body Control is
    procedure Transfer(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin
       if State(self) = RESETED then
-         -- self is the master controller
+         -- self is the main controller
          self.id := Current_Task;
 
          -- circular link
@@ -173,6 +178,8 @@ package body Control is
       pragma Assert(State(target) = ATTACHED);
 
       pragma Assert(self.id     = Current_Task);
+      pragma Assert(target.id  /= Current_Task);
+
       pragma Assert(self.mode   = SYMMETRIC);
       pragma Assert(target.mode = SYMMETRIC);
 

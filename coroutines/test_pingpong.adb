@@ -75,7 +75,7 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      master : CONTROLLER;
+      main : CONTROLLER;
       ping_control : aliased CONTROLLER;
       pong_control : aliased CONTROLLER;
       ping_thread : PING_TASK (ping_control'Access, pong_control'Access);
@@ -84,10 +84,13 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      master.Transfer(ping_control);
+      main.Transfer(ping_control);
 
       New_Line;
       Put_Line("Game Over");
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
    end;
 
 end test_pingpong;

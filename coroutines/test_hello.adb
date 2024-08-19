@@ -32,87 +32,96 @@ begin
    -- 1
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Hello: access CONTROLLER);
+      task type HELLO_TASK(Coroutine: access CONTROLLER);
 
       task body HELLO_TASK is
       begin
-         Hello.Attach;
+         Coroutine.Attach;
 
          Put_Line("1-Hello, world!");
 
-         Hello.Detach;
+         Coroutine.Detach;
       exception
          when X: others =>
-            report_exception(X, "Oops at HELLO_TASK!");
+            report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      master : CONTROLLER;
+      main : CONTROLLER;
       hello_control : aliased CONTROLLER;
       hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      master.Resume(hello_control);
+      main.Resume(hello_control);
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
    end;
 
    ---------------------------------------------------------------------
    -- 3
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Hello: access CONTROLLER);
+      task type HELLO_TASK(Coroutine: access CONTROLLER);
 
       task body HELLO_TASK is
       begin
-         Hello.Attach;
+         Coroutine.Attach;
 
-         Put("3-");      Hello.Yield;
-         Put("Hello");   Hello.Yield;
-         Put(", world"); Hello.Yield;
+         Put("3-");      Coroutine.Yield;
+         Put("Hello");   Coroutine.Yield;
+         Put(", world"); Coroutine.Yield;
          Put_Line("!");
 
-         Hello.Detach;
+         Coroutine.Detach;
       exception
          when X: others =>
-            report_exception(X, "Oops at HELLO_TASK!");
+            report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      master : CONTROLLER;
+      main : CONTROLLER;
       hello_control : aliased CONTROLLER;
       hello_thread  : HELLO_TASK (hello_control'Access);
    begin
-      master.Resume(hello_control);
-      master.Resume(hello_control);
-      master.Resume(hello_control);
-      master.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
    end;
 
    ---------------------------------------------------------------------
    -- 4
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Hello, Main: access CONTROLLER);
+      task type HELLO_TASK(Coroutine, Main: access CONTROLLER);
 
       task body HELLO_TASK is
       begin
-         Hello.Attach;
+         Coroutine.Attach;
 
-         Put("4-");      Hello.Transfer(Main);
-         Put("Hello");   Hello.Transfer(Main);
-         Put(", world"); Hello.Transfer(Main);
+         Put("4-");      Coroutine.Transfer(Main);
+         Put("Hello");   Coroutine.Transfer(Main);
+         Put(", world"); Coroutine.Transfer(Main);
          Put_Line("!");
 
-         Hello.Detach;
+         Coroutine.Detach;
       exception
          when X: others =>
-            report_exception(X, "Oops at HELLO_TASK!");
+            report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      master : aliased CONTROLLER;
+      main : aliased CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access, master'Access);
+      hello_thread  : HELLO_TASK (hello_control'Access, main'Access);
    begin
-      master.Transfer(hello_control);
-      master.Transfer(hello_control);
-      master.Transfer(hello_control);
-      master.Transfer(hello_control);
+      main.Transfer(hello_control);
+      main.Transfer(hello_control);
+      main.Transfer(hello_control);
+      main.Transfer(hello_control);
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
    end;
 
 end test_hello;
