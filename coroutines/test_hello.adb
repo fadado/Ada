@@ -57,6 +57,67 @@ begin
    end;
 
    ---------------------------------------------------------------------
+   -- 2
+   ---------------------------------------------------------------------
+   declare
+      task type HELLO_TASK(Coroutine: access CONTROLLER);
+
+      package Common is
+         char : CHARACTER;
+         more : BOOLEAN := TRUE;
+      end Common;
+
+      task body HELLO_TASK is
+         msg : STRING := "2-Hello, world!";
+         len : POSITIVE := msg'Length;
+      begin
+         Coroutine.Attach;
+
+         for i in 1..len loop
+            Common.char := msg(i);
+            if i = len then
+               Common.more := FALSE;
+            else
+               Coroutine.Yield;
+            end if;
+         end loop;
+
+         Coroutine.Detach;
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
+      end HELLO_TASK;
+
+      hello_control : aliased CONTROLLER;
+      hello_thread  : HELLO_TASK (hello_control'Access);
+
+      main : CONTROLLER;
+
+      function getchar(c: in out CHARACTER) return BOOLEAN with Inline is
+      begin
+         if Common.more then
+            main.Resume(hello_control);
+            c := Common.Char;
+            return TRUE;
+         else 
+            return FALSE;
+         end if;
+      end getchar;
+
+      char : CHARACTER := ' ';
+
+   begin
+      while getchar(char) loop
+         Put(char);
+      end loop;
+      New_Line;
+
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
+   end;
+
+   ---------------------------------------------------------------------
    -- 3
    ---------------------------------------------------------------------
    declare
