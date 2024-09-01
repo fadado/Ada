@@ -60,7 +60,7 @@ package body Control is
    end Await_Attach;
 
    ---------------------------------------------------------------------
-   -- CONTROLLER methods
+   --
    ---------------------------------------------------------------------
 
    procedure Attach(self: in out CONTROLLER) is
@@ -73,8 +73,6 @@ package body Control is
       Wait(self.flag);
       pragma Assert(State(self) = ATTACHED);
    end Attach;
-
-   ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER) is
       target : CONTROLLER renames self.invoker.all;
@@ -91,6 +89,8 @@ package body Control is
       Reset(self);
    end Detach;
 
+   ---------------------------------------------------------------------
+   --
    ---------------------------------------------------------------------
 
    procedure Resume(self: in out CONTROLLER; target: in out CONTROLLER) is
@@ -122,8 +122,6 @@ package body Control is
       Wait(self.flag);
    end Resume;
 
-   ---------------------------------------------------------------------
-
    procedure Yield(self: in out CONTROLLER) is
       invoker : CONTROLLER renames self.invoker.all;
    begin
@@ -140,6 +138,8 @@ package body Control is
       Wait(self.flag);
    end Yield;
 
+   ---------------------------------------------------------------------
+   --
    ---------------------------------------------------------------------
 
    procedure Transfer(self: in out CONTROLLER; target: in out CONTROLLER) is
@@ -169,8 +169,6 @@ package body Control is
       Notify(target.flag);
       Wait(self.flag);
    end Transfer;
-
-   ---------------------------------------------------------------------
 
    procedure Detach(self: in out CONTROLLER; target: in out CONTROLLER) is
    begin

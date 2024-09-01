@@ -48,7 +48,7 @@ begin
 
       main : CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Access);
    begin
       main.Resume(hello_control);
    exception
@@ -89,7 +89,7 @@ begin
       end HELLO_TASK;
 
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Access);
 
       main : CONTROLLER;
 
@@ -140,7 +140,7 @@ begin
 
       main : CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Access);
    begin
       main.Resume(hello_control);
       main.Resume(hello_control);
@@ -174,7 +174,7 @@ begin
 
       main : aliased CONTROLLER;
       hello_control : aliased CONTROLLER;
-      hello_thread  : HELLO_TASK (hello_control'Access, main'Access);
+      hello_runner  : HELLO_TASK (hello_control'Access, main'Access);
    begin
       main.Transfer(hello_control);
       main.Transfer(hello_control);

@@ -78,8 +78,8 @@ begin
       main : CONTROLLER;
       ping_control : aliased CONTROLLER;
       pong_control : aliased CONTROLLER;
-      ping_thread : PING_TASK (ping_control'Access, pong_control'Access);
-      pong_thread : PONG_TASK (pong_control'Access, ping_control'Access);
+      ping_runner : PING_TASK (ping_control'Access, pong_control'Access);
+      pong_runner : PONG_TASK (pong_control'Access, ping_control'Access);
    begin
       Put_Line("The players are ready...");
       New_Line;
