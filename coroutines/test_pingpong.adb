@@ -31,8 +31,8 @@ procedure test_pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type PING_TASK(Ping, Pong: access CONTROLLER);
-   task type PONG_TASK(Pong, Ping: access CONTROLLER);
+   task type PING_TASK(Ping, Pong: access SYMMETRIC_CONTROLLER);
+   task type PONG_TASK(Pong, Ping: access SYMMETRIC_CONTROLLER);
 
    task body PING_TASK is
    begin
@@ -41,7 +41,7 @@ procedure test_pingpong is
       for i in 1..10 loop
          Put("PING!  ");
          if i < 10 then
-            Ping.Transfer(Pong);
+            Ping.Resume(Pong);
          else
             Ping.Detach(Pong); -- transfer without suspension
          end if;
@@ -59,7 +59,7 @@ procedure test_pingpong is
       for i in 1..10 loop
          Put_Line("PONG!");
          if i < 10 then
-            Pong.Transfer(Ping);
+            Pong.Resume(Ping);
          else
             Pong.Detach;
          end if;
@@ -75,16 +75,16 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      main : CONTROLLER;
-      ping_control : aliased CONTROLLER;
-      pong_control : aliased CONTROLLER;
+      main : SYMMETRIC_CONTROLLER;
+      ping_control : aliased SYMMETRIC_CONTROLLER;
+      pong_control : aliased SYMMETRIC_CONTROLLER;
       ping_runner : PING_TASK (ping_control'Access, pong_control'Access);
       pong_runner : PONG_TASK (pong_control'Access, ping_control'Access);
    begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Transfer(ping_control);
+      main.Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");

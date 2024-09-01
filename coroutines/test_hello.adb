@@ -32,7 +32,7 @@ begin
    -- 1
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access CONTROLLER);
+      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
 
       task body HELLO_TASK is
       begin
@@ -46,8 +46,8 @@ begin
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      main : CONTROLLER;
-      hello_control : aliased CONTROLLER;
+      main : ASYMMETRIC_CONTROLLER;
+      hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_TASK (hello_control'Access);
    begin
       main.Resume(hello_control);
@@ -60,7 +60,7 @@ begin
    -- 2
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access CONTROLLER);
+      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
 
       package Common is
          char : CHARACTER;
@@ -88,10 +88,10 @@ begin
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      hello_control : aliased CONTROLLER;
+      hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_TASK (hello_control'Access);
 
-      main : CONTROLLER;
+      main : ASYMMETRIC_CONTROLLER;
 
       function getchar(c: in out CHARACTER) return BOOLEAN with Inline is
       begin
@@ -121,7 +121,7 @@ begin
    -- 3
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access CONTROLLER);
+      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
 
       task body HELLO_TASK is
       begin
@@ -138,8 +138,8 @@ begin
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      main : CONTROLLER;
-      hello_control : aliased CONTROLLER;
+      main : ASYMMETRIC_CONTROLLER;
+      hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_TASK (hello_control'Access);
    begin
       main.Resume(hello_control);
@@ -155,15 +155,15 @@ begin
    -- 4
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine, Main: access CONTROLLER);
+      task type HELLO_TASK(Coroutine, Main: access SYMMETRIC_CONTROLLER);
 
       task body HELLO_TASK is
       begin
          Coroutine.Attach;
 
-         Put("4-");      Coroutine.Transfer(Main);
-         Put("Hello");   Coroutine.Transfer(Main);
-         Put(", world"); Coroutine.Transfer(Main);
+         Put("4-");      Coroutine.Resume(Main);
+         Put("Hello");   Coroutine.Resume(Main);
+         Put(", world"); Coroutine.Resume(Main);
          Put_Line("!");
 
          Coroutine.Detach;
@@ -172,14 +172,14 @@ begin
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
-      main : aliased CONTROLLER;
-      hello_control : aliased CONTROLLER;
+      main : aliased SYMMETRIC_CONTROLLER;
+      hello_control : aliased SYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_TASK (hello_control'Access, main'Access);
    begin
-      main.Transfer(hello_control);
-      main.Transfer(hello_control);
-      main.Transfer(hello_control);
-      main.Transfer(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
+      main.Resume(hello_control);
    exception
       when X: others =>
          report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
