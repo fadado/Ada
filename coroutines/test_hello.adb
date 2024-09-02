@@ -185,6 +185,38 @@ begin
          report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
    end;
 
+   ---------------------------------------------------------------------
+   -- 5
+   ---------------------------------------------------------------------
+   declare
+      task type HELLO_TASK(Coroutine: ASYMMETRIC_COROUTINE);
+
+      task body HELLO_TASK is
+      begin
+         Coroutine.Attach;
+
+         Put_Line("5-Hello, world!");
+
+         Coroutine.Detach;
+      exception
+         when X: others =>
+            report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
+      end HELLO_TASK;
+
+      type HELLO_COROUTINE is new ASYMMETRIC_CONTROLLER with
+         record
+            run : HELLO_TASK(HELLO_COROUTINE'Unchecked_Access);
+         end record;
+
+      main  : ASYMMETRIC_CONTROLLER;
+      hello : HELLO_COROUTINE;
+   begin
+      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+   exception
+      when X: others =>
+         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
+   end;
+
 end test_hello;
 
 -- ¡ISO-8859-1!
