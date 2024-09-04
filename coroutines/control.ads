@@ -20,7 +20,7 @@ package Control is
    -- Detach self from the current task and transfer control to invoker.
    -- Mandatory last call in tasks body.
 
-   procedure Resume(self: in out BASE_CONTROLLER; target: in out BASE_CONTROLLER);
+   procedure Resume(self, target: in out BASE_CONTROLLER);
    -- (A)symmetric coroutines transfer of control.
 
    ---------------------------------------------------------------------
@@ -32,7 +32,8 @@ package Control is
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
    -- Suspend the current task and resume the invoker.
 
-   procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) with Inline;
+   procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
+                    target: access ASYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access target.
 
    ---------------------------------------------------------------------
@@ -41,12 +42,14 @@ package Control is
 
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER; target: in out SYMMETRIC_CONTROLLER);
+   procedure Detach(self, target: in out SYMMETRIC_CONTROLLER);
    -- Detach self from the current task and transfer control to target
    -- Mandatory symmetric coroutines last call, except for the last to finish.
 
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
-   procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
+   procedure Detach(self: in out SYMMETRIC_CONTROLLER;
+                    target: access SYMMETRIC_CONTROLLER) with Inline;
+   procedure Resume(self: in out SYMMETRIC_CONTROLLER;
+                    target: access SYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access target.
 
    ---------------------------------------------------------------------
@@ -64,7 +67,7 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : TASK_ID;                      -- := Null_Task_Id
-         flag    : aliased SIGNAL;               -- := FALSE
+         flag    : SIGNAL;               -- := FALSE
          invoker : access BASE_CONTROLLER'Class; -- := NULL
       end record;
 

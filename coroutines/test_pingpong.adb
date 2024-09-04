@@ -31,8 +31,8 @@ procedure test_pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type PING_TASK(Ping, Pong: access SYMMETRIC_CONTROLLER);
-   task type PONG_TASK(Pong, Ping: access SYMMETRIC_CONTROLLER);
+   task type PING_TASK(Ping, Pong: SYMMETRIC_COROUTINE);
+   task type PONG_TASK(Pong, Ping: SYMMETRIC_COROUTINE);
 
    task body PING_TASK is
    begin
@@ -78,8 +78,10 @@ begin
       main : SYMMETRIC_CONTROLLER;
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
-      ping_runner : PING_TASK (ping_control'Access, pong_control'Access);
-      pong_runner : PONG_TASK (pong_control'Access, ping_control'Access);
+      ping_runner : PING_TASK (ping_control'Unchecked_Access,
+                               pong_control'Unchecked_Access);
+      pong_runner : PONG_TASK (pong_control'Unchecked_Access,
+                               ping_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
       New_Line;
