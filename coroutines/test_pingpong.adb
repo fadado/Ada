@@ -31,10 +31,10 @@ procedure test_pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type PING_TASK(Ping, Pong: SYMMETRIC_COROUTINE);
-   task type PONG_TASK(Pong, Ping: SYMMETRIC_COROUTINE);
+   task type PING_RUN(Ping, Pong: SYMMETRIC_COROUTINE);
+   task type PONG_RUN(Pong, Ping: SYMMETRIC_COROUTINE);
 
-   task body PING_TASK is
+   task body PING_RUN is
    begin
       Ping.Attach;
 
@@ -49,10 +49,10 @@ procedure test_pingpong is
 
    exception
       when X: others =>
-         report_exception(X, "Oops at PING_TASK!");
-   end PING_TASK;
+         report_exception(X, "Oops at PING_RUN!");
+   end PING_RUN;
 
-   task body PONG_TASK is
+   task body PONG_RUN is
    begin
       Pong.Attach;
 
@@ -67,8 +67,8 @@ procedure test_pingpong is
 
    exception
       when X: others =>
-         report_exception(X, "Oops at PONG_TASK!");
-   end PONG_TASK;
+         report_exception(X, "Oops at PONG_RUN!");
+   end PONG_RUN;
 
 begin
    ---------------------------------------------------------------------
@@ -78,10 +78,10 @@ begin
       main : SYMMETRIC_CONTROLLER;
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
-      ping_runner : PING_TASK (ping_control'Unchecked_Access,
-                               pong_control'Unchecked_Access);
-      pong_runner : PONG_TASK (pong_control'Unchecked_Access,
-                               ping_control'Unchecked_Access);
+      ping_runner : PING_RUN (ping_control'Unchecked_Access,
+                              pong_control'Unchecked_Access);
+      pong_runner : PONG_RUN (pong_control'Unchecked_Access,
+                              ping_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
       New_Line;
@@ -92,7 +92,7 @@ begin
       Put_Line("Game Over");
    exception
       when X: others =>
-         report_exception(X, "Oops at MAIN_TASK! Use ^C to kill me!");
+         report_exception(X, "Oops at MAIN TASK! Use ^C to kill me!");
    end;
 
 end test_pingpong;

@@ -11,7 +11,7 @@ package body Control is
    -- Local subprograms
    ---------------------------------------------------------------------
 
-   procedure die(self, target: in out BASE_CONTROLLER) with Inline is
+   procedure jump_and_die(self, target: in out BASE_CONTROLLER) with Inline is
    begin
       pragma Assert(self.invoker   /= NULL);
       pragma Assert(target.invoker /= NULL);
@@ -25,7 +25,7 @@ package body Control is
       pragma Assert(Is_Clean(self.flag));
       self.id := Null_Task_Id;
       self.invoker := NULL;
-   end die;
+   end jump_and_die;
 
    ---------------------------------------------------------------------
    -- Base controller
@@ -41,7 +41,7 @@ package body Control is
    procedure Detach(self: in out BASE_CONTROLLER) is
       target : BASE_CONTROLLER renames BASE_CONTROLLER(self.invoker.all);
    begin
-      die(self, target);
+      jump_and_die(self, target);
    end Detach;
 
    procedure Resume(self, target: in out BASE_CONTROLLER) is
@@ -127,7 +127,7 @@ package body Control is
 
    procedure Detach(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      die(BASE_CONTROLLER(self), BASE_CONTROLLER(target));
+      jump_and_die(BASE_CONTROLLER(self), BASE_CONTROLLER(target));
    end Detach;
 
    ---------------------------------------------------------------------
@@ -137,19 +137,19 @@ package body Control is
    procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
                     target: access ASYMMETRIC_CONTROLLER) is
    begin
-      Resume(self, target.all); -- inlined at spec
+      Resume(self, target.all);
    end Resume;
 
    procedure Resume(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) is
    begin
-      Resume(self, target.all); -- inlined at spec
+      Resume(self, target.all);
    end Resume;
 
    procedure Detach(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) is
    begin
-      Detach(self, target.all); -- inlined at spec
+      Detach(self, target.all);
    end Detach;
 
 end Control;
