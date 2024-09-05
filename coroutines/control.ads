@@ -67,7 +67,7 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : TASK_ID;                      -- := Null_Task_Id
-         flag    : SIGNAL;               -- := FALSE
+         flag    : SIGNAL;                       -- := FALSE
          invoker : access BASE_CONTROLLER'Class; -- := NULL
       end record;
 

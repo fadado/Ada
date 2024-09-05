@@ -32,15 +32,15 @@ begin
    -- 1
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
+      task type HELLO_TASK(self: ASYMMETRIC_COROUTINE);
 
       task body HELLO_TASK is
       begin
-         Coroutine.Attach;
+         self.Attach;
 
          Put_Line("1-Hello, world!");
 
-         Coroutine.Detach;
+         self.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
@@ -48,7 +48,7 @@ begin
 
       main : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Unchecked_Access);
    begin
       main.Resume(hello_control);
    exception
@@ -60,7 +60,7 @@ begin
    -- 2
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
+      task type HELLO_TASK(self: ASYMMETRIC_COROUTINE);
 
       package Common is
          char : CHARACTER;
@@ -71,25 +71,25 @@ begin
          msg : STRING := "2-Hello, world!";
          len : POSITIVE := msg'Length;
       begin
-         Coroutine.Attach;
+         self.Attach;
 
          for i in 1..len loop
             Common.char := msg(i);
             if i = len then
                Common.more := FALSE;
             else
-               Coroutine.Yield;
+               self.Yield;
             end if;
          end loop;
 
-         Coroutine.Detach;
+         self.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
       end HELLO_TASK;
 
       hello_control : aliased ASYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Unchecked_Access);
 
       main : ASYMMETRIC_CONTROLLER;
 
@@ -121,18 +121,18 @@ begin
    -- 3
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: access ASYMMETRIC_CONTROLLER);
+      task type HELLO_TASK(self: ASYMMETRIC_COROUTINE);
 
       task body HELLO_TASK is
       begin
-         Coroutine.Attach;
+         self.Attach;
 
-         Put("3-");      Coroutine.Yield;
-         Put("Hello");   Coroutine.Yield;
-         Put(", world"); Coroutine.Yield;
+         Put("3-");      self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
          Put_Line("!");
 
-         Coroutine.Detach;
+         self.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
@@ -140,7 +140,7 @@ begin
 
       main : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_TASK (hello_control'Access);
+      hello_runner  : HELLO_TASK (hello_control'Unchecked_Access);
    begin
       main.Resume(hello_control);
       main.Resume(hello_control);
@@ -155,18 +155,18 @@ begin
    -- 4
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine, Main: access SYMMETRIC_CONTROLLER);
+      task type HELLO_TASK(self, invoker: SYMMETRIC_COROUTINE);
 
       task body HELLO_TASK is
       begin
-         Coroutine.Attach;
+         self.Attach;
 
-         Put("4-");      Coroutine.Resume(Main);
-         Put("Hello");   Coroutine.Resume(Main);
-         Put(", world"); Coroutine.Resume(Main);
+         Put("4-");      self.Resume(invoker);
+         Put("Hello");   self.Resume(invoker);
+         Put(", world"); self.Resume(invoker);
          Put_Line("!");
 
-         Coroutine.Detach;
+         self.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
@@ -174,7 +174,7 @@ begin
 
       main : aliased SYMMETRIC_CONTROLLER;
       hello_control : aliased SYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_TASK (hello_control'Access, main'Access);
+      hello_runner  : HELLO_TASK (hello_control'Unchecked_Access, main'Unchecked_Access);
    begin
       main.Resume(hello_control);
       main.Resume(hello_control);
@@ -189,15 +189,15 @@ begin
    -- 5
    ---------------------------------------------------------------------
    declare
-      task type HELLO_TASK(Coroutine: ASYMMETRIC_COROUTINE);
+      task type HELLO_TASK(self: ASYMMETRIC_COROUTINE);
 
       task body HELLO_TASK is
       begin
-         Coroutine.Attach;
+         self.Attach;
 
          Put_Line("5-Hello, world!");
 
-         Coroutine.Detach;
+         self.Detach;
       exception
          when X: others =>
             report_exception(X, "Oops at HELLO_TASK! Use ^C to kill me!");
