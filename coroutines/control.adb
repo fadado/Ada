@@ -2,14 +2,26 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
+with Ada.Task_Identification;
 with Ada.Dispatching;
 with Ada.Real_Time;
+with Signals;
+
+use Ada.Task_Identification;
+use Signals;
 
 package body Control is
 
    ---------------------------------------------------------------------
    -- Local subprograms
    ---------------------------------------------------------------------
+
+   procedure reset(self: in out BASE_CONTROLLER) with Inline is
+   begin
+      pragma Assert(Is_Clean(self.flag));
+      self.id := Null_Task_Id;
+      self.invoker := NULL;
+   end reset;
 
    procedure jump_and_die(self, target: in out BASE_CONTROLLER) with Inline is
    begin
@@ -21,10 +33,7 @@ package body Control is
 
       Notify(target.flag);
 
-      -- reset controller
-      pragma Assert(Is_Clean(self.flag));
-      self.id := Null_Task_Id;
-      self.invoker := NULL;
+      reset(self);
    end jump_and_die;
 
    ---------------------------------------------------------------------
@@ -103,6 +112,16 @@ package body Control is
       Notify(target.flag);
       Wait(self.flag);
    end Resume;
+
+   procedure Kill(self: in out BASE_CONTROLLER) is
+   begin
+      pragma Assert(self.id /= Null_Task_Id);
+      pragma Assert(self.id /= Current_Task);
+
+      Abort_Task(self.id);
+
+      reset(self);
+   end Kill;
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
