@@ -54,7 +54,7 @@ package body Control is
    end Detach;
 
    procedure Resume(self, target: in out BASE_CONTROLLER) is
-
+      -- internal subprograms
       procedure await_attach(co: in BASE_CONTROLLER) with Inline is
          use Ada.Real_Time;
          stop : TIME := Clock + Milliseconds(100);
@@ -71,7 +71,6 @@ package body Control is
                exit when co.id /= Null_Task_Id;
             end loop;
          end if;
-
          pragma Assert(co.id /= Current_Task);
       end await_attach;
 
