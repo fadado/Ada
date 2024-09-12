@@ -1,7 +1,7 @@
 -- control.ads
 
-with Ada.Task_Identification;
-with Signals;
+private with Ada.Task_Identification;
+private with Signals;
 
 package Control is
 
@@ -54,21 +54,16 @@ package Control is
                     target: access SYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access target.
 
-   ---------------------------------------------------------------------
-   -- Coroutines
-   ---------------------------------------------------------------------
-
-   type BASE_COROUTINE       is not null access all BASE_CONTROLLER'Class;
-   type ASYMMETRIC_COROUTINE is not null access all ASYMMETRIC_CONTROLLER'Class;
-   type SYMMETRIC_COROUTINE  is not null access all SYMMETRIC_CONTROLLER'Class;
-
 private
+
+   use Ada.Task_Identification;
+   use Signals;
 
    type BASE_CONTROLLER is abstract tagged limited
       record
-         id      : Ada.Task_Identification.TASK_ID; -- := Null_Task_Id
-         flag    : Signals.SIGNAL;                  -- := FALSE
-         invoker : access BASE_CONTROLLER'Class;    -- := NULL
+         id      : TASK_ID;                      -- := Null_Task_Id
+         flag    : SIGNAL;                       -- := FALSE
+         invoker : access BASE_CONTROLLER'Class; -- := NULL
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;

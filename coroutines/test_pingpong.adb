@@ -31,8 +31,8 @@ procedure test_pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type PING_RUN(Ping, Pong: SYMMETRIC_COROUTINE);
-   task type PONG_RUN(Pong, Ping: SYMMETRIC_COROUTINE);
+   task type PING_RUN(Ping, Pong: not null access SYMMETRIC_CONTROLLER);
+   task type PONG_RUN(Pong, Ping: not null access SYMMETRIC_CONTROLLER);
 
    task body PING_RUN is
    begin

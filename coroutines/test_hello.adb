@@ -17,13 +17,13 @@ with Control; use Control;
 procedure test_hello is
 
    procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
-      msg : STRING := Exception_Message(X);
+      message : STRING := Exception_Message(X);
    begin
       Put_Line(Standard_Error, S);
       Put_Line(Standard_Error, Exception_Name(X));
       Put_Line(Standard_Error, Exception_Information(X));
-      if msg /= "" then
-         Put_Line(Standard_Error, msg);
+      if message /= "" then
+         Put_Line(Standard_Error, message);
       end if;
    end report_exception;
 
@@ -32,7 +32,7 @@ begin
    -- Test 1 - Simple hello world
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
 
       task body HELLO_RUN is
       begin
@@ -54,7 +54,7 @@ begin
    -- Test 2 - Asymmetric hello world
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
 
       task body HELLO_RUN is
       begin
@@ -82,7 +82,7 @@ begin
    -- Test 3 - Symmetric hello world
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self, invoker: SYMMETRIC_COROUTINE);
+      task type HELLO_RUN (self, invoker: not null access SYMMETRIC_CONTROLLER);
 
       task body HELLO_RUN is
       begin
@@ -110,7 +110,7 @@ begin
    -- Test 4 - Mixin inheritance
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
 
       task body HELLO_RUN is
       begin
@@ -201,67 +201,106 @@ begin
       hello.Start;
    end;
 
-   ---------------------------------------------------------------------
-   -- Test 7 - generator prototype (TODO)
-   ---------------------------------------------------------------------
-   declare
-      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+-- ---------------------------------------------------------------------
+-- -- Test 7 - generator prototype (TODO)
+-- ---------------------------------------------------------------------
+-- declare
+--    message : STRING := "Test 7-Hello, world!";
+--    value   : CHARACTER;
 
-      package Common is
-         char : CHARACTER;
-         more : BOOLEAN := TRUE;
-      end Common;
+--    ------------------------------------------------------------------
+--    -- Generator
+--    ------------------------------------------------------------------
 
-      task body HELLO_RUN is
-         msg : STRING := "Test 7-Hello, world!";
-         len : POSITIVE := msg'Length;
-      begin
-         self.Attach;
+--    subtype GENERATOR    is STRING;
+--    subtype ELEMENT_TYPE is CHARACTER;
+--    subtype CURSOR       is NATURAL;
 
-         for i in 1..len loop
-            Common.char := msg(i);
-            if i = len then
-               Common.more := FALSE;
-            else
-               self.Yield;
-            end if;
-         end loop;
+--    No_Element : constant CURSOR := 0;
 
-         self.Detach;
+--    function First(G: GENERATOR) return CURSOR is
+--    begin
+--       if G'Length > 0 then
+--          value := message(1);
+--          return 1;
+--       else
+--          return No_Element;
+--       end if;
+--    end First;
 
-      exception
-         when X: others =>
-            report_exception(X, "Oops at HELLO_RUN! Use ^C to kill me!");
-      end HELLO_RUN;
+--    function Next(C: CURSOR) return CURSOR is
+--    begin 
+--       if C < message'Length then
+--          value := message(C + 1);
+--          return C + 1;
+--       else
+--          return No_Element;
+--       end if;
+--    end Next;
 
-      hello_control : aliased ASYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
+--    function Element(C: CURSOR) return ELEMENT_TYPE is
+--    begin
+--       pragma Assert(C /= No_Element);
+--       return value;
+--    end Element;
 
-      main : ASYMMETRIC_CONTROLLER;
+--    function Has_Element(C: CURSOR) return BOOLEAN is
+--       (C /= No_Element);
 
-      function getchar(c: in out CHARACTER) return BOOLEAN with Inline is
-      begin
-         if Common.more then
-            main.Resume(hello_control);
-            c := Common.Char;
-            return TRUE;
-         else 
-            return FALSE;
-         end if;
-      end getchar;
+--    procedure Iterate(G: GENERATOR; P: not null access procedure(C: CURSOR)) is
+--       C : CURSOR;
+--    begin
+--       C := First(G);
+--       loop
+--          exit when C = No_Element;
+--          P(C);
+--          C := Next(C);
+--       end loop;
+--    end Iterate;
 
-      char : CHARACTER := ' ';
+--    ------------------------------------------------------------------
+--    --
+--    ------------------------------------------------------------------
 
-   begin
-      while getchar(char) loop
-         Put(char);
-      end loop;
-      New_Line;
+--    task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
 
-   exception
-      when X: others =>
-         report_exception(X, "Oops at MAIN TASK! Use ^C to kill me!");
-   end;
+--    task body HELLO_RUN is
+--       len : POSITIVE := message'Length;
+--    begin
+--       self.Attach;
+
+--       for i in 1..len loop
+--          value := message(i);
+--          if i < len then
+--             self.Yield;
+--          else
+--             self.Detach;
+--          end if;
+--       end loop;
+
+--    exception
+--       when X: others =>
+--          report_exception(X, "Oops at HELLO_RUN! Use ^C to kill me!");
+--    end HELLO_RUN;
+
+--    main : ASYMMETRIC_CONTROLLER;
+--    hello_control : aliased ASYMMETRIC_CONTROLLER;
+--    hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
+
+--    procedure put_char(C: CURSOR) is
+--    begin
+--       Put(Element(C));
+--    end put_char;
+
+-- begin
+--    Iterate(message, put_char'Access);
+
+--    New_Line;
+
+-- exception
+--    when X: others =>
+--       report_exception(X, "Oops at MAIN TASK! Use ^C to kill me!");
+-- end;
 
 end test_hello;
 
