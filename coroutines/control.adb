@@ -55,8 +55,8 @@ package body Control is
       self.invoker := NULL;
    end Kill;
 
-   procedure Resume(self, target: in out BASE_CONTROLLER) is
-      -- internal subprograms
+   procedure Resume(self, target: in out BASE_CONTROLLER)
+   is
       procedure await_target_attach with Inline is
          use Ada.Real_Time;
          stop : TIME := Clock + Milliseconds(100);
@@ -73,7 +73,6 @@ package body Control is
                exit when target.id /= Null_Task_Id;
             end loop;
          end if;
-         pragma Assert(target.id /= Current_Task);
       end await_target_attach;
 
       function is_asymmetric(co: in BASE_CONTROLLER) return BOOLEAN with Inline is

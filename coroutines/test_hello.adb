@@ -10,24 +10,15 @@ pragma Restrictions (
 );
 
 with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Exceptions; use Ada.Exceptions;
 
 with Control; use Control;
+with Gotcha;
 
 procedure test_hello is
 
-   procedure report_exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
-      message : STRING := Exception_Message(X);
-   begin
-      Put_Line(Standard_Error, S);
-      Put_Line(Standard_Error, Exception_Name(X));
-      Put_Line(Standard_Error, Exception_Information(X));
-      if message /= "" then
-         Put_Line(Standard_Error, message);
-      end if;
-   end report_exception;
-
 begin
+   --Gotcha.Set_Handlers;
+
    ---------------------------------------------------------------------
    -- Test 1 - Simple hello world
    ---------------------------------------------------------------------
@@ -107,7 +98,7 @@ begin
    end;
 
    ---------------------------------------------------------------------
-   -- Test 4 - Mixin inheritance
+   -- Test 4 - "Multiple" inheritance
    ---------------------------------------------------------------------
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
@@ -133,7 +124,7 @@ begin
    end;
 
    ---------------------------------------------------------------------
-   -- Test 5 - Mixin inheritance
+   -- Test 5 - "Multiple" inheritance
    ---------------------------------------------------------------------
    declare
       type HELLO_COROUTINE is tagged;
@@ -161,7 +152,7 @@ begin
    end;
 
    ---------------------------------------------------------------------
-   -- Test 6 - Mixin inheritance
+   -- Test 6 - "Multiple" inheritance
    ---------------------------------------------------------------------
    declare
       package Hello_Application is
@@ -201,107 +192,123 @@ begin
       hello.Start;
    end;
 
--- ---------------------------------------------------------------------
--- -- Test 7 - generator prototype (TODO)
--- ---------------------------------------------------------------------
--- declare
---    message : STRING := "Test 7-Hello, world!";
---    value   : CHARACTER;
+   ---------------------------------------------------------------------
+   -- Test 7 - generator prototype (TODO)
+   ---------------------------------------------------------------------
+---declare
+---   message : STRING := "Test 7-Hello, world!";
+---   value   : CHARACTER;
 
---    ------------------------------------------------------------------
---    -- Generator
---    ------------------------------------------------------------------
+---   ------------------------------------------------------------------
+---   -- Generator
+---   ------------------------------------------------------------------
 
---    subtype GENERATOR    is STRING;
---    subtype ELEMENT_TYPE is CHARACTER;
---    subtype CURSOR       is NATURAL;
+---   subtype CURSOR is NATURAL;
 
---    No_Element : constant CURSOR := 0;
+---   No_Element : constant CURSOR := 0;
 
---    function First(G: GENERATOR) return CURSOR is
---    begin
---       if G'Length > 0 then
---          value := message(1);
---          return 1;
---       else
---          return No_Element;
---       end if;
---    end First;
+---   function Has_Element(C: CURSOR) return BOOLEAN is
+---      (C /= No_Element);
 
---    function Next(C: CURSOR) return CURSOR is
---    begin 
---       if C < message'Length then
---          value := message(C + 1);
---          return C + 1;
---       else
---          return No_Element;
---       end if;
---    end Next;
+---   function First(G: STRING) return CURSOR is
+---   begin
+---      if G'Length > 0 then
+---         value := message(1);
+---         return CURSOR'(1);
+---      else
+---         return No_Element;
+---      end if;
+---   end First;
 
---    function Element(C: CURSOR) return ELEMENT_TYPE is
---    begin
---       pragma Assert(C /= No_Element);
---       return value;
---    end Element;
+---   function Next(C: CURSOR) return CURSOR is
+---   begin 
+---      if C = No_Element or C = message'Length then
+---         return No_Element;
+---      else
+---         value := message(C+1);
+---         return C+1;
+---      end if;
+---   end Next;
 
---    function Has_Element(C: CURSOR) return BOOLEAN is
---       (C /= No_Element);
+---   function Element(C: CURSOR) return CHARACTER is
+---   begin
+---      pragma Assert(C /= No_Element);
+---      return message(C);
+---   end Element;
 
---    procedure Iterate(G: GENERATOR; P: not null access procedure(C: CURSOR)) is
---       C : CURSOR;
---    begin
---       C := First(G);
---       loop
---          exit when C = No_Element;
---          P(C);
---          C := Next(C);
---       end loop;
---    end Iterate;
+---   procedure Iterate(G: STRING; P: not null access procedure(C: CURSOR)) is
+---      C : CURSOR;
+---   begin
+---      C := First(G);
+---      loop
+---         exit when C = No_Element;
+---         P(C);
+---         C := Next(C);
+---      end loop;
+---   end Iterate;
 
---    ------------------------------------------------------------------
---    --
---    ------------------------------------------------------------------
+---   ------------------------------------------------------------------
+---   --
+---   ------------------------------------------------------------------
 
---    task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
+---   package Hello_Application is
+---      type HELLO_GENERATOR is tagged limited private;
 
---    task body HELLO_RUN is
---       len : POSITIVE := message'Length;
---    begin
---       self.Attach;
+---      function First(self: in out HELLO_GENERATOR) return CURSOR;
 
---       for i in 1..len loop
---          value := message(i);
---          if i < len then
---             self.Yield;
---          else
---             self.Detach;
---          end if;
---       end loop;
+---      task type HELLO_RUN (self: not null access HELLO_GENERATOR);
 
---    exception
---       when X: others =>
---          report_exception(X, "Oops at HELLO_RUN! Use ^C to kill me!");
---    end HELLO_RUN;
+---   private
+---      type HELLO_GENERATOR is limited new ASYMMETRIC_CONTROLLER with
+---         record
+---            run   : HELLO_RUN (HELLO_GENERATOR'Unchecked_Access);
+---            here  : ASYMMETRIC_CONTROLLER;
+---         end record;
+---   end Hello_Application;
 
---    main : ASYMMETRIC_CONTROLLER;
---    hello_control : aliased ASYMMETRIC_CONTROLLER;
---    hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
+---   package body Hello_Application is
 
---    procedure put_char(C: CURSOR) is
---    begin
---       Put(Element(C));
---    end put_char;
+---      function First(self: in out HELLO_GENERATOR) return CURSOR is
+---      begin
+---         --??self.here.Resume(ASYMMETRIC_CONTROLLER(self));
+---         return First(message);
+---      end First;
 
--- begin
---    Iterate(message, put_char'Access);
+---      task body HELLO_RUN is
+---         len : POSITIVE := message'Length;
+---      begin
+---         self.Attach;
 
---    New_Line;
+---         for i in 1..len loop
+---            value := message(i);
+---            if i < len then
+---               self.Yield;
+---            else
+---               null; --exit;
+---            end if;
+---         end loop;
 
--- exception
---    when X: others =>
---       report_exception(X, "Oops at MAIN TASK! Use ^C to kill me!");
--- end;
+---         self.Detach;
+---      end HELLO_RUN;
+---   end Hello_Application;
 
+---   use Hello_Application;
+
+---begin
+---   declare
+---      hello : HELLO_GENERATOR;
+---      position : CURSOR;
+---   begin
+---      position := hello.First;
+---      loop
+---         exit when position = No_Element;
+---         Put(Element(position));
+---         position := Next(position);
+---      end loop;
+---   end;
+---end;
+
+   --Gotcha.Die;
 end test_hello;
 
 -- ¡ISO-8859-1!

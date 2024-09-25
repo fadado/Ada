@@ -4,10 +4,15 @@
 
 all: test_hello test_pingpong
 
-test_hello: test_hello.adb signals.ad[s] control.ad[sb]
+LIBRARY := \
+	signals.ad[s] \
+	control.ad[sb] \
+	gotcha.ad[sb]
+
+test_hello: test_hello.adb ${LIBRARY}
 	@gnatmake test_hello
 
-test_pingpong: test_pingpong.adb signals.ad[s] control.ad[sb]
+test_pingpong: test_pingpong.adb ${LIBRARY}
 	@gnatmake test_pingpong
 
 clean:
