@@ -13,11 +13,11 @@ package body Control is
 
    procedure check_invariants(self, target: in out BASE_CONTROLLER) with Inline is
    begin
-      pragma Assert(self.invoker   /= NULL);
-      pragma Assert(target.invoker /= NULL);
-
       pragma Assert(self.id    = Current_Task);
       pragma Assert(target.id /= Current_Task);
+
+      pragma Assert(self.invoker   /= NULL);
+      pragma Assert(target.invoker /= NULL);
 
       pragma Assert(Is_Clean(self.flag));
    end check_invariants;
@@ -28,8 +28,11 @@ package body Control is
 
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
+      --self.state := INACTIVE;
       self.id := Current_Task;
+      --self.state := BLOCKED;
       Wait(self.flag);
+      --self.state := RUNNING;
 
       pragma Assert(self.invoker /= NULL);
    end Attach;
@@ -41,40 +44,38 @@ package body Control is
 
       self.id := Null_Task_Id;
       self.invoker := NULL;
+      --self.state := INACTIVE;
+      --target.state := RUNNING;
       Notify(target.flag);
    end Detach;
 
-   procedure Kill(self: in out BASE_CONTROLLER) is
+   procedure Cancel(self: in out BASE_CONTROLLER) is
+      type PTR is not null access all BASE_CONTROLLER'Class;
    begin
-      pragma Assert(self.id /= Null_Task_Id);
-      pragma Assert(self.id /= Current_Task);
-
-      Abort_Task(self.id);
-
-      self.id := Null_Task_Id;
-      self.invoker := NULL;
-   end Kill;
+      if self.id /= Null_Task_Id and self.invoker /= NULL then
+         self.id := Null_Task_Id;
+         if self.invoker = NULL then
+            null; -- nop
+            --self.state := INACTIVE;
+         elsif PTR'(self.invoker) = PTR'(self'Unchecked_Access) then
+            -- a main controller
+            self.invoker := NULL;
+            --self.state := INACTIVE;
+         elsif self.invoker /= NULL then
+            declare
+               target : BASE_CONTROLLER renames BASE_CONTROLLER(self.invoker.all);
+            begin 
+               self.invoker := NULL;
+               --self.state := INACTIVE;
+               --target.state := RUNNING;
+               Notify(target.flag);
+            end;
+         end if;
+      end if;
+   end Cancel;
 
    procedure Resume(self, target: in out BASE_CONTROLLER)
    is
-      procedure await_target_attach with Inline is
-         use Ada.Real_Time;
-         stop : TIME := Clock + Milliseconds(100);
-      begin
-         -- Ensure controller is attached
-         if target.id = Null_Task_Id then
-            loop
-               if Clock > stop then
-                  raise Program_Error with "loop timed out";
-               end if;
-
-               Ada.Dispatching.Yield;
-
-               exit when target.id /= Null_Task_Id;
-            end loop;
-         end if;
-      end await_target_attach;
-
       function is_asymmetric(co: in BASE_CONTROLLER) return BOOLEAN with Inline is
       begin
          return BASE_CONTROLLER'Class(co) in ASYMMETRIC_CONTROLLER'Class;
@@ -85,19 +86,39 @@ package body Control is
          return BASE_CONTROLLER'Class(co) in SYMMETRIC_CONTROLLER'Class;
       end is_symmetric;
 
+      procedure await_target_attach with Inline is
+         use Ada.Real_Time;
+         stop : TIME := Clock + Milliseconds(100);
+      begin
+         -- first resume for `target`?
+         if target.id = Null_Task_Id then
+            loop
+               -- spin lock until `target.Attach` is called and blocks
+               if Clock > stop then
+                  raise Program_Error with "loop timed out";
+               end if;
+
+               Ada.Dispatching.Yield;
+
+               exit when target.id /= Null_Task_Id;
+            end loop;
+            -- here `target` is BLOCKED
+         end if;
+      end await_target_attach;
+
    begin
       pragma Assert(is_asymmetric(self) = is_asymmetric(target));
 
       if self.id = Null_Task_Id then
-         -- initialize the main controller
+         -- initialize a main controller
          self.id := Current_Task;
 
-         -- circular link
+         -- circular link; this identifies the main controllers
          self.invoker := self'Unchecked_Access;
       end if;
 
-      pragma Assert(self.invoker /= NULL);
       pragma Assert(self.id = Current_Task);
+      pragma Assert(self.invoker /= NULL);
 
       await_target_attach;
       pragma Assert(target.id /= Current_Task);
@@ -111,7 +132,9 @@ package body Control is
 
       check_invariants(self, target);
 
+      --target.state := RUNNING;
       Notify(target.flag);
+      --self.state := BLOCKED;
       Wait(self.flag);
    end Resume;
 
@@ -124,8 +147,11 @@ package body Control is
    begin
       check_invariants(BASE_CONTROLLER(self), BASE_CONTROLLER(target));
 
+      --target.state := RUNNING;
       Notify(target.flag);
+      --self.state := BLOCKED;
       Wait(self.flag);
+      --self.state := RUNNING;
    end Yield;
 
    ---------------------------------------------------------------------
@@ -138,6 +164,8 @@ package body Control is
 
       self.id := Null_Task_Id;
       self.invoker := NULL;
+      --self.state := INACTIVE;
+      --target.state := RUNNING;
       Notify(target.flag);
    end Detach;
 

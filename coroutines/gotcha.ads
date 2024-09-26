@@ -9,9 +9,9 @@ use Ada;
 package Gotcha is
 
    Halt : exception;
-   -- On client:
+   -- On subprogram:
    --    raise Gotcha.Halt
-   -- On Main:
+   -- On main:
    --    exception
    --       when Gotcha.Halt => null;
 
@@ -23,7 +23,8 @@ package Gotcha is
       procedure Handle (
          Cause: Task_Termination.CAUSE_OF_TERMINATION;
          T    : Task_Identification.TASK_ID;
-         X    : Exceptions.EXCEPTION_OCCURRENCE);
+         X    : Exceptions.EXCEPTION_OCCURRENCE
+      );
    end Pass; 
 
    procedure Set_Handlers;

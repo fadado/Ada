@@ -13,13 +13,15 @@ use Ada.Text_IO;
 package body Gotcha is
 
    procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
-      msg : STRING := Exception_Message(X);
+      message : STRING renames Exception_Message(X);
    begin
+      Put("## ");
       Put_Line(Standard_Error, S);
+      Put("## Raised ");
       Put_Line(Standard_Error, Exception_Name(X));
-      Put_Line(Standard_Error, Exception_Information(X));
-      if msg /= "" then
-         Put_Line(Standard_Error, msg);
+      if message /= "" then
+         Put("## ");
+         Put_Line(Standard_Error, Exception_Message(X));
       end if;
    end Report_Exception;
 
@@ -30,26 +32,35 @@ package body Gotcha is
 
    protected body Pass is
       procedure Handle (
-         Cause: Task_Termination.Cause_Of_Termination;
-         T    : Task_Identification.Task_Id;
-         X    : Exceptions.Exception_Occurrence)
-      is
-         message : STRING := Exception_Message(X);
+         Cause: Task_Termination.CAUSE_OF_TERMINATION;
+         T    : Task_Identification.TASK_ID;
+         X    : Exceptions.EXCEPTION_OCCURRENCE
+      ) is
+         verbose : BOOLEAN := FALSE;
       begin
          case Cause is
-            when Normal => null;
+            when Normal =>
+               if verbose then
+                  Put(Standard_Error, ">> Normal termination: ");
+                  Put_Line(Standard_Error, Image(T));
+               end if;
             when Abnormal =>
-               Put(Standard_Error, "Something nasty happened to task ");
+               Put(Standard_Error, ">> Abnormal termination: ");
                Put_Line(Standard_Error, Image(T));
             when Unhandled_Exception =>
-               Report_Exception(X, Image(T));
+               Put(Standard_Error, ">> Unhandled Exception ");
+               Put(Standard_Error, Exception_Name(X));
+               Put(Standard_Error, ": ");
+               Put_Line(Standard_Error, Image(T));
          end case;
       end Handle;
    end Pass;
 
    procedure Set_Handlers is
    begin
-      Set_Specific_Handler(Current_Task, Pass.Handle'Access);
+    -- this hangs at main end:
+    --Set_Specific_Handler(Current_Task, Pass.Handle'Access);
+
       Set_Dependents_Fallback_Handler(Pass.Handle'Access);
    end Set_Handlers;
 

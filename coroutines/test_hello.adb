@@ -1,12 +1,12 @@
 -- test_hello.adb
 
 pragma Restrictions (
-   No_Select_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
    No_Local_Protected_Objects,
-   No_Abort_Statements
+-- No_Abort_Statements
+   No_Select_Statements
 );
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -17,7 +17,7 @@ with Gotcha;
 procedure test_hello is
 
 begin
-   --Gotcha.Set_Handlers;
+   Gotcha.Set_Handlers;
 
    ---------------------------------------------------------------------
    -- Test 1 - Simple hello world
@@ -27,11 +27,16 @@ begin
 
       task body HELLO_RUN is
       begin
-         self.Attach;
+         self.Attach; -- assume any exception is after this point
 
          Put_Line("Test 1-Hello, world!");
+         raise Program_Error;
 
-         self.Detach;
+         self.Detach; -- assume any exception is before this point
+      exception
+         when others =>
+            self.Cancel;
+            raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -39,6 +44,12 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       main.Resume(hello_control);
+      --raise Program_Error;
+   exception
+      when others =>
+         if hello_runner'Callable then abort hello_runner; end if;
+         --main.Cancel;
+         raise;
    end;
 
    ---------------------------------------------------------------------
@@ -308,7 +319,11 @@ begin
 ---   end;
 ---end;
 
-   --Gotcha.Die;
+   --test: raise Program_Error;
+exception
+   when X : others =>
+      Gotcha.Report_Exception(X, "Handled exception at top level");
+
 end test_hello;
 
 -- ¡ISO-8859-1!

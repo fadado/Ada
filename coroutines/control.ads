@@ -4,7 +4,6 @@ private with Ada.Task_Identification;
 private with Signals;
 
 package Control is
-
    ---------------------------------------------------------------------
    -- Base abstract controller
    ---------------------------------------------------------------------
@@ -12,18 +11,18 @@ package Control is
    type BASE_CONTROLLER is abstract tagged limited private;
 
    procedure Attach(self: in out BASE_CONTROLLER);
-   -- Attach self to the current task. 
-   -- Mandatory first call in tasks body.
+   -- Attach `self` to the current task. 
+   -- Mandatory first call in each task body.
 
    procedure Detach(self: in out BASE_CONTROLLER);
-   -- Detach self from the current task and transfer control to invoker.
-   -- Mandatory last call in tasks body.
+   -- Transfers control to the invoker.
+   -- Mandatory last call in each task body.
 
    procedure Resume(self, target: in out BASE_CONTROLLER);
-   -- (A)symmetric coroutines transfer of control.
+   -- Transfers control to `target`.
 
-   procedure Kill(self: in out BASE_CONTROLLER);
-   -- Abort the task where self is attached.
+   procedure Cancel(self: in out BASE_CONTROLLER);
+   -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
@@ -32,11 +31,11 @@ package Control is
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
-   -- Suspend the current task and resume the invoker.
+   -- Transfers control to the invoker.
 
    procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
                     target: access ASYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access target.
+   -- Syntactic sugar to allow access `target`.
 
    ---------------------------------------------------------------------
    -- Symmetric controller
@@ -45,16 +44,19 @@ package Control is
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
    procedure Detach(self, target: in out SYMMETRIC_CONTROLLER);
-   -- Detach self from the current task and transfer control to target
+   -- Transfers control to `target` and detach `self` from the current task.
    -- Mandatory symmetric coroutines last call, except for the last to finish.
 
    procedure Detach(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) with Inline;
    procedure Resume(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access target.
+   -- Syntactic sugar to allow access `target`.
 
 private
+   ---------------------------------------------------------------------
+   -- Controllers implementation
+   ---------------------------------------------------------------------
 
    use Ada.Task_Identification;
    use Signals;
