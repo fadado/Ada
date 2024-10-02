@@ -4,9 +4,12 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Dispatching;
 with Ada.Real_Time;
+with Ada.Task_Identification;
+with Signals;
+
+use Ada.Task_Identification;
 
 package body Control is
-
    ---------------------------------------------------------------------
    -- Local subprograms
    ---------------------------------------------------------------------
@@ -19,7 +22,7 @@ package body Control is
       pragma Assert(self.invoker   /= NULL);
       pragma Assert(target.invoker /= NULL);
 
-      pragma Assert(Is_Clean(self.flag));
+      pragma Assert(Signals.Is_Clean(self.flag));
    end check_invariants;
 
    ---------------------------------------------------------------------
@@ -31,7 +34,7 @@ package body Control is
       --self.state := INACTIVE;
       self.id := Current_Task;
       --self.state := BLOCKED;
-      Wait(self.flag);
+      Signals.Wait(self.flag);
       --self.state := RUNNING;
 
       pragma Assert(self.invoker /= NULL);
@@ -46,31 +49,29 @@ package body Control is
       self.invoker := NULL;
       --self.state := INACTIVE;
       --target.state := RUNNING;
-      Notify(target.flag);
+      Signals.Notify(target.flag);
    end Detach;
 
    procedure Cancel(self: in out BASE_CONTROLLER) is
       type PTR is not null access all BASE_CONTROLLER'Class;
    begin
-      if self.id /= Null_Task_Id and self.invoker /= NULL then
+      if self.id /= Null_Task_Id then
          self.id := Null_Task_Id;
          if self.invoker = NULL then
-            null; -- nop
-            --self.state := INACTIVE;
+            null;
          elsif PTR'(self.invoker) = PTR'(self'Unchecked_Access) then
             -- a main controller
             self.invoker := NULL;
-            --self.state := INACTIVE;
          elsif self.invoker /= NULL then
             declare
                target : BASE_CONTROLLER renames BASE_CONTROLLER(self.invoker.all);
             begin 
                self.invoker := NULL;
-               --self.state := INACTIVE;
                --target.state := RUNNING;
-               Notify(target.flag);
+               Signals.Notify(target.flag);
             end;
          end if;
+         --self.state := BROKEN;
       end if;
    end Cancel;
 
@@ -133,9 +134,9 @@ package body Control is
       check_invariants(self, target);
 
       --target.state := RUNNING;
-      Notify(target.flag);
+      Signals.Notify(target.flag);
       --self.state := BLOCKED;
-      Wait(self.flag);
+      Signals.Wait(self.flag);
    end Resume;
 
    ---------------------------------------------------------------------
@@ -148,9 +149,9 @@ package body Control is
       check_invariants(BASE_CONTROLLER(self), BASE_CONTROLLER(target));
 
       --target.state := RUNNING;
-      Notify(target.flag);
+      Signals.Notify(target.flag);
       --self.state := BLOCKED;
-      Wait(self.flag);
+      Signals.Wait(self.flag);
       --self.state := RUNNING;
    end Yield;
 
@@ -166,7 +167,7 @@ package body Control is
       self.invoker := NULL;
       --self.state := INACTIVE;
       --target.state := RUNNING;
-      Notify(target.flag);
+      Signals.Notify(target.flag);
    end Detach;
 
    ---------------------------------------------------------------------

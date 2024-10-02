@@ -23,20 +23,21 @@ begin
    -- Test 1 - Simple hello world
    ---------------------------------------------------------------------
    declare
+      pragma Warnings (Off, "unreachable code");
+
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
 
       task body HELLO_RUN is
       begin
-         self.Attach; -- assume any exception is after this point
+         self.Attach;
 
          Put_Line("Test 1-Hello, world!");
-         raise Program_Error;
 
-         self.Detach; -- assume any exception is before this point
+         raise Program_Error; -- handled with self.Cancel
+
+         self.Detach;
       exception
-         when others =>
-            self.Cancel;
-            raise;
+         when others => self.Cancel; raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -44,12 +45,11 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       main.Resume(hello_control);
-      --raise Program_Error;
+      raise Program_Error;
    exception
       when others =>
-         if hello_runner'Callable then abort hello_runner; end if;
-         --main.Cancel;
-         raise;
+         abort hello_runner;
+         main.Cancel;
    end;
 
    ---------------------------------------------------------------------
@@ -68,6 +68,8 @@ begin
          Put_Line("!");
 
          self.Detach;
+      exception
+         when others => self.Cancel; raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -78,6 +80,10 @@ begin
       main.Resume(hello_control);
       main.Resume(hello_control);
       main.Resume(hello_control);
+   exception
+      when others =>
+         abort hello_runner;
+         main.Cancel;
    end;
 
    ---------------------------------------------------------------------
@@ -96,6 +102,8 @@ begin
          Put_Line("!");
 
          self.Detach;
+      exception
+         when others => self.Cancel; raise;
       end HELLO_RUN;
 
       main : aliased SYMMETRIC_CONTROLLER;
@@ -106,6 +114,10 @@ begin
       main.Resume(hello_control);
       main.Resume(hello_control);
       main.Resume(hello_control);
+   exception
+      when others =>
+         abort hello_runner;
+         main.Cancel;
    end;
 
    ---------------------------------------------------------------------
@@ -121,6 +133,8 @@ begin
          Put_Line("Test 4-Hello, world!");
 
          self.Detach;
+      exception
+         when others => self.Cancel; raise;
       end HELLO_RUN;
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -132,6 +146,10 @@ begin
       hello : HELLO_COROUTINE;
    begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
+   exception
+      when others =>
+         abort hello.run;
+         main.Cancel;
    end;
 
    ---------------------------------------------------------------------
@@ -148,18 +166,25 @@ begin
          end record;
 
       task body HELLO_RUN is
+         super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.all);
       begin
          self.Attach;
 
          Put_Line("Test 5-Hello, world!");
 
          self.Detach;
+      exception
+         when others => super.Cancel; raise;
       end HELLO_RUN;
 
       main  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
+   exception
+      when others =>
+         abort hello.run;
+         main.Cancel;
    end;
 
    ---------------------------------------------------------------------
@@ -170,6 +195,7 @@ begin
          type HELLO_COROUTINE is tagged limited private;
 
          procedure Start(self: in out HELLO_COROUTINE);
+         procedure Cancel(self: in out HELLO_COROUTINE);
 
          task type HELLO_RUN (self: not null access HELLO_COROUTINE);
       private
@@ -186,6 +212,14 @@ begin
             main.Resume(ASYMMETRIC_CONTROLLER(self));
          end Start;
 
+         overriding
+         procedure Cancel(self: in out HELLO_COROUTINE) is
+            super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
+         begin
+            super.Cancel;
+            abort self.run;
+         end Cancel;
+
          task body HELLO_RUN is
          begin
             self.Attach;
@@ -193,6 +227,8 @@ begin
             Put_Line("Test 6-Hello, world!");
 
             self.Detach;
+         exception
+            when others => self.Cancel; raise;
          end HELLO_RUN;
       end Hello_Application;
 
@@ -201,6 +237,8 @@ begin
       hello : HELLO_COROUTINE;
    begin
       hello.Start;
+   exception
+      when others => hello.Cancel;
    end;
 
    ---------------------------------------------------------------------

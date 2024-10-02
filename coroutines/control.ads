@@ -55,17 +55,14 @@ package Control is
 
 private
    ---------------------------------------------------------------------
-   -- Controllers implementation
+   -- Controller implementation
    ---------------------------------------------------------------------
-
-   use Ada.Task_Identification;
-   use Signals;
 
    type BASE_CONTROLLER is abstract tagged limited
       record
-         id      : TASK_ID;                      -- := Null_Task_Id
-         flag    : SIGNAL;                       -- := FALSE
-         invoker : access BASE_CONTROLLER'Class; -- := NULL
+         id      : Ada.Task_Identification.TASK_ID; -- := Null_Task_Id
+         flag    : Signals.SIGNAL;                  -- := FALSE
+         invoker : access BASE_CONTROLLER'Class;    -- := NULL
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;

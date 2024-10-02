@@ -25,11 +25,6 @@ package body Gotcha is
       end if;
    end Report_Exception;
 
-   procedure Die is
-   begin
-      Abort_Task(Current_Task);
-   end Die;
-
    protected body Pass is
       procedure Handle (
          Cause: Task_Termination.CAUSE_OF_TERMINATION;
@@ -58,11 +53,14 @@ package body Gotcha is
 
    procedure Set_Handlers is
    begin
-    -- this hangs at main end:
-    --Set_Specific_Handler(Current_Task, Pass.Handle'Access);
-
+      Set_Specific_Handler(Current_Task, Pass.Handle'Access);
       Set_Dependents_Fallback_Handler(Pass.Handle'Access);
    end Set_Handlers;
+
+   procedure Die is
+   begin
+      Abort_Task(Current_Task);
+   end Die;
 
 end Gotcha;
 
