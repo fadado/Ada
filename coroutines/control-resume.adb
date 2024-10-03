@@ -3,15 +3,25 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Dispatching;
+with Ada.Exceptions;
 with Ada.Real_Time;
 with Ada.Task_Identification;
+with Ada.Unchecked_Deallocation;
+
 with Signals;
 
+use Ada.Exceptions;
+use Ada.Exceptions;
 use Ada.Task_Identification;
 
 separate (control)
 procedure Resume(self, target: in out BASE_CONTROLLER)
 is
+   procedure free is new Ada.Unchecked_Deallocation(
+       Ada.Exceptions.EXCEPTION_OCCURRENCE,
+       Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS
+   );
+
    function is_asymmetric(co: in BASE_CONTROLLER) return BOOLEAN with Inline is
    begin
       return BASE_CONTROLLER'Class(co) in ASYMMETRIC_CONTROLLER'Class;
@@ -22,11 +32,28 @@ is
       return BASE_CONTROLLER'Class(co) in SYMMETRIC_CONTROLLER'Class;
    end is_symmetric;
 
+   function is_head(co: in out BASE_CONTROLLER'Class) return BOOLEAN with Inline is
+      type PTR is not null access all BASE_CONTROLLER'Class;
+   begin
+      return PTR'(co.invoker) = PTR'(co'Unchecked_Access);
+   end is_head;
+
+   procedure check_invariants with Inline is
+   begin
+      pragma Assert(self.id    = Current_Task);
+      pragma Assert(target.id /= Current_Task);
+
+      pragma Assert(self.invoker   /= NULL);
+      pragma Assert(target.invoker /= NULL);
+
+      pragma Assert(Signals.Is_Clean(self.flag));
+   end check_invariants;
+
    procedure await_target_attach with Inline is
       use Ada.Real_Time;
       stop : TIME := Clock + Milliseconds(100);
    begin
-      -- Is `target` in INACTIVE state (never resumed)?
+      -- Is `target` never resumed?
       if target.id = Null_Task_Id then
          loop
             -- spin lock until `target.Attach` is called and blocks
@@ -45,12 +72,14 @@ is
 begin
    pragma Assert(is_asymmetric(self) = is_asymmetric(target));
 
+   -- is `self` an uninitialized head controller?
    if self.id = Null_Task_Id then
-      -- initialize a main controller
-      self.id := Current_Task;
+      pragma Assert(self.invoker = NULL);
 
-      -- circular link; this identifies the main controllers
-      self.invoker := self'Unchecked_Access;
+      self.id := Current_Task;
+      self.invoker := self'Unchecked_Access; -- circular link
+
+      pragma Assert(is_head(self));
    end if;
 
    pragma Assert(self.id = Current_Task);
@@ -59,22 +88,33 @@ begin
    await_target_attach;
    pragma Assert(target.id /= Current_Task);
 
+   --   TODO...
    if is_asymmetric(self) then
+      -- stack like linking
       target.invoker := self'Unchecked_Access;
    else
+      -- preserve head
+      pragma Assert(is_head(self.invoker.all));
       target.invoker := self.invoker;
    end if;
    pragma Assert(target.invoker /= NULL);
 
-   check_invariants(self, target);
+   check_invariants;
 
-   --target.state := RUNNING;
    Signals.Notify(target.flag);
-   --self.state := BLOCKED;
    Signals.Wait(self.flag);
-   --self.state := RUNNING;
 
-   -- TODO: check if target raised an exception!
+   -- check if target raised an exception!
+   if self.migrant /= NULL then
+      declare
+         id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
+         ms : STRING := Exception_Message(self.migrant.all);
+      begin
+         --self.migrant := target.migrant;
+         --free(target.migrant);
+         Raise_Exception(id, ms);
+      end;
+   end if;
 end Resume;
 
 -- ¡ISO-8859-1!

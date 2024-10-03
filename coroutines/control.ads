@@ -1,7 +1,6 @@
 -- control.ads
 
 with Ada.Exceptions;
-
 private with Ada.Task_Identification;
 private with Signals;
 
@@ -23,7 +22,8 @@ package Control is
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target`.
 
-   procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
+   procedure Cancel(self: in out BASE_CONTROLLER;
+                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
@@ -37,7 +37,7 @@ package Control is
 
    procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
                     target: access ASYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access `target`.
+   -- Syntactic sugar to allow access `target` (perhaps not inlined!).
 
    ---------------------------------------------------------------------
    -- Symmetric controller
@@ -53,7 +53,7 @@ package Control is
                     target: access SYMMETRIC_CONTROLLER) with Inline;
    procedure Resume(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access `target`.
+   -- Syntactic sugar to allow access `target` (perhaps not inlined!).
 
 private
    ---------------------------------------------------------------------
@@ -62,11 +62,12 @@ private
 
    type BASE_CONTROLLER is abstract tagged limited
       record
-         id      : Ada.Task_Identification.TASK_ID; -- := Null_Task_Id
+         id      : Ada.Task_Identification.TASK_ID;
          flag    : Signals.SIGNAL;
          invoker : access BASE_CONTROLLER'Class;
          migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
       end record;
+   -- := (Null_Task_Id, FALSE, NULL, NULL);
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
    type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with null record;

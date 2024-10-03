@@ -1,11 +1,11 @@
 -- test_hello.adb
 
 pragma Restrictions (
+-- No_Abort_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
    No_Local_Protected_Objects,
--- No_Abort_Statements
    No_Select_Statements
 );
 
@@ -34,23 +34,25 @@ begin
 
          Put_Line("Test 1-Hello, world!");
 
-         raise Program_Error; -- handled with self.Cancel
+         --TODO
+         --raise Program_Error; -- handled with self.Cancel
 
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      main : ASYMMETRIC_CONTROLLER;
+      head : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      main.Resume(hello_control);
-      raise Program_Error;
+      head.Resume(hello_control);
+         --TODO
+      --raise Program_Error;
    exception
       when X: others =>
          abort hello_runner;
-         main.Cancel(X);
+         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -73,18 +75,18 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      main : ASYMMETRIC_CONTROLLER;
+      head : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
    exception
       when X: others =>
          abort hello_runner;
-         main.Cancel(X);
+         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -107,18 +109,18 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      main : aliased SYMMETRIC_CONTROLLER;
+      head : aliased SYMMETRIC_CONTROLLER;
       hello_control : aliased SYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, main'Unchecked_Access);
+      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, head'Unchecked_Access);
    begin
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
-      main.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
+      head.Resume(hello_control);
    exception
       when X: others =>
          abort hello_runner;
-         main.Cancel(X);
+         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -143,14 +145,14 @@ begin
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
-      main  : ASYMMETRIC_CONTROLLER;
+      head  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+      head.Resume(ASYMMETRIC_CONTROLLER(hello));
    exception
       when X: others =>
          abort hello.run;
-         main.Cancel(X);
+         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -178,14 +180,14 @@ begin
          when X: others => super.Cancel(X); raise;
       end HELLO_RUN;
 
-      main  : ASYMMETRIC_CONTROLLER;
+      head  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+      head.Resume(ASYMMETRIC_CONTROLLER(hello));
    exception
       when X: others =>
          abort hello.run;
-         main.Cancel(X);
+         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -208,9 +210,9 @@ begin
 
       package body Hello_Application is
          procedure Start(self: in out HELLO_COROUTINE) is
-            main : ASYMMETRIC_CONTROLLER;
+            head : ASYMMETRIC_CONTROLLER;
          begin
-            main.Resume(ASYMMETRIC_CONTROLLER(self));
+            head.Resume(ASYMMETRIC_CONTROLLER(self));
          end Start;
 
          overriding

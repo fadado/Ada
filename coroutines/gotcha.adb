@@ -27,9 +27,9 @@ package body Gotcha is
 
    protected body Pass is
       procedure Handle (
-         Cause: Task_Termination.CAUSE_OF_TERMINATION;
-         T    : Task_Identification.TASK_ID;
-         X    : Exceptions.EXCEPTION_OCCURRENCE
+         Cause: Ada.Task_Termination.CAUSE_OF_TERMINATION;
+         T    : Ada.Task_Identification.TASK_ID;
+         X    : Ada.Exceptions.EXCEPTION_OCCURRENCE
       ) is
          verbose : BOOLEAN := FALSE;
       begin

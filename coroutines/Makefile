@@ -5,9 +5,10 @@
 all: test_hello test_pingpong
 
 LIBRARY := \
-	signals.ad[s] \
+	signals.ads \
 	control.ad[sb] \
-	control-resume.ad[sb] \
+	control-resume.adb \
+	control-cancel.adb \
 	gotcha.ad[sb]
 
 test_hello: test_hello.adb ${LIBRARY}

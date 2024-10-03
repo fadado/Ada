@@ -1,12 +1,12 @@
 -- test_pingpong.adb
 
 pragma Restrictions (
-   No_Select_Statements,
+   No_Abort_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
    No_Local_Protected_Objects,
-   No_Abort_Statements
+   No_Select_Statements
 );
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -65,24 +65,24 @@ begin
    --
    ---------------------------------------------------------------------
    declare
-      main : SYMMETRIC_CONTROLLER;
+      head : SYMMETRIC_CONTROLLER;
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
-      ping_runner : PING_RUN (ping_control'Unchecked_Access,
-                              pong_control'Unchecked_Access);
-      pong_runner : PONG_RUN (pong_control'Unchecked_Access,
-                              ping_control'Unchecked_Access);
+      ping_runner  : PING_RUN (ping_control'Unchecked_Access,
+                               pong_control'Unchecked_Access);
+      pong_runner  : PONG_RUN (pong_control'Unchecked_Access,
+                               ping_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Resume(ping_control);
+      head.Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");
    exception
       when X: others =>
-         Gotcha.Report_Exception(X, "Oops at MAIN TASK!!");
+         Gotcha.Report_Exception(X, "Oops at HEAD TASK!!");
    end;
 
 end test_pingpong;
