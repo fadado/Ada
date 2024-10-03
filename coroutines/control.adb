@@ -2,8 +2,7 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Ada.Dispatching;
-with Ada.Real_Time;
+with Ada.Exceptions;
 with Ada.Task_Identification;
 with Signals;
 
@@ -29,6 +28,8 @@ package body Control is
    -- Base controller
    ---------------------------------------------------------------------
 
+   procedure Resume(self, target: in out BASE_CONTROLLER) is separate;
+
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
       --self.state := INACTIVE;
@@ -52,9 +53,11 @@ package body Control is
       Signals.Notify(target.flag);
    end Detach;
 
-   procedure Cancel(self: in out BASE_CONTROLLER) is
+   procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE) is
+      use Ada.Exceptions;
       type PTR is not null access all BASE_CONTROLLER'Class;
    begin
+      -- TODO: manage exceptions
       if self.id /= Null_Task_Id then
          self.id := Null_Task_Id;
          if self.invoker = NULL then
@@ -74,70 +77,6 @@ package body Control is
          --self.state := BROKEN;
       end if;
    end Cancel;
-
-   procedure Resume(self, target: in out BASE_CONTROLLER)
-   is
-      function is_asymmetric(co: in BASE_CONTROLLER) return BOOLEAN with Inline is
-      begin
-         return BASE_CONTROLLER'Class(co) in ASYMMETRIC_CONTROLLER'Class;
-      end is_asymmetric;
-
-      function is_symmetric(co: in BASE_CONTROLLER) return BOOLEAN with Inline is
-      begin
-         return BASE_CONTROLLER'Class(co) in SYMMETRIC_CONTROLLER'Class;
-      end is_symmetric;
-
-      procedure await_target_attach with Inline is
-         use Ada.Real_Time;
-         stop : TIME := Clock + Milliseconds(100);
-      begin
-         -- first resume for `target`?
-         if target.id = Null_Task_Id then
-            loop
-               -- spin lock until `target.Attach` is called and blocks
-               if Clock > stop then
-                  raise Program_Error with "loop timed out";
-               end if;
-
-               Ada.Dispatching.Yield;
-
-               exit when target.id /= Null_Task_Id;
-            end loop;
-            -- here `target` is BLOCKED
-         end if;
-      end await_target_attach;
-
-   begin
-      pragma Assert(is_asymmetric(self) = is_asymmetric(target));
-
-      if self.id = Null_Task_Id then
-         -- initialize a main controller
-         self.id := Current_Task;
-
-         -- circular link; this identifies the main controllers
-         self.invoker := self'Unchecked_Access;
-      end if;
-
-      pragma Assert(self.id = Current_Task);
-      pragma Assert(self.invoker /= NULL);
-
-      await_target_attach;
-      pragma Assert(target.id /= Current_Task);
-
-      if is_asymmetric(self) then
-         target.invoker := self'Unchecked_Access;
-      else
-         target.invoker := self.invoker;
-      end if;
-      pragma Assert(target.invoker /= NULL);
-
-      check_invariants(self, target);
-
-      --target.state := RUNNING;
-      Signals.Notify(target.flag);
-      --self.state := BLOCKED;
-      Signals.Wait(self.flag);
-   end Resume;
 
    ---------------------------------------------------------------------
    -- Asymmetric controller

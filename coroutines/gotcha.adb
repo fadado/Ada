@@ -15,12 +15,12 @@ package body Gotcha is
    procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       message : STRING renames Exception_Message(X);
    begin
-      Put("## ");
+      Put(Standard_Error, "## ");
       Put_Line(Standard_Error, S);
-      Put("## Raised ");
+      Put(Standard_Error, "## Raised ");
       Put_Line(Standard_Error, Exception_Name(X));
       if message /= "" then
-         Put("## ");
+         Put(Standard_Error, "## ");
          Put_Line(Standard_Error, Exception_Message(X));
       end if;
    end Report_Exception;
@@ -33,6 +33,7 @@ package body Gotcha is
       ) is
          verbose : BOOLEAN := FALSE;
       begin
+         -- warning: this procedure output can overwrite other outputs!
          case Cause is
             when Normal =>
                if verbose then

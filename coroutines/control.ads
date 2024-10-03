@@ -1,5 +1,7 @@
 -- control.ads
 
+with Ada.Exceptions;
+
 private with Ada.Task_Identification;
 private with Signals;
 
@@ -21,7 +23,7 @@ package Control is
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target`.
 
-   procedure Cancel(self: in out BASE_CONTROLLER);
+   procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
@@ -61,8 +63,9 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID; -- := Null_Task_Id
-         flag    : Signals.SIGNAL;                  -- := FALSE
-         invoker : access BASE_CONTROLLER'Class;    -- := NULL
+         flag    : Signals.SIGNAL;
+         invoker : access BASE_CONTROLLER'Class;
+         migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;

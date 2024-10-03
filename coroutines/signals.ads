@@ -8,6 +8,7 @@ package Signals is
    ---------------------------------------------------------------------
 
    subtype SIGNAL is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;
+   -- Default state for SIGNAL objects is FALSE (clean)
 
    procedure Wait(S: in out SIGNAL)
       renames Ada.Synchronous_Task_Control.Suspend_Until_True;

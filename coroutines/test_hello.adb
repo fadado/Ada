@@ -9,6 +9,7 @@ pragma Restrictions (
    No_Select_Statements
 );
 
+with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Control; use Control;
@@ -37,7 +38,7 @@ begin
 
          self.Detach;
       exception
-         when others => self.Cancel; raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -47,9 +48,9 @@ begin
       main.Resume(hello_control);
       raise Program_Error;
    exception
-      when others =>
+      when X: others =>
          abort hello_runner;
-         main.Cancel;
+         main.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -69,7 +70,7 @@ begin
 
          self.Detach;
       exception
-         when others => self.Cancel; raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -81,9 +82,9 @@ begin
       main.Resume(hello_control);
       main.Resume(hello_control);
    exception
-      when others =>
+      when X: others =>
          abort hello_runner;
-         main.Cancel;
+         main.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -103,7 +104,7 @@ begin
 
          self.Detach;
       exception
-         when others => self.Cancel; raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       main : aliased SYMMETRIC_CONTROLLER;
@@ -115,9 +116,9 @@ begin
       main.Resume(hello_control);
       main.Resume(hello_control);
    exception
-      when others =>
+      when X: others =>
          abort hello_runner;
-         main.Cancel;
+         main.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -134,7 +135,7 @@ begin
 
          self.Detach;
       exception
-         when others => self.Cancel; raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -147,9 +148,9 @@ begin
    begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    exception
-      when others =>
+      when X: others =>
          abort hello.run;
-         main.Cancel;
+         main.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -174,7 +175,7 @@ begin
 
          self.Detach;
       exception
-         when others => super.Cancel; raise;
+         when X: others => super.Cancel(X); raise;
       end HELLO_RUN;
 
       main  : ASYMMETRIC_CONTROLLER;
@@ -182,9 +183,9 @@ begin
    begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    exception
-      when others =>
+      when X: others =>
          abort hello.run;
-         main.Cancel;
+         main.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -195,7 +196,7 @@ begin
          type HELLO_COROUTINE is tagged limited private;
 
          procedure Start(self: in out HELLO_COROUTINE);
-         procedure Cancel(self: in out HELLO_COROUTINE);
+         procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
          task type HELLO_RUN (self: not null access HELLO_COROUTINE);
       private
@@ -213,10 +214,10 @@ begin
          end Start;
 
          overriding
-         procedure Cancel(self: in out HELLO_COROUTINE) is
+         procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE) is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
          begin
-            super.Cancel;
+            super.Cancel(X);
             abort self.run;
          end Cancel;
 
@@ -228,7 +229,7 @@ begin
 
             self.Detach;
          exception
-            when others => self.Cancel; raise;
+            when X: others => self.Cancel(X); raise;
          end HELLO_RUN;
       end Hello_Application;
 
@@ -238,7 +239,7 @@ begin
    begin
       hello.Start;
    exception
-      when others => hello.Cancel;
+      when X: others => hello.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
