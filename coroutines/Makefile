@@ -7,8 +7,6 @@ all: test_hello test_pingpong
 LIBRARY := \
 	signals.ads \
 	control.ad[sb] \
-	control-resume.adb \
-	control-cancel.adb \
 	gotcha.ad[sb]
 
 test_hello: test_hello.adb ${LIBRARY}

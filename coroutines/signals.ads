@@ -8,7 +8,7 @@ package Signals is
    ---------------------------------------------------------------------
 
    subtype SIGNAL is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;
-   -- Default state for SIGNAL objects is FALSE (clean)
+   -- Default state for SIGNAL objects is FALSE (cleared)
 
    procedure Wait(S: in out SIGNAL)
       renames Ada.Synchronous_Task_Control.Suspend_Until_True;
@@ -22,7 +22,7 @@ package Signals is
    function Is_Set(S: in SIGNAL) return BOOLEAN
       renames Ada.Synchronous_Task_Control.Current_State;
 
-   function Is_Clean(S: in SIGNAL) return BOOLEAN
+   function Is_Cleared(S: in SIGNAL) return BOOLEAN
       is (not Is_Set(S)) with Inline;
 
 end Signals;

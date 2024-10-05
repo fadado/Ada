@@ -26,6 +26,7 @@ package body Gotcha is
    end Report_Exception;
 
    protected body Pass is
+   -- warning: cannot raise exceptions inside handler!
       procedure Handle (
          Cause: Ada.Task_Termination.CAUSE_OF_TERMINATION;
          T    : Ada.Task_Identification.TASK_ID;
