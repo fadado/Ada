@@ -16,14 +16,14 @@ package Control is
    -- Attach `self` to the current task. 
    -- Mandatory first call in each task body.
 
-   procedure Detach(self: in out BASE_CONTROLLER) is abstract;
+   procedure Detach(self: in out BASE_CONTROLLER);
    -- Mandatory last call in each task body.
 
    procedure Resume(self, target: in out BASE_CONTROLLER);
-   -- Transfers control to `target`.
+   -- Transfers control to `target` ("primary" method).
 
    procedure Cancel(self: in out BASE_CONTROLLER;
-                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE) is abstract;
+                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
@@ -33,20 +33,11 @@ package Control is
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
    overriding
-   procedure Detach(self: in out ASYMMETRIC_CONTROLLER);
-   -- Transfers control to the invoker.
-
-   overriding
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
-   -- Transfers control to `target`.
+   -- "Before" method for primary resume.
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
    -- Transfers control to the invoker.
-
-   overriding
-   procedure Cancel(self: in out ASYMMETRIC_CONTROLLER;
-                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
-   -- Helper for exception handlers.
 
    procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
                     target: access ASYMMETRIC_CONTROLLER) with Inline;
@@ -58,22 +49,13 @@ package Control is
 
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
-   overriding
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER);
-   -- Transfers control to the head.
-
    procedure Detach(self, target: in out SYMMETRIC_CONTROLLER);
    -- Transfers control to `target` and detach `self` from the current task.
    -- Mandatory symmetric coroutines last call, except for the last to finish.
 
    overriding
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
-   -- Transfers control to `target`.
-
-   overriding
-   procedure Cancel(self: in out SYMMETRIC_CONTROLLER;
-                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
-   -- Helper for exception handlers.
+   -- "Before" method for primary resume.
 
    procedure Detach(self: in out SYMMETRIC_CONTROLLER;
                     target: access SYMMETRIC_CONTROLLER) with Inline;
@@ -91,22 +73,15 @@ private
          id      : Ada.Task_Identification.TASK_ID;
          flag    : Signals.SIGNAL;
          migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+         link    : access BASE_CONTROLLER'Class;
       end record;
-   -- := (Null_Task_Id, FALSE, NULL);
+   -- := (Null_Task_Id, FALSE, NULL, NULL);
 
    -- Stack like pass of control
-   type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with
-      record
-         invoker : access ASYMMETRIC_CONTROLLER'Class;
-      end record;
-   -- := (Null_Task_Id, FALSE, NULL, NULL);
+   type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
 
    -- Graph like pass of control
-   type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with
-      record
-         head : access SYMMETRIC_CONTROLLER'Class;
-      end record;
-   -- := (Null_Task_Id, FALSE, NULL, NULL);
+   type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with null record;
 
 end Control;
 

@@ -22,32 +22,40 @@ package body Control is
       Signals.Wait(self.flag);
    end Attach;
 
+   procedure Detach(self: in out BASE_CONTROLLER) is
+      -- back: `invoker` for assymetric or `head` for symmetric
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+   begin
+      self.id := Null_Task_Id;
+      self.link := NULL;
+      Signals.Notify(back.flag);
+   end Detach;
+
    procedure Resume(self, target: in out BASE_CONTROLLER)
    is
       use Ada.Exceptions;
+
       procedure free is new Ada.Unchecked_Deallocation(
-         Ada.Exceptions.EXCEPTION_OCCURRENCE,
-         Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS
+         EXCEPTION_OCCURRENCE,
+         EXCEPTION_OCCURRENCE_ACCESS
       );
 
       procedure await_target_attach with Inline is
          use Ada.Real_Time;
+
          stop : TIME := Clock + Milliseconds(100);
       begin
          -- Is `target` never resumed?
          if target.id = Null_Task_Id then
+            -- spin lock until `target.Attach` is called
             loop
-               -- spin lock until `target.Attach` is called and blocks
                if Clock > stop then
                   raise Program_Error with "loop timed out";
                end if;
-
                Ada.Dispatching.Yield;
-
                exit when target.id /= Null_Task_Id;
             end loop;
          end if;
-         -- here `target` is BLOCKED
       end await_target_attach;
 
    begin
@@ -74,72 +82,60 @@ package body Control is
       end if;
    end Resume;
 
+   procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+   -- warning: cannot call Current_Task here!
+   is
+      use Ada.Exceptions;
+
+      -- back: `invoker` for assymetric or `head` for symmetric
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+   begin
+      pragma Assert(self.id /= Null_Task_Id);
+
+      pragma Assert(self.link /= NULL);
+      self.id := Null_Task_Id;
+      Signals.Notify(back.flag);
+
+      -- migrate exception
+      self.link.migrant := Save_Occurrence(X);
+   end Cancel;
+
    ---------------------------------------------------------------------
    -- Asymmetric controller
    ---------------------------------------------------------------------
-
-   procedure Detach(self: in out ASYMMETRIC_CONTROLLER) is
-      invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.invoker.all);
-   begin
-      self.id := Null_Task_Id;
-      self.invoker := NULL;
-      Signals.Notify(invoker.flag);
-   end Detach;
 
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
       -- is `self` an uninitialized controller?
       if self.id = Null_Task_Id then
-         pragma Assert(self.invoker = NULL);
+         pragma Assert(self.link = NULL);
          self.id := Current_Task;
-         self.invoker := self'Unchecked_Access; -- circular link
+         self.link := self'Unchecked_Access; -- circular link
       end if;
 
       -- stack like linking
-      target.invoker := self'Unchecked_Access;
+      target.link := self'Unchecked_Access;
 
-      -- dispatch
+      -- delegate to primary method
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
-      invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.invoker.all);
+      invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
       Signals.Notify(invoker.flag);
       Signals.Wait(self.flag);
    end Yield;
 
-   procedure Cancel(self: in out ASYMMETRIC_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
-   -- warning: cannot call Current_Task here!
-   is
-      use Ada.Exceptions;
-      invoker : BASE_CONTROLLER renames BASE_CONTROLLER(self.invoker.all);
-   begin
-      pragma Assert(self.id /= Null_Task_Id);
-
-      pragma Assert(self.invoker /= NULL);
-      self.id := Null_Task_Id;
-      Signals.Notify(invoker.flag);
-
-      -- migrate exception
-      self.invoker.migrant := Save_Occurrence(X);
-   end Cancel;
-
    ---------------------------------------------------------------------
    -- Symmetric controller
    ---------------------------------------------------------------------
 
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER) is
-      head : SYMMETRIC_CONTROLLER renames SYMMETRIC_CONTROLLER(self.head.all);
-   begin
-      self.Detach(head);
-   end Detach;
-
    procedure Detach(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
       self.id := Null_Task_Id;
-      self.head := NULL;
+      self.link := NULL;
       Signals.Notify(target.flag);
    end Detach;
 
@@ -147,33 +143,17 @@ package body Control is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
       if self.id = Null_Task_Id then
-         pragma Assert(self.head = NULL);
+         pragma Assert(self.link = NULL);
          self.id := Current_Task;
-         self.head := self'Unchecked_Access;
+         self.link := self'Unchecked_Access;
       end if;
 
       -- only can detach to the first controller
-      target.head := self.head;
+      target.link := self.link;
 
-      -- dispatch
+      -- delegate to primary method
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
-
-   procedure Cancel(self: in out SYMMETRIC_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
-   -- warning: cannot call Current_Task here!
-   is
-      use Ada.Exceptions;
-      head : BASE_CONTROLLER renames BASE_CONTROLLER(self.head.all);
-   begin
-      pragma Assert(self.id /= Null_Task_Id);
-
-      pragma Assert(self.head /= NULL);
-      self.id := Null_Task_Id;
-      Signals.Notify(head.flag);
-
-      -- migrate exception
-      self.head.migrant := Save_Occurrence(X);
-   end Cancel;
 
    ---------------------------------------------------------------------
    -- Syntactic sugar
