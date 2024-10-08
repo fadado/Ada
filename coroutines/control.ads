@@ -22,8 +22,7 @@ package Control is
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target` ("primary" method).
 
-   procedure Cancel(self: in out BASE_CONTROLLER;
-                    X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
+   procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
@@ -39,8 +38,7 @@ package Control is
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
    -- Transfers control to the invoker.
 
-   procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
-                    target: access ASYMMETRIC_CONTROLLER) with Inline;
+   procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access `target` (perhaps not inlined!).
 
    ---------------------------------------------------------------------
@@ -49,18 +47,16 @@ package Control is
 
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
 
-   procedure Detach(self, target: in out SYMMETRIC_CONTROLLER);
-   -- Transfers control to `target` and detach `self` from the current task.
-   -- Mandatory symmetric coroutines last call, except for the last to finish.
-
    overriding
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
 
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER;
-                    target: access SYMMETRIC_CONTROLLER) with Inline;
-   procedure Resume(self: in out SYMMETRIC_CONTROLLER;
-                    target: access SYMMETRIC_CONTROLLER) with Inline;
+   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
+   -- Transfers control to `target` and detach `self` from the current task.
+   -- Mandatory symmetric coroutines last call, except for the last to finish.
+
+   procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
+   procedure Jump(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access `target` (perhaps not inlined!).
 
 private

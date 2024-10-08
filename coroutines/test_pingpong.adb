@@ -1,7 +1,7 @@
 -- test_pingpong.adb
 
 pragma Restrictions (
-   No_Abort_Statements,
+-- No_Abort_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
@@ -30,16 +30,16 @@ procedure test_pingpong is
 
       for i in 1..10 loop
          Put("PING!  ");
+         --raise Program_Error;
          if i < 10 then
             Ping.Resume(Pong);
          else
-            Ping.Detach(Pong); -- transfer without suspension
+            Ping.Jump(Pong); -- transfer without suspension
          end if;
       end loop;
 
-   exception
-      when X: others =>
-         Gotcha.Report_Exception(X, "Oops at PING_RUN!");
+   exception -- TODO!
+      when X: others => Ping.Cancel(X); raise;
    end PING_RUN;
 
    task body PONG_RUN is
@@ -55,9 +55,8 @@ procedure test_pingpong is
          end if;
       end loop;
 
-   exception
-      when X: others =>
-         Gotcha.Report_Exception(X, "Oops at PONG_RUN!");
+   exception -- TODO!
+      when X: others => Pong.Cancel(X); raise;
    end PONG_RUN;
 
 begin
@@ -82,6 +81,8 @@ begin
       Put_Line("Game Over");
    exception
       when X: others =>
+         --TODO!
+         abort ping_runner, pong_runner;
          Gotcha.Report_Exception(X, "Oops at HEAD TASK!!");
    end;
 

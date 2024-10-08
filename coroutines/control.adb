@@ -10,6 +10,7 @@ with Ada.Unchecked_Deallocation;
 with Signals;
 
 use Ada.Task_Identification;
+use Signals;
 
 package body Control is
    ---------------------------------------------------------------------
@@ -19,16 +20,16 @@ package body Control is
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
       self.id := Current_Task;
-      Signals.Wait(self.flag);
+      Wait(self.flag);
    end Attach;
 
    procedure Detach(self: in out BASE_CONTROLLER) is
-      -- back: `invoker` for assymetric or `head` for symmetric
+      -- back: `invoker` for asymetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
       self.id := Null_Task_Id;
       self.link := NULL;
-      Signals.Notify(back.flag);
+      Notify(back.flag);
    end Detach;
 
    procedure Resume(self, target: in out BASE_CONTROLLER)
@@ -42,7 +43,6 @@ package body Control is
 
       procedure await_target_attach with Inline is
          use Ada.Real_Time;
-
          stop : TIME := Clock + Milliseconds(100);
       begin
          -- Is `target` never resumed?
@@ -58,6 +58,15 @@ package body Control is
          end if;
       end await_target_attach;
 
+      procedure migrate_exception with Inline is
+         id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
+         ms : STRING := Exception_Message(self.migrant.all);
+      begin
+         free(self.migrant);
+         self.migrant := NULL;
+         Raise_Exception(id, ms);
+      end migrate_exception;
+
    begin
       pragma Assert(self.id = Current_Task);
 
@@ -66,38 +75,41 @@ package body Control is
       pragma Assert(target.id /= Current_Task);
 
       -- transfers control
-      Signals.Notify(target.flag);
-      Signals.Wait(self.flag);
+      Notify(target.flag);
+      Wait(self.flag);
 
       -- check if target raised an exception!
       if self.migrant /= NULL then
-         declare
-            id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
-            ms : STRING := Exception_Message(self.migrant.all);
-         begin
-            --self.migrant := target.migrant;
-            --free(target.migrant);
-            Raise_Exception(id, ms);
-         end;
+         migrate_exception;
       end if;
    end Resume;
 
    procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
-   -- warning: cannot call Current_Task here!
+   -- warning: cannot call `Current_Task` here!
    is
       use Ada.Exceptions;
 
-      -- back: `invoker` for assymetric or `head` for symmetric
+      function is_head(co: in out BASE_CONTROLLER'Class) return BOOLEAN with Inline is
+         type PTR is not null access all BASE_CONTROLLER'Class;
+      begin
+         return PTR'(co.link) = PTR'(co'Unchecked_Access);
+      end is_head;
+
+      -- back: `invoker` for asymetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
       pragma Assert(self.id /= Null_Task_Id);
-
       pragma Assert(self.link /= NULL);
+      if is_head(self) then
+         raise Program_Error with "nowhere to migrate";
+      end if;
+
       self.id := Null_Task_Id;
-      Signals.Notify(back.flag);
+      self.link := NULL;
 
       -- migrate exception
-      self.link.migrant := Save_Occurrence(X);
+      back.migrant := Save_Occurrence(X);
+      Notify(back.flag);
    end Cancel;
 
    ---------------------------------------------------------------------
@@ -124,20 +136,20 @@ package body Control is
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
-      Signals.Notify(invoker.flag);
-      Signals.Wait(self.flag);
+      Notify(invoker.flag);
+      Wait(self.flag);
    end Yield;
 
    ---------------------------------------------------------------------
    -- Symmetric controller
    ---------------------------------------------------------------------
 
-   procedure Detach(self, target: in out SYMMETRIC_CONTROLLER) is
+   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
       self.id := Null_Task_Id;
       self.link := NULL;
-      Signals.Notify(target.flag);
-   end Detach;
+      Notify(target.flag);
+   end Jump;
 
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
@@ -159,23 +171,20 @@ package body Control is
    -- Syntactic sugar
    ---------------------------------------------------------------------
 
-   procedure Resume(self: in out ASYMMETRIC_CONTROLLER;
-                    target: access ASYMMETRIC_CONTROLLER) is
+   procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) is
    begin
       Resume(self, target.all);
    end Resume;
 
-   procedure Resume(self: in out SYMMETRIC_CONTROLLER;
-                    target: access SYMMETRIC_CONTROLLER) is
+   procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) is
    begin
       Resume(self, target.all);
    end Resume;
 
-   procedure Detach(self: in out SYMMETRIC_CONTROLLER;
-                    target: access SYMMETRIC_CONTROLLER) is
+   procedure Jump(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) is
    begin
-      Detach(self, target.all);
-   end Detach;
+      Jump(self, target.all);
+   end Jump;
 
 end Control;
 

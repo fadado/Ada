@@ -18,7 +18,7 @@ with Gotcha;
 procedure test_hello is
 
 begin
-   Gotcha.Set_Handlers;
+   --Gotcha.Set_Handlers;
 
    ---------------------------------------------------------------------
    -- Test 1 - Simple hello world
@@ -34,7 +34,6 @@ begin
 
          Put_Line("Test 1-Hello, world!");
 
-         --TODO
          --raise Program_Error; -- handled with self.Cancel
 
          self.Detach;
@@ -47,12 +46,6 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       head.Resume(hello_control);
-         --TODO
-      --raise Program_Error;
-   exception
-      when X: others =>
-         abort hello_runner;
-         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -83,10 +76,6 @@ begin
       head.Resume(hello_control);
       head.Resume(hello_control);
       head.Resume(hello_control);
-   exception
-      when X: others =>
-         abort hello_runner;
-         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -117,10 +106,6 @@ begin
       head.Resume(hello_control);
       head.Resume(hello_control);
       head.Resume(hello_control);
-   exception
-      when X: others =>
-         abort hello_runner;
-         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -149,10 +134,6 @@ begin
       hello : HELLO_COROUTINE;
    begin
       head.Resume(ASYMMETRIC_CONTROLLER(hello));
-   exception
-      when X: others =>
-         abort hello.run;
-         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -184,10 +165,6 @@ begin
       hello : HELLO_COROUTINE;
    begin
       head.Resume(ASYMMETRIC_CONTROLLER(hello));
-   exception
-      when X: others =>
-         abort hello.run;
-         head.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
@@ -240,8 +217,6 @@ begin
       hello : HELLO_COROUTINE;
    begin
       hello.Start;
-   exception
-      when X: others => hello.Cancel(X);
    end;
 
    ---------------------------------------------------------------------
