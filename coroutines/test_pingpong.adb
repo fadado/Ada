@@ -60,11 +60,12 @@ procedure test_pingpong is
    end PONG_RUN;
 
 begin
+   Gotcha.Set_Handlers;
+
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
    declare
-      head : SYMMETRIC_CONTROLLER;
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
@@ -75,7 +76,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      head.Resume(ping_control);
+      Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");

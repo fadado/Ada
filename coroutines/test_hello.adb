@@ -18,7 +18,7 @@ with Gotcha;
 procedure test_hello is
 
 begin
-   --Gotcha.Set_Handlers;
+   Gotcha.Set_Handlers;
 
    ---------------------------------------------------------------------
    -- Test 1 - Simple hello world
@@ -41,11 +41,10 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      head : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      head.Resume(hello_control);
+      Resume(hello_control);
    end;
 
    ---------------------------------------------------------------------
@@ -130,10 +129,9 @@ begin
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
-      head  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      head.Resume(ASYMMETRIC_CONTROLLER(hello));
+      Resume(hello);
    end;
 
    ---------------------------------------------------------------------
@@ -161,10 +159,9 @@ begin
          when X: others => super.Cancel(X); raise;
       end HELLO_RUN;
 
-      head  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      head.Resume(ASYMMETRIC_CONTROLLER(hello));
+      Resume(ASYMMETRIC_CONTROLLER(hello));
    end;
 
    ---------------------------------------------------------------------
@@ -172,26 +169,20 @@ begin
    ---------------------------------------------------------------------
    declare
       package Hello_Application is
-         type HELLO_COROUTINE is tagged limited private;
+         type HELLO_COROUTINE is new ASYMMETRIC_CONTROLLER with private;
 
-         procedure Start(self: in out HELLO_COROUTINE);
+         overriding
          procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
          task type HELLO_RUN (self: not null access HELLO_COROUTINE);
       private
-         type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
+         type HELLO_COROUTINE is new ASYMMETRIC_CONTROLLER with
             record
-               run  : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
+               run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
             end record;
       end Hello_Application;
 
       package body Hello_Application is
-         procedure Start(self: in out HELLO_COROUTINE) is
-            head : ASYMMETRIC_CONTROLLER;
-         begin
-            head.Resume(ASYMMETRIC_CONTROLLER(self));
-         end Start;
-
          overriding
          procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE) is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
@@ -216,124 +207,8 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      hello.Start;
+      Resume(hello);
    end;
-
-   ---------------------------------------------------------------------
-   -- Test 7 - generator prototype (TODO)
-   ---------------------------------------------------------------------
----declare
----   message : STRING := "Test 7-Hello, world!";
----   value   : CHARACTER;
-
----   ------------------------------------------------------------------
----   -- Generator
----   ------------------------------------------------------------------
-
----   subtype CURSOR is NATURAL;
-
----   No_Element : constant CURSOR := 0;
-
----   function Has_Element(C: CURSOR) return BOOLEAN is
----      (C /= No_Element);
-
----   function First(G: STRING) return CURSOR is
----   begin
----      if G'Length > 0 then
----         value := message(1);
----         return CURSOR'(1);
----      else
----         return No_Element;
----      end if;
----   end First;
-
----   function Next(C: CURSOR) return CURSOR is
----   begin 
----      if C = No_Element or C = message'Length then
----         return No_Element;
----      else
----         value := message(C+1);
----         return C+1;
----      end if;
----   end Next;
-
----   function Element(C: CURSOR) return CHARACTER is
----   begin
----      pragma Assert(C /= No_Element);
----      return message(C);
----   end Element;
-
----   procedure Iterate(G: STRING; P: not null access procedure(C: CURSOR)) is
----      C : CURSOR;
----   begin
----      C := First(G);
----      loop
----         exit when C = No_Element;
----         P(C);
----         C := Next(C);
----      end loop;
----   end Iterate;
-
----   ------------------------------------------------------------------
----   --
----   ------------------------------------------------------------------
-
----   package Hello_Application is
----      type HELLO_GENERATOR is tagged limited private;
-
----      function First(self: in out HELLO_GENERATOR) return CURSOR;
-
----      task type HELLO_RUN (self: not null access HELLO_GENERATOR);
-
----   private
----      type HELLO_GENERATOR is limited new ASYMMETRIC_CONTROLLER with
----         record
----            run   : HELLO_RUN (HELLO_GENERATOR'Unchecked_Access);
----            here  : ASYMMETRIC_CONTROLLER;
----         end record;
----   end Hello_Application;
-
----   package body Hello_Application is
-
----      function First(self: in out HELLO_GENERATOR) return CURSOR is
----      begin
----         --??self.here.Resume(ASYMMETRIC_CONTROLLER(self));
----         return First(message);
----      end First;
-
----      task body HELLO_RUN is
----         len : POSITIVE := message'Length;
----      begin
----         self.Attach;
-
----         for i in 1..len loop
----            value := message(i);
----            if i < len then
----               self.Yield;
----            else
----               null; --exit;
----            end if;
----         end loop;
-
----         self.Detach;
----      end HELLO_RUN;
----   end Hello_Application;
-
----   use Hello_Application;
-
----begin
----   declare
----      hello : HELLO_GENERATOR;
----      position : CURSOR;
----   begin
----      position := hello.First;
----      loop
----         exit when position = No_Element;
----         Put(Element(position));
----         position := Next(position);
----      end loop;
----   end;
----end;
 
    --test: raise Program_Error;
 exception

@@ -25,6 +25,10 @@ package Control is
    procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
 
+   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
+   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
+   -- Is the controller still active (or not)?
+
    ---------------------------------------------------------------------
    -- Asymmetric controller
    ---------------------------------------------------------------------
@@ -40,6 +44,9 @@ package Control is
 
    procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access `target` (perhaps not inlined!).
+
+   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) with Inline;
+   -- Starter.
 
    ---------------------------------------------------------------------
    -- Symmetric controller
@@ -58,6 +65,9 @@ package Control is
    procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
    procedure Jump(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
    -- Syntactic sugar to allow access `target` (perhaps not inlined!).
+
+   procedure Resume(target: in out SYMMETRIC_CONTROLLER) with Inline;
+   -- Starter.
 
 private
    ---------------------------------------------------------------------

@@ -112,6 +112,16 @@ package body Control is
       Notify(back.flag);
    end Cancel;
 
+   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN is
+   begin
+      return self.id /= Null_Task_Id;
+   end Attached;
+
+   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN is
+   begin
+      return self.id = Null_Task_Id;
+   end Detached;
+
    ---------------------------------------------------------------------
    -- Asymmetric controller
    ---------------------------------------------------------------------
@@ -140,6 +150,12 @@ package body Control is
       Wait(self.flag);
    end Yield;
 
+   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) is
+      head : ASYMMETRIC_CONTROLLER;
+   begin
+      head.Resume(target);
+   end;
+
    ---------------------------------------------------------------------
    -- Symmetric controller
    ---------------------------------------------------------------------
@@ -166,6 +182,12 @@ package body Control is
       -- delegate to primary method
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
+
+   procedure Resume(target: in out SYMMETRIC_CONTROLLER) is
+      head : SYMMETRIC_CONTROLLER;
+   begin
+      head.Resume(target);
+   end;
 
    ---------------------------------------------------------------------
    -- Syntactic sugar
