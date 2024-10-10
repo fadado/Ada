@@ -97,6 +97,7 @@ package body Control is
 
       -- back: `invoker` for asymetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+
    begin
       pragma Assert(self.id /= Null_Task_Id);
       pragma Assert(self.link /= NULL);
@@ -143,6 +144,12 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
+   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) is
+      head : ASYMMETRIC_CONTROLLER;
+   begin
+      head.Resume(target);
+   end;
+
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
@@ -150,22 +157,9 @@ package body Control is
       Wait(self.flag);
    end Yield;
 
-   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) is
-      head : ASYMMETRIC_CONTROLLER;
-   begin
-      head.Resume(target);
-   end;
-
    ---------------------------------------------------------------------
    -- Symmetric controller
    ---------------------------------------------------------------------
-
-   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
-   begin
-      self.id := Null_Task_Id;
-      self.link := NULL;
-      Notify(target.flag);
-   end Jump;
 
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
@@ -189,23 +183,11 @@ package body Control is
       head.Resume(target);
    end;
 
-   ---------------------------------------------------------------------
-   -- Syntactic sugar
-   ---------------------------------------------------------------------
-
-   procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) is
+   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      Resume(self, target.all);
-   end Resume;
-
-   procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) is
-   begin
-      Resume(self, target.all);
-   end Resume;
-
-   procedure Jump(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) is
-   begin
-      Jump(self, target.all);
+      self.id := Null_Task_Id;
+      self.link := NULL;
+      Notify(target.flag);
    end Jump;
 
 end Control;

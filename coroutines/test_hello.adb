@@ -14,6 +14,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with Control; use Control;
 with Gotcha;
+--with Co_Op;
 
 procedure test_hello is
 
@@ -27,15 +28,11 @@ begin
       pragma Warnings (Off, "unreachable code");
 
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
-
       task body HELLO_RUN is
       begin
          self.Attach;
-
          Put_Line("Test 1-Hello, world!");
-
          --raise Program_Error; -- handled with self.Cancel
-
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
@@ -52,16 +49,13 @@ begin
    ---------------------------------------------------------------------
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
-
       task body HELLO_RUN is
       begin
          self.Attach;
-
          Put("Test 2-"); self.Yield;
          Put("Hello");   self.Yield;
          Put(", world"); self.Yield;
          Put_Line("!");
-
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
@@ -71,27 +65,26 @@ begin
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      head.Resume(hello_control);
-      head.Resume(hello_control);
-      head.Resume(hello_control);
-      head.Resume(hello_control);
+      loop
+         head.Resume(hello_control);
+         exit when hello_control.Detached;
+         -- do something here...
+      end loop;
    end;
 
    ---------------------------------------------------------------------
    -- Test 3 - Symmetric hello world
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self, invoker: not null access SYMMETRIC_CONTROLLER);
-
+      task type HELLO_RUN (self, other: not null access SYMMETRIC_CONTROLLER);
       task body HELLO_RUN is
+         invoker : SYMMETRIC_CONTROLLER renames other.all;
       begin
          self.Attach;
-
          Put("Test 3-"); self.Resume(invoker);
          Put("Hello");   self.Resume(invoker);
          Put(", world"); self.Resume(invoker);
          Put_Line("!");
-
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
@@ -101,24 +94,22 @@ begin
       hello_control : aliased SYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, head'Unchecked_Access);
    begin
-      head.Resume(hello_control);
-      head.Resume(hello_control);
-      head.Resume(hello_control);
-      head.Resume(hello_control);
+      loop
+         head.Resume(hello_control);
+         exit when hello_control.Detached;
+         -- do something here...
+      end loop;
    end;
 
    ---------------------------------------------------------------------
    -- Test 4 - "Multiple" inheritance
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
-
+      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
       task body HELLO_RUN is
       begin
          self.Attach;
-
          Put_Line("Test 4-Hello, world!");
-
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
@@ -148,66 +139,60 @@ begin
          end record;
 
       task body HELLO_RUN is
-         super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.all);
       begin
          self.Attach;
-
          Put_Line("Test 5-Hello, world!");
-
          self.Detach;
       exception
-         when X: others => super.Cancel(X); raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       hello : HELLO_COROUTINE;
    begin
-      Resume(ASYMMETRIC_CONTROLLER(hello));
+      Resume(hello);
    end;
 
    ---------------------------------------------------------------------
    -- Test 6 - "Multiple" inheritance
    ---------------------------------------------------------------------
    declare
-      package Hello_Application is
-         type HELLO_COROUTINE is new ASYMMETRIC_CONTROLLER with private;
+      package Hello_Package is
+         type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
          procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
-         task type HELLO_RUN (self: not null access HELLO_COROUTINE);
+         task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+
       private
-         type HELLO_COROUTINE is new ASYMMETRIC_CONTROLLER with
+         type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
             record
                run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
             end record;
-      end Hello_Application;
+      end Hello_Package;
 
-      package body Hello_Application is
+      package body Hello_Package is
          overriding
          procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE) is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
          begin
             super.Cancel(X);
-            abort self.run;
+            abort self.run; -- just in case
          end Cancel;
 
          task body HELLO_RUN is
          begin
             self.Attach;
-
             Put_Line("Test 6-Hello, world!");
-
             self.Detach;
          exception
             when X: others => self.Cancel(X); raise;
          end HELLO_RUN;
-      end Hello_Application;
+      end Hello_Package;
 
-      use Hello_Application;
-
-      hello : HELLO_COROUTINE;
+      hello : Hello_Package.HELLO_COROUTINE;
    begin
-      Resume(hello);
+      hello.Resume;
    end;
 
    --test: raise Program_Error;

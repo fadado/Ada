@@ -19,15 +19,18 @@ package Control is
    procedure Detach(self: in out BASE_CONTROLLER);
    -- Mandatory last call in each task body.
 
-   procedure Resume(self, target: in out BASE_CONTROLLER);
-   -- Transfers control to `target` ("primary" method).
-
-   procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
-   -- Helper for exception handlers.
-
    function Attached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
    function Detached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
    -- Is the controller still active (or not)?
+
+   procedure Resume(self, target: in out BASE_CONTROLLER);
+   -- Transfers control to `target` ("primary" method).
+
+   procedure Resume(target: in out BASE_CONTROLLER) is abstract;
+   -- Starter.
+
+   procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
+   -- Helper for exception handlers.
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
@@ -39,14 +42,12 @@ package Control is
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
 
-   procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
-   -- Transfers control to the invoker.
-
-   procedure Resume(self: in out ASYMMETRIC_CONTROLLER; target: access ASYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access `target` (perhaps not inlined!).
-
+   overriding
    procedure Resume(target: in out ASYMMETRIC_CONTROLLER) with Inline;
    -- Starter.
+
+   procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
+   -- Transfers control to the invoker.
 
    ---------------------------------------------------------------------
    -- Symmetric controller
@@ -58,16 +59,20 @@ package Control is
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
 
+   overriding
+   procedure Resume(target: in out SYMMETRIC_CONTROLLER) with Inline;
+   -- Starter.
+
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    -- Transfers control to `target` and detach `self` from the current task.
    -- Mandatory symmetric coroutines last call, except for the last to finish.
 
-   procedure Resume(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
-   procedure Jump(self: in out SYMMETRIC_CONTROLLER; target: access SYMMETRIC_CONTROLLER) with Inline;
-   -- Syntactic sugar to allow access `target` (perhaps not inlined!).
+   ---------------------------------------------------------------------
+   -- Generic references to controllers
+   ---------------------------------------------------------------------
 
-   procedure Resume(target: in out SYMMETRIC_CONTROLLER) with Inline;
-   -- Starter.
+   type ASYMMETRIC_COROUTINE is not null access all ASYMMETRIC_CONTROLLER'Class;
+   type SYMMETRIC_COROUTINE  is not null access all SYMMETRIC_CONTROLLER'Class;
 
 private
    ---------------------------------------------------------------------
