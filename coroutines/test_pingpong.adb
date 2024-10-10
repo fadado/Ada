@@ -21,10 +21,12 @@ procedure test_pingpong is
    --
    ---------------------------------------------------------------------
 
-   task type PING_RUN(Ping, Pong: not null access SYMMETRIC_CONTROLLER);
-   task type PONG_RUN(Pong, Ping: not null access SYMMETRIC_CONTROLLER);
+   task type PING_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
+   task type PONG_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
 
    task body PING_RUN is
+      Ping : SYMMETRIC_CONTROLLER renames This.all;
+      Pong : SYMMETRIC_CONTROLLER renames That.all;
    begin
       Ping.Attach;
 
@@ -43,6 +45,8 @@ procedure test_pingpong is
    end PING_RUN;
 
    task body PONG_RUN is
+      Ping : SYMMETRIC_CONTROLLER renames This.all;
+      Pong : SYMMETRIC_CONTROLLER renames That.all;
    begin
       Pong.Attach;
 
@@ -70,8 +74,8 @@ begin
       pong_control : aliased SYMMETRIC_CONTROLLER;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
                                pong_control'Unchecked_Access);
-      pong_runner  : PONG_RUN (pong_control'Unchecked_Access,
-                               ping_control'Unchecked_Access);
+      pong_runner  : PONG_RUN (ping_control'Unchecked_Access,
+                               pong_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
       New_Line;

@@ -81,9 +81,10 @@ begin
    -- Test 3 - Symmetric hello world
    ---------------------------------------------------------------------
    declare
-      task type HELLO_RUN (self, invoker: not null access SYMMETRIC_CONTROLLER);
+      task type HELLO_RUN (self, other: not null access SYMMETRIC_CONTROLLER);
 
       task body HELLO_RUN is
+         invoker : SYMMETRIC_CONTROLLER renames other.all;
       begin
          self.Attach;
 
@@ -148,7 +149,6 @@ begin
          end record;
 
       task body HELLO_RUN is
-         super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.all);
       begin
          self.Attach;
 
@@ -156,7 +156,7 @@ begin
 
          self.Detach;
       exception
-         when X: others => super.Cancel(X); raise;
+         when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
       hello : HELLO_COROUTINE;
