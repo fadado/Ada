@@ -69,6 +69,7 @@ begin
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+   Test:
    declare
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
@@ -80,7 +81,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      Resume(ping_control);
+      Call(ping_control);
 
       New_Line;
       Put_Line("Game Over");
@@ -89,7 +90,7 @@ begin
          --TODO!
          abort ping_runner, pong_runner;
          Gotcha.Report_Exception(X, "Oops at HEAD TASK!!");
-   end;
+   end Test;
 
 end test_pingpong;
 

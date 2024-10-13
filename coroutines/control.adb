@@ -144,11 +144,11 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) is
+   procedure Call(target: in out ASYMMETRIC_CONTROLLER) is
       head : ASYMMETRIC_CONTROLLER;
    begin
       head.Resume(target);
-   end;
+   end Call;
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
@@ -177,11 +177,11 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Resume(target: in out SYMMETRIC_CONTROLLER) is
+   procedure Call(target: in out SYMMETRIC_CONTROLLER) is
       head : SYMMETRIC_CONTROLLER;
    begin
       head.Resume(target);
-   end;
+   end Call;
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin

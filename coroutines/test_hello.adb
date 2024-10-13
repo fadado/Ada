@@ -24,6 +24,7 @@ begin
    ---------------------------------------------------------------------
    -- Test 1 - Simple hello world
    ---------------------------------------------------------------------
+   Test_1:
    declare
       pragma Warnings (Off, "unreachable code");
 
@@ -41,12 +42,13 @@ begin
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      Resume(hello_control);
-   end;
+      Call(hello_control);
+   end Test_1;
 
    ---------------------------------------------------------------------
    -- Test 2 - Asymmetric hello world
    ---------------------------------------------------------------------
+   Test_2:
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
       task body HELLO_RUN is
@@ -70,11 +72,12 @@ begin
          exit when hello_control.Detached;
          -- do something here...
       end loop;
-   end;
+   end Test_2;
 
    ---------------------------------------------------------------------
    -- Test 3 - Symmetric hello world
    ---------------------------------------------------------------------
+   Test_3:
    declare
       task type HELLO_RUN (self, other: not null access SYMMETRIC_CONTROLLER);
       task body HELLO_RUN is
@@ -99,11 +102,12 @@ begin
          exit when hello_control.Detached;
          -- do something here...
       end loop;
-   end;
+   end Test_3;
 
    ---------------------------------------------------------------------
    -- Test 4 - "Multiple" inheritance
    ---------------------------------------------------------------------
+   Test_4:
    declare
       task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
       task body HELLO_RUN is
@@ -122,12 +126,13 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Resume(hello);
-   end;
+      Call(hello);
+   end Test_4;
 
    ---------------------------------------------------------------------
    -- Test 5 - "Multiple" inheritance
    ---------------------------------------------------------------------
+   Test_5:
    declare
       type HELLO_COROUTINE is tagged;
 
@@ -149,12 +154,13 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Resume(hello);
-   end;
+      Call(hello);
+   end Test_5;
 
    ---------------------------------------------------------------------
    -- Test 6 - "Multiple" inheritance
    ---------------------------------------------------------------------
+   Test_6:
    declare
       package Hello_Package is
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
@@ -192,8 +198,8 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      hello.Resume;
-   end;
+      hello.Call;
+   end Test_6;
 
    --test: raise Program_Error;
 exception

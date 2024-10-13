@@ -26,7 +26,7 @@ package Control is
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target` ("primary" method).
 
-   procedure Resume(target: in out BASE_CONTROLLER) is abstract;
+   procedure Call(target: in out BASE_CONTROLLER) is abstract;
    -- Starter.
 
    procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
@@ -43,7 +43,7 @@ package Control is
    -- "Before" method for primary resume.
 
    overriding
-   procedure Resume(target: in out ASYMMETRIC_CONTROLLER) with Inline;
+   procedure Call(target: in out ASYMMETRIC_CONTROLLER) with Inline;
    -- Starter.
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
@@ -60,7 +60,7 @@ package Control is
    -- "Before" method for primary resume.
 
    overriding
-   procedure Resume(target: in out SYMMETRIC_CONTROLLER) with Inline;
+   procedure Call(target: in out SYMMETRIC_CONTROLLER) with Inline;
    -- Starter.
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
