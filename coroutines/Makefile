@@ -7,6 +7,7 @@ all: test_hello test_pingpong
 LIBRARY := \
 	signals.ads \
 	control.ad[sb] \
+	co_op.ad[sb] \
 	gotcha.ad[sb]
 
 test_hello: test_hello.adb ${LIBRARY}

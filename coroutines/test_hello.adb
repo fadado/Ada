@@ -14,7 +14,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with Control; use Control;
 with Gotcha;
---with Co_Op;
+
+with Co_Op;
 
 procedure test_hello is
 
@@ -201,7 +202,32 @@ begin
       hello.Call;
    end Test_6;
 
-   --test: raise Program_Error;
+   ---------------------------------------------------------------------
+   -- Test 7 - Co_Op example
+   ---------------------------------------------------------------------
+
+   Test_7:
+   declare
+      use Co_Op;
+
+      package Rut is new Routine_Types (
+         CONTEXT_TYPE => TOP_CONTEXT
+      );
+      procedure hello_world(self    : Rut.ROUTINE_ACCESS;
+                            context : Rut.CONTEXT_ACCESS) is
+      begin
+         Put("Test 7-"); self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
+         Put_Line("!");
+      end;
+      hello : Rut.ROUTINE (hello_world'Access, None'Access);
+   begin
+      loop hello.Resume; end loop;
+   exception
+      when Stop_Iteration => null;
+   end Test_7;
+
 exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
