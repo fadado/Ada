@@ -211,17 +211,17 @@ begin
       use Co_Op;
 
       package Rut is new Routine_Types (
-         CONTEXT_TYPE => TOP_CONTEXT
+         CONTEXT_TYPE => INTEGER -- use any: to ignore
       );
-      procedure hello_world(self    : Rut.ROUTINE_ACCESS;
-                            context : Rut.CONTEXT_ACCESS) is
+      procedure hello_world(self   : Rut.ROUTINE_ACCESS;
+                            ignore : Rut.CONTEXT_ACCESS) is
       begin
          Put("Test 7-"); self.Yield;
          Put("Hello");   self.Yield;
          Put(", world"); self.Yield;
          Put_Line("!");
       end;
-      hello : Rut.ROUTINE (hello_world'Access, None'Access);
+      hello : Rut.ROUTINE (hello_world'Access);
    begin
       loop hello.Resume; end loop;
    exception

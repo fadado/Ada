@@ -7,28 +7,31 @@ package body Co_Op is
    --
    ---------------------------------------------------------------------
    package body Routine_Types is
-      use Control;
-
       task body RUNNER is
       begin
          self.Attach;
+         -- here after first resume
          self.Program(self, self.context);
          self.Detach;
       exception
          when X: others => self.Cancel(X); raise;
       end RUNNER;
 
-      procedure Resume(self: in out ROUTINE) is
-         target : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
+      procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS:=NULL) is
       begin
-         self.head.Resume(target);
-         if target.Detached then raise Stop_Iteration; end if;
+         self.context := context;
+
+         self.head.Resume(Control.ASYMMETRIC_CONTROLLER(self));
+
+         if self.Detached then
+            raise Stop_Iteration;
+         end if;
       end Resume;
 
       procedure Yield(self: in out ROUTINE) is
-         super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
       begin
-         super.Yield;
+         -- delegate to super
+         Control.ASYMMETRIC_CONTROLLER(self).Yield;
       end Yield;
    end Routine_Types;
 
