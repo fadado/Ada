@@ -4,7 +4,7 @@ with Ada.Synchronous_Task_Control;
 
 package Signals is
    ---------------------------------------------------------------------
-   -- `False` initialized semaphores ("signals") for *two* tasks only
+   -- `FALSE` initialized semaphores ("signals") for *two* tasks only
    ---------------------------------------------------------------------
 
    subtype SIGNAL is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;

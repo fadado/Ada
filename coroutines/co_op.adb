@@ -6,7 +6,13 @@ package body Co_Op is
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+
    package body Routine_Types is
+
+      ------------
+      -- RUNNER --
+      ------------
+
       task body RUNNER is
       begin
          self.Attach;
@@ -17,16 +23,37 @@ package body Co_Op is
          when X: others => self.Cancel(X); raise;
       end RUNNER;
 
-      procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS:=NULL) is
+      ------------
+      -- Resume --
+      ------------
+
+      procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS) is
+         use type Control.STATUS_TYPE;
       begin
+         pragma Assert(self.context = NULL);
          self.context := context;
-
          self.head.Resume(Control.ASYMMETRIC_CONTROLLER(self));
-
-         if self.Detached then
+         if self.Status = Control.DEAD then
             raise Stop_Iteration;
          end if;
       end Resume;
+
+      ------------
+      -- Resume --
+      ------------
+
+      procedure Resume(self: in out ROUTINE) is
+         use type Control.STATUS_TYPE;
+      begin
+         self.head.Resume(Control.ASYMMETRIC_CONTROLLER(self));
+         if self.Status = Control.DEAD then
+            raise Stop_Iteration;
+         end if;
+      end Resume;
+
+      -----------
+      -- Yield --
+      -----------
 
       procedure Yield(self: in out ROUTINE) is
       begin

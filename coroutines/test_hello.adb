@@ -1,5 +1,7 @@
 -- test_hello.adb
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 pragma Restrictions (
 -- No_Abort_Statements,
    No_Task_Allocators,
@@ -40,10 +42,13 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
+      main          : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      Call(hello_control);
+      pragma Assert(not main.Is_Yieldable);
+      pragma Assert(hello_control.Is_Yieldable);
+      main.Resume(hello_control);
    end Test_1;
 
    ---------------------------------------------------------------------
@@ -64,13 +69,13 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      head : ASYMMETRIC_CONTROLLER;
+      main : ASYMMETRIC_CONTROLLER;
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       loop
-         head.Resume(hello_control);
-         exit when hello_control.Detached;
+         main.Resume(hello_control);
+         exit when hello_control.Status = Control.DEAD;
          -- do something here...
       end loop;
    end Test_2;
@@ -94,13 +99,13 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
-      head : aliased SYMMETRIC_CONTROLLER;
+      main : aliased SYMMETRIC_CONTROLLER;
       hello_control : aliased SYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, head'Unchecked_Access);
+      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, main'Unchecked_Access);
    begin
       loop
-         head.Resume(hello_control);
-         exit when hello_control.Detached;
+         main.Resume(hello_control);
+         exit when hello_control.Status = Control.DEAD;
          -- do something here...
       end loop;
    end Test_3;
@@ -110,7 +115,7 @@ begin
    ---------------------------------------------------------------------
    Test_4:
    declare
-      task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
       task body HELLO_RUN is
       begin
          self.Attach;
@@ -125,9 +130,10 @@ begin
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
+      main  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      Call(hello);
+      main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_4;
 
    ---------------------------------------------------------------------
@@ -153,9 +159,10 @@ begin
          when X: others => self.Cancel(X); raise;
       end HELLO_RUN;
 
+      main  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      Call(hello);
+      main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_5;
 
    ---------------------------------------------------------------------
@@ -169,7 +176,7 @@ begin
          overriding
          procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
-         task type HELLO_RUN (self: ASYMMETRIC_COROUTINE);
+         task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
 
       private
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -197,9 +204,10 @@ begin
          end HELLO_RUN;
       end Hello_Package;
 
+      main  : ASYMMETRIC_CONTROLLER;
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      hello.Call;
+      main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_6;
 
    ---------------------------------------------------------------------
@@ -227,6 +235,16 @@ begin
    exception
       when Stop_Iteration => null;
    end Test_7;
+
+-- function wrap(f)
+--    local co = coroutine.create(f)
+--    return function(v)
+--             status, val = coroutine.resume(co, v)
+--             if status then return val
+--             else error(val)
+--             end
+-- --       end
+-- end
 
 exception
    when X : others =>

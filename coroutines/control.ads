@@ -1,9 +1,10 @@
 -- control.ads
 
-with Ada.Exceptions;
-
 private with Ada.Task_Identification;
 private with Signals;
+
+with Ada.Exceptions;
+use  Ada.Exceptions;
 
 package Control is
    ---------------------------------------------------------------------
@@ -19,18 +20,28 @@ package Control is
    procedure Detach(self: in out BASE_CONTROLLER);
    -- Mandatory last call in each task body.
 
-   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
-   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
-   -- Is the controller still active (or not)?
-
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target` ("primary" method).
 
-   procedure Call(target: in out BASE_CONTROLLER) is abstract;
-   -- Starter.
-
-   procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
+   procedure Cancel(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
+
+   type STATUS_TYPE is (RUNNING, SUSPENDED, NORMAL, DEAD);
+   -- Tag controller status.
+
+   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE with Inline;
+   -- Returns the status of the coroutine (design stoled from Lua):
+   --    RUNNING, if the coroutine is running (that is, it is the one that
+   --    called status);
+   --    SUSPENDED, if the coroutine is suspended in a call to yield, or if it
+   --    has not started running yet;
+   --    NORMAL, if the coroutine is active but not running (that is, it has
+   --    resumed another coroutine); and
+   --    DEAD, if the coroutine has finished its body function, or if it has
+   --    stopped with an error.
+
+   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
+   -- Return FALSE if `Environment_Task` is the task for `self`.
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
@@ -41,10 +52,6 @@ package Control is
    overriding
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
-
-   overriding
-   procedure Call(target: in out ASYMMETRIC_CONTROLLER) with Inline;
-   -- Starter.
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
    -- Transfers control to the invoker.
@@ -59,20 +66,9 @@ package Control is
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
 
-   overriding
-   procedure Call(target: in out SYMMETRIC_CONTROLLER) with Inline;
-   -- Starter.
-
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    -- Transfers control to `target` and detach `self` from the current task.
    -- Mandatory symmetric coroutines last call, except for the last to finish.
-
-   ---------------------------------------------------------------------
-   -- Generic references to controllers
-   ---------------------------------------------------------------------
-
-   type ASYMMETRIC_COROUTINE is not null access all ASYMMETRIC_CONTROLLER'Class;
-   type SYMMETRIC_COROUTINE  is not null access all SYMMETRIC_CONTROLLER'Class;
 
 private
    ---------------------------------------------------------------------
@@ -82,9 +78,10 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
-         flag    : Signals.SIGNAL;
-         migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
          link    : access BASE_CONTROLLER'Class;
+         state   : STATUS_TYPE := SUSPENDED;
+         flag    : Signals.SIGNAL;
+         migrant : EXCEPTION_OCCURRENCE_ACCESS;
       end record;
    -- := (Null_Task_Id, FALSE, NULL, NULL);
 

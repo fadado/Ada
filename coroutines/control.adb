@@ -9,28 +9,55 @@ with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 with Signals;
 
+use Ada.Exceptions;
 use Ada.Task_Identification;
 use Signals;
 
 package body Control is
+
+   -----------------------
+   -- Local subprograms --
+   -----------------------
+
+   procedure kill(self: in out BASE_CONTROLLER'Class) is
+   begin
+      -- TODO: rename as close? abort .id?
+      self.id    := Null_Task_Id;
+      self.link  := NULL;
+      self.state := DEAD;
+   end kill;
+
    ---------------------------------------------------------------------
    -- Base controller
    ---------------------------------------------------------------------
 
+   ------------
+   -- Attach --
+   ------------
+
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
+      pragma Assert(self.state = SUSPENDED);
       self.id := Current_Task;
       Wait(self.flag);
+      self.state := RUNNING;
    end Attach;
 
+   ------------
+   -- Detach --
+   ------------
+
    procedure Detach(self: in out BASE_CONTROLLER) is
-      -- back: `invoker` for asymetric or `head` for symmetric
+      -- back: `invoker` for asymmetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
       Notify(back.flag);
    end Detach;
+
+   ------------
+   -- Resume --
+   ------------
 
    procedure Resume(self, target: in out BASE_CONTROLLER)
    is
@@ -75,8 +102,10 @@ package body Control is
       pragma Assert(target.id /= Current_Task);
 
       -- transfers control
+      self.state := NORMAL;
       Notify(target.flag);
       Wait(self.flag);
+      self.state := RUNNING;
 
       -- check if target raised an exception!
       if self.migrant /= NULL then
@@ -84,18 +113,20 @@ package body Control is
       end if;
    end Resume;
 
-   procedure Cancel(self: in out BASE_CONTROLLER; X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+   ------------
+   -- Cancel --
+   ------------
+
+   procedure Cancel(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
    -- warning: cannot call `Current_Task` here!
    is
-      use Ada.Exceptions;
-
       function is_head(co: in out BASE_CONTROLLER'Class) return BOOLEAN with Inline is
          type PTR is not null access all BASE_CONTROLLER'Class;
       begin
          return PTR'(co.link) = PTR'(co'Unchecked_Access);
       end is_head;
 
-      -- back: `invoker` for asymetric or `head` for symmetric
+      -- back: `invoker` for asymmetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
 
    begin
@@ -105,27 +136,39 @@ package body Control is
          raise Program_Error with "nowhere to migrate";
       end if;
 
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
 
       -- migrate exception
       back.migrant := Save_Occurrence(X);
       Notify(back.flag);
    end Cancel;
 
-   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN is
-   begin
-      return self.id /= Null_Task_Id;
-   end Attached;
+   ------------
+   -- Status --
+   ------------
 
-   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN is
+   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE is
    begin
-      return self.id = Null_Task_Id;
-   end Detached;
+      return self.state;
+   end Status;
+
+   ------------------
+   -- Is_Yieldable --
+   ------------------
+
+   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN is
+   begin
+      return self.id /= Null_Task_Id and then
+             self.id /= Environment_Task;
+   end Is_Yieldable;
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
    ---------------------------------------------------------------------
+
+   ------------
+   -- Resume --
+   ------------
 
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
@@ -144,22 +187,26 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Call(target: in out ASYMMETRIC_CONTROLLER) is
-      head : ASYMMETRIC_CONTROLLER;
-   begin
-      head.Resume(target);
-   end Call;
+   -----------
+   -- Yield --
+   -----------
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
+      self.state := SUSPENDED;
       Notify(invoker.flag);
       Wait(self.flag);
+      self.state := RUNNING;
    end Yield;
 
    ---------------------------------------------------------------------
    -- Symmetric controller
    ---------------------------------------------------------------------
+
+   ------------
+   -- Resume --
+   ------------
 
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
@@ -177,16 +224,13 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Call(target: in out SYMMETRIC_CONTROLLER) is
-      head : SYMMETRIC_CONTROLLER;
-   begin
-      head.Resume(target);
-   end Call;
+   ----------
+   -- Jump --
+   ----------
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
       Notify(target.flag);
    end Jump;
 
