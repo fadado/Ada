@@ -29,7 +29,9 @@ package Co_Op is
       type ROUTINE (program : PROGRAM_ACCESS) is
          limited new Control.ASYMMETRIC_CONTROLLER with private;
 
-      procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS:=NULL);
+      procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS);
+      procedure Resume(self: in out ROUTINE);
+
       procedure Yield(self: in out ROUTINE);
 
    private

@@ -73,6 +73,7 @@ begin
    ---------------------------------------------------------------------
    Test:
    declare
+      main         : SYMMETRIC_CONTROLLER;
       ping_control : aliased SYMMETRIC_CONTROLLER;
       pong_control : aliased SYMMETRIC_CONTROLLER;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
@@ -83,7 +84,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      Call(ping_control);
+      main.Resume(ping_control);
 
       New_Line;
       Put_Line("Game Over");

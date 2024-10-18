@@ -13,22 +13,32 @@ use Ada.Task_Identification;
 use Signals;
 
 package body Control is
+
+   procedure kill(self: in out BASE_CONTROLLER'Class) is
+   begin
+      -- TODO: abort?
+      self.id    := Null_Task_Id;
+      self.link  := NULL;
+      self.state := DEAD;
+   end kill;
+
    ---------------------------------------------------------------------
    -- Base controller
    ---------------------------------------------------------------------
 
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
+      pragma Assert(self.state = SUSPENDED);
       self.id := Current_Task;
       Wait(self.flag);
+      self.state := RUNNING;
    end Attach;
 
    procedure Detach(self: in out BASE_CONTROLLER) is
-      -- back: `invoker` for asymetric or `head` for symmetric
+      -- back: `invoker` for asymmetric or `head` for symmetric
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
       Notify(back.flag);
    end Detach;
 
@@ -75,8 +85,10 @@ package body Control is
       pragma Assert(target.id /= Current_Task);
 
       -- transfers control
+      self.state := NORMAL;
       Notify(target.flag);
       Wait(self.flag);
+      self.state := RUNNING;
 
       -- check if target raised an exception!
       if self.migrant /= NULL then
@@ -105,23 +117,36 @@ package body Control is
          raise Program_Error with "nowhere to migrate";
       end if;
 
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
 
       -- migrate exception
       back.migrant := Save_Occurrence(X);
       Notify(back.flag);
    end Cancel;
 
-   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN is
+   -- Returns the status of the coroutine (design stoled from Lua):
+   --    RUNNING, if the coroutine is running (that is, it is the one that
+   --    called status);
+   --    SUSPENDED, if the coroutine is suspended in a call to yield, or if it
+   --    has not started running yet;
+   --    NORMAL, if the coroutine is active but not running (that is, it has
+   --    resumed another coroutine); and
+   --    DEAD, if the coroutine has finished its body function, or if it has
+   --    stopped with an error.
+   function Status(self: in out BASE_CONTROLLER) return VITAL_STATUS is
    begin
-      return self.id /= Null_Task_Id;
-   end Attached;
+      if self.id = Current_Task then
+         return RUNNING;
+      else
+         return self.state;
+      end if;
+   end Status;
 
-   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN is
+   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN is
    begin
-      return self.id = Null_Task_Id;
-   end Detached;
+      return self.id /= Null_Task_Id and then
+             self.id /= Environment_Task;
+   end Is_Yieldable;
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
@@ -144,17 +169,13 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Call(target: in out ASYMMETRIC_CONTROLLER) is
-      head : ASYMMETRIC_CONTROLLER;
-   begin
-      head.Resume(target);
-   end Call;
-
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
+      self.state := SUSPENDED;
       Notify(invoker.flag);
       Wait(self.flag);
+      self.state := RUNNING;
    end Yield;
 
    ---------------------------------------------------------------------
@@ -177,16 +198,9 @@ package body Control is
       super.Resume(BASE_CONTROLLER(target));
    end Resume;
 
-   procedure Call(target: in out SYMMETRIC_CONTROLLER) is
-      head : SYMMETRIC_CONTROLLER;
-   begin
-      head.Resume(target);
-   end Call;
-
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      self.id := Null_Task_Id;
-      self.link := NULL;
+      kill(self);
       Notify(target.flag);
    end Jump;
 

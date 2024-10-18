@@ -19,18 +19,19 @@ package Control is
    procedure Detach(self: in out BASE_CONTROLLER);
    -- Mandatory last call in each task body.
 
-   function Attached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
-   function Detached(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
-   -- Is the controller still active (or not)?
-
    procedure Resume(self, target: in out BASE_CONTROLLER);
    -- Transfers control to `target` ("primary" method).
 
-   procedure Call(target: in out BASE_CONTROLLER) is abstract;
-   -- Starter.
-
    procedure Cancel(self: in out BASE_CONTROLLER; X: in Ada.Exceptions.EXCEPTION_OCCURRENCE);
    -- Helper for exception handlers.
+
+   type VITAL_STATUS is (RUNNING, SUSPENDED, NORMAL, DEAD);
+
+   function Status(self: in out BASE_CONTROLLER) return VITAL_STATUS with Inline;
+   -- Ask for the controller state.
+
+   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
+   -- TODO
 
    ---------------------------------------------------------------------
    -- Asymmetric controller
@@ -41,10 +42,6 @@ package Control is
    overriding
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
-
-   overriding
-   procedure Call(target: in out ASYMMETRIC_CONTROLLER) with Inline;
-   -- Starter.
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
    -- Transfers control to the invoker.
@@ -59,20 +56,9 @@ package Control is
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
    -- "Before" method for primary resume.
 
-   overriding
-   procedure Call(target: in out SYMMETRIC_CONTROLLER) with Inline;
-   -- Starter.
-
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    -- Transfers control to `target` and detach `self` from the current task.
    -- Mandatory symmetric coroutines last call, except for the last to finish.
-
-   ---------------------------------------------------------------------
-   -- Generic references to controllers
-   ---------------------------------------------------------------------
-
-   type ASYMMETRIC_COROUTINE is not null access all ASYMMETRIC_CONTROLLER'Class;
-   type SYMMETRIC_COROUTINE  is not null access all SYMMETRIC_CONTROLLER'Class;
 
 private
    ---------------------------------------------------------------------
@@ -83,8 +69,9 @@ private
       record
          id      : Ada.Task_Identification.TASK_ID;
          flag    : Signals.SIGNAL;
-         migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
          link    : access BASE_CONTROLLER'Class;
+         state   : VITAL_STATUS := Suspended;
+         migrant : Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
       end record;
    -- := (Null_Task_Id, FALSE, NULL, NULL);
 
