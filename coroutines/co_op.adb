@@ -1,13 +1,14 @@
 -- co_op.adb
 
 with Control;
+use  Control;
 
 package body Co_Op is
    ---------------------------------------------------------------------
-   --
+   -- Routines
    ---------------------------------------------------------------------
 
-   package body Routine_Types is
+   package body Routines is
 
       ------------
       -- RUNNER --
@@ -16,7 +17,6 @@ package body Co_Op is
       task body RUNNER is
       begin
          self.Attach;
-         -- here after first resume
          self.Program(self, self.context);
          self.Detach;
       exception
@@ -28,25 +28,22 @@ package body Co_Op is
       ------------
 
       procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS) is
-         use type Control.STATUS_TYPE;
       begin
          pragma Assert(self.context = NULL);
          self.context := context;
-         self.head.Resume(Control.ASYMMETRIC_CONTROLLER(self));
-         if self.Status = Control.DEAD then
+
+         self.head.Resume(ASYMMETRIC_CONTROLLER(self));
+
+         if self.Status = DEAD then
             raise Stop_Iteration;
          end if;
       end Resume;
 
-      ------------
-      -- Resume --
-      ------------
-
       procedure Resume(self: in out ROUTINE) is
-         use type Control.STATUS_TYPE;
       begin
-         self.head.Resume(Control.ASYMMETRIC_CONTROLLER(self));
-         if self.Status = Control.DEAD then
+         self.head.Resume(ASYMMETRIC_CONTROLLER(self));
+
+         if self.Status = DEAD then
             raise Stop_Iteration;
          end if;
       end Resume;
@@ -56,14 +53,28 @@ package body Co_Op is
       -----------
 
       procedure Yield(self: in out ROUTINE) is
+         super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
       begin
-         -- delegate to super
-         Control.ASYMMETRIC_CONTROLLER(self).Yield;
+         super.Yield;
       end Yield;
-   end Routine_Types;
+
+      ----------
+      -- Wrap --
+      ----------
+
+      package body Wrap is
+         r : ROUTINE (Thunk);
+
+         procedure Call is
+         begin
+            r.Resume;
+         end Call;
+      end Wrap;
+
+   end Routines;
 
    ---------------------------------------------------------------------
-   --
+   -- Functors
    ---------------------------------------------------------------------
 end Co_Op;
 

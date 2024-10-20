@@ -71,10 +71,6 @@ package Control is
    -- Mandatory symmetric coroutines last call, except for the last to finish.
 
 private
-   ---------------------------------------------------------------------
-   -- Controller implementation
-   ---------------------------------------------------------------------
-
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
@@ -83,13 +79,12 @@ private
          flag    : Signals.SIGNAL;
          migrant : EXCEPTION_OCCURRENCE_ACCESS;
       end record;
-   -- := (Null_Task_Id, FALSE, NULL, NULL);
 
-   -- Stack like pass of control
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
+   -- Stack like pass of control
 
-   -- Graph like pass of control
    type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with null record;
+   -- Graph like pass of control
 
 end Control;
 

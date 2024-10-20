@@ -218,33 +218,49 @@ begin
    declare
       use Co_Op;
 
-      package Rut is new Routine_Types (
-         CONTEXT_TYPE => INTEGER -- use any: to ignore
-      );
-      procedure hello_world(self   : Rut.ROUTINE_ACCESS;
-                            ignore : Rut.CONTEXT_ACCESS) is
+      package R is new Routines (CONTEXT_TYPE => NONE);
+
+      procedure hello_world(self: R.ROUTINE_ACCESS; x: R.CONTEXT_ACCESS) is
       begin
          Put("Test 7-"); self.Yield;
          Put("Hello");   self.Yield;
          Put(", world"); self.Yield;
          Put_Line("!");
       end;
-      hello : Rut.ROUTINE (hello_world'Access);
+
+      hello : R.ROUTINE (hello_world'Access);
+
    begin
       loop hello.Resume; end loop;
    exception
       when Stop_Iteration => null;
    end Test_7;
 
--- function wrap(f)
---    local co = coroutine.create(f)
---    return function(v)
---             status, val = coroutine.resume(co, v)
---             if status then return val
---             else error(val)
---             end
--- --       end
--- end
+   ---------------------------------------------------------------------
+   -- Test 8 - Co_Op example
+   ---------------------------------------------------------------------
+
+   Test_8:
+   declare
+      use Co_Op;
+
+      package R is new Routines (Context_Type => NONE);
+
+      procedure hello_world(self: R.ROUTINE_ACCESS; x: R.CONTEXT_ACCESS) is
+      begin
+         Put("Test 8-"); self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
+         Put_Line("!");
+      end;
+
+      package routine is new R.Wrap (hello_world'Access);
+
+   begin
+      loop routine.Call; end loop;
+   exception
+      when Stop_Iteration => null;
+   end Test_8;
 
 exception
    when X : others =>

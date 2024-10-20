@@ -7,16 +7,22 @@ package Co_Op is
    --
    ---------------------------------------------------------------------
 
+   type NONE is null record;
+
    Stop_Iteration : exception;
 
    ---------------------------------------------------------------------
-   --
+   -- Routines
    ---------------------------------------------------------------------
    
    generic
-      type CONTEXT_TYPE is private; -- in Ada 2022: "or use INTEGER"
+      type CONTEXT_TYPE is private; -- in Ada 2022: "or use NONE"
+   package Routines is
+
+      ------------------------------------------------------------------
       --
-   package Routine_Types is
+      ------------------------------------------------------------------
+
       type ROUTINE;
       type ROUTINE_ACCESS is not null access all ROUTINE;
       type CONTEXT_ACCESS is          access all CONTEXT_TYPE;
@@ -25,6 +31,10 @@ package Co_Op is
          self    : ROUTINE_ACCESS;
          context : CONTEXT_ACCESS
       );
+
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
 
       type ROUTINE (program : PROGRAM_ACCESS) is
          limited new Control.ASYMMETRIC_CONTROLLER with private;
@@ -35,22 +45,34 @@ package Co_Op is
       not overriding
       procedure Resume(self: in out ROUTINE);
 
+      overriding
       procedure Yield(self: in out ROUTINE);
+
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
+
+      generic
+         Thunk : PROGRAM_ACCESS;
+      package Wrap is
+         procedure Call with Inline;
+      end Wrap;
 
    private
       task type RUNNER (self: ROUTINE_ACCESS);
 
-      type ROUTINE (program : PROGRAM_ACCESS)
-      is limited new Control.ASYMMETRIC_CONTROLLER with
+      type ROUTINE (program : PROGRAM_ACCESS) is
+         limited new Control.ASYMMETRIC_CONTROLLER with
          record
             head    : Control.ASYMMETRIC_CONTROLLER;
             context : CONTEXT_ACCESS := NULL;
             run     : RUNNER (ROUTINE'Unchecked_Access);
          end record;
-   end Routine_Types;
+
+   end Routines;
 
    ---------------------------------------------------------------------
-   --
+   -- Generators
    ---------------------------------------------------------------------
    
 end Co_Op;
