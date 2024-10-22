@@ -14,10 +14,10 @@ pragma Restrictions (
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control; use Control;
-with Gotcha;
+with Control;        use Control;
+with Co_Op.Routines;
 
-with Co_Op;
+with Gotcha;
 
 procedure test_hello is
 
@@ -25,7 +25,7 @@ begin
    Gotcha.Set_Handlers;
 
    ---------------------------------------------------------------------
-   -- Test 1 - Simple hello world
+   --  Test 1 - Simple hello world
    ---------------------------------------------------------------------
    Test_1:
    declare
@@ -52,7 +52,7 @@ begin
    end Test_1;
 
    ---------------------------------------------------------------------
-   -- Test 2 - Asymmetric hello world
+   --  Test 2 - Asymmetric hello world
    ---------------------------------------------------------------------
    Test_2:
    declare
@@ -81,7 +81,7 @@ begin
    end Test_2;
 
    ---------------------------------------------------------------------
-   -- Test 3 - Symmetric hello world
+   --  Test 3 - Symmetric hello world
    ---------------------------------------------------------------------
    Test_3:
    declare
@@ -111,7 +111,7 @@ begin
    end Test_3;
 
    ---------------------------------------------------------------------
-   -- Test 4 - "Multiple" inheritance
+   --  Test 4 - "Multiple" inheritance
    ---------------------------------------------------------------------
    Test_4:
    declare
@@ -137,7 +137,7 @@ begin
    end Test_4;
 
    ---------------------------------------------------------------------
-   -- Test 5 - "Multiple" inheritance
+   --  Test 5 - "Multiple" inheritance
    ---------------------------------------------------------------------
    Test_5:
    declare
@@ -166,7 +166,7 @@ begin
    end Test_5;
 
    ---------------------------------------------------------------------
-   -- Test 6 - "Multiple" inheritance
+   --  Test 6 - "Multiple" inheritance
    ---------------------------------------------------------------------
    Test_6:
    declare
@@ -211,7 +211,7 @@ begin
    end Test_6;
 
    ---------------------------------------------------------------------
-   -- Test 7 - Co_Op example
+   --  Test 7 - Co_Op example
    ---------------------------------------------------------------------
 
    Test_7:
@@ -237,7 +237,7 @@ begin
    end Test_7;
 
    ---------------------------------------------------------------------
-   -- Test 8 - Co_Op example
+   --  Test 8 - Co_Op example
    ---------------------------------------------------------------------
 
    Test_8:

@@ -15,8 +15,6 @@ with Ada.Exceptions; use Ada.Exceptions;
 with Control; use Control;
 with Gotcha;
 
-with Co_Op;--TODO!!!
-
 procedure test_pingpong is
 
    ---------------------------------------------------------------------

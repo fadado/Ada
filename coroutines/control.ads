@@ -1,74 +1,75 @@
--- control.ads
+------------------------------------------------------------------------------
+--  Transfer of control specification
+------------------------------------------------------------------------------
+
+with Ada.Exceptions; use Ada.Exceptions;
 
 private with Ada.Task_Identification;
 private with Signals;
 
-with Ada.Exceptions;
-use  Ada.Exceptions;
-
 package Control is
-   ---------------------------------------------------------------------
-   -- Base abstract controller
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
+   --  Base abstract controller
+   ---------------------------------------------------------------------------
 
    type BASE_CONTROLLER is abstract tagged limited private;
 
    procedure Attach(self: in out BASE_CONTROLLER);
-   -- Attach `self` to the current task. 
-   -- Mandatory first call in each task body.
+   --  Attach `self` to the current task 
 
    procedure Detach(self: in out BASE_CONTROLLER);
-   -- Mandatory last call in each task body.
+   --  Detach `self` from the current task 
 
    procedure Resume(self, target: in out BASE_CONTROLLER);
-   -- Transfers control to `target` ("primary" method).
+   --  Transfer control to `target` ("primary" method)
 
    procedure Cancel(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
-   -- Helper for exception handlers.
+   --  Helper for exception handlers
 
-   type STATUS_TYPE is (RUNNING, SUSPENDED, NORMAL, DEAD);
-   -- Tag controller status.
+   type STATUS_TYPE is (
+      SUSPENDED,  --  the controller has not started running or called `Yield`
+      RUNNING,    --  the controller is the one that called `Status`
+      NORMAL,     --  the coroutine is active but not running (that is, it
+                  --  has resumed another controller)
+      DEAD        --  the coroutine has finished its body function, or it
+                  --  has stopped with an error
+   );
 
-   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE with Inline;
-   -- Returns the status of the coroutine (design stoled from Lua):
-   --    RUNNING, if the coroutine is running (that is, it is the one that
-   --    called status);
-   --    SUSPENDED, if the coroutine is suspended in a call to yield, or if it
-   --    has not started running yet;
-   --    NORMAL, if the coroutine is active but not running (that is, it has
-   --    resumed another coroutine); and
-   --    DEAD, if the coroutine has finished its body function, or if it has
-   --    stopped with an error.
+   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE
+     with Inline;
+   --  Return the controller status
 
-   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN with Inline;
-   -- Return FALSE if `Environment_Task` is the task for `self`.
+   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN
+     with Inline;
+   --  Return `TRUE` if `Environment_Task` is *not* the task for `self`.
 
-   ---------------------------------------------------------------------
-   -- Asymmetric controller
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
+   --  Asymmetric controller
+   ---------------------------------------------------------------------------
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
+   --  Stack like transfer of control
 
    overriding
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
-   -- "Before" method for primary resume.
+   --  "Before" method for primary `Resume`
 
    procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
-   -- Transfers control to the invoker.
+   --  Transfer control to the invoker
 
-   ---------------------------------------------------------------------
-   -- Symmetric controller
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
+   --  Symmetric controller
+   ---------------------------------------------------------------------------
 
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
+   --  Graph like transfer of control
 
    overriding
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
-   -- "Before" method for primary resume.
+   --  "Before" method for primary `Resume`
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
-   -- Transfers control to `target` and detach `self` from the current task.
-   -- Mandatory symmetric coroutines last call, except for the last to finish.
+   --  Transfers control to `target` and detach `self` from the current task
 
 private
    type BASE_CONTROLLER is abstract tagged limited
@@ -81,10 +82,8 @@ private
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
-   -- Stack like pass of control
 
    type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with null record;
-   -- Graph like pass of control
 
 end Control;
 

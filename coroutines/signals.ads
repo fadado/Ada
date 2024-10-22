@@ -1,14 +1,13 @@
--- signals.ads
+------------------------------------------------------------------------------
+--  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
+------------------------------------------------------------------------------
 
 with Ada.Synchronous_Task_Control;
 
 package Signals is
-   ---------------------------------------------------------------------
-   -- `FALSE` initialized semaphores ("signals") for *two* tasks only
-   ---------------------------------------------------------------------
 
    subtype SIGNAL is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;
-   -- Default state for SIGNAL objects is FALSE (cleared)
+   --  `FALSE` initialized semaphores for *two* tasks only
 
    procedure Wait(S: in out SIGNAL)
       renames Ada.Synchronous_Task_Control.Suspend_Until_True;
