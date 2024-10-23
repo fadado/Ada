@@ -13,10 +13,10 @@ COOPLIB := \
 	co_op.ad[s] \
 	co_op-routines.ad[sb]
 
-test_hello: test_hello.adb ${LIBRARY}
+test_hello: test_hello.adb ${LIBRARY} ${COOPLIB}
 	@gnatmake test_hello
 
-test_pingpong: test_pingpong.adb ${LIBRARY} ${COOPLIB}
+test_pingpong: test_pingpong.adb ${LIBRARY}
 	@gnatmake test_pingpong
 
 clean:

@@ -1,7 +1,6 @@
 ------------------------------------------------------------------------------
---  Cooperative concurrency specification
+--  Cooperative concurrency (specification)
 ------------------------------------------------------------------------------
-
 
 package Co_Op is
 
@@ -9,7 +8,7 @@ package Co_Op is
    --  Helper for void contexts
 
    Stop_Iteration : exception;
-   --  Raised after resume detaching control
+   --  Raised after detaching a control
 
 end Co_Op;
 

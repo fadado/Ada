@@ -1,69 +1,53 @@
----------------------------------------------------------------------------
---  Implementation of simple routines with only control transfer
----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--  Simple routines with only control transfer (implementation)
+------------------------------------------------------------------------------
 
 with Control; use Control;
 
 package body Co_Op.Routines is
+   ----------
+   -- Next --
+   ----------
 
-   ------------
-   -- RUNNER --
-   ------------
+   procedure Next(self: in out ROUTINE_TYPE) is
+   begin
+      self.head.Resume(ASYMMETRIC_CONTROLLER(self));
 
-   task body RUNNER is
+      -- is self detached?
+      if self.Status = DEAD then
+         raise Stop_Iteration;
+      end if;
+   end Next;
+
+   ----------------
+   -- Run_Method --
+   ----------------
+
+-- task type Run_Method (self: ROUTINE_ACCESS);
+
+   task body Run_Method is
    begin
       self.Attach;
-      self.Program(self, self.context);
+      self.Program(self);
       self.Detach;
    exception
       when X: others => self.Cancel(X); raise;
-   end RUNNER;
-
-   ------------
-   -- Resume --
-   ------------
-
-   procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS) is
-   begin
-      pragma Assert(self.context = NULL);
-      self.context := context;
-
-      self.head.Resume(ASYMMETRIC_CONTROLLER(self));
-
-      if self.Status = DEAD then
-         raise Stop_Iteration;
-      end if;
-   end Resume;
-
-   procedure Resume(self: in out ROUTINE) is
-   begin
-      self.head.Resume(ASYMMETRIC_CONTROLLER(self));
-
-      if self.Status = DEAD then
-         raise Stop_Iteration;
-      end if;
-   end Resume;
-
-   -----------
-   -- Yield --
-   -----------
-
-   procedure Yield(self: in out ROUTINE) is
-      super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
-   begin
-      super.Yield;
-   end Yield;
+   end Run_Method;
 
    ----------
    -- Wrap --
    ----------
 
+-- generic
+--    Program : PROGRAM_ACCESS;
+--    Context : CONTEXT_ACCESS := NULL;
+
    package body Wrap is
-      r : ROUTINE (Thunk); -- Thunk is a generic parameter
+      r : ROUTINE_TYPE (PROGRAM, CONTEXT);
 
       procedure Call is
       begin
-         r.Resume;
+         r.Next;
       end Call;
    end Wrap;
 

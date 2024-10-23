@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Transfer of control implementation
+--  Transfer of control (implementation)
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy(Check); -- Check / Ignore

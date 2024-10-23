@@ -24,9 +24,9 @@ procedure test_hello is
 begin
    Gotcha.Set_Handlers;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 1 - Simple hello world
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_1:
    declare
       pragma Warnings (Off, "unreachable code");
@@ -51,9 +51,9 @@ begin
       main.Resume(hello_control);
    end Test_1;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 2 - Asymmetric hello world
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_2:
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
@@ -80,9 +80,9 @@ begin
       end loop;
    end Test_2;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 3 - Symmetric hello world
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_3:
    declare
       task type HELLO_RUN (self, other: not null access SYMMETRIC_CONTROLLER);
@@ -110,9 +110,9 @@ begin
       end loop;
    end Test_3;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 4 - "Multiple" inheritance
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_4:
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
@@ -136,9 +136,9 @@ begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_4;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 5 - "Multiple" inheritance
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_5:
    declare
       type HELLO_COROUTINE is tagged;
@@ -165,16 +165,17 @@ begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_5;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 6 - "Multiple" inheritance
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    Test_6:
    declare
       package Hello_Package is
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
-         procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
+         procedure Cancel(self: in out HELLO_COROUTINE;
+                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
          task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
 
@@ -187,11 +188,13 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Cancel(self: in out HELLO_COROUTINE; X: Ada.Exceptions.EXCEPTION_OCCURRENCE) is
+         procedure Cancel(self: in out HELLO_COROUTINE;
+                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+         is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
          begin
             super.Cancel(X);
-            abort self.run; -- just in case
+            abort self.run; -- just in case?
          end Cancel;
 
          task body HELLO_RUN is
@@ -210,17 +213,17 @@ begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_6;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 7 - Co_Op example
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
 
    Test_7:
    declare
       use Co_Op;
 
-      package R is new Routines (CONTEXT_TYPE => NONE);
+      package R is new Routines (Context_Type => NONE);
 
-      procedure hello_world(self: R.ROUTINE_ACCESS; x: R.CONTEXT_ACCESS) is
+      procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
          Put("Test 7-"); self.Yield;
          Put("Hello");   self.Yield;
@@ -228,17 +231,17 @@ begin
          Put_Line("!");
       end;
 
-      hello : R.ROUTINE (hello_world'Access);
+      hello : R.ROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
-      loop hello.Resume; end loop;
+      loop hello.Next; end loop;
    exception
       when Stop_Iteration => null;
    end Test_7;
 
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    --  Test 8 - Co_Op example
-   ---------------------------------------------------------------------
+   ---------------------------------------------------------------------------
 
    Test_8:
    declare
@@ -246,7 +249,7 @@ begin
 
       package R is new Routines (Context_Type => NONE);
 
-      procedure hello_world(self: R.ROUTINE_ACCESS; x: R.CONTEXT_ACCESS) is
+      procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
          Put("Test 8-"); self.Yield;
          Put("Hello");   self.Yield;
@@ -254,7 +257,7 @@ begin
          Put_Line("!");
       end;
 
-      package routine is new R.Wrap (hello_world'Access);
+      package routine is new R.Wrap (Program => hello_world'Access);
 
    begin
       loop routine.Call; end loop;

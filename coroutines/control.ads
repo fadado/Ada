@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Transfer of control specification
+--  Transfer of control (specification)
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions; use Ada.Exceptions;

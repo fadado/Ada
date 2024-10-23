@@ -1,61 +1,48 @@
----------------------------------------------------------------------------
---  Specification of simple routines with only control transfer
----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--  Simple routines with only control transfer (specification)
+------------------------------------------------------------------------------
 
 with Control;
 
 generic
-   type CONTEXT_TYPE is private; -- in Ada 2022: "or use NONE"
+   type CONTEXT_TYPE is private;
+   --  Data to provide an environment for the program
+
 package Co_Op.Routines is
 
-   ------------------------------------------------------------------------
-   --  Exported types
-   ------------------------------------------------------------------------
+   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
+   --  Optional data for the program
 
-   type ROUTINE;
-   type ROUTINE_ACCESS is not null access all ROUTINE;
-   type CONTEXT_ACCESS is          access all CONTEXT_TYPE;
+   type ROUTINE_TYPE;
+   type ROUTINE_ACCESS is not null access all ROUTINE_TYPE;
+   --  Forward declarations
 
-   type PROGRAM_ACCESS is not null access procedure (
-      self    : ROUTINE_ACCESS;
-      context : CONTEXT_ACCESS
-   );
+   type PROGRAM_ACCESS is not null access procedure (self: ROUTINE_ACCESS);
+   --  Procedure type for the program to run
 
-   ------------------------------------------------------------------------
-   --  Basic asymmetric (co)routine transfer of control
-   ------------------------------------------------------------------------
-
-   type ROUTINE (program : PROGRAM_ACCESS) is
+   type ROUTINE_TYPE (program: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       limited new Control.ASYMMETRIC_CONTROLLER with private;
+   --  Coroutine type with only transfer of control
 
-   not overriding
-   procedure Resume(self: in out ROUTINE; context: CONTEXT_ACCESS);
-
-   not overriding
-   procedure Resume(self: in out ROUTINE);
-
-   overriding
-   procedure Yield(self: in out ROUTINE);
-
-   ------------------------------------------------------------------------
-   --  Wrapper for program references
-   ------------------------------------------------------------------------
+   procedure Next(self: in out ROUTINE_TYPE);
+   --  Resume `self` and raises `Stop_Iteration` when dead
 
    generic
-      Thunk : PROGRAM_ACCESS;
+      Program : PROGRAM_ACCESS;
+      Context : CONTEXT_ACCESS := NULL;
    package Wrap is
       procedure Call with Inline;
    end Wrap;
+   --  Wrapper for program references with optional context
 
 private
-   task type RUNNER (self: ROUTINE_ACCESS);
+   task type Run_Method (self: ROUTINE_ACCESS);
 
-   type ROUTINE (program : PROGRAM_ACCESS) is
+   type ROUTINE_TYPE (program: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       limited new Control.ASYMMETRIC_CONTROLLER with
       record
          head    : Control.ASYMMETRIC_CONTROLLER;
-         context : CONTEXT_ACCESS := NULL;
-         run     : RUNNER (ROUTINE'Unchecked_Access);
+         run     : Run_Method (ROUTINE_TYPE'Unchecked_Access);
       end record;
 
 end Co_Op.Routines;
