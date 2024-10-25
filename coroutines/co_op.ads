@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Cooperative concurrency (specification)
+--  Cooperative concurrency top unit
 ------------------------------------------------------------------------------
 
 package Co_Op is
@@ -7,7 +7,7 @@ package Co_Op is
    type NONE is null record;
    --  Helper for void contexts
 
-   Stop_Iteration : exception;
+   Exit_Routine : exception;
    --  Raised after detaching a control
 
 end Co_Op;

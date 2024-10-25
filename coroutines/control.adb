@@ -39,6 +39,7 @@ package body Control is
       pragma Assert(self.state = SUSPENDED);
       self.id := Current_Task;
       Wait(self.flag);
+      -- TODO: if self.state = CLOSING...
       self.state := RUNNING;
    end Attach;
 
@@ -60,15 +61,6 @@ package body Control is
    procedure Resume(self, target: in out BASE_CONTROLLER)
    is
       use Ada.Exceptions;
-
-      ----------
-      -- free --
-      ----------
-
-      procedure free is new Ada.Unchecked_Deallocation(
-         EXCEPTION_OCCURRENCE,
-         EXCEPTION_OCCURRENCE_ACCESS
-      );
 
       -------------------------
       -- await_target_attach --
@@ -96,8 +88,18 @@ package body Control is
       -----------------------
 
       procedure migrate_exception with Inline is
-         id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
-         ms : STRING := Exception_Message(self.migrant.all);
+         ----------
+         -- free --
+         ----------
+
+         procedure free is new Ada.Unchecked_Deallocation(
+            EXCEPTION_OCCURRENCE,
+            EXCEPTION_OCCURRENCE_ACCESS
+         );
+
+         id : EXCEPTION_ID renames Exception_Identity(self.migrant.all);
+         ms : STRING       renames Exception_Message(self.migrant.all);
+
       begin
          free(self.migrant);
          self.migrant := NULL;
@@ -112,9 +114,10 @@ package body Control is
       pragma Assert(target.id /= Current_Task);
 
       --  transfers control
-      self.state := NORMAL;
+      self.state := SUSPENDED;
       Notify(target.flag);
       Wait(self.flag);
+      -- TODO: if self.state = CLOSING...
       self.state := RUNNING;
 
       --  check if target raised an exception!
@@ -131,8 +134,6 @@ package body Control is
 
    procedure Cancel(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
    is
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
-
       -------------
       -- is_head --
       -------------
@@ -144,6 +145,8 @@ package body Control is
       begin
          return PTR'(co.link) = PTR'(co'Unchecked_Access);
       end is_head;
+
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
 
    begin -- Cancel
       pragma Assert(self.id /= Null_Task_Id);
@@ -164,7 +167,7 @@ package body Control is
    -- Status --
    ------------
 
-   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE is
+   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE is
    begin
       return self.state;
    end Status;
@@ -173,11 +176,28 @@ package body Control is
    -- Is_Yieldable --
    ------------------
 
-   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN is
+   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN is
    begin
       return self.id /= Null_Task_Id and then
              self.id /= Environment_Task;
    end Is_Yieldable;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close(self: in out BASE_CONTROLLER) is
+   begin
+      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
+
+      if self.state = DEAD then
+         null;
+      elsif self.state = SUSPENDED then
+         self.state := CLOSING;
+      else
+         raise Program_Error with "closing a running controller";
+      end if;
+   end Close;
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -215,6 +235,7 @@ package body Control is
       self.state := SUSPENDED;
       Notify(invoker.flag);
       Wait(self.flag);
+      -- TODO: if self.state = CLOSING...
       self.state := RUNNING;
    end Yield;
 

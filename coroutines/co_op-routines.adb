@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Simple routines with only control transfer (implementation)
+--  Simple routines with only transfer of control (implementation)
 ------------------------------------------------------------------------------
 
 with Control; use Control;
@@ -15,9 +15,18 @@ package body Co_Op.Routines is
 
       -- is self detached?
       if self.Status = DEAD then
-         raise Stop_Iteration;
+         raise Exit_Routine;
       end if;
    end Next;
+
+   -------------
+   -- Suspend --
+   -------------
+
+   procedure Suspend(self: in out ROUTINE_TYPE) is
+   begin
+      self.Yield;
+   end Suspend;
 
    ----------------
    -- Run_Method --

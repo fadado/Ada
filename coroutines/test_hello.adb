@@ -46,9 +46,9 @@ begin
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      pragma Assert(not main.Is_Yieldable);
       pragma Assert(hello_control.Is_Yieldable);
       main.Resume(hello_control);
+      pragma Assert(not main.Is_Yieldable);
    end Test_1;
 
    ---------------------------------------------------------------------------
@@ -225,9 +225,9 @@ begin
 
       procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
-         Put("Test 7-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
+         Put("Test 7-"); self.Suspend;
+         Put("Hello");   self.Suspend;
+         Put(", world"); self.Suspend;
          Put_Line("!");
       end;
 
@@ -236,7 +236,7 @@ begin
    begin
       loop hello.Next; end loop;
    exception
-      when Stop_Iteration => null;
+      when Exit_Routine => null;
    end Test_7;
 
    ---------------------------------------------------------------------------
@@ -251,18 +251,18 @@ begin
 
       procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
-         Put("Test 8-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
+         Put("Test 8-"); self.Suspend;
+         Put("Hello");   self.Suspend;
+         Put(", world"); self.Suspend;
          Put_Line("!");
       end;
 
-      package routine is new R.Wrap (Program => hello_world'Access);
+      package routine is new R.Wrap (hello_world'Access);
 
    begin
       loop routine.Call; end loop;
    exception
-      when Stop_Iteration => null;
+      when Exit_Routine => null;
    end Test_8;
 
 exception

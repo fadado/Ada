@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Simple routines with only control transfer (specification)
+--  Simple routines with only transfer of control (specification)
 ------------------------------------------------------------------------------
 
 with Control;
@@ -21,11 +21,14 @@ package Co_Op.Routines is
    --  Procedure type for the program to run
 
    type ROUTINE_TYPE (program: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
-      limited new Control.ASYMMETRIC_CONTROLLER with private;
+      tagged limited private;
    --  Coroutine type with only transfer of control
 
    procedure Next(self: in out ROUTINE_TYPE);
-   --  Resume `self` and raises `Stop_Iteration` when dead
+   --  Resume `self` and raises `Exit_Routine` when dead
+
+   procedure Suspend(self: in out ROUTINE_TYPE) with Inline;
+   --  Yields control
 
    generic
       Program : PROGRAM_ACCESS;
@@ -41,8 +44,8 @@ private
    type ROUTINE_TYPE (program: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       limited new Control.ASYMMETRIC_CONTROLLER with
       record
-         head    : Control.ASYMMETRIC_CONTROLLER;
-         run     : Run_Method (ROUTINE_TYPE'Unchecked_Access);
+         head : Control.ASYMMETRIC_CONTROLLER;
+         run  : Run_Method (ROUTINE_TYPE'Unchecked_Access);
       end record;
 
 end Co_Op.Routines;

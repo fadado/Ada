@@ -9,7 +9,7 @@ private with Signals;
 
 package Control is
    ---------------------------------------------------------------------------
-   --  Base abstract controller
+   --  Base (abstract) controller
    ---------------------------------------------------------------------------
 
    type BASE_CONTROLLER is abstract tagged limited private;
@@ -29,19 +29,23 @@ package Control is
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started running or called `Yield`
       RUNNING,    --  the controller is the one that called `Status`
-      NORMAL,     --  the coroutine is active but not running (that is, it
-                  --  has resumed another controller)
-      DEAD        --  the coroutine has finished its body function, or it
+      DEAD,       --  the coroutine has finished its body function, or it
                   --  has stopped with an error
+      CLOSING     --  `Close` requested
    );
 
-   function Status(self: in out BASE_CONTROLLER) return STATUS_TYPE
+   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
      with Inline;
    --  Return the controller status
 
-   function Is_Yieldable(self: in out BASE_CONTROLLER) return BOOLEAN
+   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN
      with Inline;
    --  Return `TRUE` if `Environment_Task` is *not* the task for `self`.
+
+   -- TODO: Close, Throw...
+
+   procedure Close(self: in out BASE_CONTROLLER);
+   --  
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
