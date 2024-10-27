@@ -41,7 +41,7 @@ procedure test_pingpong is
       end loop;
 
    exception -- TODO!
-      when X: others => Ping.Cancel(X); raise;
+      when X: others => Ping.Migrate(X); raise;
    end PING_RUN;
 
    task body PONG_RUN is
@@ -60,7 +60,7 @@ procedure test_pingpong is
       end loop;
 
    exception -- TODO!
-      when X: others => Pong.Cancel(X); raise;
+      when X: others => Pong.Migrate(X); raise;
    end PONG_RUN;
 
 begin

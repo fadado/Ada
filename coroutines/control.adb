@@ -14,17 +14,56 @@ with Signals;                 use Signals;
 
 package body Control is
 
-   -----------------------
-   -- Local subprograms --
-   -----------------------
+   ---------------------------------------------------------------------------
+   -- Local subprograms
+   ---------------------------------------------------------------------------
 
-   procedure kill(self: in out BASE_CONTROLLER'Class) is
+   ---------
+   -- die --
+   ---------
+
+   procedure die(self: in out BASE_CONTROLLER'Class) is
    begin
-      -- TODO: rename as `Close`? abort_task self.id?
       self.id    := Null_Task_Id;
       self.link  := NULL;
       self.state := DEAD;
-   end kill;
+      -- Clear(self.flag);
+      -- self.migrant := NULL;
+   end die;
+
+   -------------
+   -- suspend --
+   -------------
+
+   procedure suspend(self: in out BASE_CONTROLLER'Class) is
+   begin
+      self.state := SUSPENDED;
+
+      Wait(self.flag);
+
+      if self.state /= DYING then
+         self.state := RUNNING;
+      else -- exit requested
+         die(self);
+         raise Exit_Controller;
+      end if;
+   end suspend;
+
+   ------------------
+   -- init_if_head --
+   ------------------
+
+   procedure init_if_head(self: in out BASE_CONTROLLER'Class) is
+   begin
+      --  is `self` an uninitialized controller?
+      if self.id = Null_Task_Id then
+         pragma Assert(self.link = NULL);
+
+         self.id    := Current_Task;
+         self.link  := self'Unchecked_Access; -- circular link
+         self.state := RUNNING;
+      end if;
+   end init_if_head;
 
    ---------------------------------------------------------------------------
    --  Base controller
@@ -38,9 +77,8 @@ package body Control is
    begin
       pragma Assert(self.state = SUSPENDED);
       self.id := Current_Task;
-      Wait(self.flag);
-      -- TODO: if self.state = CLOSING...
-      self.state := RUNNING;
+      suspend(self);
+      pragma Assert(self.state = RUNNING);
    end Attach;
 
    ------------
@@ -50,7 +88,8 @@ package body Control is
    procedure Detach(self: in out BASE_CONTROLLER) is
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
-      kill(self);
+      pragma Assert(self.state = RUNNING);
+      die(self);
       Notify(back.flag);
    end Detach;
 
@@ -114,11 +153,8 @@ package body Control is
       pragma Assert(target.id /= Current_Task);
 
       --  transfers control
-      self.state := SUSPENDED;
       Notify(target.flag);
-      Wait(self.flag);
-      -- TODO: if self.state = CLOSING...
-      self.state := RUNNING;
+      suspend(self);
 
       --  check if target raised an exception!
       if self.migrant /= NULL then
@@ -126,13 +162,13 @@ package body Control is
       end if;
    end Resume;
 
-   ------------
-   -- Cancel --
-   ------------
+   -------------
+   -- Migrate --
+   -------------
 
    --  warning: cannot call `Current_Task` here!
 
-   procedure Cancel(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
+   procedure Migrate(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
    is
       -------------
       -- is_head --
@@ -148,7 +184,7 @@ package body Control is
 
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
 
-   begin -- Cancel
+   begin -- Migrate
       pragma Assert(self.id /= Null_Task_Id);
       pragma Assert(self.link /= NULL);
 
@@ -156,12 +192,30 @@ package body Control is
          raise Program_Error with "nowhere to migrate";
       end if;
 
-      kill(self);
+      die(self);
 
       --  migrate exception occurrence
       back.migrant := Save_Occurrence(X);
       Notify(back.flag);
-   end Cancel;
+   end Migrate;
+
+   ---------------------
+   -- Request_To_Exit --
+   ---------------------
+
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER) is
+   begin
+      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
+
+      if self.state = SUSPENDED then
+         self.state := DYING;
+         Notify(self.flag);
+      elsif self.state = DEAD then
+         null;
+      else
+         raise Program_Error;
+      end if;
+   end Request_To_Exit;
 
    ------------
    -- Status --
@@ -182,23 +236,6 @@ package body Control is
              self.id /= Environment_Task;
    end Is_Yieldable;
 
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close(self: in out BASE_CONTROLLER) is
-   begin
-      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
-
-      if self.state = DEAD then
-         null;
-      elsif self.state = SUSPENDED then
-         self.state := CLOSING;
-      else
-         raise Program_Error with "closing a running controller";
-      end if;
-   end Close;
-
    ---------------------------------------------------------------------------
    --  Asymmetric controller
    ---------------------------------------------------------------------------
@@ -210,12 +247,7 @@ package body Control is
    procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
-      --  is `self` an uninitialized controller?
-      if self.id = Null_Task_Id then
-         pragma Assert(self.link = NULL);
-         self.id := Current_Task;
-         self.link := self'Unchecked_Access; -- circular link
-      end if;
+      init_if_head(self);
 
       --  stack like linking
       target.link := self'Unchecked_Access;
@@ -232,11 +264,9 @@ package body Control is
       invoker : ASYMMETRIC_CONTROLLER
                   renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
-      self.state := SUSPENDED;
+      pragma Assert(self.state = RUNNING);
       Notify(invoker.flag);
-      Wait(self.flag);
-      -- TODO: if self.state = CLOSING...
-      self.state := RUNNING;
+      suspend(self);
    end Yield;
 
    ---------------------------------------------------------------------------
@@ -250,11 +280,7 @@ package body Control is
    procedure Resume(self, target: in out SYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
-      if self.id = Null_Task_Id then
-         pragma Assert(self.link = NULL);
-         self.id := Current_Task;
-         self.link := self'Unchecked_Access;
-      end if;
+      init_if_head(self);
 
       --  only can detach to the first controller
       target.link := self.link;
@@ -271,7 +297,8 @@ package body Control is
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      kill(self);
+      pragma Assert(self.state = RUNNING);
+      die(self);
       Notify(target.flag);
    end Jump;
 

@@ -7,7 +7,7 @@ package Co_Op is
    type NONE is null record;
    --  Helper for void contexts
 
-   Exit_Routine : exception;
+   Stop_Routine : exception;
    --  Raised after detaching a control
 
 end Co_Op;

@@ -8,6 +8,10 @@ private with Ada.Task_Identification;
 private with Signals;
 
 package Control is
+
+   Exit_Controller : exception;
+   --  Raised to exit the current task; to handle only on task body
+
    ---------------------------------------------------------------------------
    --  Base (abstract) controller
    ---------------------------------------------------------------------------
@@ -23,15 +27,17 @@ package Control is
    procedure Resume(self, target: in out BASE_CONTROLLER);
    --  Transfer control to `target` ("primary" method)
 
-   procedure Cancel(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
-   --  Helper for exception handlers
+   procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
+   --  Propagate exception to invoker
+
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
+   --  Ask `self`, that must be dead or suspended, to exit
 
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started running or called `Yield`
       RUNNING,    --  the controller is the one that called `Status`
-      DEAD,       --  the coroutine has finished its body function, or it
-                  --  has stopped with an error
-      CLOSING     --  `Close` requested
+      DEAD,       --  the coroutine has detached or has stopped with an error
+      DYING       --  request to exit received
    );
 
    function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
@@ -40,12 +46,7 @@ package Control is
 
    function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN
      with Inline;
-   --  Return `TRUE` if `Environment_Task` is *not* the task for `self`.
-
-   -- TODO: Close, Throw...
-
-   procedure Close(self: in out BASE_CONTROLLER);
-   --  
+   --  Return `TRUE` if `Environment_Task` is *not* the task for `self`
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller

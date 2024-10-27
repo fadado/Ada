@@ -15,18 +15,31 @@ package body Co_Op.Routines is
 
       -- is self detached?
       if self.Status = DEAD then
-         raise Exit_Routine;
+         raise Stop_Routine;
       end if;
    end Next;
 
-   -------------
-   -- Suspend --
-   -------------
+   -----------
+   -- Yield --
+   -----------
 
-   procedure Suspend(self: in out ROUTINE_TYPE) is
+   procedure Yield(self: in out ROUTINE_TYPE) is
+      super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
-      self.Yield;
-   end Suspend;
+      super.Yield;
+   end Yield;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close(self: in out ROUTINE_TYPE) is
+   begin
+      self.Request_To_Exit;
+      loop
+         exit when self.Status = DEAD;
+      end loop;
+   end Close;
 
    ----------------
    -- Run_Method --
@@ -40,7 +53,8 @@ package body Co_Op.Routines is
       self.Program(self);
       self.Detach;
    exception
-      when X: others => self.Cancel(X); raise;
+      when Exit_Controller => null;
+      when X: others => self.Migrate(X); raise;
    end Run_Method;
 
    ----------

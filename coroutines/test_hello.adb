@@ -3,7 +3,7 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 pragma Restrictions (
--- No_Abort_Statements,
+   No_Abort_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
@@ -14,7 +14,7 @@ pragma Restrictions (
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control;        use Control;
+with Control; use Control;
 with Co_Op.Routines;
 
 with Gotcha;
@@ -36,10 +36,11 @@ begin
       begin
          self.Attach;
          Put_Line("Test 1-Hello, world!");
-         --raise Program_Error; -- handled with self.Cancel
+         self.Yield; -- closed here
          self.Detach;
       exception
-         when X: others => self.Cancel(X); raise;
+         when Exit_Controller => null;
+         when X: others => self.Migrate(X); raise;
       end HELLO_RUN;
 
       main          : ASYMMETRIC_CONTROLLER;
@@ -48,6 +49,7 @@ begin
    begin
       pragma Assert(hello_control.Is_Yieldable);
       main.Resume(hello_control);
+      hello_control.Request_To_Exit;
       pragma Assert(not main.Is_Yieldable);
    end Test_1;
 
@@ -66,7 +68,7 @@ begin
          Put_Line("!");
          self.Detach;
       exception
-         when X: others => self.Cancel(X); raise;
+         when X: others => self.Migrate(X); raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -96,7 +98,7 @@ begin
          Put_Line("!");
          self.Detach;
       exception
-         when X: others => self.Cancel(X); raise;
+         when X: others => self.Migrate(X); raise;
       end HELLO_RUN;
 
       main : aliased SYMMETRIC_CONTROLLER;
@@ -122,7 +124,7 @@ begin
          Put_Line("Test 4-Hello, world!");
          self.Detach;
       exception
-         when X: others => self.Cancel(X); raise;
+         when X: others => self.Migrate(X); raise;
       end HELLO_RUN;
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -156,7 +158,7 @@ begin
          Put_Line("Test 5-Hello, world!");
          self.Detach;
       exception
-         when X: others => self.Cancel(X); raise;
+         when X: others => self.Migrate(X); raise;
       end HELLO_RUN;
 
       main  : ASYMMETRIC_CONTROLLER;
@@ -174,8 +176,8 @@ begin
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
-         procedure Cancel(self: in out HELLO_COROUTINE;
-                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
+         procedure Migrate(self: in out HELLO_COROUTINE;
+                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
          task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
 
@@ -188,14 +190,13 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Cancel(self: in out HELLO_COROUTINE;
-                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+         procedure Migrate(self: in out HELLO_COROUTINE;
+                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
          is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
          begin
-            super.Cancel(X);
-            abort self.run; -- just in case?
-         end Cancel;
+            super.Migrate(X);
+         end Migrate;
 
          task body HELLO_RUN is
          begin
@@ -203,7 +204,7 @@ begin
             Put_Line("Test 6-Hello, world!");
             self.Detach;
          exception
-            when X: others => self.Cancel(X); raise;
+            when X: others => self.Migrate(X); raise;
          end HELLO_RUN;
       end Hello_Package;
 
@@ -214,46 +215,44 @@ begin
    end Test_6;
 
    ---------------------------------------------------------------------------
-   --  Test 7 - Co_Op example
+   --  Test 7 - Routines example
    ---------------------------------------------------------------------------
 
    Test_7:
    declare
-      use Co_Op;
-
-      package R is new Routines (Context_Type => NONE);
+      package R is new Co_Op.Routines (Context_Type => Co_Op.NONE);
 
       procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
-         Put("Test 7-"); self.Suspend;
-         Put("Hello");   self.Suspend;
-         Put(", world"); self.Suspend;
+         Put("Test 7-"); self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
          Put_Line("!");
+         self.Yield; -- closed here
       end;
 
       hello : R.ROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
       loop hello.Next; end loop;
+      hello.Close;
    exception
-      when Exit_Routine => null;
+      when Co_Op.Stop_Routine => null;
    end Test_7;
 
    ---------------------------------------------------------------------------
-   --  Test 8 - Co_Op example
+   --  Test 8 - Routines example
    ---------------------------------------------------------------------------
 
    Test_8:
    declare
-      use Co_Op;
-
-      package R is new Routines (Context_Type => NONE);
+      package R is new Co_Op.Routines (Context_Type => Co_Op.NONE);
 
       procedure hello_world(self: R.ROUTINE_ACCESS) is
       begin
-         Put("Test 8-"); self.Suspend;
-         Put("Hello");   self.Suspend;
-         Put(", world"); self.Suspend;
+         Put("Test 8-"); self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
          Put_Line("!");
       end;
 
@@ -262,7 +261,7 @@ begin
    begin
       loop routine.Call; end loop;
    exception
-      when Exit_Routine => null;
+      when Co_Op.Stop_Routine => null;
    end Test_8;
 
 exception
