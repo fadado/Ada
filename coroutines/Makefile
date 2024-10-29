@@ -2,22 +2,24 @@
 
 .SILENT:
 
-all: test_hello test_pingpong
+all: test_hello_1 test_hello_2 test_pingpong
 
 LIBRARY := \
 	signals.ad[s] \
 	control.ad[sb] \
 	gotcha.ad[sb]
 
-COOPLIB := \
-	co_op.ad[s] \
-	co_op-routines.ad[sb]
+RUTLIB := \
+	control-routines.ad[sb]
 
-test_hello: test_hello.adb ${LIBRARY} ${COOPLIB}
-	@gnatmake test_hello
+test_hello_1: test_hello_1.adb ${LIBRARY}
+	@gnatmake test_hello_1
+
+test_hello_2: test_hello_2.adb ${LIBRARY} ${RUTLIB}
+	@gnatmake test_hello_2
 
 test_pingpong: test_pingpong.adb ${LIBRARY}
 	@gnatmake test_pingpong
 
 clean:
-	@rm -f *.o *.ali test_pingpong test_hello *.ads.* *.adb.*
+	@rm -f *.o *.ali test_pingpong test_hello_[0-9] *.ads.* *.adb.*

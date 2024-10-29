@@ -18,21 +18,6 @@ package Control is
 
    type BASE_CONTROLLER is abstract tagged limited private;
 
-   procedure Attach(self: in out BASE_CONTROLLER);
-   --  Attach `self` to the current task 
-
-   procedure Detach(self: in out BASE_CONTROLLER);
-   --  Detach `self` from the current task 
-
-   procedure Resume(self, target: in out BASE_CONTROLLER);
-   --  Transfer control to `target` ("primary" method)
-
-   procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
-   --  Propagate exception to invoker
-
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
-   --  Ask `self`, that must be dead or suspended, to exit
-
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started running or called `Yield`
       RUNNING,    --  the controller is the one that called `Status`
@@ -47,6 +32,21 @@ package Control is
    function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN
      with Inline;
    --  Return `TRUE` if `Environment_Task` is *not* the task for `self`
+
+   procedure Attach(self: in out BASE_CONTROLLER);
+   --  Attach `self` to the current task 
+
+   procedure Detach(self: in out BASE_CONTROLLER);
+   --  Detach `self` from the current task 
+
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
+   --  Ask `self`, that must be dead or suspended, to exit
+
+   procedure Resume(self, target: in out BASE_CONTROLLER);
+   --  Transfer control to `target` ("primary" method)
+
+   procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
+   --  Propagate exception to invoker
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -75,6 +75,22 @@ package Control is
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    --  Transfers control to `target` and detach `self` from the current task
+
+   ---------------------------------------------------------------------------
+   --  Common facilities for cooperative routines
+   ---------------------------------------------------------------------------
+
+   --  Not used in `Control` body; used by Control.*
+
+   package Co_Op is
+
+      type NONE is null record;
+      --  Helper for void contexts
+
+      Stop_Iterator : exception;
+      --  Raised to indicate iterator exhaustion
+
+   end Co_Op;
 
 private
    type BASE_CONTROLLER is abstract tagged limited

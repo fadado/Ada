@@ -1,4 +1,6 @@
--- test_hello.adb
+------------------------------------------------------------------------------
+--  Hello world examples using controllers
+------------------------------------------------------------------------------
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
@@ -15,11 +17,10 @@ with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Control; use Control;
-with Co_Op.Routines;
 
 with Gotcha;
 
-procedure test_hello is
+procedure test_hello_1 is
 
 begin
    Gotcha.Set_Handlers;
@@ -49,7 +50,7 @@ begin
    begin
       pragma Assert(hello_control.Is_Yieldable);
       main.Resume(hello_control);
-      hello_control.Request_To_Exit;
+      hello_control.Request_To_Exit; -- close controller
       pragma Assert(not main.Is_Yieldable);
    end Test_1;
 
@@ -77,7 +78,7 @@ begin
    begin
       loop
          main.Resume(hello_control);
-         exit when hello_control.Status = Control.DEAD;
+         exit when hello_control.Status = DEAD;
          -- do something here...
       end loop;
    end Test_2;
@@ -107,7 +108,7 @@ begin
    begin
       loop
          main.Resume(hello_control);
-         exit when hello_control.Status = Control.DEAD;
+         exit when hello_control.Status = DEAD;
          -- do something here...
       end loop;
    end Test_3;
@@ -214,61 +215,11 @@ begin
       main.Resume(ASYMMETRIC_CONTROLLER(hello));
    end Test_6;
 
-   ---------------------------------------------------------------------------
-   --  Test 7 - Routines example
-   ---------------------------------------------------------------------------
-
-   Test_7:
-   declare
-      package R is new Co_Op.Routines (Context_Type => Co_Op.NONE);
-
-      procedure hello_world(self: R.ROUTINE_ACCESS) is
-      begin
-         Put("Test 7-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
-         Put_Line("!");
-         self.Yield; -- closed here
-      end;
-
-      hello : R.ROUTINE_TYPE (hello_world'Access, NULL);
-
-   begin
-      loop hello.Next; end loop;
-      hello.Close;
-   exception
-      when Co_Op.Stop_Routine => null;
-   end Test_7;
-
-   ---------------------------------------------------------------------------
-   --  Test 8 - Routines example
-   ---------------------------------------------------------------------------
-
-   Test_8:
-   declare
-      package R is new Co_Op.Routines (Context_Type => Co_Op.NONE);
-
-      procedure hello_world(self: R.ROUTINE_ACCESS) is
-      begin
-         Put("Test 8-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
-         Put_Line("!");
-      end;
-
-      package routine is new R.Wrap (hello_world'Access);
-
-   begin
-      loop routine.Call; end loop;
-   exception
-      when Co_Op.Stop_Routine => null;
-   end Test_8;
-
 exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 
-end test_hello;
+end test_hello_1;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

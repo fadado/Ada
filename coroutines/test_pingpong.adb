@@ -1,4 +1,6 @@
--- test_pingpong.adb
+------------------------------------------------------------------------------
+--  Symmetric ping/pong
+------------------------------------------------------------------------------
 
 pragma Restrictions (
 -- No_Abort_Statements,
@@ -13,6 +15,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 
 with Control; use Control;
+
 with Gotcha;
 
 procedure test_pingpong is

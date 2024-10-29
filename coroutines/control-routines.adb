@@ -2,20 +2,25 @@
 --  Simple routines with only transfer of control (implementation)
 ------------------------------------------------------------------------------
 
-with Control; use Control;
+package body Control.Routines is
+   ---------------------------------------------------------------------------
+   --  ROUTINE_TYPE methods
+   ---------------------------------------------------------------------------
 
-package body Co_Op.Routines is
+-- type ROUTINE_TYPE (Main: PROGRAM_ACCESS; Context: CONTEXT_ACCESS) is ...
+
    ----------
    -- Next --
    ----------
 
    procedure Next(self: in out ROUTINE_TYPE) is
+      use Co_Op;
    begin
       self.head.Resume(ASYMMETRIC_CONTROLLER(self));
 
       -- is self detached?
       if self.Status = DEAD then
-         raise Stop_Routine;
+         raise Stop_Iterator;
       end if;
    end Next;
 
@@ -50,31 +55,44 @@ package body Co_Op.Routines is
    task body Run_Method is
    begin
       self.Attach;
-      self.Program(self);
+      self.Main(self);
       self.Detach;
    exception
       when Exit_Controller => null;
-      when X: others => self.Migrate(X); raise;
+      when X: others => self.Migrate(X);
    end Run_Method;
+
+   ---------------------------------------------------------------------------
+   --  Wrapper for program with optional context
+   ---------------------------------------------------------------------------
 
    ----------
    -- Wrap --
    ----------
 
 -- generic
---    Program : PROGRAM_ACCESS;
+--    Main    : PROGRAM_ACCESS;
 --    Context : CONTEXT_ACCESS := NULL;
 
    package body Wrap is
-      r : ROUTINE_TYPE (PROGRAM, CONTEXT);
+      routine : ROUTINE_TYPE (Main, Context);
 
       procedure Call is
+         use Co_Op;
       begin
-         r.Next;
+         routine.Next;
+      exception
+         when Stop_Iterator =>
+            raise;
+         when others =>
+            if routine.Status /= DEAD then
+               routine.Close;
+            end if;
+            raise;
       end Call;
    end Wrap;
 
-end Co_Op.Routines;
+end Control.Routines;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

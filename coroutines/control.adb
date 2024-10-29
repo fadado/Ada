@@ -41,12 +41,16 @@ package body Control is
 
       Wait(self.flag);
 
-      if self.state /= DYING then
-         self.state := RUNNING;
-      else -- exit requested
+      if self.state = DYING then
+         -- exit requested
          die(self);
+
+         --  Exception `Exit_Controller` is only raised here.  Do not mask or
+         --  map: to be handled only, and masked, in the task body top handler.
          raise Exit_Controller;
       end if;
+
+      self.state := RUNNING;
    end suspend;
 
    ------------------
@@ -70,14 +74,35 @@ package body Control is
    ---------------------------------------------------------------------------
 
    ------------
+   -- Status --
+   ------------
+
+   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE is
+   begin
+      return self.state;
+   end Status;
+
+   ------------------
+   -- Is_Yieldable --
+   ------------------
+
+   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN is
+   begin
+      return self.id /= Null_Task_Id and then
+             self.id /= Environment_Task;
+   end Is_Yieldable;
+
+   ------------
    -- Attach --
    ------------
 
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
       pragma Assert(self.state = SUSPENDED);
+
       self.id := Current_Task;
       suspend(self);
+
       pragma Assert(self.state = RUNNING);
    end Attach;
 
@@ -89,9 +114,28 @@ package body Control is
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
       pragma Assert(self.state = RUNNING);
+
       die(self);
       Notify(back.flag);
    end Detach;
+
+   ---------------------
+   -- Request_To_Exit --
+   ---------------------
+
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER) is
+   begin
+      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
+
+      if self.state = SUSPENDED then
+         self.state := DYING;
+         Notify(self.flag);
+      elsif self.state = DEAD then
+         null;
+      else
+         raise Program_Error;
+      end if;
+   end Request_To_Exit;
 
    ------------
    -- Resume --
@@ -166,29 +210,17 @@ package body Control is
    -- Migrate --
    -------------
 
-   --  warning: cannot call `Current_Task` here!
-
    procedure Migrate(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
    is
-      -------------
-      -- is_head --
-      -------------
-
-      function is_head(co: in out BASE_CONTROLLER'Class) return BOOLEAN
-        with Inline
-      is
-         type PTR is not null access all BASE_CONTROLLER'Class;
-      begin
-         return PTR'(co.link) = PTR'(co'Unchecked_Access);
-      end is_head;
-
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
 
-   begin -- Migrate
+      type PTR is not null access all BASE_CONTROLLER'Class;
+   begin
       pragma Assert(self.id /= Null_Task_Id);
       pragma Assert(self.link /= NULL);
 
-      if is_head(self) then
+      -- Is `self` a head?
+      if PTR'(self.link) = PTR'(self'Unchecked_Access) then
          raise Program_Error with "nowhere to migrate";
       end if;
 
@@ -198,43 +230,6 @@ package body Control is
       back.migrant := Save_Occurrence(X);
       Notify(back.flag);
    end Migrate;
-
-   ---------------------
-   -- Request_To_Exit --
-   ---------------------
-
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER) is
-   begin
-      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
-
-      if self.state = SUSPENDED then
-         self.state := DYING;
-         Notify(self.flag);
-      elsif self.state = DEAD then
-         null;
-      else
-         raise Program_Error;
-      end if;
-   end Request_To_Exit;
-
-   ------------
-   -- Status --
-   ------------
-
-   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE is
-   begin
-      return self.state;
-   end Status;
-
-   ------------------
-   -- Is_Yieldable --
-   ------------------
-
-   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN is
-   begin
-      return self.id /= Null_Task_Id and then
-             self.id /= Environment_Task;
-   end Is_Yieldable;
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -265,6 +260,8 @@ package body Control is
                   renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
       pragma Assert(self.state = RUNNING);
+      pragma Assert(self.Is_Yieldable);
+
       Notify(invoker.flag);
       suspend(self);
    end Yield;
@@ -298,6 +295,7 @@ package body Control is
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
       pragma Assert(self.state = RUNNING);
+
       die(self);
       Notify(target.flag);
    end Jump;
