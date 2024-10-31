@@ -50,7 +50,7 @@ begin
       hello : R.ROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
-      loop hello.Next; end loop;
+      loop hello.Resume; end loop;
       hello.Close;
    exception
       when Stop_Iterator => null;

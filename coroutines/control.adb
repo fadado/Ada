@@ -69,6 +69,27 @@ package body Control is
       end if;
    end init_if_head;
 
+   ---------------
+   -- spin_lock --
+   ---------------
+
+   procedure spin_lock(done: access function return BOOLEAN) is
+      use Ada.Real_Time;
+
+      msec : INTEGER := 100; -- are 100ms enough?
+      stop : TIME := Clock + Milliseconds(msec);
+   begin
+      if not done.all then
+         loop
+            if Clock > stop then
+               raise Program_Error with "loop timed out";
+            end if;
+            Ada.Dispatching.Yield;
+            exit when done.all;
+         end loop;
+      end if;
+   end spin_lock;
+
    ---------------------------------------------------------------------------
    --  Base controller
    ---------------------------------------------------------------------------
@@ -119,82 +140,26 @@ package body Control is
       Notify(back.flag);
    end Detach;
 
-   ---------------------
-   -- Request_To_Exit --
-   ---------------------
-
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER) is
-   begin
-      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
-
-      if self.state = SUSPENDED then
-         self.state := DYING;
-         Notify(self.flag);
-      elsif self.state = DEAD then
-         null;
-      else
-         raise Program_Error;
-      end if;
-   end Request_To_Exit;
-
    ------------
    -- Resume --
    ------------
 
-   procedure Resume(self, target: in out BASE_CONTROLLER)
-   is
+   procedure Resume(self, target: in out BASE_CONTROLLER) is
       use Ada.Exceptions;
 
-      -------------------------
-      -- await_target_attach --
-      -------------------------
-
-      procedure await_target_attach with Inline is
-         use Ada.Real_Time;
-         stop : TIME := Clock + Milliseconds(100);
-      begin
-         --  Is `target` never resumed?
-         if target.id = Null_Task_Id then
-            --  spin lock until `target.Attach` is called
-            loop
-               if Clock > stop then
-                  raise Program_Error with "loop timed out";
-               end if;
-               Ada.Dispatching.Yield;
-               exit when target.id /= Null_Task_Id;
-            end loop;
-         end if;
-      end await_target_attach;
-
-      -----------------------
-      -- migrate_exception --
-      -----------------------
-
-      procedure migrate_exception with Inline is
-         ----------
-         -- free --
-         ----------
-
-         procedure free is new Ada.Unchecked_Deallocation(
-            EXCEPTION_OCCURRENCE,
-            EXCEPTION_OCCURRENCE_ACCESS
-         );
-
-         id : EXCEPTION_ID renames Exception_Identity(self.migrant.all);
-         ms : STRING       renames Exception_Message(self.migrant.all);
-
-      begin
-         free(self.migrant);
-         self.migrant := NULL;
-         Raise_Exception(id, ms);
-      end migrate_exception;
-
-   begin -- Resume
+      procedure dealloc is new Ada.Unchecked_Deallocation (
+         EXCEPTION_OCCURRENCE,
+         EXCEPTION_OCCURRENCE_ACCESS
+      );
+   begin
       pragma Assert(self.id = Current_Task);
 
-      --  target must be active
-      await_target_attach;
-      pragma Assert(target.id /= Current_Task);
+      await_target_attach:
+      declare
+         function done return BOOLEAN is (target.id /= Null_Task_Id);
+      begin
+         spin_lock(done'Access);
+      end await_target_attach;
 
       --  transfers control
       Notify(target.flag);
@@ -202,9 +167,42 @@ package body Control is
 
       --  check if target raised an exception!
       if self.migrant /= NULL then
-         migrate_exception;
+         migrate_exception:
+         declare
+            id : EXCEPTION_ID renames Exception_Identity(self.migrant.all);
+            ms : STRING       renames Exception_Message(self.migrant.all);
+         begin
+            dealloc(self.migrant);
+            self.migrant := NULL;
+            Raise_Exception(id, ms);
+         end migrate_exception;
       end if;
    end Resume;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close(self: in out BASE_CONTROLLER) is
+   begin
+      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
+
+      if self.state = DEAD then
+         null;
+      elsif self.state = SUSPENDED then
+         self.state := DYING;
+         Notify(self.flag);
+
+         await_self_dead:
+         declare
+            function done return BOOLEAN is (self.state = DEAD);
+         begin
+            spin_lock(done'Access);
+         end await_self_dead;
+      else
+         raise Program_Error;
+      end if;
+   end Close;
 
    -------------
    -- Migrate --
@@ -260,7 +258,6 @@ package body Control is
                   renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
       pragma Assert(self.state = RUNNING);
-      pragma Assert(self.Is_Yieldable);
 
       Notify(invoker.flag);
       suspend(self);

@@ -25,14 +25,14 @@ package Control.Routines is
       tagged limited private;
    --  Coroutine type with only transfer of control
 
-   procedure Next(self: in out ROUTINE_TYPE);
+   procedure Resume(self: in out ROUTINE_TYPE);
    --  Resume `self` and raises `Stop_Iterator` when dead
 
    procedure Yield(self: in out ROUTINE_TYPE) with Inline;
    --  Yields control only
 
    procedure Close(self: in out ROUTINE_TYPE);
-   --  Request `self` to exit
+   --  Force `self` to exit
 
    ---------------------------------------------------------------------------
    --  Wrapper for program with optional context

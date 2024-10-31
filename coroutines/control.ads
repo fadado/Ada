@@ -39,11 +39,11 @@ package Control is
    procedure Detach(self: in out BASE_CONTROLLER);
    --  Detach `self` from the current task 
 
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
-   --  Ask `self`, that must be dead or suspended, to exit
-
    procedure Resume(self, target: in out BASE_CONTROLLER);
    --  Transfer control to `target` ("primary" method)
+
+   procedure Close(self: in out BASE_CONTROLLER);
+   --  Force `self`, that must be dead or suspended, to exit
 
    procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
    --  Propagate exception to invoker

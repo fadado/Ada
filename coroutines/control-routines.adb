@@ -9,20 +9,19 @@ package body Control.Routines is
 
 -- type ROUTINE_TYPE (Main: PROGRAM_ACCESS; Context: CONTEXT_ACCESS) is ...
 
-   ----------
-   -- Next --
-   ----------
+   ------------
+   -- Resume --
+   ------------
 
-   procedure Next(self: in out ROUTINE_TYPE) is
-      use Co_Op;
+   procedure Resume(self: in out ROUTINE_TYPE) is
    begin
       self.head.Resume(ASYMMETRIC_CONTROLLER(self));
 
       -- is self detached?
-      if self.Status = DEAD then
-         raise Stop_Iterator;
+      if self.Status = Control.DEAD then
+         raise Co_Op.Stop_Iterator;
       end if;
-   end Next;
+   end Resume;
 
    -----------
    -- Yield --
@@ -31,6 +30,7 @@ package body Control.Routines is
    procedure Yield(self: in out ROUTINE_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
+      pragma Assert(self.Is_Yieldable);
       super.Yield;
    end Yield;
 
@@ -39,11 +39,11 @@ package body Control.Routines is
    -----------
 
    procedure Close(self: in out ROUTINE_TYPE) is
+      super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
-      self.Request_To_Exit;
-      loop
-         exit when self.Status = DEAD;
-      end loop;
+      if self.Status /= Control.DEAD then
+         super.Close;
+      end if;
    end Close;
 
    ----------------
@@ -78,14 +78,13 @@ package body Control.Routines is
       routine : ROUTINE_TYPE (Main, Context);
 
       procedure Call is
-         use Co_Op;
       begin
-         routine.Next;
+         routine.Resume;
       exception
-         when Stop_Iterator =>
+         when Co_Op.Stop_Iterator =>
             raise;
          when others =>
-            if routine.Status /= DEAD then
+            if routine.Status /= Control.DEAD then
                routine.Close;
             end if;
             raise;

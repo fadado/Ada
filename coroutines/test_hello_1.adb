@@ -50,7 +50,7 @@ begin
    begin
       pragma Assert(hello_control.Is_Yieldable);
       main.Resume(hello_control);
-      hello_control.Request_To_Exit; -- close controller
+      hello_control.Close;
       pragma Assert(not main.Is_Yieldable);
    end Test_1;
 
