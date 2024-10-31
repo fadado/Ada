@@ -81,13 +81,8 @@ package body Control.Routines is
       begin
          routine.Resume;
       exception
-         when Co_Op.Stop_Iterator =>
-            raise;
-         when others =>
-            if routine.Status /= Control.DEAD then
-               routine.Close;
-            end if;
-            raise;
+         when Co_Op.Stop_Iterator => raise;
+         when others => routine.Close; raise;
       end Call;
    end Wrap;
 

@@ -29,6 +29,7 @@ package body Control is
       self.state := DEAD;
       -- Clear(self.flag);
       -- self.migrant := NULL;
+      -- self.xid := Null_Id;
    end die;
 
    -------------
@@ -41,13 +42,9 @@ package body Control is
 
       Wait(self.flag);
 
-      if self.state = DYING then
-         -- exit requested
+      if self.xid /= Null_Id then -- exit requested
          die(self);
-
-         --  Exception `Exit_Controller` is only raised here.  Do not mask or
-         --  map: to be handled only, and masked, in the task body top handler.
-         raise Exit_Controller;
+         Raise_Exception(self.xid);
       end if;
 
       self.state := RUNNING;
@@ -156,7 +153,8 @@ package body Control is
 
       await_target_attach:
       declare
-         function done return BOOLEAN is (target.id /= Null_Task_Id);
+         function done return BOOLEAN is
+            (target.id /= Null_Task_Id);
       begin
          spin_lock(done'Access);
       end await_target_attach;
@@ -190,12 +188,14 @@ package body Control is
       if self.state = DEAD then
          null;
       elsif self.state = SUSPENDED then
-         self.state := DYING;
-         Notify(self.flag);
+         --  Exception `Exit_Controller` is only raised from here. Do not mask
+         --  or map: to be handled only, masked, in the task body top handler.
+         self.Throw(Exit_Controller'Identity);
 
          await_self_dead:
          declare
-            function done return BOOLEAN is (self.state = DEAD);
+            function done return BOOLEAN is
+               (self.state = DEAD);
          begin
             spin_lock(done'Access);
          end await_self_dead;
@@ -203,6 +203,18 @@ package body Control is
          raise Program_Error;
       end if;
    end Close;
+
+   -----------
+   -- Throw --
+   -----------
+
+   procedure Throw(self: in out BASE_CONTROLLER; X: in EXCEPTION_ID) is
+   begin
+      pragma Assert(self.state = SUSPENDED);
+
+      self.xid := X;
+      Notify(self.flag);
+   end Throw;
 
    -------------
    -- Migrate --

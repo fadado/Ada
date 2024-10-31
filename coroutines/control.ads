@@ -21,8 +21,7 @@ package Control is
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started running or called `Yield`
       RUNNING,    --  the controller is the one that called `Status`
-      DEAD,       --  the coroutine has detached or has stopped with an error
-      DYING       --  request to exit received
+      DEAD        --  the coroutine has detached or has stopped with an error
    );
 
    function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
@@ -44,6 +43,9 @@ package Control is
 
    procedure Close(self: in out BASE_CONTROLLER);
    --  Force `self`, that must be dead or suspended, to exit
+
+   procedure Throw(self: in out BASE_CONTROLLER; X: in EXCEPTION_ID);
+   --  Raise exception when `suspend` returns
 
    procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
    --  Propagate exception to invoker
@@ -100,6 +102,7 @@ private
          state   : STATUS_TYPE := SUSPENDED;
          flag    : Signals.SIGNAL;
          migrant : EXCEPTION_OCCURRENCE_ACCESS;
+         xid     : EXCEPTION_ID := Null_Id;
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
