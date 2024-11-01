@@ -37,7 +37,7 @@ begin
       begin
          self.Attach;
          Put_Line("Test 1-Hello, world!");
-         self.Yield; -- closed here
+         self.Suspend; -- closed here
          self.Detach;
       exception
          when Exit_Controller => null;
@@ -48,10 +48,8 @@ begin
       hello_control : aliased ASYMMETRIC_CONTROLLER;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      pragma Assert(hello_control.Is_Yieldable);
-      main.Resume(hello_control);
-      hello_control.Close;
-      pragma Assert(not main.Is_Yieldable);
+      main.Transfer(hello_control);
+      hello_control.Stop;
    end Test_1;
 
    ---------------------------------------------------------------------------
@@ -63,9 +61,9 @@ begin
       task body HELLO_RUN is
       begin
          self.Attach;
-         Put("Test 2-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
+         Put("Test 2-"); self.Suspend;
+         Put("Hello");   self.Suspend;
+         Put(", world"); self.Suspend;
          Put_Line("!");
          self.Detach;
       exception
@@ -77,7 +75,7 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       loop
-         main.Resume(hello_control);
+         main.Transfer(hello_control);
          exit when hello_control.Status = DEAD;
          -- do something here...
       end loop;
@@ -93,9 +91,9 @@ begin
          invoker : SYMMETRIC_CONTROLLER renames other.all;
       begin
          self.Attach;
-         Put("Test 3-"); self.Resume(invoker);
-         Put("Hello");   self.Resume(invoker);
-         Put(", world"); self.Resume(invoker);
+         Put("Test 3-"); self.Transfer(invoker);
+         Put("Hello");   self.Transfer(invoker);
+         Put(", world"); self.Transfer(invoker);
          Put_Line("!");
          self.Detach;
       exception
@@ -107,7 +105,7 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, main'Unchecked_Access);
    begin
       loop
-         main.Resume(hello_control);
+         main.Transfer(hello_control);
          exit when hello_control.Status = DEAD;
          -- do something here...
       end loop;
@@ -136,7 +134,7 @@ begin
       main  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
    end Test_4;
 
    ---------------------------------------------------------------------------
@@ -165,7 +163,7 @@ begin
       main  : ASYMMETRIC_CONTROLLER;
       hello : HELLO_COROUTINE;
    begin
-      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
    end Test_5;
 
    ---------------------------------------------------------------------------
@@ -212,7 +210,7 @@ begin
       main  : ASYMMETRIC_CONTROLLER;
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      main.Resume(ASYMMETRIC_CONTROLLER(hello));
+      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
    end Test_6;
 
 exception

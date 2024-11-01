@@ -37,7 +37,7 @@ procedure test_pingpong is
          Put("PING!  ");
          --raise Program_Error;
          if i < 10 then
-            Ping.Resume(Pong);
+            Ping.Transfer(Pong);
          else
             Ping.Jump(Pong); -- transfer without suspension
          end if;
@@ -56,7 +56,7 @@ procedure test_pingpong is
       for i in 1..10 loop
          Put_Line("PONG!");
          if i < 10 then
-            Pong.Resume(Ping);
+            Pong.Transfer(Ping);
          else
             Pong.Detach;
          end if;
@@ -85,7 +85,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Resume(ping_control);
+      main.Transfer(ping_control);
 
       New_Line;
       Put_Line("Game Over");

@@ -18,54 +18,6 @@ package body Control is
    -- Local subprograms
    ---------------------------------------------------------------------------
 
-   ---------
-   -- die --
-   ---------
-
-   procedure die(self: in out BASE_CONTROLLER'Class) is
-   begin
-      self.id    := Null_Task_Id;
-      self.link  := NULL;
-      self.state := DEAD;
-      -- Clear(self.flag);
-      -- self.migrant := NULL;
-      -- self.xid := Null_Id;
-   end die;
-
-   -------------
-   -- suspend --
-   -------------
-
-   procedure suspend(self: in out BASE_CONTROLLER'Class) is
-   begin
-      self.state := SUSPENDED;
-
-      Wait(self.flag);
-
-      if self.xid /= Null_Id then -- exit requested
-         die(self);
-         Raise_Exception(self.xid);
-      end if;
-
-      self.state := RUNNING;
-   end suspend;
-
-   ------------------
-   -- init_if_head --
-   ------------------
-
-   procedure init_if_head(self: in out BASE_CONTROLLER'Class) is
-   begin
-      --  is `self` an uninitialized controller?
-      if self.id = Null_Task_Id then
-         pragma Assert(self.link = NULL);
-
-         self.id    := Current_Task;
-         self.link  := self'Unchecked_Access; -- circular link
-         self.state := RUNNING;
-      end if;
-   end init_if_head;
-
    ---------------
    -- spin_lock --
    ---------------
@@ -87,6 +39,38 @@ package body Control is
       end if;
    end spin_lock;
 
+   ---------
+   -- die --
+   ---------
+
+   procedure die(self: in out BASE_CONTROLLER'Class) is
+   begin
+      self.id    := Null_Task_Id;
+      self.link  := NULL;
+      self.state := DEAD;
+      -- Clear(self.flag);
+      -- self.migrant := NULL;
+      -- self.xid := Null_Id;
+   end die;
+
+   ------------
+   -- expect --
+   ------------
+
+   procedure expect(self: in out BASE_CONTROLLER'Class) is
+   begin
+      self.state := SUSPENDED;
+
+      Wait(self.flag);
+
+      if self.xid /= Null_Id then -- exit requested
+         die(self);
+         Raise_Exception(self.xid);
+      end if;
+
+      self.state := RUNNING;
+   end expect;
+
    ---------------------------------------------------------------------------
    --  Base controller
    ---------------------------------------------------------------------------
@@ -100,16 +84,6 @@ package body Control is
       return self.state;
    end Status;
 
-   ------------------
-   -- Is_Yieldable --
-   ------------------
-
-   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN is
-   begin
-      return self.id /= Null_Task_Id and then
-             self.id /= Environment_Task;
-   end Is_Yieldable;
-
    ------------
    -- Attach --
    ------------
@@ -119,7 +93,7 @@ package body Control is
       pragma Assert(self.state = SUSPENDED);
 
       self.id := Current_Task;
-      suspend(self);
+      expect(self);
 
       pragma Assert(self.state = RUNNING);
    end Attach;
@@ -137,11 +111,11 @@ package body Control is
       Notify(back.flag);
    end Detach;
 
-   ------------
-   -- Resume --
-   ------------
+   --------------
+   -- Transfer --
+   --------------
 
-   procedure Resume(self, target: in out BASE_CONTROLLER) is
+   procedure Transfer(self, target: in out BASE_CONTROLLER) is
       use Ada.Exceptions;
 
       procedure dealloc is new Ada.Unchecked_Deallocation (
@@ -161,7 +135,7 @@ package body Control is
 
       --  transfers control
       Notify(target.flag);
-      suspend(self);
+      expect(self);
 
       --  check if target raised an exception!
       if self.migrant /= NULL then
@@ -175,13 +149,13 @@ package body Control is
             Raise_Exception(id, ms);
          end migrate_exception;
       end if;
-   end Resume;
+   end Transfer;
 
-   -----------
-   -- Close --
-   -----------
+   ----------
+   -- Stop --
+   ----------
 
-   procedure Close(self: in out BASE_CONTROLLER) is
+   procedure Stop(self: in out BASE_CONTROLLER) is
    begin
       pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
 
@@ -202,7 +176,7 @@ package body Control is
       else
          raise Program_Error;
       end if;
-   end Close;
+   end Stop;
 
    -----------
    -- Throw --
@@ -245,55 +219,73 @@ package body Control is
    --  Asymmetric controller
    ---------------------------------------------------------------------------
 
-   ------------
-   -- Resume --
-   ------------
+   --------------
+   -- Transfer --
+   --------------
 
-   procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER) is
+   procedure Transfer(self, target: in out ASYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
-      init_if_head(self);
+      --  is `self` an uninitialized controller?
+      if self.id = Null_Task_Id then
+         pragma Assert(self.link = NULL);
+
+         self.id    := Current_Task;
+         self.link  := self'Unchecked_Access; -- circular link
+         self.state := RUNNING;
+      end if;
+
+      pragma Assert(self.state = RUNNING);
 
       --  stack like linking
       target.link := self'Unchecked_Access;
 
       --  delegate to primary method
-      super.Resume(BASE_CONTROLLER(target));
-   end Resume;
+      super.Transfer(BASE_CONTROLLER(target));
+   end Transfer;
 
-   -----------
-   -- Yield --
-   -----------
+   -------------
+   -- Suspend --
+   -------------
 
-   procedure Yield(self: in out ASYMMETRIC_CONTROLLER) is
+   procedure Suspend(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER
                   renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
       pragma Assert(self.state = RUNNING);
 
       Notify(invoker.flag);
-      suspend(self);
-   end Yield;
+      expect(self);
+   end Suspend;
 
    ---------------------------------------------------------------------------
    --  Symmetric controller
    ---------------------------------------------------------------------------
 
-   ------------
-   -- Resume --
-   ------------
+   --------------
+   -- Transfer --
+   --------------
 
-   procedure Resume(self, target: in out SYMMETRIC_CONTROLLER) is
+   procedure Transfer(self, target: in out SYMMETRIC_CONTROLLER) is
       super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
-      init_if_head(self);
+      --  is `self` an uninitialized controller?
+      if self.id = Null_Task_Id then
+         pragma Assert(self.link = NULL);
+
+         self.id    := Current_Task;
+         self.link  := self'Unchecked_Access; -- circular link
+         self.state := RUNNING;
+      end if;
+
+      pragma Assert(self.state = RUNNING);
 
       --  only can detach to the first controller
       target.link := self.link;
 
       --  delegate to primary method
-      super.Resume(BASE_CONTROLLER(target));
-   end Resume;
+      super.Transfer(BASE_CONTROLLER(target));
+   end Transfer;
 
    ----------
    -- Jump --

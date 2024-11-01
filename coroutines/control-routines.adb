@@ -15,7 +15,7 @@ package body Control.Routines is
 
    procedure Resume(self: in out ROUTINE_TYPE) is
    begin
-      self.head.Resume(ASYMMETRIC_CONTROLLER(self));
+      self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
 
       -- is self detached?
       if self.Status = Control.DEAD then
@@ -30,8 +30,7 @@ package body Control.Routines is
    procedure Yield(self: in out ROUTINE_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
-      pragma Assert(self.Is_Yieldable);
-      super.Yield;
+      super.Suspend;
    end Yield;
 
    -----------
@@ -41,9 +40,7 @@ package body Control.Routines is
    procedure Close(self: in out ROUTINE_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
-      if self.Status /= Control.DEAD then
-         super.Close;
-      end if;
+      super.Stop;
    end Close;
 
    ----------------

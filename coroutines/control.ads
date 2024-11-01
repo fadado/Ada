@@ -19,7 +19,7 @@ package Control is
    type BASE_CONTROLLER is abstract tagged limited private;
 
    type STATUS_TYPE is (
-      SUSPENDED,  --  the controller has not started running or called `Yield`
+      SUSPENDED,  --  the controller has not started or called `Suspend`
       RUNNING,    --  the controller is the one that called `Status`
       DEAD        --  the coroutine has detached or has stopped with an error
    );
@@ -28,20 +28,16 @@ package Control is
      with Inline;
    --  Return the controller status
 
-   function Is_Yieldable(self: in BASE_CONTROLLER) return BOOLEAN
-     with Inline;
-   --  Return `TRUE` if `Environment_Task` is *not* the task for `self`
-
    procedure Attach(self: in out BASE_CONTROLLER);
    --  Attach `self` to the current task 
 
    procedure Detach(self: in out BASE_CONTROLLER);
    --  Detach `self` from the current task 
 
-   procedure Resume(self, target: in out BASE_CONTROLLER);
+   procedure Transfer(self, target: in out BASE_CONTROLLER);
    --  Transfer control to `target` ("primary" method)
 
-   procedure Close(self: in out BASE_CONTROLLER);
+   procedure Stop(self: in out BASE_CONTROLLER);
    --  Force `self`, that must be dead or suspended, to exit
 
    procedure Throw(self: in out BASE_CONTROLLER; X: in EXCEPTION_ID);
@@ -58,10 +54,10 @@ package Control is
    --  Stack like transfer of control
 
    overriding
-   procedure Resume(self, target: in out ASYMMETRIC_CONTROLLER);
-   --  "Before" method for primary `Resume`
+   procedure Transfer(self, target: in out ASYMMETRIC_CONTROLLER);
+   --  "Before" method for primary `Transfer`
 
-   procedure Yield(self: in out ASYMMETRIC_CONTROLLER);
+   procedure Suspend(self: in out ASYMMETRIC_CONTROLLER);
    --  Transfer control to the invoker
 
    ---------------------------------------------------------------------------
@@ -72,8 +68,8 @@ package Control is
    --  Graph like transfer of control
 
    overriding
-   procedure Resume(self, target: in out SYMMETRIC_CONTROLLER);
-   --  "Before" method for primary `Resume`
+   procedure Transfer(self, target: in out SYMMETRIC_CONTROLLER);
+   --  "Before" method for primary `Transfer`
 
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    --  Transfers control to `target` and detach `self` from the current task
