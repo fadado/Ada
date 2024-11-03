@@ -41,7 +41,7 @@ begin
          self.Detach;
       exception
          when Exit_Controller => null;
-         when X: others => self.Migrate(X); raise;
+         when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 
       main          : ASYMMETRIC_CONTROLLER;
@@ -49,7 +49,7 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       main.Transfer(hello_control);
-      hello_control.Stop;
+      hello_control.Request_To_Exit;
    end Test_1;
 
    ---------------------------------------------------------------------------
@@ -67,7 +67,7 @@ begin
          Put_Line("!");
          self.Detach;
       exception
-         when X: others => self.Migrate(X); raise;
+         when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 
       main : ASYMMETRIC_CONTROLLER;
@@ -97,7 +97,7 @@ begin
          Put_Line("!");
          self.Detach;
       exception
-         when X: others => self.Migrate(X); raise;
+         when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 
       main : aliased SYMMETRIC_CONTROLLER;
@@ -123,7 +123,7 @@ begin
          Put_Line("Test 4-Hello, world!");
          self.Detach;
       exception
-         when X: others => self.Migrate(X); raise;
+         when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -157,7 +157,7 @@ begin
          Put_Line("Test 5-Hello, world!");
          self.Detach;
       exception
-         when X: others => self.Migrate(X); raise;
+         when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 
       main  : ASYMMETRIC_CONTROLLER;
@@ -175,8 +175,8 @@ begin
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
-         procedure Migrate(self: in out HELLO_COROUTINE;
-                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
+         procedure Detach(self: in out HELLO_COROUTINE;
+                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
          task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
 
@@ -189,13 +189,13 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Migrate(self: in out HELLO_COROUTINE;
-                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+         procedure Detach(self: in out HELLO_COROUTINE;
+                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
          is
             super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
          begin
-            super.Migrate(X);
-         end Migrate;
+            super.Detach(X);
+         end Detach;
 
          task body HELLO_RUN is
          begin
@@ -203,7 +203,7 @@ begin
             Put_Line("Test 6-Hello, world!");
             self.Detach;
          exception
-            when X: others => self.Migrate(X); raise;
+            when X: others => self.Detach(X); raise;
          end HELLO_RUN;
       end Hello_Package;
 

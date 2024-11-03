@@ -21,7 +21,7 @@ package Control.Routines is
    type PROGRAM_ACCESS is not null access procedure (self: ROUTINE_ACCESS);
    --  Procedure type for the program to run
 
-   type ROUTINE_TYPE (Main: PROGRAM_ACCESS; Context: CONTEXT_ACCESS) is
+   type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       tagged limited private;
    --  Coroutine type with only transfer of control
 
@@ -43,12 +43,14 @@ package Control.Routines is
       Context : CONTEXT_ACCESS := NULL;
    package Wrap is
       procedure Call with Inline;
+      --  Resume `main`; propagate exceptions after cleanup
    end Wrap;
 
 private
    task type Run_Method (self: ROUTINE_ACCESS);
+   --  Run `self.main`; propagate exceptions after cleanup
 
-   type ROUTINE_TYPE (Main: PROGRAM_ACCESS; Context: CONTEXT_ACCESS) is
+   type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       limited new Control.ASYMMETRIC_CONTROLLER with
       record
          head : Control.ASYMMETRIC_CONTROLLER;

@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Transfer of control (implementation)
+--  Control implementation
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy(Check); -- Check / Ignore
@@ -7,10 +7,10 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Dispatching;
 with Ada.Unchecked_Deallocation;
 with Ada.Real_Time;     
+with Signals;
 
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Task_Identification; use Ada.Task_Identification;
-with Signals;                 use Signals;
 
 package body Control is
 
@@ -18,11 +18,11 @@ package body Control is
    -- Local subprograms
    ---------------------------------------------------------------------------
 
-   ---------------
-   -- spin_lock --
-   ---------------
+   ----------------
+   -- spin_until --
+   ----------------
 
-   procedure spin_lock(done: access function return BOOLEAN) is
+   procedure spin_until(done: access function return BOOLEAN) is
       use Ada.Real_Time;
 
       msec : INTEGER := 100; -- are 100ms enough?
@@ -37,43 +37,40 @@ package body Control is
             exit when done.all;
          end loop;
       end if;
-   end spin_lock;
+   end spin_until;
 
-   ---------
-   -- die --
-   ---------
+   ----------
+   -- wait --
+   ----------
 
-   procedure die(self: in out BASE_CONTROLLER'Class) is
-   begin
-      self.id    := Null_Task_Id;
-      self.link  := NULL;
-      self.state := DEAD;
-      -- Clear(self.flag);
-      -- self.migrant := NULL;
-      -- self.xid := Null_Id;
-   end die;
-
-   ------------
-   -- expect --
-   ------------
-
-   procedure expect(self: in out BASE_CONTROLLER'Class) is
+   procedure wait(self: in out BASE_CONTROLLER'Class) is
    begin
       self.state := SUSPENDED;
 
-      Wait(self.flag);
+      Signals.Wait(self.flag);
 
-      if self.xid /= Null_Id then -- exit requested
-         die(self);
-         Raise_Exception(self.xid);
+      if self.state = DYING then -- received request to exit
+         self.Reset;
+         raise Exit_Controller;
+      else
+         self.state := RUNNING;
       end if;
-
-      self.state := RUNNING;
-   end expect;
+   end wait;
 
    ---------------------------------------------------------------------------
    --  Base controller
    ---------------------------------------------------------------------------
+
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset(self: in out BASE_CONTROLLER) is
+   begin
+      self.id    := Null_Task_Id;
+      self.state := DEAD;
+      self.link  := NULL;
+   end Reset;
 
    ------------
    -- Status --
@@ -90,10 +87,11 @@ package body Control is
 
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
+      pragma Assert(self.id = Null_Task_Id);
       pragma Assert(self.state = SUSPENDED);
 
       self.id := Current_Task;
-      expect(self);
+      wait(self);
 
       pragma Assert(self.state = RUNNING);
    end Attach;
@@ -105,10 +103,35 @@ package body Control is
    procedure Detach(self: in out BASE_CONTROLLER) is
       back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
    begin
+      pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      die(self);
-      Notify(back.flag);
+      self.Reset;
+      Signals.Notify(back.flag);
+   end Detach;
+
+   --   Detach after an exception; called from an exception handler
+   procedure Detach(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
+   is
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+
+      type PTR is not null access all BASE_CONTROLLER'Class;
+   begin
+      -- Danger: Ada forbidens the call to `Current_Task` in handlers!!!
+      --pragma Assert(self.id = Current_Task);
+      pragma Assert(self.state = RUNNING);
+
+      -- Is `self` a head?
+      if PTR'(self.link) = PTR'(self'Unchecked_Access) then
+         raise Program_Error with "nowhere to migrate";
+      end if;
+
+      --  migrate exception occurrence
+      back.migrant := Save_Occurrence(X);
+
+      --  like simple detach
+      self.Reset;
+      Signals.Notify(back.flag);
    end Detach;
 
    --------------
@@ -118,113 +141,12 @@ package body Control is
    procedure Transfer(self, target: in out BASE_CONTROLLER) is
       use Ada.Exceptions;
 
+      function target_attached return BOOLEAN is (target.id /= Null_Task_Id);
+
       procedure dealloc is new Ada.Unchecked_Deallocation (
          EXCEPTION_OCCURRENCE,
          EXCEPTION_OCCURRENCE_ACCESS
       );
-   begin
-      pragma Assert(self.id = Current_Task);
-
-      await_target_attach:
-      declare
-         function done return BOOLEAN is
-            (target.id /= Null_Task_Id);
-      begin
-         spin_lock(done'Access);
-      end await_target_attach;
-
-      --  transfers control
-      Notify(target.flag);
-      expect(self);
-
-      --  check if target raised an exception!
-      if self.migrant /= NULL then
-         migrate_exception:
-         declare
-            id : EXCEPTION_ID renames Exception_Identity(self.migrant.all);
-            ms : STRING       renames Exception_Message(self.migrant.all);
-         begin
-            dealloc(self.migrant);
-            self.migrant := NULL;
-            Raise_Exception(id, ms);
-         end migrate_exception;
-      end if;
-   end Transfer;
-
-   ----------
-   -- Stop --
-   ----------
-
-   procedure Stop(self: in out BASE_CONTROLLER) is
-   begin
-      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
-
-      if self.state = DEAD then
-         null;
-      elsif self.state = SUSPENDED then
-         --  Exception `Exit_Controller` is only raised from here. Do not mask
-         --  or map: to be handled only, masked, in the task body top handler.
-         self.Throw(Exit_Controller'Identity);
-
-         await_self_dead:
-         declare
-            function done return BOOLEAN is
-               (self.state = DEAD);
-         begin
-            spin_lock(done'Access);
-         end await_self_dead;
-      else
-         raise Program_Error;
-      end if;
-   end Stop;
-
-   -----------
-   -- Throw --
-   -----------
-
-   procedure Throw(self: in out BASE_CONTROLLER; X: in EXCEPTION_ID) is
-   begin
-      pragma Assert(self.state = SUSPENDED);
-
-      self.xid := X;
-      Notify(self.flag);
-   end Throw;
-
-   -------------
-   -- Migrate --
-   -------------
-
-   procedure Migrate(self: in out BASE_CONTROLLER; X: EXCEPTION_OCCURRENCE)
-   is
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
-
-      type PTR is not null access all BASE_CONTROLLER'Class;
-   begin
-      pragma Assert(self.id /= Null_Task_Id);
-      pragma Assert(self.link /= NULL);
-
-      -- Is `self` a head?
-      if PTR'(self.link) = PTR'(self'Unchecked_Access) then
-         raise Program_Error with "nowhere to migrate";
-      end if;
-
-      die(self);
-
-      --  migrate exception occurrence
-      back.migrant := Save_Occurrence(X);
-      Notify(back.flag);
-   end Migrate;
-
-   ---------------------------------------------------------------------------
-   --  Asymmetric controller
-   ---------------------------------------------------------------------------
-
-   --------------
-   -- Transfer --
-   --------------
-
-   procedure Transfer(self, target: in out ASYMMETRIC_CONTROLLER) is
-      super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
       --  is `self` an uninitialized controller?
       if self.id = Null_Task_Id then
@@ -235,14 +157,72 @@ package body Control is
          self.state := RUNNING;
       end if;
 
+      pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      --  stack like linking
-      target.link := self'Unchecked_Access;
+      if BASE_CONTROLLER'Class(self) in ASYMMETRIC_CONTROLLER then
+         --  stack like linking
+         target.link := self'Unchecked_Access;
+      elsif BASE_CONTROLLER'Class(self) in SYMMETRIC_CONTROLLER then
+         --  only can detach to the first controller
+         target.link := self.link;
+      else
+         raise Program_Error; -- no way
+      end if;
 
-      --  delegate to primary method
-      super.Transfer(BASE_CONTROLLER(target));
+      --  ensure `target` suspends on `Attach`
+      spin_until(target_attached'Access);
+
+      --  transfers control
+      Signals.Notify(target.flag);
+      wait(self);
+
+      -- TODO: understand exceptions raised for `wait`
+
+      --  check if `target` detached with an exception!
+      if self.migrant /= NULL then
+         pragma Assert(target.state = DEAD);
+         declare
+            id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
+            ms : STRING       := Exception_Message(self.migrant.all);
+         begin
+            dealloc(self.migrant);
+            self.migrant := NULL;
+            Raise_Exception(id, ms);
+         end;
+      end if;
    end Transfer;
+
+   ---------------------
+   -- Request_To_Exit --
+   ---------------------
+
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER)
+   is
+      function have_died return BOOLEAN is (self.state = DEAD);
+   begin
+      pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
+      pragma Assert(self.id /= Current_Task);
+
+      if self.state = DEAD then
+         null;
+      elsif self.state = SUSPENDED then
+         --  Exception `Exit_Controller` is only raised from here. Do not mask
+         --  or map: to be handled only, masked, in the task body top handler.
+
+         --  Send the request to the suspended controller and spin until
+         --  received and processed
+         self.state := DYING;
+         Signals.Notify(self.flag);
+         spin_until(have_died'Access);
+      else
+         raise Program_Error;
+      end if;
+   end Request_To_Exit;
+
+   ---------------------------------------------------------------------------
+   --  Asymmetric controller
+   ---------------------------------------------------------------------------
 
    -------------
    -- Suspend --
@@ -250,55 +230,30 @@ package body Control is
 
    procedure Suspend(self: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER
-                  renames ASYMMETRIC_CONTROLLER(self.link.all);
+         renames ASYMMETRIC_CONTROLLER(self.link.all);
    begin
+      pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      Notify(invoker.flag);
-      expect(self);
+      Signals.Notify(invoker.flag);
+      wait(self);
    end Suspend;
 
    ---------------------------------------------------------------------------
    --  Symmetric controller
    ---------------------------------------------------------------------------
 
-   --------------
-   -- Transfer --
-   --------------
-
-   procedure Transfer(self, target: in out SYMMETRIC_CONTROLLER) is
-      super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
-   begin
-      --  is `self` an uninitialized controller?
-      if self.id = Null_Task_Id then
-         pragma Assert(self.link = NULL);
-
-         self.id    := Current_Task;
-         self.link  := self'Unchecked_Access; -- circular link
-         self.state := RUNNING;
-      end if;
-
-      pragma Assert(self.state = RUNNING);
-
-      --  only can detach to the first controller
-      target.link := self.link;
-
-      --  delegate to primary method
-      super.Transfer(BASE_CONTROLLER(target));
-   end Transfer;
-
    ----------
    -- Jump --
    ----------
 
-   --  Mandatory symmetric coroutines last call, except for the last to finish
-
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
    begin
+      pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      die(self);
-      Notify(target.flag);
+      self.Reset;
+      Signals.Notify(target.flag);
    end Jump;
 
 end Control;

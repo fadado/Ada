@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Transfer of control (specification)
+--  Control specification
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions; use Ada.Exceptions;
@@ -18,10 +18,14 @@ package Control is
 
    type BASE_CONTROLLER is abstract tagged limited private;
 
+   procedure Reset(self: in out BASE_CONTROLLER) with Inline;
+   --  Restore `self` to the initial state
+
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started or called `Suspend`
       RUNNING,    --  the controller is the one that called `Status`
-      DEAD        --  the coroutine has detached or has stopped with an error
+      DEAD,       --  the coroutine has detached or has stopped with an error
+      DYING       --  transient state for request to exit
    );
 
    function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
@@ -29,22 +33,19 @@ package Control is
    --  Return the controller status
 
    procedure Attach(self: in out BASE_CONTROLLER);
-   --  Attach `self` to the current task 
+   --  Attach `self` to the current task (raises Exit_Controller)
 
    procedure Detach(self: in out BASE_CONTROLLER);
    --  Detach `self` from the current task 
 
+   procedure Detach(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
+   --  Detach and propagate exception to invoker
+
    procedure Transfer(self, target: in out BASE_CONTROLLER);
-   --  Transfer control to `target` ("primary" method)
+   --  Transfer control to `target` (raises `target` migrated exceptions)
 
-   procedure Stop(self: in out BASE_CONTROLLER);
+   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
    --  Force `self`, that must be dead or suspended, to exit
-
-   procedure Throw(self: in out BASE_CONTROLLER; X: in EXCEPTION_ID);
-   --  Raise exception when `suspend` returns
-
-   procedure Migrate(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
-   --  Propagate exception to invoker
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -53,12 +54,8 @@ package Control is
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
    --  Stack like transfer of control
 
-   overriding
-   procedure Transfer(self, target: in out ASYMMETRIC_CONTROLLER);
-   --  "Before" method for primary `Transfer`
-
    procedure Suspend(self: in out ASYMMETRIC_CONTROLLER);
-   --  Transfer control to the invoker
+   --  Transfer control to the invoker (raises Exit_Controller)
 
    ---------------------------------------------------------------------------
    --  Symmetric controller
@@ -67,10 +64,6 @@ package Control is
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
    --  Graph like transfer of control
 
-   overriding
-   procedure Transfer(self, target: in out SYMMETRIC_CONTROLLER);
-   --  "Before" method for primary `Transfer`
-
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    --  Transfers control to `target` and detach `self` from the current task
 
@@ -78,7 +71,7 @@ package Control is
    --  Common facilities for cooperative routines
    ---------------------------------------------------------------------------
 
-   --  Not used in `Control` body; used by Control.*
+   --  Used in `Control` child units
 
    package Co_Op is
 
@@ -94,11 +87,10 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
-         link    : access BASE_CONTROLLER'Class;
          state   : STATUS_TYPE := SUSPENDED;
+         link    : access BASE_CONTROLLER'Class;
          flag    : Signals.SIGNAL;
          migrant : EXCEPTION_OCCURRENCE_ACCESS;
-         xid     : EXCEPTION_ID := Null_Id;
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
