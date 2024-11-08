@@ -40,7 +40,7 @@ begin
          self.Suspend; -- closed here
          self.Detach;
       exception
-         when Exit_Controller => null;
+         when Exit_Controller => self.Die;
          when X: others => self.Detach(X); raise;
       end HELLO_RUN;
 

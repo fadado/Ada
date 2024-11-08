@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
---  Simple routines with only transfer of control (implementation)
+--  Generic Control . Routines (implementation)
 ------------------------------------------------------------------------------
 
-package body Control.Routines is
+package body Control . Routines is
    ---------------------------------------------------------------------------
    --  ROUTINE_TYPE methods
    ---------------------------------------------------------------------------
@@ -18,7 +18,7 @@ package body Control.Routines is
       self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
 
       -- is self detached?
-      if self.state = Control.DEAD then
+      if self.state = DEAD then
          raise Co_Op.Stop_Iterator;
       end if;
    end Resume;
@@ -58,14 +58,10 @@ package body Control.Routines is
    exception
    --  All exceptions are raised again for Ada.Task_Termination handling
       when Exit_Controller =>
-         if self.state /= Control.DEAD then
-            self.Reset;
-         end if;
-         pragma Assert(self.state = Control.DEAD);
+         self.Die;
          raise;
       when X: others =>
          self.Detach(X); -- migrates exception to back controller
-         pragma Assert(self.state = Control.DEAD);
          raise;
    end Run_Method;
 
@@ -91,16 +87,16 @@ package body Control.Routines is
       exception
       --  All exceptions are raised again and propagated to the caller
          when Co_Op.Stop_Iterator =>
-            pragma Assert(routine.state = Control.DEAD);
+            pragma Assert(routine.state = DEAD);
             raise;
          when others =>
             routine.Close; -- ensure `routine` body has exited
-            pragma Assert(routine.state = Control.DEAD);
+            pragma Assert(routine.state = DEAD);
             raise;
       end Call;
    end Wrap;
 
-end Control.Routines;
+end Control . Routines;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------------
---  Simple routines with only transfer of control (specification)
+--  Generic Control . Routines (specification)
 ------------------------------------------------------------------------------
 
 generic
    type CONTEXT_TYPE is private;
    --  Data to provide an environment for the program
 
-package Control.Routines is
+package Control . Routines is
    ---------------------------------------------------------------------------
    --  ROUTINE_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
@@ -19,7 +19,7 @@ package Control.Routines is
    --  Forward declarations
 
    type PROGRAM_ACCESS is not null access procedure (self: ROUTINE_ACCESS);
-   --  Procedure type for the program to run
+   --  Procedure type for the main program
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       tagged limited private;
@@ -48,16 +48,16 @@ package Control.Routines is
 
 private
    task type Run_Method (self: ROUTINE_ACCESS);
-   --  Run `self.main`; propagate exceptions after cleanup
+   --  Call `self.main(self)`; propagate exceptions after cleanup
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
-      limited new Control.ASYMMETRIC_CONTROLLER with
+      limited new ASYMMETRIC_CONTROLLER with
       record
-         head : Control.ASYMMETRIC_CONTROLLER;
-         run  : Run_Method (ROUTINE_TYPE'Unchecked_Access);
+         head   : ASYMMETRIC_CONTROLLER;
+         runner : Run_Method (ROUTINE_TYPE'Unchecked_Access);
       end record;
 
-end Control.Routines;
+end Control . Routines;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

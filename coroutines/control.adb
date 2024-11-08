@@ -31,7 +31,7 @@ package body Control is
       if not done.all then
          loop
             if Clock > stop then
-               raise Program_Error with "loop timed out";
+               raise Program_Error with "spinning loop timed out";
             end if;
             Ada.Dispatching.Yield;
             exit when done.all;
@@ -47,10 +47,9 @@ package body Control is
    begin
       self.state := SUSPENDED;
 
-      Signals.Wait(self.flag);
+      Signals.Wait(self.run);
 
       if self.state = DYING then -- received request to exit
-         self.Reset;
          raise Exit_Controller;
       else
          self.state := RUNNING;
@@ -61,16 +60,18 @@ package body Control is
    --  Base controller
    ---------------------------------------------------------------------------
 
-   -----------
-   -- Reset --
-   -----------
+   ---------
+   -- Die --
+   ---------
 
-   procedure Reset(self: in out BASE_CONTROLLER) is
+   procedure Die(self: in out BASE_CONTROLLER) is
    begin
-      self.id    := Null_Task_Id;
-      self.state := DEAD;
-      self.link  := NULL;
-   end Reset;
+      self.id      := Null_Task_Id;
+      self.state   := DEAD;
+      self.link    := NULL;
+      self.migrant := NULL;
+      Signals.Clear(self.run);
+   end Die;
 
    ------------
    -- Status --
@@ -106,8 +107,8 @@ package body Control is
       pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      self.Reset;
-      Signals.Notify(back.flag);
+      self.Die;
+      Signals.Notify(back.run);
    end Detach;
 
    --   Detach after an exception; called from an exception handler
@@ -130,8 +131,8 @@ package body Control is
       back.migrant := Save_Occurrence(X);
 
       --  like simple detach
-      self.Reset;
-      Signals.Notify(back.flag);
+      self.Die;
+      Signals.Notify(back.run);
    end Detach;
 
    --------------
@@ -174,10 +175,8 @@ package body Control is
       spin_until(target_attached'Access);
 
       --  transfers control
-      Signals.Notify(target.flag);
+      Signals.Notify(target.run);
       wait(self);
-
-      -- TODO: understand exceptions raised for `wait`
 
       --  check if `target` detached with an exception!
       if self.migrant /= NULL then
@@ -213,7 +212,7 @@ package body Control is
          --  Send the request to the suspended controller and spin until
          --  received and processed
          self.state := DYING;
-         Signals.Notify(self.flag);
+         Signals.Notify(self.run);
          spin_until(have_died'Access);
       else
          raise Program_Error;
@@ -235,7 +234,7 @@ package body Control is
       pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      Signals.Notify(invoker.flag);
+      Signals.Notify(invoker.run);
       wait(self);
    end Suspend;
 
@@ -252,8 +251,8 @@ package body Control is
       pragma Assert(self.id = Current_Task);
       pragma Assert(self.state = RUNNING);
 
-      self.Reset;
-      Signals.Notify(target.flag);
+      self.Die;
+      Signals.Notify(target.run);
    end Jump;
 
 end Control;

@@ -18,8 +18,8 @@ package Control is
 
    type BASE_CONTROLLER is abstract tagged limited private;
 
-   procedure Reset(self: in out BASE_CONTROLLER) with Inline;
-   --  Restore `self` to the initial state
+   procedure Die(self: in out BASE_CONTROLLER) with Inline;
+   --  Put `self` to the final state
 
    type STATUS_TYPE is (
       SUSPENDED,  --  the controller has not started or called `Suspend`
@@ -89,7 +89,7 @@ private
          id      : Ada.Task_Identification.TASK_ID;
          state   : STATUS_TYPE := SUSPENDED;
          link    : access BASE_CONTROLLER'Class;
-         flag    : Signals.SIGNAL;
+         run     : Signals.SIGNAL;
          migrant : EXCEPTION_OCCURRENCE_ACCESS;
       end record;
 
