@@ -44,14 +44,12 @@ begin
          Put("Hello");   self.Yield;
          Put(", world"); self.Yield;
          Put_Line("!");
-         self.Yield; -- closed here
       end;
 
       hello : R.ROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
       loop hello.Resume; end loop;
-      hello.Close;
    exception
       when Stop_Iterator => null;
    end Test_1;
