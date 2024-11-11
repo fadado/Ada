@@ -1,38 +1,41 @@
 ------------------------------------------------------------------------------
---  Generic Control . Routines (implementation)
+--  Generic Control . Generators (implementation)
 ------------------------------------------------------------------------------
 
-package body Control . Routines is
+package body Control . Generators is
    ---------------------------------------------------------------------------
-   --  ROUTINE_TYPE methods
+   --  GENERATOR_TYPE methods
    ---------------------------------------------------------------------------
 
--- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
+-- type GENERATOR_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
 
-   ------------
-   -- Resume --
-   ------------
+   ----------
+   -- Next --
+   ----------
 
-   procedure Resume(self: in out ROUTINE_TYPE) is
+   procedure Next(self: in out GENERATOR_TYPE; datum: out DATUM_TYPE) is
    begin
       pragma Assert(self.runner'Callable);
 
       self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
 
-      -- is self detached?
       if self.state = DEAD then
          raise Co_Op.Stop_Iterator;
       end if;
-   end Resume;
+
+      datum := self.datum;
+   end Next;
 
    -----------
    -- Yield --
    -----------
 
-   procedure Yield(self: in out ROUTINE_TYPE) is
+   procedure Yield(self: in out GENERATOR_TYPE; datum: DATUM_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
       pragma Assert(self.runner'Callable);
+
+      self.datum := datum;
       super.Suspend;
    end Yield;
 
@@ -40,18 +43,20 @@ package body Control . Routines is
    -- Close --
    -----------
 
-   procedure Close(self: in out ROUTINE_TYPE) is
+   procedure Close(self: in out GENERATOR_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
       super.Request_To_Exit;
-      pragma Assert(self.runner'Terminated);
+      pragma Assert(self.state = DEAD);
+      --TODO: spin_until???
+      loop exit when self.runner'Terminated; end loop;
    end Close;
 
    ----------------
    -- Run_Method --
    ----------------
 
--- task type Run_Method (self: ROUTINE_ACCESS);
+-- task type Run_Method (self: GENERATOR_ACCESS);
 
    task body Run_Method is
    begin
@@ -77,24 +82,24 @@ package body Control . Routines is
 --    Context : CONTEXT_ACCESS := NULL;
 
    package body Wrap is
-      routine : ROUTINE_TYPE (Main, Context);
+      generator : GENERATOR_TYPE (Main, Context);
 
-      procedure Call is
+      procedure Call(datum: out DATUM_TYPE) is
       begin
-         routine.Resume;
+         generator.Next(datum);
 
       exception
       --  Exceptions raised again and propagated to the caller after cleanup
          when Co_Op.Stop_Iterator =>
-            pragma Assert(routine.runner'Terminated);
+            pragma Assert(generator.runner'Terminated);
             raise;
          when others =>
-            routine.Close; -- Just in case...
+            generator.Close; -- Just in case...
             raise;
       end Call;
    end Wrap;
 
-end Control . Routines;
+end Control . Generators;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

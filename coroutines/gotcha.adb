@@ -14,7 +14,7 @@ package body Gotcha is
 
    procedure Report_Exception(X: EXCEPTION_OCCURRENCE; S: STRING) is
       message     : STRING renames Exception_Message(X);
-      information : STRING renames Exception_Information(X);
+    --information : STRING renames Exception_Information(X);
    begin
       Put(Standard_Error, "## ");
       Put_Line(Standard_Error, S);
@@ -24,10 +24,10 @@ package body Gotcha is
          Put(Standard_Error, "## ");
          Put_Line(Standard_Error, Exception_Message(X));
       end if;
-      if information /= "" then
-         Put(Standard_Error, "## ");
-         Put_Line(Standard_Error, Exception_Information(X));
-      end if;
+    --if information /= "" then
+    --   Put(Standard_Error, "## ");
+    --   Put_Line(Standard_Error, Exception_Information(X));
+    --end if;
    end Report_Exception;
 
    protected body Pass is
