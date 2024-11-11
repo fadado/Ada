@@ -12,32 +12,13 @@ with Signals;
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Task_Identification; use Ada.Task_Identification;
 
+with Control.Spin_Until;
+
 package body Control is
 
    ---------------------------------------------------------------------------
    -- Local subprograms
    ---------------------------------------------------------------------------
-
-   ----------------
-   -- spin_until --
-   ----------------
-
-   procedure spin_until(done: access function return BOOLEAN) is
-      use Ada.Real_Time;
-
-      msec : INTEGER := 100; -- are 100ms enough?
-      stop : TIME := Clock + Milliseconds(msec);
-   begin
-      if not done.all then
-         loop
-            if Clock > stop then
-               raise Program_Error with "spinning loop timed out";
-            end if;
-            Ada.Dispatching.Yield;
-            exit when done.all;
-         end loop;
-      end if;
-   end spin_until;
 
    ----------
    -- wait --
@@ -142,7 +123,8 @@ package body Control is
    procedure Transfer(self, target: in out BASE_CONTROLLER) is
       use Ada.Exceptions;
 
-      function target_attached return BOOLEAN is (target.id /= Null_Task_Id);
+      function target_attached return BOOLEAN is
+         (target.id /= Null_Task_Id);
 
       procedure dealloc is new Ada.Unchecked_Deallocation (
          EXCEPTION_OCCURRENCE,
@@ -172,7 +154,7 @@ package body Control is
       end if;
 
       --  ensure `target` suspends on `Attach`
-      spin_until(target_attached'Access);
+      Spin_Until(target_attached'Access);
 
       --  transfers control
       Signals.Notify(target.run);
@@ -198,7 +180,8 @@ package body Control is
 
    procedure Request_To_Exit(self: in out BASE_CONTROLLER)
    is
-      function have_died return BOOLEAN is (self.state = DEAD);
+      function have_died return BOOLEAN is
+         (self.state = DEAD);
    begin
       pragma Assert(self.state = SUSPENDED or else self.state = DEAD);
       pragma Assert(self.id /= Current_Task);
@@ -213,7 +196,7 @@ package body Control is
          --  received and processed
          self.state := DYING;
          Signals.Notify(self.run);
-         spin_until(have_died'Access);
+         Spin_Until(have_died'Access);
       else
          raise Program_Error;
       end if;

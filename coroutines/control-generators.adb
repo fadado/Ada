@@ -2,6 +2,8 @@
 --  Generic Control . Generators (implementation)
 ------------------------------------------------------------------------------
 
+with Control.Spin_Until;
+
 package body Control . Generators is
    ---------------------------------------------------------------------------
    --  GENERATOR_TYPE methods
@@ -45,11 +47,15 @@ package body Control . Generators is
 
    procedure Close(self: in out GENERATOR_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
+
+      function runner_terminated return BOOLEAN is
+         (self.runner'Terminated);
    begin
       super.Request_To_Exit;
+
       pragma Assert(self.state = DEAD);
-      --TODO: spin_until???
-      loop exit when self.runner'Terminated; end loop;
+
+      Spin_Until(runner_terminated'Access);
    end Close;
 
    ----------------
@@ -66,7 +72,7 @@ package body Control . Generators is
 
    exception
       when Exit_Controller => self.Die;
-      when X: others => self.Detach(X);
+      when X: others       => self.Detach(X);
    end Run_Method;
 
    ---------------------------------------------------------------------------

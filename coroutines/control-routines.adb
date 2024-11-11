@@ -61,7 +61,7 @@ package body Control . Routines is
 
    exception
       when Exit_Controller => self.Die;
-      when X: others => self.Detach(X);
+      when X: others       => self.Detach(X);
    end Run_Method;
 
    ---------------------------------------------------------------------------
