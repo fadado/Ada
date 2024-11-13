@@ -22,10 +22,11 @@ package Control is
    --  Put `self` to the final state
 
    type STATUS_TYPE is (
-      SUSPENDED,  --  the controller has not started or called `Suspend`
-      RUNNING,    --  the controller is the one that called `Status`
-      DEAD,       --  the coroutine has detached or has stopped with an error
-      DYING       --  transient state for request to exit
+      EXPECTANT,  -- not yet born
+      SUSPENDED,  -- the controller has not started or called `Suspend`
+      RUNNING,    -- the controller is the one that called `Status`
+      DEAD,       -- the coroutine has detached or has stopped with an error
+      DYING       -- transient state for request to exit
    );
 
    function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
@@ -87,15 +88,14 @@ private
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
-         state   : STATUS_TYPE := SUSPENDED;
+         state   : STATUS_TYPE := EXPECTANT;
          link    : access BASE_CONTROLLER'Class;
          run     : Signals.SIGNAL;
          migrant : EXCEPTION_OCCURRENCE_ACCESS;
       end record;
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
-
-   type SYMMETRIC_CONTROLLER  is new BASE_CONTROLLER with null record;
+   type  SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
 
 end Control;
 

@@ -6,16 +6,16 @@ with Control.Spin_Until;
 
 package body Control . Generators is
    ---------------------------------------------------------------------------
-   --  GENERATOR_TYPE methods
+   --  GENERATOR_TYPE coroutine methods
    ---------------------------------------------------------------------------
 
--- type GENERATOR_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
+   -- type GENERATOR_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS)...
 
-   ----------
-   -- Next --
-   ----------
+   ------------
+   -- Resume --
+   ------------
 
-   procedure Next(self: in out GENERATOR_TYPE; datum: out DATUM_TYPE) is
+   procedure Resume(self: in out GENERATOR_TYPE; value: out ELEMENT_TYPE) is
    begin
       pragma Assert(self.runner'Callable);
 
@@ -25,19 +25,19 @@ package body Control . Generators is
          raise Co_Op.Stop_Iterator;
       end if;
 
-      datum := self.datum;
-   end Next;
+      value := self.value;
+   end Resume;
 
    -----------
    -- Yield --
    -----------
 
-   procedure Yield(self: in out GENERATOR_TYPE; datum: DATUM_TYPE) is
+   procedure Yield(self: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
       super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
       pragma Assert(self.runner'Callable);
 
-      self.datum := datum;
+      self.value := value;
       super.Suspend;
    end Yield;
 
@@ -62,7 +62,7 @@ package body Control . Generators is
    -- Run_Method --
    ----------------
 
--- task type Run_Method (self: GENERATOR_ACCESS);
+   -- task type Run_Method (self: not null GENERATOR_ACCESS);
 
    task body Run_Method is
    begin
@@ -76,6 +76,97 @@ package body Control . Generators is
    end Run_Method;
 
    ---------------------------------------------------------------------------
+   --  CURSOR_TYPE methods
+   ---------------------------------------------------------------------------
+
+   -- type CURSOR_TYPE is access all GENERATOR_TYPE;
+
+   -------------
+   -- Element --
+   -------------
+
+   function Element(cursor: CURSOR_TYPE) return ELEMENT_TYPE is
+      generator : GENERATOR_TYPE renames cursor.all;
+   begin
+      if cursor = No_Element then
+         raise Constraint_Error with "Cursor has no element";
+      end if;
+      return generator.value;
+   end Element;
+
+   ----------
+   -- Next --
+   ----------
+
+   function Next(cursor: CURSOR_TYPE) return CURSOR_TYPE is
+      generator : GENERATOR_TYPE renames cursor.all;
+   begin
+      if cursor /= No_Element then
+         begin
+            generator.Resume(generator.value);
+         exception
+            when Co_Op.Stop_Iterator => return No_Element;
+         end;
+      end if;
+      return cursor;
+   end Next;
+
+   procedure Next(cursor: in out CURSOR_TYPE) is
+   begin
+      cursor := Next(Cursor); -- call the function
+   end Next;
+
+   ---------------------------------------------------------------------------
+   --  GENERATOR_TYPE as iterable methods
+   ---------------------------------------------------------------------------
+
+   -----------
+   -- First --
+   -----------
+
+   function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE
+   is
+   begin
+      if generator.state = EXPECTANT then
+         delay 0.1; -- give an oportunity to attach
+         if generator.state = EXPECTANT then
+            raise Constraint_Error
+               with "Generator must be elaborated in a outer frame";
+         end if;
+      end if;
+      generator.Resume(generator.value);
+      return generator'Unchecked_Access;
+   exception
+      when Co_Op.Stop_Iterator => return No_Element;
+   end First;
+
+   -------------
+   -- Iterate --
+   -------------
+
+   procedure Iterate (
+      generator : in out GENERATOR_TYPE;
+      process   : not null access procedure (value: ELEMENT_TYPE))
+   is
+      p : CURSOR_TYPE;
+   begin
+      p := First(generator);
+      loop
+         exit when not Has_Element(p);
+         process(generator.value); -- hack: bypass Element(p)
+         Next(p);
+      end loop;
+   end Iterate;
+
+   ---------------------------------------------------------------------------
+   --  GENERATOR_TYPE as Ada 2012 iterator methods
+   ---------------------------------------------------------------------------
+
+   -------------
+   -- Iterate --
+   -------------
+
+   ---------------------------------------------------------------------------
    --  Wrapper for program with optional context
    ---------------------------------------------------------------------------
 
@@ -83,16 +174,16 @@ package body Control . Generators is
    -- Wrap --
    ----------
 
--- generic
---    Main    : PROGRAM_ACCESS;
---    Context : CONTEXT_ACCESS := NULL;
+   -- generic
+   --    Main    : PROGRAM_ACCESS;
+   --    Context : CONTEXT_ACCESS := NULL;
 
    package body Wrap is
       generator : GENERATOR_TYPE (Main, Context);
 
-      procedure Call(datum: out DATUM_TYPE) is
+      procedure Call(value: out ELEMENT_TYPE) is
       begin
-         generator.Next(datum);
+         generator.Resume(value);
 
       exception
       --  Exceptions raised again and propagated to the caller after cleanup

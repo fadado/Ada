@@ -43,7 +43,7 @@ procedure test_pingpong is
          end if;
       end loop;
 
-   exception -- TODO!
+   exception
       when X: others => Ping.Detach(X); raise;
    end PING_RUN;
 
@@ -62,7 +62,7 @@ procedure test_pingpong is
          end if;
       end loop;
 
-   exception -- TODO!
+   exception
       when X: others => Pong.Detach(X); raise;
    end PONG_RUN;
 

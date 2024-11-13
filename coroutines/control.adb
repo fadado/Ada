@@ -69,9 +69,10 @@ package body Control is
 
    procedure Attach(self: in out BASE_CONTROLLER) is
    begin
+      pragma Assert(self.state = EXPECTANT);
       pragma Assert(self.id = Null_Task_Id);
-      pragma Assert(self.state = SUSPENDED);
 
+      self.state := SUSPENDED;
       self.id := Current_Task;
       wait(self);
 
