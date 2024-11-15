@@ -28,4 +28,4 @@ test_fibonacci: test_fibonacci.adb ${LIBRARY} ${GENLIB}
 	@gnatmake test_fibonacci
 
 clean:
-	@rm -f *.o *.ali test_pingpong test_hello_[0-9] *.ads.* *.adb.*
+	@rm -f *.o *.ali test_pingpong test_hello_[0-9] test_fibonacci *.ads.* *.adb.*

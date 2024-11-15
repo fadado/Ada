@@ -26,16 +26,21 @@ procedure test_fibonacci is
 begin
    Gotcha.Set_Handlers;
 
+   ---------------------------------------------------------------------------
+   --  Test 1
+   ---------------------------------------------------------------------------
+
    Test_1:
    declare
       use Co_Op;
 
-      package G is new Generators (
+      package fibonacci_types is new Generators (
          Context_Type => NONE,
          Element_Type => POSITIVE
       );
+      use fibonacci_types;
 
-      procedure fibonacci(self: G.GENERATOR_ACCESS) is
+      procedure fibonacci(self: not null GENERATOR_ACCESS) is
          m : POSITIVE := 1;
          n : POSITIVE := 1;
          t : POSITIVE;
@@ -49,8 +54,8 @@ begin
 
    begin
       declare
-         max : aliased INTEGER := 7;
-         fib : G.GENERATOR_TYPE (fibonacci'Access, NULL);
+         max : aliased INTEGER := 5;
+         fib : GENERATOR_TYPE (fibonacci'Access, NULL);
          k : POSITIVE;
       begin
          for i in 1..max loop
@@ -64,16 +69,21 @@ begin
       end;
    end Test_1;
 
+   ---------------------------------------------------------------------------
+   --  Test 2
+   ---------------------------------------------------------------------------
+
    Test_2:
    declare
       use Co_Op;
 
-      package G is new Generators (
+      package fibonacci_types is new Generators (
          Context_Type => INTEGER,
          Element_Type => POSITIVE
       );
+      use fibonacci_types;
 
-      procedure fibonacci(self: G.GENERATOR_ACCESS) is
+      procedure fibonacci(self: not null GENERATOR_ACCESS) is
          max : INTEGER renames self.context.all;
          m : POSITIVE := 1;
          n : POSITIVE := 1;
@@ -88,8 +98,8 @@ begin
 
    begin
       declare
-         max : aliased INTEGER := 7;
-         package fib is new G.Wrap (fibonacci'Access, max'Unchecked_Access);
+         max : aliased INTEGER := 5;
+         package fib is new Wrap (fibonacci'Access, max'Unchecked_Access);
          k : POSITIVE;
       begin
          loop
@@ -101,16 +111,21 @@ begin
       end;
    end Test_2;
 
+   ---------------------------------------------------------------------------
+   --  Test 3
+   ---------------------------------------------------------------------------
+
    Test_3:
    declare
       use Co_Op;
 
-      package G is new Generators (
+      package fibonacci_types is new Generators (
          Context_Type => INTEGER,
          Element_Type => POSITIVE
       );
+      use fibonacci_types;
 
-      procedure fibonacci(self: G.GENERATOR_ACCESS) is
+      procedure fibonacci(self: not null GENERATOR_ACCESS) is
          max : INTEGER renames self.context.all;
          m : POSITIVE := 1;
          n : POSITIVE := 1;
@@ -125,32 +140,37 @@ begin
 
    begin
       declare
-         max : aliased INTEGER := 7;
-         fib : G.GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
-         ptr : G.CURSOR_TYPE; --  := G.First(fib) raises Constraint_Error
+         max : aliased INTEGER := 5;
+         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+         ptr : CURSOR_TYPE; --  := First(fib) raises Constraint_Error
          k   : POSITIVE;
       begin
-         ptr := G.First(fib);
+         ptr := First(fib);
          loop
-            exit when not G.Has_Element(ptr);
-            k := G.Element(ptr);
+            exit when not Has_Element(ptr);
+            k := Element(ptr);
             Put_Line(k'Image);
-            G.Next(ptr);
+            Next(ptr);
          end loop;
          New_Line;
       end;
    end Test_3;
 
+   ---------------------------------------------------------------------------
+   --  Test 4
+   ---------------------------------------------------------------------------
+
    Test_4:
    declare
       use Co_Op;
 
-      package G is new Generators (
+      package fibonacci_types is new Generators (
          Context_Type => INTEGER,
          Element_Type => POSITIVE
       );
+      use fibonacci_types;
 
-      procedure fibonacci(self: G.GENERATOR_ACCESS) is
+      procedure fibonacci(self: not null GENERATOR_ACCESS) is
          max : INTEGER renames self.context.all;
          m : POSITIVE := 1;
          n : POSITIVE := 1;
@@ -165,17 +185,56 @@ begin
 
    begin
       declare
-         max : aliased INTEGER := 7;
-         fib : G.GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+         max : aliased INTEGER := 5;
+         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
          procedure show(k: POSITIVE) is
          begin
             Put_Line(k'Image);
          end show;
       begin
-         G.Iterate(fib, show'Access);
+         Iterate(fib, show'Access);
          New_Line;
       end;
    end Test_4;
+
+   ---------------------------------------------------------------------------
+   --  Test 5
+   ---------------------------------------------------------------------------
+
+   Test_5:
+   declare
+      use Co_Op;
+
+      package fibonacci_types is new Generators (
+         Context_Type => INTEGER,
+         Element_Type => POSITIVE
+      );
+      use fibonacci_types;
+
+      procedure fibonacci(self: not null GENERATOR_ACCESS) is
+         max : INTEGER renames self.context.all;
+         m : POSITIVE := 1;
+         n : POSITIVE := 1;
+         t : POSITIVE;
+      begin
+         self.Yield(n);
+         for i in 2..max loop
+            self.Yield(n);
+            t := n; n := m+n; m := t;
+         end loop;
+      end;
+
+   begin
+      declare
+         max : aliased INTEGER := 10;
+         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+      begin
+         for cursor in fib.Iterate loop
+            Put_Line(Element(cursor)'Image);
+         end loop;
+         New_Line;
+      end;
+   end Test_5;
 
 exception
    when X : others =>

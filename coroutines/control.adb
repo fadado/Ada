@@ -15,7 +15,6 @@ with Ada.Task_Identification; use Ada.Task_Identification;
 with Control.Spin_Until;
 
 package body Control is
-
    ---------------------------------------------------------------------------
    -- Local subprograms
    ---------------------------------------------------------------------------

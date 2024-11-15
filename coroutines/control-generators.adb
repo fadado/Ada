@@ -76,17 +76,49 @@ package body Control . Generators is
    end Run_Method;
 
    ---------------------------------------------------------------------------
+   --  Wrapper for program with optional context
+   ---------------------------------------------------------------------------
+
+   ----------
+   -- Wrap --
+   ----------
+
+   -- generic
+   --    Main    : PROGRAM_ACCESS;
+   --    Context : CONTEXT_ACCESS := NULL;
+
+   package body Wrap is
+      generator : GENERATOR_TYPE (Main, Context);
+
+      procedure Call(value: out ELEMENT_TYPE) is
+         function runner_terminated return BOOLEAN is
+            (generator.runner'Terminated);
+      begin
+         generator.Resume(value);
+
+      exception
+      --  Exceptions raised again and propagated to the caller after cleanup
+         when Co_Op.Stop_Iterator =>
+            Spin_Until(runner_terminated'Access);
+            raise;
+         when others =>
+            generator.Close; -- Just in case...
+            raise;
+      end Call;
+   end Wrap;
+
+   ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods
    ---------------------------------------------------------------------------
 
-   -- type CURSOR_TYPE is access all GENERATOR_TYPE;
+   -- type CURSOR_TYPE is new GENERATOR_ACCESS;
 
    -------------
    -- Element --
    -------------
 
    function Element(cursor: CURSOR_TYPE) return ELEMENT_TYPE is
-      generator : GENERATOR_TYPE renames cursor.all;
+      generator : GENERATOR_TYPE renames cursor.source.all;
    begin
       if cursor = No_Element then
          raise Constraint_Error with "Cursor has no element";
@@ -99,7 +131,7 @@ package body Control . Generators is
    ----------
 
    function Next(cursor: CURSOR_TYPE) return CURSOR_TYPE is
-      generator : GENERATOR_TYPE renames cursor.all;
+      generator : GENERATOR_TYPE renames cursor.source.all;
    begin
       if cursor /= No_Element then
          begin
@@ -116,10 +148,6 @@ package body Control . Generators is
       cursor := Next(Cursor); -- call the function
    end Next;
 
-   ---------------------------------------------------------------------------
-   --  GENERATOR_TYPE as iterable methods
-   ---------------------------------------------------------------------------
-
    -----------
    -- First --
    -----------
@@ -135,7 +163,7 @@ package body Control . Generators is
          end if;
       end if;
       generator.Resume(generator.value);
-      return generator'Unchecked_Access;
+      return (source => generator'Unchecked_Access);
    exception
       when Co_Op.Stop_Iterator => return No_Element;
    end First;
@@ -148,53 +176,93 @@ package body Control . Generators is
       generator : in out GENERATOR_TYPE;
       process   : not null access procedure (value: ELEMENT_TYPE))
    is
-      p : CURSOR_TYPE;
+      cursor : CURSOR_TYPE;
    begin
-      p := First(generator);
+      cursor := First(generator);
       loop
-         exit when not Has_Element(p);
-         process(generator.value); -- hack: bypass Element(p)
-         Next(p);
+         exit when not Has_Element(cursor);
+         process(generator.value); -- hack: bypass Element(cursor)
+         Next(cursor);
+      end loop;
+   end Iterate;
+
+   procedure Iterate (
+      generator : in out GENERATOR_TYPE;
+      process   : not null access procedure (cursor: CURSOR_TYPE))
+   is
+      cursor : CURSOR_TYPE;
+   begin
+      cursor := First(generator);
+      loop
+         exit when not Has_Element(cursor);
+         process(cursor);
+         Next(cursor);
       end loop;
    end Iterate;
 
    ---------------------------------------------------------------------------
-   --  GENERATOR_TYPE as Ada 2012 iterator methods
+   --  ITERATOR_TYPE methods
    ---------------------------------------------------------------------------
+
+   type ITERATOR_TYPE is
+      new Generator_Iterator_Interfaces.Forward_Iterator with
+         record
+            source : not null GENERATOR_ACCESS;
+         end record;
+
+   overriding
+   function First(iterator: ITERATOR_TYPE) return CURSOR_TYPE;
+
+   overriding
+   function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return CURSOR_TYPE;
 
    -------------
    -- Iterate --
    -------------
 
-   ---------------------------------------------------------------------------
-   --  Wrapper for program with optional context
-   ---------------------------------------------------------------------------
+   function Iterate(generator: in out GENERATOR_TYPE) return ITERABLE is
+   begin
+      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+   end Iterate;
+
+   -----------
+   -- First --
+   -----------
+
+   function First(iterator: ITERATOR_TYPE) return CURSOR_TYPE is
+      generator : GENERATOR_TYPE renames iterator.source.all;
+   begin
+      return cursor : constant CURSOR_TYPE := generator.First do
+         pragma Assert(GENERATOR_ACCESS(iterator.source)
+                     = GENERATOR_ACCESS(cursor.source));
+      end return;
+   end First;
 
    ----------
-   -- Wrap --
+   -- Next --
    ----------
 
-   -- generic
-   --    Main    : PROGRAM_ACCESS;
-   --    Context : CONTEXT_ACCESS := NULL;
+   function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return CURSOR_TYPE is
+   begin
+      pragma Assert(GENERATOR_ACCESS(iterator.source)
+                  = GENERATOR_ACCESS(cursor.source));
+      return Next(cursor);
+   end Next;
 
-   package body Wrap is
-      generator : GENERATOR_TYPE (Main, Context);
+   -------------------
+   -- element_value --
+   -------------------
 
-      procedure Call(value: out ELEMENT_TYPE) is
-      begin
-         generator.Resume(value);
-
-      exception
-      --  Exceptions raised again and propagated to the caller after cleanup
-         when Co_Op.Stop_Iterator =>
-            pragma Assert(generator.runner'Terminated);
-            raise;
-         when others =>
-            generator.Close; -- Just in case...
-            raise;
-      end Call;
-   end Wrap;
+   -- TODO aspect
+   function element_value(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return ELEMENT_TYPE is
+   begin
+      pragma Assert(GENERATOR_ACCESS(iterator.source)
+                  = GENERATOR_ACCESS(cursor.source));
+      return Element(cursor);
+   end element_value;
 
 end Control . Generators;
 

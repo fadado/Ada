@@ -85,6 +85,10 @@ package Control is
    end Co_Op;
 
 private
+   ---------------------------------------------------------------------------
+   --  Full view for private types
+   ---------------------------------------------------------------------------
+
    type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
