@@ -12,11 +12,9 @@ package Control . Routines is
    ---------------------------------------------------------------------------
 
    type CONTEXT_ACCESS is access all CONTEXT_TYPE;
-   --  Optional data for the program
 
    type ROUTINE_TYPE;
    type ROUTINE_ACCESS is not null access all ROUTINE_TYPE;
-   --  Forward declarations
 
    type PROGRAM_ACCESS is not null access procedure (self: ROUTINE_ACCESS);
    --  Procedure type for the main program

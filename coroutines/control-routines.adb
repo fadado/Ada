@@ -21,7 +21,7 @@ package body Control . Routines is
 
       -- is self detached?
       if self.state = DEAD then
-         raise Co_Op.Stop_Iterator;
+         raise Stop_Iterator;
       end if;
    end Resume;
 
@@ -30,10 +30,9 @@ package body Control . Routines is
    -----------
 
    procedure Yield(self: in out ROUTINE_TYPE) is
-      super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
       pragma Assert(self.runner'Callable);
-      super.Suspend;
+      self.Suspend;
    end Yield;
 
    -----------
@@ -41,9 +40,8 @@ package body Control . Routines is
    -----------
 
    procedure Close(self: in out ROUTINE_TYPE) is
-      super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
    begin
-      super.Request_To_Exit;
+      self.Request_To_Exit;
       pragma Assert(self.runner'Terminated);
    end Close;
 
@@ -82,10 +80,9 @@ package body Control . Routines is
       procedure Call is
       begin
          routine.Resume;
-
       exception
       --  Exceptions raised again and propagated to the caller after cleanup
-         when Co_Op.Stop_Iterator =>
+         when Stop_Iterator =>
             pragma Assert(routine.runner'Terminated);
             raise;
          when others =>

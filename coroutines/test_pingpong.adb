@@ -2,15 +2,6 @@
 --  Symmetric ping/pong
 ------------------------------------------------------------------------------
 
-pragma Restrictions (
--- No_Abort_Statements,
-   No_Task_Allocators,
-   No_Protected_Type_Allocators,
-   No_Requeue_Statements,
-   No_Local_Protected_Objects,
-   No_Select_Statements
-);
-
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 
@@ -91,8 +82,6 @@ begin
       Put_Line("Game Over");
    exception
       when X: others =>
-         --TODO!
-         abort ping_runner, pong_runner;
          Gotcha.Report_Exception(X, "Oops at HEAD TASK!!");
    end Test;
 

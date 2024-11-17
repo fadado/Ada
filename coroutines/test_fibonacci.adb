@@ -4,15 +4,6 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-pragma Restrictions (
-   No_Abort_Statements,
-   No_Task_Allocators,
-   No_Protected_Type_Allocators,
-   No_Requeue_Statements,
-   No_Local_Protected_Objects,
-   No_Select_Statements
-);
-
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -22,6 +13,38 @@ use Control;
 with Gotcha;
 
 procedure test_fibonacci is
+   
+   Limit : constant := 10;
+
+   package fibonacci_types is new Generators (
+      Context_Type => INTEGER,
+      Element_Type => POSITIVE
+   );
+
+   use fibonacci_types;
+
+   procedure infinite(self: not null GENERATOR_ACCESS) is
+      m, n : POSITIVE := 1;
+      t : POSITIVE;
+   begin
+      self.Yield(n);
+      loop
+         self.Yield(n);
+         t := n; n := m+n; m := t;
+      end loop;
+   end infinite;
+
+   procedure finite(self: not null GENERATOR_ACCESS) is
+      max : INTEGER renames self.context.all;
+      m, n : POSITIVE := 1;
+      t : POSITIVE;
+   begin
+      self.Yield(n);
+      for i in 2..max loop
+         self.Yield(n);
+         t := n; n := m+n; m := t;
+      end loop;
+   end finite;
 
 begin
    Gotcha.Set_Handlers;
@@ -32,35 +55,13 @@ begin
 
    Test_1:
    declare
-      use Co_Op;
-
-      package fibonacci_types is new Generators (
-         Context_Type => NONE,
-         Element_Type => POSITIVE
-      );
-      use fibonacci_types;
-
-      procedure fibonacci(self: not null GENERATOR_ACCESS) is
-         m : POSITIVE := 1;
-         n : POSITIVE := 1;
-         t : POSITIVE;
-      begin
-         self.Yield(n);
-         loop
-            self.Yield(n);
-            t := n; n := m+n; m := t;
-         end loop;
-      end;
-
    begin
       declare
-         max : aliased INTEGER := 5;
-         fib : GENERATOR_TYPE (fibonacci'Access, NULL);
-         k : POSITIVE;
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (infinite'Access, NULL);
       begin
          for i in 1..max loop
-            fib.Resume(k);
-            Put_Line(k'Image);
+            Put(fib.Resume'Image);
          end loop;
          New_Line;
          fib.Close;
@@ -75,36 +76,13 @@ begin
 
    Test_2:
    declare
-      use Co_Op;
-
-      package fibonacci_types is new Generators (
-         Context_Type => INTEGER,
-         Element_Type => POSITIVE
-      );
-      use fibonacci_types;
-
-      procedure fibonacci(self: not null GENERATOR_ACCESS) is
-         max : INTEGER renames self.context.all;
-         m : POSITIVE := 1;
-         n : POSITIVE := 1;
-         t : POSITIVE;
-      begin
-         self.Yield(n);
-         for i in 2..max loop
-            self.Yield(n);
-            t := n; n := m+n; m := t;
-         end loop;
-      end;
-
    begin
       declare
-         max : aliased INTEGER := 5;
-         package fib is new Wrap (fibonacci'Access, max'Unchecked_Access);
-         k : POSITIVE;
+         max : aliased INTEGER := Limit;
+         package fib is new Wrap (finite'Access, max'Unchecked_Access);
       begin
          loop
-            fib.Call(k);
-            Put_Line(k'Image);
+            Put(fib.Call'Image);
          end loop;
       exception
          when Stop_Iterator => New_Line;
@@ -117,40 +95,17 @@ begin
 
    Test_3:
    declare
-      use Co_Op;
-
-      package fibonacci_types is new Generators (
-         Context_Type => INTEGER,
-         Element_Type => POSITIVE
-      );
-      use fibonacci_types;
-
-      procedure fibonacci(self: not null GENERATOR_ACCESS) is
-         max : INTEGER renames self.context.all;
-         m : POSITIVE := 1;
-         n : POSITIVE := 1;
-         t : POSITIVE;
-      begin
-         self.Yield(n);
-         for i in 2..max loop
-            self.Yield(n);
-            t := n; n := m+n; m := t;
-         end loop;
-      end;
-
    begin
       declare
-         max : aliased INTEGER := 5;
-         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
          ptr : CURSOR_TYPE; --  := First(fib) raises Constraint_Error
-         k   : POSITIVE;
       begin
          ptr := First(fib);
          loop
             exit when not Has_Element(ptr);
-            k := Element(ptr);
-            Put_Line(k'Image);
-            Next(ptr);
+            Put(Element(ptr)'Image);
+            ptr := Next(ptr);
          end loop;
          New_Line;
       end;
@@ -162,37 +117,16 @@ begin
 
    Test_4:
    declare
-      use Co_Op;
-
-      package fibonacci_types is new Generators (
-         Context_Type => INTEGER,
-         Element_Type => POSITIVE
-      );
-      use fibonacci_types;
-
-      procedure fibonacci(self: not null GENERATOR_ACCESS) is
-         max : INTEGER renames self.context.all;
-         m : POSITIVE := 1;
-         n : POSITIVE := 1;
-         t : POSITIVE;
-      begin
-         self.Yield(n);
-         for i in 2..max loop
-            self.Yield(n);
-            t := n; n := m+n; m := t;
-         end loop;
-      end;
-
    begin
       declare
-         max : aliased INTEGER := 5;
-         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
          procedure show(k: POSITIVE) is
          begin
-            Put_Line(k'Image);
+            Put(k'Image);
          end show;
       begin
-         Iterate(fib, show'Access);
+         For_Each(fib, show'Access);
          New_Line;
       end;
    end Test_4;
@@ -203,34 +137,16 @@ begin
 
    Test_5:
    declare
-      use Co_Op;
-
-      package fibonacci_types is new Generators (
-         Context_Type => INTEGER,
-         Element_Type => POSITIVE
-      );
-      use fibonacci_types;
-
-      procedure fibonacci(self: not null GENERATOR_ACCESS) is
-         max : INTEGER renames self.context.all;
-         m : POSITIVE := 1;
-         n : POSITIVE := 1;
-         t : POSITIVE;
-      begin
-         self.Yield(n);
-         for i in 2..max loop
-            self.Yield(n);
-            t := n; n := m+n; m := t;
-         end loop;
-      end;
-
    begin
       declare
-         max : aliased INTEGER := 10;
-         fib : GENERATOR_TYPE (fibonacci'Access, max'Unchecked_Access);
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-         for cursor in fib.Iterate loop
-            Put_Line(Element(cursor)'Image);
+       --for k of fib loop
+       --   Put(k'Image);
+       --end loop;
+         for p in fib.Iterate loop
+            Put(Element(p)'Image);
          end loop;
          New_Line;
       end;

@@ -6,6 +6,7 @@ all: test_hello_1 test_hello_2 test_pingpong test_fibonacci
 
 LIBRARY := \
 	control.ad[sb] \
+	control-spin_until.ad[sb] \
 	gotcha.ad[sb]
 
 RUTLIB := \

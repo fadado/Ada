@@ -4,15 +4,6 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-pragma Restrictions (
-   No_Abort_Statements,
-   No_Task_Allocators,
-   No_Protected_Type_Allocators,
-   No_Requeue_Statements,
-   No_Local_Protected_Objects,
-   No_Select_Statements
-);
-
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 

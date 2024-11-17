@@ -2,6 +2,15 @@
 --  Control specification
 ------------------------------------------------------------------------------
 
+pragma Restrictions (
+   No_Abort_Statements,
+   No_Task_Allocators,
+   No_Protected_Type_Allocators,
+   No_Requeue_Statements,
+   No_Local_Protected_Objects,
+   No_Select_Statements
+);
+
 with Ada.Exceptions; use Ada.Exceptions;
 
 private with Ada.Task_Identification;
@@ -11,6 +20,12 @@ package Control is
 
    Exit_Controller : exception;
    --  Raised to exit the current task; to handle only on task body
+
+   Stop_Iterator : exception;
+   --  Raised to indicate iterator exhaustion
+
+   type VOID is null record;
+   --  Helper for void contexts
 
    ---------------------------------------------------------------------------
    --  Base (abstract) controller
@@ -68,22 +83,6 @@ package Control is
    procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
    --  Transfers control to `target` and detach `self` from the current task
 
-   ---------------------------------------------------------------------------
-   --  Common facilities for cooperative routines
-   ---------------------------------------------------------------------------
-
-   --  Used in `Control` child units
-
-   package Co_Op is
-
-      type NONE is null record;
-      --  Helper for void contexts
-
-      Stop_Iterator : exception;
-      --  Raised to indicate iterator exhaustion
-
-   end Co_Op;
-
 private
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
@@ -91,20 +90,18 @@ private
 
    package Signals is
 
-      subtype SIGNAL is Ada.Synchronous_Task_Control.SUSPENSION_OBJECT;
+      use Ada.Synchronous_Task_Control;
+
+      subtype SIGNAL is SUSPENSION_OBJECT;
       --  `FALSE` initialized semaphores for *two* tasks only
 
-      procedure Wait(S: in out SIGNAL)
-         renames Ada.Synchronous_Task_Control.Suspend_Until_True;
+      procedure Wait(S: in out SIGNAL) renames Suspend_Until_True;
 
-      procedure Notify(S: in out SIGNAL)
-         renames Ada.Synchronous_Task_Control.Set_True;
+      procedure Notify(S: in out SIGNAL) renames Set_True;
 
-      procedure Clear(S: in out SIGNAL)
-         renames Ada.Synchronous_Task_Control.Set_False;
+      procedure Clear(S: in out SIGNAL) renames Set_False;
 
-      function Is_Set(S: in SIGNAL) return BOOLEAN
-         renames Ada.Synchronous_Task_Control.Current_State;
+      function Is_Set(S: in SIGNAL) return BOOLEAN renames Current_State;
 
       function Is_Cleared(S: in SIGNAL) return BOOLEAN
          is (not Is_Set(S)) with Inline;
