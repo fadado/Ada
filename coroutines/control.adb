@@ -7,7 +7,6 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Dispatching;
 with Ada.Unchecked_Deallocation;
 with Ada.Real_Time;     
-with Signals;
 
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Task_Identification; use Ada.Task_Identification;

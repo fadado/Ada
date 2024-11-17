@@ -5,7 +5,6 @@
 all: test_hello_1 test_hello_2 test_pingpong test_fibonacci
 
 LIBRARY := \
-	signals.ad[s] \
 	control.ad[sb] \
 	gotcha.ad[sb]
 
