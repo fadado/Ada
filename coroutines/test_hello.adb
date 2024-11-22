@@ -7,11 +7,12 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control; use Control;
+with Control.Routines;
+use Control;
 
 with Gotcha;
 
-procedure test_hello_1 is
+procedure test_hello is
 
 begin
    Gotcha.Set_Handlers;
@@ -145,11 +146,38 @@ begin
       main.Transfer(ASYMMETRIC_CONTROLLER(hello));
    end Test_4;
 
+   ---------------------------------------------------------------------------
+   --  Test 5 - Routines example
+   ---------------------------------------------------------------------------
+
+   Test_5:
+   declare
+      pragma Warnings (Off, "unreachable code");
+
+      package R is new Routines (Context_Type => VOID);
+      use R;
+
+      procedure hello_world(self: not null ROUTINE_ACCESS) is
+      begin
+         Put("Test 5-"); self.Yield;
+         Put("Hello");   self.Yield;
+         Put(", world"); self.Yield;
+         Put_Line("!");
+      end;
+
+      hello : ROUTINE_TYPE (hello_world'Access, NULL);
+
+   begin
+      loop hello.Resume; end loop;
+   exception
+      when Stop_Iterator => null;
+   end Test_5;
+
 exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 
-end test_hello_1;
+end test_hello;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

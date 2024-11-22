@@ -49,47 +49,17 @@ package body Control . Routines is
    -- Run_Method --
    ----------------
 
--- task type Run_Method (self: ROUTINE_ACCESS);
+-- task type Run_Method (self: not null ROUTINE_ACCESS);
 
    task body Run_Method is
    begin
       self.Attach;
       self.main(self);
       self.Detach;
-
    exception
       when Exit_Controller => self.Die;
       when X: others       => self.Detach(X);
    end Run_Method;
-
-   ---------------------------------------------------------------------------
-   --  Wrapper for program with optional context
-   ---------------------------------------------------------------------------
-
-   ----------
-   -- Wrap --
-   ----------
-
--- generic
---    Main    : PROGRAM_ACCESS;
---    Context : CONTEXT_ACCESS := NULL;
-
-   package body Wrap is
-      routine : ROUTINE_TYPE (Main, Context);
-
-      procedure Call is
-      begin
-         routine.Resume;
-      exception
-      --  Exceptions raised again and propagated to the caller after cleanup
-         when Stop_Iterator =>
-            pragma Assert(routine.runner'Terminated);
-            raise;
-         when others =>
-            routine.Close; -- Just in case...
-            raise;
-      end Call;
-   end Wrap;
 
 end Control . Routines;
 

@@ -14,9 +14,10 @@ package Control . Routines is
    type CONTEXT_ACCESS is access all CONTEXT_TYPE;
 
    type ROUTINE_TYPE;
-   type ROUTINE_ACCESS is not null access all ROUTINE_TYPE;
+   type ROUTINE_ACCESS is access all ROUTINE_TYPE;
 
-   type PROGRAM_ACCESS is not null access procedure (self: ROUTINE_ACCESS);
+   type PROGRAM_ACCESS is
+      not null access procedure (self: not null ROUTINE_ACCESS);
    --  Procedure type for the main program
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
@@ -32,20 +33,8 @@ package Control . Routines is
    procedure Close(self: in out ROUTINE_TYPE);
    --  Force `self` to exit
 
-   ---------------------------------------------------------------------------
-   --  Wrapper for program with optional context
-   ---------------------------------------------------------------------------
-
-   generic
-      Main    : PROGRAM_ACCESS;
-      Context : CONTEXT_ACCESS := NULL;
-   package Wrap is
-      procedure Call;
-      --  Resume `main`; propagate exceptions after cleanup
-   end Wrap;
-
 private
-   task type Run_Method (self: ROUTINE_ACCESS);
+   task type Run_Method (self: not null ROUTINE_ACCESS);
    --  Call `self.main(self)`; propagate exceptions after cleanup
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is

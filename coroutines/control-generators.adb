@@ -71,38 +71,6 @@ package body Control . Generators is
    end Run_Method;
 
    ---------------------------------------------------------------------------
-   --  Wrapper for program with optional context
-   ---------------------------------------------------------------------------
-
-   ----------
-   -- Wrap --
-   ----------
-
-   -- generic
-   --    Main    : PROGRAM_ACCESS;
-   --    Context : CONTEXT_ACCESS := NULL;
-
-   package body Wrap is
-      generator : GENERATOR_TYPE (Main, Context);
-
-      function Call return ELEMENT_TYPE
-      is
-         function runner_terminated return BOOLEAN is
-            (generator.runner'Terminated);
-      begin
-         return generator.Resume;
-      exception
-      --  Exceptions raised again and propagated to the caller after cleanup
-         when Stop_Iterator =>
-            Spin_Until(runner_terminated'Access);
-            raise;
-         when others =>
-            generator.Close; -- Just in case...
-            raise;
-      end Call;
-   end Wrap;
-
-   ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods
    ---------------------------------------------------------------------------
 

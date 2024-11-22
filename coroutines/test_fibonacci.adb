@@ -65,8 +65,6 @@ begin
          end loop;
          New_Line;
          fib.Close;
-      exception
-         when Stop_Iterator => null;
       end;
    end Test_1;
 
@@ -79,10 +77,10 @@ begin
    begin
       declare
          max : aliased INTEGER := Limit;
-         package fib is new Wrap (finite'Access, max'Unchecked_Access);
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
          loop
-            Put(fib.Call'Image);
+            Put(fib.Resume'Image);
          end loop;
       exception
          when Stop_Iterator => New_Line;
@@ -142,15 +140,30 @@ begin
          max : aliased INTEGER := Limit;
          fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-       --for k of fib loop
-       --   Put(k'Image);
-       --end loop;
          for p in fib.Iterate loop
             Put(Element(p)'Image);
          end loop;
          New_Line;
       end;
    end Test_5;
+
+   ---------------------------------------------------------------------------
+   --  Test 6
+   ---------------------------------------------------------------------------
+
+   Test_6:
+   declare
+   begin
+      declare
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+      begin
+         for k of fib loop
+            Put(k'Image);
+         end loop;
+         New_Line;
+      end;
+   end Test_6;
 
 exception
    when X : others =>

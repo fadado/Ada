@@ -43,20 +43,6 @@ package Control . Generators is
    --  Force `self` to exit
 
    ---------------------------------------------------------------------------
-   --  Wrapper for a program with optional context
-   ---------------------------------------------------------------------------
-
-   generic
-      Main    : PROGRAM_ACCESS;
-      Context : CONTEXT_ACCESS := NULL;
-   package Wrap is
-
-      function Call return ELEMENT_TYPE;
-      --  Resume `main`; propagate exceptions after cleanup
-
-   end Wrap;
-
-   ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods and constants
    ---------------------------------------------------------------------------
 
