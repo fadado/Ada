@@ -53,15 +53,6 @@ package body Control is
    end Die;
 
    ------------
-   -- Status --
-   ------------
-
-   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE is
-   begin
-      return self.state;
-   end Status;
-
-   ------------
    -- Attach --
    ------------
 

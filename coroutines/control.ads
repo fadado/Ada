@@ -36,18 +36,6 @@ package Control is
    procedure Die(self: in out BASE_CONTROLLER) with Inline;
    --  Put `self` to the final state
 
-   type STATUS_TYPE is (
-      EXPECTANT,  -- not yet born
-      SUSPENDED,  -- the controller has not started or called `Suspend`
-      RUNNING,    -- the controller is the one that called `Status`
-      DEAD,       -- the coroutine has detached or has stopped with an error
-      DYING       -- transient state for request to exit
-   );
-
-   function Status(self: in BASE_CONTROLLER) return STATUS_TYPE
-     with Inline;
-   --  Return the controller status
-
    procedure Attach(self: in out BASE_CONTROLLER);
    --  Attach `self` to the current task (raises Exit_Controller)
 
@@ -89,7 +77,6 @@ private
    ---------------------------------------------------------------------------
 
    package Signals is
-
       use Ada.Synchronous_Task_Control;
 
       subtype SIGNAL is SUSPENSION_OBJECT;
@@ -105,12 +92,19 @@ private
 
       function Is_Cleared(S: in SIGNAL) return BOOLEAN
          is (not Is_Set(S)) with Inline;
-
    end Signals;
 
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
+
+   type STATUS_TYPE is (
+      EXPECTANT,  -- not yet born
+      SUSPENDED,  -- the controller has not started or called `Suspend`
+      RUNNING,    -- the controller is the one that called `Status`
+      DEAD,       -- the coroutine has detached or has stopped with an error
+      DYING       -- transient state for request to exit
+   );
 
    type BASE_CONTROLLER is abstract tagged limited
       record

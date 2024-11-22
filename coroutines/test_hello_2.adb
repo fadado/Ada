@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Hello world examples using routines
+--  Hello world examples using Routines
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy(Check); -- Check / Ignore

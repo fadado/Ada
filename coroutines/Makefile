@@ -15,15 +15,19 @@ RUTLIB := \
 GENLIB := \
 	control-generators.ad[sb]
 
+# Test using only the package Controllers
 test_hello_1: test_hello_1.adb ${LIBRARY}
 	@gnatmake test_hello_1
 
+# Test using the package Routines
 test_hello_2: test_hello_2.adb ${LIBRARY} ${RUTLIB}
 	@gnatmake test_hello_2
 
+# Test using symmetric Controllers
 test_pingpong: test_pingpong.adb ${LIBRARY}
 	@gnatmake test_pingpong
 
+# Test using the package Generators
 test_fibonacci: test_fibonacci.adb ${LIBRARY} ${GENLIB}
 	@gnatmake test_fibonacci
 

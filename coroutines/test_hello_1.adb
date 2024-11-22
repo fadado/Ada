@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Hello world examples using controllers
+--  Hello world examples using Controllers
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy(Check); -- Check / Ignore
@@ -44,74 +44,15 @@ begin
    end Test_1;
 
    ---------------------------------------------------------------------------
-   --  Test 2 - Asymmetric hello world
+   --  Test 2 - "Multiple" inheritance
    ---------------------------------------------------------------------------
    Test_2:
-   declare
-      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
-      task body HELLO_RUN is
-      begin
-         self.Attach;
-         Put("Test 2-"); self.Suspend;
-         Put("Hello");   self.Suspend;
-         Put(", world"); self.Suspend;
-         Put_Line("!");
-         self.Detach;
-      exception
-         when X: others => self.Detach(X); raise;
-      end HELLO_RUN;
-
-      main : ASYMMETRIC_CONTROLLER;
-      hello_control : aliased ASYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
-   begin
-      loop
-         main.Transfer(hello_control);
-         exit when hello_control.Status = DEAD;
-         -- do something here...
-      end loop;
-   end Test_2;
-
-   ---------------------------------------------------------------------------
-   --  Test 3 - Symmetric hello world
-   ---------------------------------------------------------------------------
-   Test_3:
-   declare
-      task type HELLO_RUN (self, other: not null access SYMMETRIC_CONTROLLER);
-      task body HELLO_RUN is
-         invoker : SYMMETRIC_CONTROLLER renames other.all;
-      begin
-         self.Attach;
-         Put("Test 3-"); self.Transfer(invoker);
-         Put("Hello");   self.Transfer(invoker);
-         Put(", world"); self.Transfer(invoker);
-         Put_Line("!");
-         self.Detach;
-      exception
-         when X: others => self.Detach(X); raise;
-      end HELLO_RUN;
-
-      main : aliased SYMMETRIC_CONTROLLER;
-      hello_control : aliased SYMMETRIC_CONTROLLER;
-      hello_runner  : HELLO_RUN (hello_control'Unchecked_Access, main'Unchecked_Access);
-   begin
-      loop
-         main.Transfer(hello_control);
-         exit when hello_control.Status = DEAD;
-         -- do something here...
-      end loop;
-   end Test_3;
-
-   ---------------------------------------------------------------------------
-   --  Test 4 - "Multiple" inheritance
-   ---------------------------------------------------------------------------
-   Test_4:
    declare
       task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
       task body HELLO_RUN is
       begin
          self.Attach;
-         Put_Line("Test 4-Hello, world!");
+         Put_Line("Test 2-Hello, world!");
          self.Detach;
       exception
          when X: others => self.Detach(X); raise;
@@ -126,12 +67,12 @@ begin
       hello : HELLO_COROUTINE;
    begin
       main.Transfer(ASYMMETRIC_CONTROLLER(hello));
-   end Test_4;
+   end Test_2;
 
    ---------------------------------------------------------------------------
-   --  Test 5 - "Multiple" inheritance
+   --  Test 3 - "Multiple" inheritance
    ---------------------------------------------------------------------------
-   Test_5:
+   Test_3:
    declare
       type HELLO_COROUTINE is tagged;
 
@@ -145,7 +86,7 @@ begin
       task body HELLO_RUN is
       begin
          self.Attach;
-         Put_Line("Test 5-Hello, world!");
+         Put_Line("Test 3-Hello, world!");
          self.Detach;
       exception
          when X: others => self.Detach(X); raise;
@@ -155,12 +96,12 @@ begin
       hello : HELLO_COROUTINE;
    begin
       main.Transfer(ASYMMETRIC_CONTROLLER(hello));
-   end Test_5;
+   end Test_3;
 
    ---------------------------------------------------------------------------
-   --  Test 6 - "Multiple" inheritance
+   --  Test 4 - "Multiple" inheritance
    ---------------------------------------------------------------------------
-   Test_6:
+   Test_4:
    declare
       package Hello_Package is
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
@@ -191,7 +132,7 @@ begin
          task body HELLO_RUN is
          begin
             self.Attach;
-            Put_Line("Test 6-Hello, world!");
+            Put_Line("Test 4-Hello, world!");
             self.Detach;
          exception
             when X: others => self.Detach(X); raise;
@@ -202,7 +143,7 @@ begin
       hello : Hello_Package.HELLO_COROUTINE;
    begin
       main.Transfer(ASYMMETRIC_CONTROLLER(hello));
-   end Test_6;
+   end Test_4;
 
 exception
    when X : others =>

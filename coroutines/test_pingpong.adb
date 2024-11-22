@@ -9,12 +9,8 @@ with Control; use Control;
 
 with Gotcha;
 
-procedure test_pingpong is
-
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-
+procedure test_pingpong
+is
    task type PING_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
    task type PONG_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
 
@@ -60,9 +56,6 @@ procedure test_pingpong is
 begin
    Gotcha.Set_Handlers;
 
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
    Test:
    declare
       main         : SYMMETRIC_CONTROLLER;
