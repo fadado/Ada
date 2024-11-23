@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Generic Control . Generators (implementation)
+--  Control . Generators implementation (generic)
 ------------------------------------------------------------------------------
 
 with Control.Spin_Until;
@@ -8,6 +8,8 @@ package body Control . Generators is
    ---------------------------------------------------------------------------
    --  GENERATOR_TYPE coroutine methods
    ---------------------------------------------------------------------------
+
+   -- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
 
    ------------
    -- Resume --
@@ -69,6 +71,29 @@ package body Control . Generators is
       when Exit_Controller => self.Die;
       when X: others       => self.Detach(X);
    end Run_Method;
+
+   ---------------------------------------------------------------------------
+   -- Controlled type methods
+   ---------------------------------------------------------------------------
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize(self: in out GENERATOR_TYPE) is
+   begin
+      ASYMMETRIC_CONTROLLER(self).Initialize;
+   end Initialize;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize(self: in out GENERATOR_TYPE) is
+   begin
+      ASYMMETRIC_CONTROLLER(self).Finalize;
+      -- TODO: wait until self.runner'Terminated ???
+   end Finalize;
 
    ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods
@@ -150,14 +175,14 @@ package body Control . Generators is
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      process   : not null access procedure (value: ELEMENT_TYPE))
+      callback  : not null access procedure (value: ELEMENT_TYPE))
    is
       cursor : CURSOR_TYPE;
    begin
       cursor := First(generator);
       loop
          exit when cursor = No_Element;
-         process(generator.value); -- hack: bypass Element(cursor)
+         callback(generator.value); -- hack: bypass Element(cursor)
          cursor := Next(cursor);
       end loop;
    end For_Each;
@@ -213,6 +238,6 @@ package body Control . Generators is
 
 end Control . Generators;
 
--- Â¡ISO-8859-1!
+-- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- im:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada

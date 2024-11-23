@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Generic Control . Routines (specification)
+--  Control . Routines specification (generic)
 ------------------------------------------------------------------------------
 
 generic
@@ -18,11 +18,11 @@ package Control . Routines is
 
    type PROGRAM_ACCESS is
       not null access procedure (self: not null ROUTINE_ACCESS);
-   --  Procedure type for the main program
+   --  Procedure access type for the main program
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       tagged limited private;
-   --  Coroutine type with only transfer of control
+   --  Coroutine type with *only* transfer of control
 
    procedure Resume(self: in out ROUTINE_TYPE);
    --  Resume `self` and raises `Stop_Iterator` when dead
@@ -35,7 +35,6 @@ package Control . Routines is
 
 private
    task type Run_Method (self: not null ROUTINE_ACCESS);
-   --  Call `self.main(self)`; propagate exceptions after cleanup
 
    type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with
@@ -44,8 +43,11 @@ private
          runner : Run_Method (ROUTINE_TYPE'Unchecked_Access);
       end record;
 
+   overriding procedure Initialize(self: in out ROUTINE_TYPE);
+   overriding procedure Finalize  (self: in out ROUTINE_TYPE);
+
 end Control . Routines;
 
--- Â¡ISO-8859-1!
+-- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- im:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada

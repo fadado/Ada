@@ -1,13 +1,15 @@
 ------------------------------------------------------------------------------
---  Generic Control . Routines (implementation)
+--  Control . Routines implementation (generic)
 ------------------------------------------------------------------------------
+
+with Control.Spin_Until;
 
 package body Control . Routines is
    ---------------------------------------------------------------------------
    --  ROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
--- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
+   -- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
 
    ------------
    -- Resume --
@@ -40,16 +42,21 @@ package body Control . Routines is
    -----------
 
    procedure Close(self: in out ROUTINE_TYPE) is
+      function runner_terminated return BOOLEAN is
+         (self.runner'Terminated);
    begin
       self.Request_To_Exit;
-      pragma Assert(self.runner'Terminated);
+
+      pragma Assert(self.state = DEAD);
+
+      Spin_Until(runner_terminated'Access);
    end Close;
 
    ----------------
    -- Run_Method --
    ----------------
 
--- task type Run_Method (self: not null ROUTINE_ACCESS);
+   -- task type Run_Method (self: not null ROUTINE_ACCESS);
 
    task body Run_Method is
    begin
@@ -61,8 +68,31 @@ package body Control . Routines is
       when X: others       => self.Detach(X);
    end Run_Method;
 
+   ---------------------------------------------------------------------------
+   -- Controlled type methods
+   ---------------------------------------------------------------------------
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize(self: in out ROUTINE_TYPE) is
+   begin
+      ASYMMETRIC_CONTROLLER(self).Initialize;
+   end Initialize;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize(self: in out ROUTINE_TYPE) is
+   begin
+      ASYMMETRIC_CONTROLLER(self).Finalize;
+      -- TODO: wait until self.runner'Terminated ???
+   end Finalize;
+
 end Control . Routines;
 
--- Â¡ISO-8859-1!
+-- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- im:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada

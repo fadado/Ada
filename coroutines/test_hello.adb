@@ -154,6 +154,8 @@ begin
    declare
       pragma Warnings (Off, "unreachable code");
 
+      type VOID is null record;
+
       package R is new Routines (Context_Type => VOID);
       use R;
 

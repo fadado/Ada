@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Generic Control . Generators (specification)
+--  Control . Generators specification (generic)
 ------------------------------------------------------------------------------
 
 with Ada.Iterator_Interfaces;
@@ -76,7 +76,7 @@ package Control . Generators is
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      process   : not null access procedure(value: ELEMENT_TYPE));
+      callback  : not null access procedure(value: ELEMENT_TYPE));
    --  Invokes `process.all` with value for each element in `generator`.
    --  Consumes `generator`until exhaustion.  Any exception raised by `process`
    --  is propagated.
@@ -110,6 +110,9 @@ private
          value  : ELEMENT_TYPE;
       end record;
 
+   overriding procedure Initialize(self: in out GENERATOR_TYPE);
+   overriding procedure Finalize  (self: in out GENERATOR_TYPE);
+
    type CURSOR_TYPE is
       record
          source : GENERATOR_ACCESS;
@@ -119,6 +122,6 @@ private
 
 end Control . Generators;
 
--- Â¡ISO-8859-1!
+-- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- im:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada

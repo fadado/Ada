@@ -4,6 +4,6 @@
 
 procedure Control . Spin_Until(done: access function return BOOLEAN);
 
--- Â¡ISO-8859-1!
+-- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- im:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=latin1:syntax=ada

@@ -11,45 +11,48 @@ pragma Restrictions (
    No_Select_Statements
 );
 
-with Ada.Exceptions; use Ada.Exceptions;
-
-private with Ada.Task_Identification;
+        with Ada.Exceptions;
+private with Ada.Finalization;
 private with Ada.Synchronous_Task_Control;
+private with Ada.Task_Identification;
 
 package Control is
 
    Exit_Controller : exception;
-   --  Raised to exit the current task; to handle only on task body
+   --  Visible, but raised *only* on `Request_To_Exit` and to be handled *only*
+   --  on task body handlers
 
    Stop_Iterator : exception;
-   --  Raised to indicate iterator exhaustion
+   --  Raised in child packages to indicate iterator exhaustion
 
-   type VOID is null record;
-   --  Helper for void contexts
+   subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;
+   subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+   --  Simple renaming to avoid `use`
 
    ---------------------------------------------------------------------------
    --  Base (abstract) controller
    ---------------------------------------------------------------------------
 
    type BASE_CONTROLLER is abstract tagged limited private;
-
-   procedure Die(self: in out BASE_CONTROLLER) with Inline;
-   --  Put `self` to the final state
+   --  Common behavior for asymmetric and symmetric controlers
 
    procedure Attach(self: in out BASE_CONTROLLER);
-   --  Attach `self` to the current task (raises Exit_Controller)
+   --  Attach `self` to the current task (raises `Exit_Controller`)
 
    procedure Detach(self: in out BASE_CONTROLLER);
    --  Detach `self` from the current task 
 
-   procedure Detach(self: in out BASE_CONTROLLER; X: in EXCEPTION_OCCURRENCE);
-   --  Detach and propagate exception to invoker
+   procedure Detach(self: in out BASE_CONTROLLER; X: in EXCEPTION_TYPE);
+   --  Detach and migrate exceptions to the suspended invoker
+
+   procedure Die(self: in out BASE_CONTROLLER) with Inline;
+   --  Put `self` to the final state
 
    procedure Transfer(self, target: in out BASE_CONTROLLER);
-   --  Transfer control to `target` (raises `target` migrated exceptions)
+   --  Transfers control to `target` (raises `target` migrated exceptions)
 
    procedure Request_To_Exit(self: in out BASE_CONTROLLER);
-   --  Force `self`, that must be dead or suspended, to exit
+   --  Force a suspended `self` to exit
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -59,7 +62,7 @@ package Control is
    --  Stack like transfer of control
 
    procedure Suspend(self: in out ASYMMETRIC_CONTROLLER);
-   --  Transfer control to the invoker (raises Exit_Controller)
+   --  Transfers control to the invoker (raises `Exit_Controller`)
 
    ---------------------------------------------------------------------------
    --  Symmetric controller
@@ -98,22 +101,20 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   type STATUS_TYPE is (
-      EXPECTANT,  -- not yet born
-      SUSPENDED,  -- the controller has not started or called `Suspend`
-      RUNNING,    -- the controller is the one that called `Status`
-      DEAD,       -- the coroutine has detached or has stopped with an error
-      DYING       -- transient state for request to exit
-   );
+   type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
 
-   type BASE_CONTROLLER is abstract tagged limited
+   type BASE_CONTROLLER is abstract
+      limited new Ada.Finalization.Limited_Controlled with
       record
          id      : Ada.Task_Identification.TASK_ID;
          state   : STATUS_TYPE := EXPECTANT;
          link    : access BASE_CONTROLLER'Class;
          run     : Signals.SIGNAL;
-         migrant : EXCEPTION_OCCURRENCE_ACCESS;
+         migrant : EXCEPTION_ACCESS;
       end record;
+
+   overriding procedure Initialize(self: in out BASE_CONTROLLER) is null;
+   overriding procedure Finalize  (self: in out BASE_CONTROLLER);
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
    type  SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
