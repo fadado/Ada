@@ -12,7 +12,6 @@ pragma Restrictions (
 );
 
         with Ada.Exceptions;
-private with Ada.Finalization;
 private with Ada.Synchronous_Task_Control;
 private with Ada.Task_Identification;
 
@@ -103,8 +102,7 @@ private
 
    type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
 
-   type BASE_CONTROLLER is abstract
-      limited new Ada.Finalization.Limited_Controlled with
+   type BASE_CONTROLLER is abstract tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
          state   : STATUS_TYPE := EXPECTANT;
@@ -112,9 +110,6 @@ private
          run     : Signals.SIGNAL;
          migrant : EXCEPTION_ACCESS;
       end record;
-
-   overriding procedure Initialize(self: in out BASE_CONTROLLER) is null;
-   overriding procedure Finalize  (self: in out BASE_CONTROLLER);
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
    type  SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;

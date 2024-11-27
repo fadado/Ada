@@ -232,30 +232,6 @@ package body Control is
       Signals.Notify(target.run);
    end Jump;
 
-   ---------------------------------------------------------------------------
-   -- Controlled type methods
-   ---------------------------------------------------------------------------
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   -- TODO?
-
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize(self: in out BASE_CONTROLLER) is
-   begin
-      if heads(self) then
-         pragma Assert(self.id = Current_Task);
-      else
-         -- If `self` is not a head then must be dead
-         pragma Assert(self.state = DEAD);
-      end if;
-   end Finalize;
-
 end Control;
 
 -- ¡ISO-8859-1!

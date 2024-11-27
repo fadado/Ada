@@ -16,11 +16,11 @@ package Control . Routines is
    type ROUTINE_TYPE;
    type ROUTINE_ACCESS is access all ROUTINE_TYPE;
 
-   type PROGRAM_ACCESS is
+   type GENERATOR_FUNCTION is
       not null access procedure (self: not null ROUTINE_ACCESS);
    --  Procedure access type for the main program
 
-   type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
+   type ROUTINE_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private;
    --  Coroutine type with *only* transfer of control
 
@@ -36,15 +36,12 @@ package Control . Routines is
 private
    task type Run_Method (self: not null ROUTINE_ACCESS);
 
-   type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
+   type ROUTINE_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with
       record
          head   : ASYMMETRIC_CONTROLLER;
          runner : Run_Method (ROUTINE_TYPE'Unchecked_Access);
       end record;
-
-   overriding procedure Initialize(self: in out ROUTINE_TYPE);
-   overriding procedure Finalize  (self: in out ROUTINE_TYPE);
 
 end Control . Routines;
 

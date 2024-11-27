@@ -21,11 +21,11 @@ package Control . Generators is
    type GENERATOR_TYPE;
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
-   type PROGRAM_ACCESS is
+   type GENERATOR_FUNCTION is
       not null access procedure (self: not null GENERATOR_ACCESS);
    --  Procedure type for the main program
 
-   type GENERATOR_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
+   type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private
    with
       Constant_Indexing => Element_CI,
@@ -102,16 +102,13 @@ private
 
    task type Run_Method (self: not null GENERATOR_ACCESS);
 
-   type GENERATOR_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is
+   type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with 
       record
          head   : ASYMMETRIC_CONTROLLER;
          runner : Run_Method (GENERATOR_TYPE'Unchecked_Access);
          value  : ELEMENT_TYPE;
       end record;
-
-   overriding procedure Initialize(self: in out GENERATOR_TYPE);
-   overriding procedure Finalize  (self: in out GENERATOR_TYPE);
 
    type CURSOR_TYPE is
       record

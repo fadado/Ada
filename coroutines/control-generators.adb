@@ -73,29 +73,6 @@ package body Control . Generators is
    end Run_Method;
 
    ---------------------------------------------------------------------------
-   -- Controlled type methods
-   ---------------------------------------------------------------------------
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize(self: in out GENERATOR_TYPE) is
-   begin
-      ASYMMETRIC_CONTROLLER(self).Initialize;
-   end Initialize;
-
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize(self: in out GENERATOR_TYPE) is
-   begin
-      ASYMMETRIC_CONTROLLER(self).Finalize;
-      -- TODO: wait until self.runner'Terminated ???
-   end Finalize;
-
-   ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods
    ---------------------------------------------------------------------------
 
@@ -103,8 +80,7 @@ package body Control . Generators is
    -- First --
    -----------
 
-   function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE
-   is
+   function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE is
    begin
       if generator.state = EXPECTANT then
          delay 0.01; -- give an oportunity to attach

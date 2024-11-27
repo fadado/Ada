@@ -68,29 +68,6 @@ package body Control . Routines is
       when X: others       => self.Detach(X);
    end Run_Method;
 
-   ---------------------------------------------------------------------------
-   -- Controlled type methods
-   ---------------------------------------------------------------------------
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize(self: in out ROUTINE_TYPE) is
-   begin
-      ASYMMETRIC_CONTROLLER(self).Initialize;
-   end Initialize;
-
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize(self: in out ROUTINE_TYPE) is
-   begin
-      ASYMMETRIC_CONTROLLER(self).Finalize;
-      -- TODO: wait until self.runner'Terminated ???
-   end Finalize;
-
 end Control . Routines;
 
 -- ¡ISO-8859-1!
