@@ -9,8 +9,6 @@ package body Control . Routines is
    --  ROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   -- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
-
    ------------
    -- Resume --
    ------------
@@ -23,7 +21,7 @@ package body Control . Routines is
 
       -- is self detached?
       if self.state = DEAD then
-         raise Stop_Iterator;
+         raise Stop_Iteration;
       end if;
    end Resume;
 
@@ -55,8 +53,6 @@ package body Control . Routines is
    ----------------
    -- Run_Method --
    ----------------
-
-   -- task type Run_Method (self: not null ROUTINE_ACCESS);
 
    task body Run_Method is
    begin

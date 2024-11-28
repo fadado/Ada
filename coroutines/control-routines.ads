@@ -25,7 +25,7 @@ package Control . Routines is
    --  Coroutine type with *only* transfer of control
 
    procedure Resume(self: in out ROUTINE_TYPE);
-   --  Resume `self` and raises `Stop_Iterator` when dead
+   --  Resume `self` and raises `Stop_Iteration` when dead
 
    procedure Yield(self: in out ROUTINE_TYPE);
    --  Yields control only

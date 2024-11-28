@@ -83,7 +83,7 @@ begin
             Put(fib.Resume'Image);
          end loop;
       exception
-         when Stop_Iterator => New_Line;
+         when Stop_Iteration => New_Line;
       end;
    end Test_2;
 

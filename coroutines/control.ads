@@ -21,7 +21,7 @@ package Control is
    --  Visible, but raised *only* on `Request_To_Exit` and to be handled *only*
    --  on task body handlers
 
-   Stop_Iterator : exception;
+   Stop_Iteration : exception;
    --  Raised in child packages to indicate iterator exhaustion
 
    subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;

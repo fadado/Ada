@@ -159,11 +159,22 @@ begin
       package R is new Routines (Context_Type => VOID);
       use R;
 
+      procedure subgen(routine: not null ROUTINE_ACCESS) is
+      begin
+         Put("He");
+         routine.Yield;
+         Put("llo");
+         raise Stop_Iteration;
+      end subgen;
+
       procedure hello_world(self: not null ROUTINE_ACCESS) is
       begin
-         Put("Test 5-"); self.Yield;
-         Put("Hello");   self.Yield;
-         Put(", world"); self.Yield;
+         Put("Test 5-");
+         self.Yield;
+         begin subgen(self);
+         exception when Stop_Iteration => null; end;
+         Put(", world");
+         self.Yield;
          Put_Line("!");
       end;
 
@@ -172,7 +183,7 @@ begin
    begin
       loop hello.Resume; end loop;
    exception
-      when Stop_Iterator => null;
+      when Stop_Iteration => null;
    end Test_5;
 
 exception

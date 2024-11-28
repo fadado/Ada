@@ -34,7 +34,7 @@ package Control . Generators is
    --  Coroutine type with iterator capabilities
 
    function Resume(self: in out GENERATOR_TYPE) return ELEMENT_TYPE;
-   --  Resume `self` and raises `Stop_Iterator` when dead
+   --  Resume `self` and raises `Stop_Iteration` when dead
 
    procedure Yield(self: in out GENERATOR_TYPE; value: ELEMENT_TYPE);
    --  Yields control and a value
@@ -77,8 +77,8 @@ package Control . Generators is
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
       callback  : not null access procedure(value: ELEMENT_TYPE));
-   --  Invokes `process.all` with value for each element in `generator`.
-   --  Consumes `generator`until exhaustion.  Any exception raised by `process`
+   --  Invokes `callback.all` with value for each element in `generator`.
+   --  Consumes `generator`until exhaustion.  Any exception raised by `callback`
    --  is propagated.
 
    ---------------------------------------------------------------------------

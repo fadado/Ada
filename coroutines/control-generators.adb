@@ -9,8 +9,6 @@ package body Control . Generators is
    --  GENERATOR_TYPE coroutine methods
    ---------------------------------------------------------------------------
 
-   -- type ROUTINE_TYPE (main: PROGRAM_ACCESS; context: CONTEXT_ACCESS) is ...
-
    ------------
    -- Resume --
    ------------
@@ -22,7 +20,7 @@ package body Control . Generators is
       self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
 
       if self.state = DEAD then
-         raise Stop_Iterator;
+         raise Stop_Iteration;
       end if;
 
       return self.value;
@@ -60,8 +58,6 @@ package body Control . Generators is
    -- Run_Method --
    ----------------
 
-   -- task type Run_Method (self: not null GENERATOR_ACCESS);
-
    task body Run_Method is
    begin
       self.Attach;
@@ -92,7 +88,7 @@ package body Control . Generators is
       generator.value := generator.Resume;
       return (source => generator'Unchecked_Access);
    exception
-      when Stop_Iterator => return No_Element;
+      when Stop_Iteration => return No_Element;
    end First;
 
    ----------
@@ -106,7 +102,7 @@ package body Control . Generators is
          begin
          generator.value := generator.Resume;
          exception
-            when Stop_Iterator => return No_Element;
+            when Stop_Iteration => return No_Element;
          end;
       end if;
       return cursor;
