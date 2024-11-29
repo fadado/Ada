@@ -5,11 +5,11 @@
 with Ada.Iterator_Interfaces;
 
 generic
-   type CONTEXT_TYPE is private;
-   --  Data to provide an environment for the program
-
    type ELEMENT_TYPE is private;
    --  Type for `Yield` generated values
+
+   type CONTEXT_TYPE is private;
+   --  Data to provide an environment for the program
 
 package Control . Generators is
    ---------------------------------------------------------------------------
@@ -22,25 +22,25 @@ package Control . Generators is
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
    type GENERATOR_FUNCTION is
-      not null access procedure (self: not null GENERATOR_ACCESS);
+      not null access procedure (generator: not null GENERATOR_ACCESS);
    --  Procedure type for the main program
 
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private
    with
-      Constant_Indexing => Element_CI,
+      Constant_Indexing => Element_C_I,
       Default_Iterator  => Iterate,
       Iterator_Element  => ELEMENT_TYPE;
-   --  Coroutine type with iterator capabilities
+   --  Coroutine type with iterable capabilities
 
-   function Resume(self: in out GENERATOR_TYPE) return ELEMENT_TYPE;
-   --  Resume `self` and raises `Stop_Iteration` when dead
+   function Resume(generator: in out GENERATOR_TYPE) return ELEMENT_TYPE;
+   --  Resume `generator` and raises `Stop_Iteration` when dead
 
-   procedure Yield(self: in out GENERATOR_TYPE; value: ELEMENT_TYPE);
+   procedure Yield(generator: in out GENERATOR_TYPE; value: ELEMENT_TYPE);
    --  Yields control and a value
 
-   procedure Close(self: in out GENERATOR_TYPE);
-   --  Force `self` to exit
+   procedure Close(generator: in out GENERATOR_TYPE);
+   --  Force `generator` to exit
 
    ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods and constants
@@ -69,38 +69,35 @@ package Control . Generators is
    --  propagated.  Otherwise, `Element` returns the element designated by
    --  `cursor`.
 
-   function Element_CI(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
-      return ELEMENT_TYPE with Inline;
-   --  Equivalent to `Element(cursor)` with added checks.  Used only in the
-   --  `Constant_Indexing` aspect.
-
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
       callback  : not null access procedure(value: ELEMENT_TYPE));
    --  Invokes `callback.all` with value for each element in `generator`.
-   --  Consumes `generator`until exhaustion.  Any exception raised by `callback`
-   --  is propagated.
+   --  Consumes `generator`until exhaustion.  Any exception raised by
+   --  `callback` is propagated.
 
    ---------------------------------------------------------------------------
    --  Ada 2012 generalized iterator infrastructure
    ---------------------------------------------------------------------------
 
-   package Generator_Iterator_Interfaces is
+   package GII is
       new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
-   subtype ITERABLE_TYPE is
-           Generator_Iterator_Interfaces.Forward_Iterator'Class;
-
    function Iterate(generator: in out GENERATOR_TYPE)
-      return ITERABLE_TYPE with Inline;
+      return GII.Forward_Iterator'Class with Inline;
    --  For use in the construct `for cursor in G.Iterate loop...`
+
+   function Element_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return ELEMENT_TYPE with Inline;
+   --  Used only in the `Constant_Indexing` aspect.
 
 private
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Run_Method (self: not null GENERATOR_ACCESS);
+   task type Run_Method (generator: not null GENERATOR_ACCESS)
+      is private end;
 
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with 

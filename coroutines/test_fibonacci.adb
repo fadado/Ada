@@ -23,25 +23,25 @@ procedure test_fibonacci is
 
    use fibonacci_types;
 
-   procedure infinite(self: not null GENERATOR_ACCESS) is
+   procedure infinite(generator: not null GENERATOR_ACCESS) is
       m, n : POSITIVE := 1;
       t : POSITIVE;
    begin
-      self.Yield(n);
+      generator.Yield(n);
       loop
-         self.Yield(n);
+         generator.Yield(n);
          t := n; n := m+n; m := t;
       end loop;
    end infinite;
 
-   procedure finite(self: not null GENERATOR_ACCESS) is
-      max : INTEGER renames self.context.all;
+   procedure finite(generator: not null GENERATOR_ACCESS) is
+      max : INTEGER renames generator.context.all;
       m, n : POSITIVE := 1;
       t : POSITIVE;
    begin
-      self.Yield(n);
+      generator.Yield(n);
       for i in 2..max loop
-         self.Yield(n);
+         generator.Yield(n);
          t := n; n := m+n; m := t;
       end loop;
    end finite;
@@ -158,7 +158,7 @@ begin
          max : aliased INTEGER := Limit;
          fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-         for k of fib loop
+         for k:POSITIVE of fib loop
             Put(k'Image);
          end loop;
          New_Line;

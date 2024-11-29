@@ -13,43 +13,43 @@ package body Control . Generators is
    -- Resume --
    ------------
 
-   function Resume(self: in out GENERATOR_TYPE) return ELEMENT_TYPE is
+   function Resume(generator: in out GENERATOR_TYPE) return ELEMENT_TYPE is
    begin
-      pragma Assert(self.runner'Callable);
+      pragma Assert(generator.runner'Callable);
 
-      self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
+      generator.head.Transfer(ASYMMETRIC_CONTROLLER(generator));
 
-      if self.state = DEAD then
+      if generator.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      return self.value;
+      return generator.value;
    end Resume;
 
    -----------
    -- Yield --
    -----------
 
-   procedure Yield(self: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
+   procedure Yield(generator: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
    begin
-      pragma Assert(self.runner'Callable);
+      pragma Assert(generator.runner'Callable);
 
-      self.value := value;
-      self.Suspend;
+      generator.value := value;
+      generator.Suspend;
    end Yield;
 
    -----------
    -- Close --
    -----------
 
-   procedure Close(self: in out GENERATOR_TYPE)
+   procedure Close(generator: in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN is
-         (self.runner'Terminated);
+         (generator.runner'Terminated);
    begin
-      self.Request_To_Exit;
+      generator.Request_To_Exit;
 
-      pragma Assert(self.state = DEAD);
+      pragma Assert(generator.state = DEAD);
 
       Spin_Until(runner_terminated'Access);
    end Close;
@@ -60,12 +60,12 @@ package body Control . Generators is
 
    task body Run_Method is
    begin
-      self.Attach;
-      self.main(self);
-      self.Detach;
+      generator.Attach;
+      generator.main(generator);
+      generator.Detach;
    exception
-      when Exit_Controller => self.Die;
-      when X: others       => self.Detach(X);
+      when Exit_Controller => generator.Die;
+      when X: others       => generator.Detach(X);
    end Run_Method;
 
    ---------------------------------------------------------------------------
@@ -100,7 +100,7 @@ package body Control . Generators is
    begin
       if cursor /= No_Element then
          begin
-         generator.value := generator.Resume;
+            generator.value := generator.Resume;
          exception
             when Stop_Iteration => return No_Element;
          end;
@@ -130,17 +130,6 @@ package body Control . Generators is
       return generator.value;
    end Element;
 
-   ----------------
-   -- Element_CI --
-   ----------------
-
-   function Element_CI(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
-      return ELEMENT_TYPE is
-   begin
-      pragma Assert(generator'Unchecked_Access = cursor.source);
-      return Element(cursor);
-   end Element_CI;
-
    --------------
    -- For_Each --
    --------------
@@ -160,11 +149,11 @@ package body Control . Generators is
    end For_Each;
 
    ---------------------------------------------------------------------------
-   --  ITERATOR_TYPE methods
+   --  ITERATOR_TYPE
    ---------------------------------------------------------------------------
 
    type ITERATOR_TYPE is 
-      limited new Generator_Iterator_Interfaces.Forward_Iterator with
+      limited new GII.Forward_Iterator with
       record
          source : not null GENERATOR_ACCESS;
       end record;
@@ -174,16 +163,6 @@ package body Control . Generators is
 
    overriding function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
       return CURSOR_TYPE with Inline;
-
-   -------------
-   -- Iterate --
-   -------------
-
-   function Iterate(generator: in out GENERATOR_TYPE)
-      return ITERABLE_TYPE is
-   begin
-      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
-   end Iterate;
 
    -----------
    -- First --
@@ -207,6 +186,27 @@ package body Control . Generators is
       pragma Assert(iterator.source = cursor.source);
       return Next(cursor);
    end Next;
+
+   -------------
+   -- Iterate --
+   -------------
+
+   function Iterate(generator: in out GENERATOR_TYPE)
+      return GII.Forward_Iterator'Class is
+   begin
+      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+   end Iterate;
+
+   -----------------
+   -- Element_C_I --
+   -----------------
+
+   function Element_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return ELEMENT_TYPE is
+   begin
+      pragma Assert(GENERATOR_TYPE(g)'Unchecked_Access = c.source);
+      return Element(c);
+   end Element_C_I;
 
 end Control . Generators;
 

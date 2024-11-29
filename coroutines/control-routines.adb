@@ -13,14 +13,14 @@ package body Control . Routines is
    -- Resume --
    ------------
 
-   procedure Resume(self: in out ROUTINE_TYPE) is
+   procedure Resume(routine: in out ROUTINE_TYPE) is
    begin
-      pragma Assert(self.runner'Callable);
+      pragma Assert(routine.runner'Callable);
 
-      self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
+      routine.head.Transfer(ASYMMETRIC_CONTROLLER(routine));
 
-      -- is self detached?
-      if self.state = DEAD then
+      -- is routine detached?
+      if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
    end Resume;
@@ -29,23 +29,23 @@ package body Control . Routines is
    -- Yield --
    -----------
 
-   procedure Yield(self: in out ROUTINE_TYPE) is
+   procedure Yield(routine: in out ROUTINE_TYPE) is
    begin
-      pragma Assert(self.runner'Callable);
-      self.Suspend;
+      pragma Assert(routine.runner'Callable);
+      routine.Suspend;
    end Yield;
 
    -----------
    -- Close --
    -----------
 
-   procedure Close(self: in out ROUTINE_TYPE) is
+   procedure Close(routine: in out ROUTINE_TYPE) is
       function runner_terminated return BOOLEAN is
-         (self.runner'Terminated);
+         (routine.runner'Terminated);
    begin
-      self.Request_To_Exit;
+      routine.Request_To_Exit;
 
-      pragma Assert(self.state = DEAD);
+      pragma Assert(routine.state = DEAD);
 
       Spin_Until(runner_terminated'Access);
    end Close;
@@ -56,12 +56,12 @@ package body Control . Routines is
 
    task body Run_Method is
    begin
-      self.Attach;
-      self.main(self);
-      self.Detach;
+      routine.Attach;
+      routine.main(routine);
+      routine.Detach;
    exception
-      when Exit_Controller => self.Die;
-      when X: others       => self.Detach(X);
+      when Exit_Controller => routine.Die;
+      when X: others       => routine.Detach(X);
    end Run_Method;
 
 end Control . Routines;

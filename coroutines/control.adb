@@ -23,16 +23,16 @@ package body Control is
    -- wait --
    ----------
 
-   procedure wait(self: in out BASE_CONTROLLER'Class) is
+   procedure wait(controller: in out BASE_CONTROLLER'Class) is
    begin
-      self.state := SUSPENDED;
+      controller.state := SUSPENDED;
 
-      Signals.Wait(self.run);
+      Signals.Wait(controller.run);
 
-      if self.state = DYING then -- received request to exit
+      if controller.state = DYING then -- received request to exit
          raise Exit_Controller;
       else
-         self.state := RUNNING;
+         controller.state := RUNNING;
       end if;
    end wait;
 
@@ -40,12 +40,13 @@ package body Control is
    -- heads --
    -----------
 
-   function heads(self: in out BASE_CONTROLLER'Class) return BOOLEAN
+   function heads(controller: in out BASE_CONTROLLER'Class) return BOOLEAN
      with Inline
    is
       type POINTER is not null access all BASE_CONTROLLER'Class;
    begin
-      return POINTER'(self.link) = POINTER'(self'Unchecked_Access);
+      return POINTER'(controller.link)
+               = POINTER'(controller'Unchecked_Access);
    end heads;
 
    ---------------------------------------------------------------------------
@@ -56,40 +57,40 @@ package body Control is
    -- Attach --
    ------------
 
-   procedure Attach(self: in out BASE_CONTROLLER) is
+   procedure Attach(controller: in out BASE_CONTROLLER) is
    begin
-      pragma Assert(self.state = EXPECTANT);
-      pragma Assert(self.id = Null_Task_Id);
+      pragma Assert(controller.state = EXPECTANT);
+      pragma Assert(controller.id = Null_Task_Id);
 
-      self.state := SUSPENDED;
-      self.id := Current_Task;
-      wait(self);
+      controller.state := SUSPENDED;
+      controller.id := Current_Task;
+      wait(controller);
 
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.state = RUNNING);
    end Attach;
 
    ------------
    -- Detach --
    ------------
 
-   procedure Detach(self: in out BASE_CONTROLLER) is
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+   procedure Detach(controller: in out BASE_CONTROLLER) is
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
    begin
-      pragma Assert(self.id = Current_Task);
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
 
-      self.Die;
+      controller.Die;
       Signals.Notify(back.run);
    end Detach;
 
-   procedure Detach(self: in out BASE_CONTROLLER; X: EXCEPTION_TYPE)
+   procedure Detach(controller: in out BASE_CONTROLLER; X: EXCEPTION_TYPE)
    is
       use Ada.Exceptions;
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(self.link.all);
+      back : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
    begin
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.state = RUNNING);
 
-      if heads(self) then
+      if heads(controller) then
          raise Program_Error with "nowhere to migrate";
       end if;
 
@@ -97,7 +98,7 @@ package body Control is
       back.migrant := Save_Occurrence(X);
 
       --  like simple detach
-      self.Die;
+      controller.Die;
       Signals.Notify(back.run);
    end Detach;
 
@@ -105,7 +106,7 @@ package body Control is
    -- Transfer --
    --------------
 
-   procedure Transfer(self, target: in out BASE_CONTROLLER) is
+   procedure Transfer(controller, target: in out BASE_CONTROLLER) is
       use Ada.Exceptions;
 
       function target_attached return BOOLEAN is
@@ -116,26 +117,26 @@ package body Control is
          EXCEPTION_ACCESS
       );
    begin
-      --  is `self` an uninitialized controller?
-      if self.id = Null_Task_Id then
-         pragma Assert(self.link = NULL);
+      --  is `controller` an uninitialized controller?
+      if controller.id = Null_Task_Id then
+         pragma Assert(controller.link = NULL);
 
-         self.id    := Current_Task;
-         self.link  := self'Unchecked_Access; -- circular link
-         self.state := RUNNING;
+         controller.id    := Current_Task;
+         controller.link  := controller'Unchecked_Access; -- circular link
+         controller.state := RUNNING;
 
-         pragma Assert(heads(self));
+         pragma Assert(heads(controller));
       end if;
 
-      pragma Assert(self.id = Current_Task);
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
 
-      if BASE_CONTROLLER'Class(self) in ASYMMETRIC_CONTROLLER then
+      if BASE_CONTROLLER'Class(controller) in ASYMMETRIC_CONTROLLER then
          --  stack like linking
-         target.link := self'Unchecked_Access;
-      elsif BASE_CONTROLLER'Class(self) in SYMMETRIC_CONTROLLER then
+         target.link := controller'Unchecked_Access;
+      elsif BASE_CONTROLLER'Class(controller) in SYMMETRIC_CONTROLLER then
          --  only can detach to the first controller
-         target.link := self.link;
+         target.link := controller.link;
       else
          raise Program_Error; -- no way
       end if;
@@ -145,17 +146,17 @@ package body Control is
 
       --  transfers control
       Signals.Notify(target.run);
-      wait(self);
+      wait(controller);
 
       --  `target` had one exception?
-      if self.migrant /= NULL then
+      if controller.migrant /= NULL then
          pragma Assert(target.state = DEAD);
          declare
-            id : EXCEPTION_ID := Exception_Identity(self.migrant.all);
-            ms : STRING       := Exception_Message(self.migrant.all);
+            id : EXCEPTION_ID := Exception_Identity(controller.migrant.all);
+            ms : STRING       := Exception_Message(controller.migrant.all);
          begin
-            dealloc(self.migrant);
-            self.migrant := NULL;
+            dealloc(controller.migrant);
+            controller.migrant := NULL;
             Raise_Exception(id, ms);
          end;
       end if;
@@ -165,18 +166,18 @@ package body Control is
    -- Request_To_Exit --
    ---------------------
 
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER)
+   procedure Request_To_Exit(controller: in out BASE_CONTROLLER)
    is
       function have_died return BOOLEAN is
-         (self.state = DEAD);
+         (controller.state = DEAD);
    begin
-      pragma Assert(self.id /= Current_Task);
+      pragma Assert(controller.id /= Current_Task);
 
-      if self.state = DEAD then
+      if controller.state = DEAD then
          null;
-      elsif self.state = SUSPENDED then
-         self.state := DYING;
-         Signals.Notify(self.run);
+      elsif controller.state = SUSPENDED then
+         controller.state := DYING;
+         Signals.Notify(controller.run);
          Spin_Until(have_died'Access);
       else
          raise Program_Error;
@@ -187,13 +188,13 @@ package body Control is
    -- Die --
    ---------
 
-   procedure Die(self: in out BASE_CONTROLLER) is
+   procedure Die(controller: in out BASE_CONTROLLER) is
    begin
-      self.id      := Null_Task_Id;
-      self.state   := DEAD;
-      self.link    := NULL;
-      self.migrant := NULL;
-    --Signals.Clear(self.run);
+      controller.id      := Null_Task_Id;
+      controller.state   := DEAD;
+      controller.link    := NULL;
+      controller.migrant := NULL;
+    --Signals.Clear(controller.run);
    end Die;
 
    ---------------------------------------------------------------------------
@@ -204,15 +205,15 @@ package body Control is
    -- Suspend --
    -------------
 
-   procedure Suspend(self: in out ASYMMETRIC_CONTROLLER) is
+   procedure Suspend(controller: in out ASYMMETRIC_CONTROLLER) is
       invoker : ASYMMETRIC_CONTROLLER
-         renames ASYMMETRIC_CONTROLLER(self.link.all);
+         renames ASYMMETRIC_CONTROLLER(controller.link.all);
    begin
-      pragma Assert(self.id = Current_Task);
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
 
       Signals.Notify(invoker.run);
-      wait(self);
+      wait(controller);
    end Suspend;
 
    ---------------------------------------------------------------------------
@@ -223,12 +224,12 @@ package body Control is
    -- Jump --
    ----------
 
-   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER) is
+   procedure Jump(controller, target: in out SYMMETRIC_CONTROLLER) is
    begin
-      pragma Assert(self.id = Current_Task);
-      pragma Assert(self.state = RUNNING);
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
 
-      self.Die;
+      controller.Die;
       Signals.Notify(target.run);
    end Jump;
 
