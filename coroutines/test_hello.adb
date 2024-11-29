@@ -24,16 +24,16 @@ begin
    declare
       pragma Warnings (Off, "unreachable code");
 
-      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER);
+      task type HELLO_RUN (controller: not null access ASYMMETRIC_CONTROLLER);
       task body HELLO_RUN is
       begin
-         self.Attach;
+         controller.Attach;
          Put_Line("Test 1-Hello, world!");
-         self.Suspend; -- closed here
-         self.Detach;
+         controller.Suspend; -- closed here
+         controller.Detach;
       exception
-         when Exit_Controller => self.Die;
-         when X: others => self.Detach(X); raise;
+         when Exit_Controller => controller.Die;
+         when X: others => controller.Detach(X); raise;
       end HELLO_RUN;
 
       main          : ASYMMETRIC_CONTROLLER;
@@ -49,14 +49,15 @@ begin
    ---------------------------------------------------------------------------
    Test_2:
    declare
-      task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
+      task type HELLO_RUN (
+         controller : not null access ASYMMETRIC_CONTROLLER'Class);
       task body HELLO_RUN is
       begin
-         self.Attach;
+         controller.Attach;
          Put_Line("Test 2-Hello, world!");
-         self.Detach;
+         controller.Detach;
       exception
-         when X: others => self.Detach(X); raise;
+         when X: others => controller.Detach(X); raise;
       end HELLO_RUN;
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -77,7 +78,7 @@ begin
    declare
       type HELLO_COROUTINE is tagged;
 
-      task type HELLO_RUN (self: not null access HELLO_COROUTINE);
+      task type HELLO_RUN (controller: not null access HELLO_COROUTINE);
 
       type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
          record
@@ -86,11 +87,11 @@ begin
 
       task body HELLO_RUN is
       begin
-         self.Attach;
+         controller.Attach;
          Put_Line("Test 3-Hello, world!");
-         self.Detach;
+         controller.Detach;
       exception
-         when X: others => self.Detach(X); raise;
+         when X: others => controller.Detach(X); raise;
       end HELLO_RUN;
 
       main  : ASYMMETRIC_CONTROLLER;
@@ -105,13 +106,15 @@ begin
    Test_4:
    declare
       package Hello_Package is
-         type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with private;
+         type HELLO_COROUTINE is
+            limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
-         procedure Detach(self: in out HELLO_COROUTINE;
+         procedure Detach(controller: in out HELLO_COROUTINE;
                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
 
-         task type HELLO_RUN (self: not null access ASYMMETRIC_CONTROLLER'Class);
+         task type HELLO_RUN (
+            controller: not null access ASYMMETRIC_CONTROLLER'Class);
 
       private
          type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
@@ -122,21 +125,22 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Detach(self: in out HELLO_COROUTINE;
+         procedure Detach(controller: in out HELLO_COROUTINE;
                           X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
          is
-            super : ASYMMETRIC_CONTROLLER renames ASYMMETRIC_CONTROLLER(self);
+            super : ASYMMETRIC_CONTROLLER
+               renames ASYMMETRIC_CONTROLLER(controller);
          begin
             super.Detach(X);
          end Detach;
 
          task body HELLO_RUN is
          begin
-            self.Attach;
+            controller.Attach;
             Put_Line("Test 4-Hello, world!");
-            self.Detach;
+            controller.Detach;
          exception
-            when X: others => self.Detach(X); raise;
+            when X: others => controller.Detach(X); raise;
          end HELLO_RUN;
       end Hello_Package;
 
@@ -167,14 +171,14 @@ begin
          raise Stop_Iteration;
       end subgen;
 
-      procedure hello_world(self: not null ROUTINE_ACCESS) is
+      procedure hello_world(routine: not null ROUTINE_ACCESS) is
       begin
          Put("Test 5-");
-         self.Yield;
-         begin subgen(self);
+         routine.Yield;
+         begin subgen(routine);
          exception when Stop_Iteration => null; end;
          Put(", world");
-         self.Yield;
+         routine.Yield;
          Put_Line("!");
       end;
 

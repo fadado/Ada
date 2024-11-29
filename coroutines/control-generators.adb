@@ -13,43 +13,43 @@ package body Control . Generators is
    -- Resume --
    ------------
 
-   function Resume(self: in out GENERATOR_TYPE) return ELEMENT_TYPE is
+   function Resume(generator: in out GENERATOR_TYPE) return ELEMENT_TYPE is
    begin
-      pragma Assert(self.runner'Callable);
+      pragma Assert(generator.runner'Callable);
 
-      self.head.Transfer(ASYMMETRIC_CONTROLLER(self));
+      generator.head.Transfer(ASYMMETRIC_CONTROLLER(generator));
 
-      if self.state = DEAD then
+      if generator.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      return self.value;
+      return generator.value;
    end Resume;
 
    -----------
    -- Yield --
    -----------
 
-   procedure Yield(self: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
+   procedure Yield(generator: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
    begin
-      pragma Assert(self.runner'Callable);
+      pragma Assert(generator.runner'Callable);
 
-      self.value := value;
-      self.Suspend;
+      generator.value := value;
+      generator.Suspend;
    end Yield;
 
    -----------
    -- Close --
    -----------
 
-   procedure Close(self: in out GENERATOR_TYPE)
+   procedure Close(generator: in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN is
-         (self.runner'Terminated);
+         (generator.runner'Terminated);
    begin
-      self.Request_To_Exit;
+      generator.Request_To_Exit;
 
-      pragma Assert(self.state = DEAD);
+      pragma Assert(generator.state = DEAD);
 
       Spin_Until(runner_terminated'Access);
    end Close;
@@ -60,12 +60,12 @@ package body Control . Generators is
 
    task body Run_Method is
    begin
-      self.Attach;
-      self.main(self);
-      self.Detach;
+      generator.Attach;
+      generator.main(generator);
+      generator.Detach;
    exception
-      when Exit_Controller => self.Die;
-      when X: others       => self.Detach(X);
+      when Exit_Controller => generator.Die;
+      when X: others       => generator.Detach(X);
    end Run_Method;
 
    ---------------------------------------------------------------------------

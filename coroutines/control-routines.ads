@@ -17,24 +17,24 @@ package Control . Routines is
    type ROUTINE_ACCESS is access all ROUTINE_TYPE;
 
    type GENERATOR_FUNCTION is
-      not null access procedure (self: not null ROUTINE_ACCESS);
+      not null access procedure (routine: not null ROUTINE_ACCESS);
    --  Procedure access type for the main program
 
    type ROUTINE_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   procedure Resume(self: in out ROUTINE_TYPE);
-   --  Resume `self` and raises `Stop_Iteration` when dead
+   procedure Resume(routine: in out ROUTINE_TYPE);
+   --  Resume `routine` and raises `Stop_Iteration` when dead
 
-   procedure Yield(self: in out ROUTINE_TYPE);
+   procedure Yield(routine: in out ROUTINE_TYPE);
    --  Yields control only
 
-   procedure Close(self: in out ROUTINE_TYPE);
-   --  Force `self` to exit
+   procedure Close(routine: in out ROUTINE_TYPE);
+   --  Force `routine` to exit
 
 private
-   task type Run_Method (self: not null ROUTINE_ACCESS);
+   task type Run_Method (routine: not null ROUTINE_ACCESS);
 
    type ROUTINE_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with

@@ -18,8 +18,8 @@ private with Ada.Task_Identification;
 package Control is
 
    Exit_Controller : exception;
-   --  Visible, but raised *only* on `Request_To_Exit` and to be handled *only*
-   --  on task body handlers
+   --  Visible, but raised *only* on `Request_To_Exit` and to be handled
+   --  *only* on task body handlers
 
    Stop_Iteration : exception;
    --  Raised in child packages to indicate iterator exhaustion
@@ -35,23 +35,23 @@ package Control is
    type BASE_CONTROLLER is abstract tagged limited private;
    --  Common behavior for asymmetric and symmetric controlers
 
-   procedure Attach(self: in out BASE_CONTROLLER);
-   --  Attach `self` to the current task (raises `Exit_Controller`)
+   procedure Attach(controller: in out BASE_CONTROLLER);
+   --  Attach `controller` to the current task (raises `Exit_Controller`)
 
-   procedure Detach(self: in out BASE_CONTROLLER);
-   --  Detach `self` from the current task 
+   procedure Detach(controller: in out BASE_CONTROLLER);
+   --  Detach `controller` from the current task 
 
-   procedure Detach(self: in out BASE_CONTROLLER; X: in EXCEPTION_TYPE);
+   procedure Detach(controller: in out BASE_CONTROLLER; X: in EXCEPTION_TYPE);
    --  Detach and migrate exceptions to the suspended invoker
 
-   procedure Die(self: in out BASE_CONTROLLER) with Inline;
-   --  Put `self` to the final state
+   procedure Die(controller: in out BASE_CONTROLLER) with Inline;
+   --  Put `controller` to the final state
 
-   procedure Transfer(self, target: in out BASE_CONTROLLER);
+   procedure Transfer(controller, target: in out BASE_CONTROLLER);
    --  Transfers control to `target` (raises `target` migrated exceptions)
 
-   procedure Request_To_Exit(self: in out BASE_CONTROLLER);
-   --  Force a suspended `self` to exit
+   procedure Request_To_Exit(controller: in out BASE_CONTROLLER);
+   --  Force a suspended `controller` to exit
 
    ---------------------------------------------------------------------------
    --  Asymmetric controller
@@ -60,7 +60,7 @@ package Control is
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
    --  Stack like transfer of control
 
-   procedure Suspend(self: in out ASYMMETRIC_CONTROLLER);
+   procedure Suspend(controller: in out ASYMMETRIC_CONTROLLER);
    --  Transfers control to the invoker (raises `Exit_Controller`)
 
    ---------------------------------------------------------------------------
@@ -70,8 +70,9 @@ package Control is
    type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
    --  Graph like transfer of control
 
-   procedure Jump(self, target: in out SYMMETRIC_CONTROLLER);
-   --  Transfers control to `target` and detach `self` from the current task
+   procedure Jump(controller, target: in out SYMMETRIC_CONTROLLER);
+   --  Transfers control to `target` and detach `controller` from the current
+   --  task
 
 private
    ---------------------------------------------------------------------------

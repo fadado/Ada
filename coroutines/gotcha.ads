@@ -13,7 +13,9 @@ package Gotcha is
    --    exception
    --       when Gotcha.Halt => null;
 
-   procedure Report_Exception(X: Ada.Exceptions.EXCEPTION_OCCURRENCE; S: STRING);
+   procedure Report_Exception(
+      X : Ada.Exceptions.EXCEPTION_OCCURRENCE;
+      S : STRING);
 
    procedure Die;
 
