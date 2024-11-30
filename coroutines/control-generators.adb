@@ -163,23 +163,6 @@ package body Control . Generators is
    --  ITERATOR_TYPE methods
    ---------------------------------------------------------------------------
 
-   --overriding function First(iterator: ITERATOR_TYPE) return CURSOR_TYPE with Inline;
-   --overriding function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE) return CURSOR_TYPE with Inline;
-
-   -------------
-   -- Iterate --
-   -------------
-
-   function Iterate(generator: in out GENERATOR_TYPE) return ITERABLE_TYPE is
-   begin
-      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
-   end Iterate;
-
-   function Iterate(iterator: in out ITERATOR_TYPE) return ITERABLE_TYPE is
-   begin
-      return iterator;
-   end Iterate;
-
    -----------
    -- First --
    -----------
@@ -202,6 +185,31 @@ package body Control . Generators is
       pragma Assert(iterator.source = cursor.source);
       return Next(cursor);
    end Next;
+
+   ------------------
+   -- Iterator_C_I --
+   ------------------
+
+   function Iterator_C_I(iterator: in out ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return ELEMENT_TYPE is
+   begin
+      return Element(cursor);
+   end Iterator_C_I;
+
+   -------------
+   -- Iterate --
+   -------------
+
+   function Iterate(generator: in out GENERATOR_TYPE) return ITERATOR_CLASS is
+   begin
+      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+   end Iterate;
+
+   function Generator_D_I(generator: in out GENERATOR_TYPE)
+      return ITERATOR_CLASS is
+   begin
+      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+   end Generator_D_I;
 
 end Control . Generators;
 

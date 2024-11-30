@@ -28,8 +28,8 @@ package Control . Generators is
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private
    with
-      Constant_Indexing => Generator_C_I,
       Default_Iterator  => Generator_D_I,
+      Constant_Indexing => Generator_C_I,
       Iterator_Element  => ELEMENT_TYPE;
    --  Coroutine type with iterator capabilities
 
@@ -88,18 +88,15 @@ package Control . Generators is
    package Generator_Iterator_Interfaces is
       new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
-   subtype ITERABLE_TYPE is
+   subtype ITERATOR_CLASS is
       Generator_Iterator_Interfaces.Forward_Iterator'Class;
 
-   function Iterate(generator: in out GENERATOR_TYPE) return ITERABLE_TYPE
-      with Inline;
-
-   function Generator_D_I(generator: in out GENERATOR_TYPE)
-      return ITERABLE_TYPE renames Iterate;
-
    type ITERATOR_TYPE is
-      limited new Generator_Iterator_Interfaces.Forward_Iterator
-      with private;
+      limited new Generator_Iterator_Interfaces.Forward_Iterator with private
+   with
+      Default_Iterator  => Iterator_D_I,
+      Constant_Indexing => Iterator_C_I,
+      Iterator_Element  => ELEMENT_TYPE;
 
    function First(iterator: ITERATOR_TYPE)
       return CURSOR_TYPE with Inline;
@@ -107,8 +104,20 @@ package Control . Generators is
    function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
       return CURSOR_TYPE with Inline;
 
-   function Iterate(iterator: in out ITERATOR_TYPE) return ITERABLE_TYPE
+   function Iterator_C_I(iterator: in out ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return ELEMENT_TYPE with Inline;
+
+   function Iterate(generator: in out GENERATOR_TYPE) return ITERATOR_CLASS
       with Inline;
+
+   function Generator_D_I(generator: in out GENERATOR_TYPE)
+      return ITERATOR_CLASS with Inline;
+
+   function Iterate(iterator: in out ITERATOR_TYPE) return ITERATOR_CLASS
+      is (iterator) with Inline;
+
+   function Iterator_D_I(iterator: in out ITERATOR_TYPE)
+      return ITERATOR_CLASS renames Iterate;
 
 private
    ---------------------------------------------------------------------------
