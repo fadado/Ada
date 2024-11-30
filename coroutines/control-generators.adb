@@ -130,16 +130,16 @@ package body Control . Generators is
       return generator.value;
    end Element;
 
-   ----------------
-   -- Element_CI --
-   ----------------
+   -------------------
+   -- Generator_C_I --
+   -------------------
 
-   function Element_CI(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
+   function Generator_C_I(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
       return ELEMENT_TYPE is
    begin
       pragma Assert(generator'Unchecked_Access = cursor.source);
       return Element(cursor);
-   end Element_CI;
+   end Generator_C_I;
 
    --------------
    -- For_Each --
@@ -163,26 +163,21 @@ package body Control . Generators is
    --  ITERATOR_TYPE methods
    ---------------------------------------------------------------------------
 
-   type ITERATOR_TYPE is 
-      limited new Generator_Iterator_Interfaces.Forward_Iterator with
-      record
-         source : not null GENERATOR_ACCESS;
-      end record;
-
-   overriding function First(iterator: ITERATOR_TYPE)
-      return CURSOR_TYPE with Inline;
-
-   overriding function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
-      return CURSOR_TYPE with Inline;
+   --overriding function First(iterator: ITERATOR_TYPE) return CURSOR_TYPE with Inline;
+   --overriding function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE) return CURSOR_TYPE with Inline;
 
    -------------
    -- Iterate --
    -------------
 
-   function Iterate(generator: in out GENERATOR_TYPE)
-      return ITERABLE_TYPE is
+   function Iterate(generator: in out GENERATOR_TYPE) return ITERABLE_TYPE is
    begin
       return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+   end Iterate;
+
+   function Iterate(iterator: in out ITERATOR_TYPE) return ITERABLE_TYPE is
+   begin
+      return iterator;
    end Iterate;
 
    -----------

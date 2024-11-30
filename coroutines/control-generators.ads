@@ -28,8 +28,8 @@ package Control . Generators is
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private
    with
-      Constant_Indexing => Element_CI,
-      Default_Iterator  => Iterate,
+      Constant_Indexing => Generator_C_I,
+      Default_Iterator  => Generator_D_I,
       Iterator_Element  => ELEMENT_TYPE;
    --  Coroutine type with iterator capabilities
 
@@ -69,7 +69,7 @@ package Control . Generators is
    --  propagated.  Otherwise, `Element` returns the element designated by
    --  `cursor`.
 
-   function Element_CI(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
+   function Generator_C_I(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
       return ELEMENT_TYPE with Inline;
    --  Equivalent to `Element(cursor)` with added checks.  Used only in the
    --  `Constant_Indexing` aspect.
@@ -89,11 +89,26 @@ package Control . Generators is
       new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
    subtype ITERABLE_TYPE is
-           Generator_Iterator_Interfaces.Forward_Iterator'Class;
+      Generator_Iterator_Interfaces.Forward_Iterator'Class;
 
-   function Iterate(generator: in out GENERATOR_TYPE)
-      return ITERABLE_TYPE with Inline;
-   --  For use in the construct `for cursor in G.Iterate loop...`
+   function Iterate(generator: in out GENERATOR_TYPE) return ITERABLE_TYPE
+      with Inline;
+
+   function Generator_D_I(generator: in out GENERATOR_TYPE)
+      return ITERABLE_TYPE renames Iterate;
+
+   type ITERATOR_TYPE is
+      limited new Generator_Iterator_Interfaces.Forward_Iterator
+      with private;
+
+   function First(iterator: ITERATOR_TYPE)
+      return CURSOR_TYPE with Inline;
+
+   function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
+      return CURSOR_TYPE with Inline;
+
+   function Iterate(iterator: in out ITERATOR_TYPE) return ITERABLE_TYPE
+      with Inline;
 
 private
    ---------------------------------------------------------------------------
@@ -116,6 +131,12 @@ private
       end record;
 
    No_Element : constant CURSOR_TYPE := (source => NULL);
+
+   type ITERATOR_TYPE is 
+      limited new Generator_Iterator_Interfaces.Forward_Iterator with
+      record
+         source : not null GENERATOR_ACCESS;
+      end record;
 
 end Control . Generators;
 
