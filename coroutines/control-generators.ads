@@ -5,11 +5,11 @@
 with Ada.Iterator_Interfaces;
 
 generic
-   type CONTEXT_TYPE is private;
-   --  Data to provide an environment for the program
-
    type ELEMENT_TYPE is private;
    --  Type for `Yield` generated values
+
+   type CONTEXT_TYPE is private;
+   --  Data to provide an environment for the program
 
 package Control . Generators is
    ---------------------------------------------------------------------------
@@ -69,11 +69,6 @@ package Control . Generators is
    --  propagated.  Otherwise, `Element` returns the element designated by
    --  `cursor`.
 
-   function Generator_C_I(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
-      return ELEMENT_TYPE with Inline;
-   --  Equivalent to `Element(cursor)` with added checks.  Used only in the
-   --  `Constant_Indexing` aspect.
-
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
       callback  : not null access procedure(value: ELEMENT_TYPE));
@@ -82,49 +77,48 @@ package Control . Generators is
    --  `callback` is propagated.
 
    ---------------------------------------------------------------------------
-   --  Ada 2012 generalized iterator infrastructure
+   --  ITERATOR_TYPE (Ada 2012 generalized iterator infrastructure)
    ---------------------------------------------------------------------------
 
-   package Generator_Iterator_Interfaces is
-      new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
-
-   subtype ITERATOR_CLASS is
-      Generator_Iterator_Interfaces.Forward_Iterator'Class;
+   package GII is new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
    type ITERATOR_TYPE is
-      limited new Generator_Iterator_Interfaces.Forward_Iterator with private
+      limited new GII.Forward_Iterator with private
    with
       Default_Iterator  => Iterator_D_I,
       Constant_Indexing => Iterator_C_I,
       Iterator_Element  => ELEMENT_TYPE;
 
-   function First(iterator: ITERATOR_TYPE)
+   overriding function First(iterator: ITERATOR_TYPE)
       return CURSOR_TYPE with Inline;
 
-   function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
+   overriding function Next(iterator: ITERATOR_TYPE; cursor: CURSOR_TYPE)
       return CURSOR_TYPE with Inline;
 
-   function Iterator_C_I(iterator: in out ITERATOR_TYPE; cursor: CURSOR_TYPE)
+   function Iterate(generator: in out GENERATOR_TYPE'Class)
+      return ITERATOR_TYPE with Inline;
+
+   --  Used in aspects declarations
+
+   function Generator_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
       return ELEMENT_TYPE with Inline;
 
-   function Iterate(generator: in out GENERATOR_TYPE) return ITERATOR_CLASS
-      with Inline;
+   function Iterator_C_I(i: in out ITERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return ELEMENT_TYPE with Inline;
 
-   function Generator_D_I(generator: in out GENERATOR_TYPE)
-      return ITERATOR_CLASS with Inline;
+   function Generator_D_I(g: in out GENERATOR_TYPE'Class)
+      return GII.Forward_Iterator'Class with Inline;
 
-   function Iterate(iterator: in out ITERATOR_TYPE) return ITERATOR_CLASS
-      is (iterator) with Inline;
-
-   function Iterator_D_I(iterator: in out ITERATOR_TYPE)
-      return ITERATOR_CLASS renames Iterate;
+   function Iterator_D_I(i: in out ITERATOR_TYPE'Class)
+      return GII.Forward_Iterator'Class with Inline;
 
 private
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Run_Method (generator: not null GENERATOR_ACCESS);
+   task type Run_Method (generator: not null GENERATOR_ACCESS)
+   is private end;
 
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with 
@@ -142,7 +136,7 @@ private
    No_Element : constant CURSOR_TYPE := (source => NULL);
 
    type ITERATOR_TYPE is 
-      limited new Generator_Iterator_Interfaces.Forward_Iterator with
+      limited new GII.Forward_Iterator with
       record
          source : not null GENERATOR_ACCESS;
       end record;

@@ -158,12 +158,31 @@ begin
          max : aliased INTEGER := Limit;
          fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-         for k of fib loop
+         for k:POSITIVE of fib loop
             Put(k'Image);
          end loop;
          New_Line;
       end;
    end Test_6;
+
+   ---------------------------------------------------------------------------
+   --  Test 7
+   ---------------------------------------------------------------------------
+
+   Test_7:
+   declare
+   begin
+      declare
+         max : aliased INTEGER := Limit;
+         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+         it  : ITERATOR_TYPE := fib.Iterate;
+      begin
+         for k of it loop
+            Put(k'Image);
+         end loop;
+         New_Line;
+      end;
+   end Test_7;
 
 exception
    when X : others =>

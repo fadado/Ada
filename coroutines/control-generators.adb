@@ -100,7 +100,7 @@ package body Control . Generators is
    begin
       if cursor /= No_Element then
          begin
-         generator.value := generator.Resume;
+            generator.value := generator.Resume;
          exception
             when Stop_Iteration => return No_Element;
          end;
@@ -129,17 +129,6 @@ package body Control . Generators is
       end if;
       return generator.value;
    end Element;
-
-   -------------------
-   -- Generator_C_I --
-   -------------------
-
-   function Generator_C_I(generator: in out GENERATOR_TYPE; cursor: CURSOR_TYPE)
-      return ELEMENT_TYPE is
-   begin
-      pragma Assert(generator'Unchecked_Access = cursor.source);
-      return Element(cursor);
-   end Generator_C_I;
 
    --------------
    -- For_Each --
@@ -186,30 +175,45 @@ package body Control . Generators is
       return Next(cursor);
    end Next;
 
-   ------------------
-   -- Iterator_C_I --
-   ------------------
-
-   function Iterator_C_I(iterator: in out ITERATOR_TYPE; cursor: CURSOR_TYPE)
-      return ELEMENT_TYPE is
-   begin
-      return Element(cursor);
-   end Iterator_C_I;
-
    -------------
    -- Iterate --
    -------------
 
-   function Iterate(generator: in out GENERATOR_TYPE) return ITERATOR_CLASS is
+   function Iterate(generator: in out GENERATOR_TYPE'Class)
+      return ITERATOR_TYPE is
    begin
-      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+      return ITERATOR_TYPE'(source => GENERATOR_TYPE(generator)'Unchecked_Access);
    end Iterate;
 
-   function Generator_D_I(generator: in out GENERATOR_TYPE)
-      return ITERATOR_CLASS is
+   ---------------------------------------------------------------------------
+   --  Used in aspects declarations
+   ---------------------------------------------------------------------------
+
+   function Generator_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return ELEMENT_TYPE is
    begin
-      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+      pragma Assert(GENERATOR_TYPE(g)'Unchecked_Access = c.source);
+      return Element(c);
+   end Generator_C_I;
+
+   function Iterator_C_I(i: in out ITERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return ELEMENT_TYPE is
+   begin
+      pragma Assert(i.source = c.source);
+      return Element(c);
+   end Iterator_C_I;
+
+   function Generator_D_I(g: in out GENERATOR_TYPE'Class)
+      return GII.Forward_Iterator'Class is
+   begin
+      return ITERATOR_TYPE'(source => GENERATOR_TYPE(g)'Unchecked_Access);
    end Generator_D_I;
+
+   function Iterator_D_I(i: in out ITERATOR_TYPE'Class)
+      return GII.Forward_Iterator'Class is
+   begin
+      return ITERATOR_TYPE'Class(i);
+   end Iterator_D_I;
 
 end Control . Generators;
 
