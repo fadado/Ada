@@ -5,7 +5,7 @@
 with Ada.Iterator_Interfaces;
 
 generic
-   type ELEMENT_TYPE is private;
+   type OUTPUT_TYPE is private;
    --  Type for `Yield` generated values
 
    type CONTEXT_TYPE is private;
@@ -28,15 +28,15 @@ package Control . Generators is
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       tagged limited private
    with
-      Constant_Indexing => Element_C_I,
+      Constant_Indexing => Generator_C_I,
       Default_Iterator  => Iterate,
-      Iterator_Element  => ELEMENT_TYPE;
+      Iterator_Element  => OUTPUT_TYPE;
    --  Coroutine type with iterable capabilities
 
-   function Resume(generator: in out GENERATOR_TYPE) return ELEMENT_TYPE;
+   function Resume(generator: in out GENERATOR_TYPE) return OUTPUT_TYPE;
    --  Resume `generator` and raises `Stop_Iteration` when dead
 
-   procedure Yield(generator: in out GENERATOR_TYPE; value: ELEMENT_TYPE);
+   procedure Yield(generator: in out GENERATOR_TYPE; value: OUTPUT_TYPE);
    --  Yields control and a value
 
    procedure Close(generator: in out GENERATOR_TYPE);
@@ -50,31 +50,30 @@ package Control . Generators is
    --  Cursor based iteration style
 
    No_Element : constant CURSOR_TYPE;
-   --  `No_Element` represents a cursor that designates no element.
+   --  Represents a cursor that designates no element
 
    function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE;
-   --  If `generator` is empty, `First` returns `No_Element`. Otherwise, it
-   --  returns a cursor that designates the first element in `generator`.
+   --  If `generator` is empty returns `No_Element`; otherwise returns a
+   --  cursor that designates the first element in `generator`
 
    function Next(cursor: CURSOR_TYPE) return CURSOR_TYPE;
    --  If `cursor` equals `No_Element` or the generator is exhaust returns
-   --  the value `No_Element`.  Otherwise advances `cursor` one element.
+   --  the value `No_Element`;  otherwise advances `cursor` one element
 
    function Has_Element(cursor: CURSOR_TYPE) return BOOLEAN with Inline;
    --  Returns `TRUE` if `cursor` designates an element, and returns `FALSE`
-   --  otherwise.
+   --  otherwise
 
-   function Element(cursor: CURSOR_TYPE) return ELEMENT_TYPE;
+   function Element(cursor: CURSOR_TYPE) return OUTPUT_TYPE;
    --  If `cursor` equals `No_Element`, then `Constraint_Error` is
-   --  propagated.  Otherwise, `Element` returns the element designated by
-   --  `cursor`.
+   --  propagated;  otherwise, `Element` returns the element designated by
+   --  `cursor`
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure(value: ELEMENT_TYPE));
-   --  Invokes `callback.all` with value for each element in `generator`.
-   --  Consumes `generator`until exhaustion.  Any exception raised by
-   --  `callback` is propagated.
+      callback  : not null access procedure(value: OUTPUT_TYPE));
+   --  Invokes `callback.all` with a `value` for each element in `generator`,
+   --  consuming `generator`until exhaustion
 
    ---------------------------------------------------------------------------
    --  Ada 2012 generalized iterator infrastructure
@@ -83,28 +82,28 @@ package Control . Generators is
    package GII is
       new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
+   function Generator_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return OUTPUT_TYPE with Inline;
+   --  Ignore: used only in the `Constant_Indexing` aspect
+
    function Iterate(generator: in out GENERATOR_TYPE)
       return GII.Forward_Iterator'Class with Inline;
    --  For use in the construct `for cursor in G.Iterate loop...`
-
-   function Element_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
-      return ELEMENT_TYPE with Inline;
-   --  Used only in the `Constant_Indexing` aspect.
 
 private
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Run_Method (generator: not null GENERATOR_ACCESS)
+   task type Generator_Runner (generator: not null GENERATOR_ACCESS)
       is private end;
 
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with 
       record
-         head   : ASYMMETRIC_CONTROLLER;
-         runner : Run_Method (GENERATOR_TYPE'Unchecked_Access);
-         value  : ELEMENT_TYPE;
+         master : ASYMMETRIC_CONTROLLER;
+         runner : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
+         value  : OUTPUT_TYPE;
       end record;
 
    type CURSOR_TYPE is

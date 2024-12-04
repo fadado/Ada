@@ -29,25 +29,26 @@ package body Control is
 
       Signals.Wait(controller.run);
 
-      if controller.state = DYING then -- received request to exit
+      if controller.state = DYING then
+         -- obey received request to exit
          raise Exit_Controller;
       else
          controller.state := RUNNING;
       end if;
    end wait;
 
-   -----------
-   -- heads --
-   -----------
+   ---------------
+   -- is_master --
+   ---------------
 
-   function heads(controller: in out BASE_CONTROLLER'Class) return BOOLEAN
+   function is_master(controller: in out BASE_CONTROLLER'Class) return BOOLEAN
      with Inline
    is
       type POINTER is not null access all BASE_CONTROLLER'Class;
    begin
       return POINTER'(controller.link)
                = POINTER'(controller'Unchecked_Access);
-   end heads;
+   end is_master;
 
    ---------------------------------------------------------------------------
    --  Base controller
@@ -90,14 +91,12 @@ package body Control is
    begin
       pragma Assert(controller.state = RUNNING);
 
-      if heads(controller) then
+      if is_master(controller) then
          raise Program_Error with "nowhere to migrate";
       end if;
 
-      --  migrate exception occurrence
       back.migrant := Save_Occurrence(X);
 
-      --  like simple detach
       controller.Die;
       Signals.Notify(back.run);
    end Detach;
@@ -117,39 +116,38 @@ package body Control is
          EXCEPTION_ACCESS
       );
    begin
-      --  is `controller` an uninitialized controller?
       if controller.id = Null_Task_Id then
+         --  `controller` is an uninitialized head controller
          pragma Assert(controller.link = NULL);
 
          controller.id    := Current_Task;
-         controller.link  := controller'Unchecked_Access; -- circular link
          controller.state := RUNNING;
+         controller.link  := controller'Unchecked_Access;
+         -- circular link identifies head controllers
 
-         pragma Assert(heads(controller));
+         pragma Assert(is_master(controller));
       end if;
 
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
       if BASE_CONTROLLER'Class(controller) in ASYMMETRIC_CONTROLLER then
-         --  stack like linking
          target.link := controller'Unchecked_Access;
+         --  stack like linking
       elsif BASE_CONTROLLER'Class(controller) in SYMMETRIC_CONTROLLER then
-         --  only can detach to the first controller
          target.link := controller.link;
+         --  only can detach to the first controller
       else
-         raise Program_Error; -- no way
+         raise Program_Error;
       end if;
 
-      --  ensure `target` is attached
       Spin_Until(target_attached'Access);
 
-      --  transfers control
       Signals.Notify(target.run);
       wait(controller);
 
-      --  `target` had one exception?
       if controller.migrant /= NULL then
+         --  `target` had an exception
          pragma Assert(target.state = DEAD);
          declare
             id : EXCEPTION_ID := Exception_Identity(controller.migrant.all);

@@ -13,11 +13,11 @@ package body Control . Generators is
    -- Resume --
    ------------
 
-   function Resume(generator: in out GENERATOR_TYPE) return ELEMENT_TYPE is
+   function Resume(generator: in out GENERATOR_TYPE) return OUTPUT_TYPE is
    begin
       pragma Assert(generator.runner'Callable);
 
-      generator.head.Transfer(ASYMMETRIC_CONTROLLER(generator));
+      generator.master.Transfer(ASYMMETRIC_CONTROLLER(generator));
 
       if generator.state = DEAD then
          raise Stop_Iteration;
@@ -30,7 +30,7 @@ package body Control . Generators is
    -- Yield --
    -----------
 
-   procedure Yield(generator: in out GENERATOR_TYPE; value: ELEMENT_TYPE) is
+   procedure Yield(generator: in out GENERATOR_TYPE; value: OUTPUT_TYPE) is
    begin
       pragma Assert(generator.runner'Callable);
 
@@ -54,11 +54,11 @@ package body Control . Generators is
       Spin_Until(runner_terminated'Access);
    end Close;
 
-   ----------------
-   -- Run_Method --
-   ----------------
+   ----------------------
+   -- Generator_Runner --
+   ----------------------
 
-   task body Run_Method is
+   task body Generator_Runner is
    begin
       generator.Attach;
       generator.main(generator);
@@ -66,7 +66,7 @@ package body Control . Generators is
    exception
       when Exit_Controller => generator.Die;
       when X: others       => generator.Detach(X);
-   end Run_Method;
+   end Generator_Runner;
 
    ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods
@@ -79,7 +79,7 @@ package body Control . Generators is
    function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE is
    begin
       if generator.state = EXPECTANT then
-         delay 0.01; -- give an oportunity to attach
+         delay 0.01; -- give some time to attach
          if generator.state = EXPECTANT then
             raise Constraint_Error
                with "Generator must be elaborated in a outer frame";
@@ -121,7 +121,7 @@ package body Control . Generators is
    -- Element --
    -------------
 
-   function Element(cursor: CURSOR_TYPE) return ELEMENT_TYPE is
+   function Element(cursor: CURSOR_TYPE) return OUTPUT_TYPE is
       generator : GENERATOR_TYPE renames cursor.source.all;
    begin
       if cursor = No_Element then
@@ -136,7 +136,7 @@ package body Control . Generators is
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure (value: ELEMENT_TYPE))
+      callback  : not null access procedure (value: OUTPUT_TYPE))
    is
       cursor : CURSOR_TYPE;
    begin
@@ -197,16 +197,16 @@ package body Control . Generators is
       return ITERATOR_TYPE'(source => generator'Unchecked_Access);
    end Iterate;
 
-   -----------------
-   -- Element_C_I --
-   -----------------
+   -------------------
+   -- Generator_C_I --
+   -------------------
 
-   function Element_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
-      return ELEMENT_TYPE is
+   function Generator_C_I(g: in out GENERATOR_TYPE'Class; c: CURSOR_TYPE)
+      return OUTPUT_TYPE is
    begin
       pragma Assert(GENERATOR_TYPE(g)'Unchecked_Access = c.source);
       return Element(c);
-   end Element_C_I;
+   end Generator_C_I;
 
 end Control . Generators;
 

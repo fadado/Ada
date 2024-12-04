@@ -17,8 +17,8 @@ procedure test_fibonacci is
    Limit : constant := 10;
 
    package fibonacci_types is new Generators (
-      Context_Type => INTEGER,
-      Element_Type => POSITIVE
+      Output_Type  => POSITIVE,
+      Context_Type => INTEGER
    );
 
    use fibonacci_types;
@@ -140,7 +140,7 @@ begin
          max : aliased INTEGER := Limit;
          fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-         for p in fib.Iterate loop
+         for p in Iterate(fib) loop
             Put(Element(p)'Image);
          end loop;
          New_Line;

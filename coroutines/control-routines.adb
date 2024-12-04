@@ -50,11 +50,11 @@ package body Control . Routines is
       Spin_Until(runner_terminated'Access);
    end Close;
 
-   ----------------
-   -- Run_Method --
-   ----------------
+   --------------------
+   -- Routine_Runner --
+   --------------------
 
-   task body Run_Method is
+   task body Routine_Runner is
    begin
       routine.Attach;
       routine.main(routine);
@@ -62,7 +62,7 @@ package body Control . Routines is
    exception
       when Exit_Controller => routine.Die;
       when X: others       => routine.Detach(X);
-   end Run_Method;
+   end Routine_Runner;
 
 end Control . Routines;
 
