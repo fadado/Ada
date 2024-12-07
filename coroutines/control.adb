@@ -117,13 +117,13 @@ package body Control is
       );
    begin
       if controller.id = Null_Task_Id then
-         --  `controller` is an uninitialized head controller
+         --  `controller` is an uninitialized master controller
          pragma Assert(controller.link = NULL);
 
          controller.id    := Current_Task;
          controller.state := RUNNING;
          controller.link  := controller'Unchecked_Access;
-         -- circular link identifies head controllers
+         -- circular link identifies master controllers
 
          pragma Assert(is_master(controller));
       end if;
@@ -195,17 +195,12 @@ package body Control is
     --Signals.Clear(controller.run);
    end Die;
 
-   ---------------------------------------------------------------------------
-   --  Asymmetric controller
-   ---------------------------------------------------------------------------
-
    -------------
    -- Suspend --
    -------------
 
-   procedure Suspend(controller: in out ASYMMETRIC_CONTROLLER) is
-      invoker : ASYMMETRIC_CONTROLLER
-         renames ASYMMETRIC_CONTROLLER(controller.link.all);
+   procedure Suspend(controller: in out BASE_CONTROLLER) is
+      invoker : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);

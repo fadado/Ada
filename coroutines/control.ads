@@ -28,6 +28,9 @@ package Control is
    subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
    --  Simple renaming to avoid `use`
 
+   type VOID is null record;
+   --  Facility for child packages and clients
+
    ---------------------------------------------------------------------------
    --  Base (abstract) controller
    ---------------------------------------------------------------------------
@@ -53,15 +56,15 @@ package Control is
    procedure Request_To_Exit(controller: in out BASE_CONTROLLER);
    --  Force a suspended `controller` to exit
 
+   procedure Suspend(controller: in out BASE_CONTROLLER);
+   --  Transfers control to the invoker (raises `Exit_Controller`)
+
    ---------------------------------------------------------------------------
    --  Asymmetric controller
    ---------------------------------------------------------------------------
 
    type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
    --  Stack like transfer of control
-
-   procedure Suspend(controller: in out ASYMMETRIC_CONTROLLER);
-   --  Transfers control to the invoker (raises `Exit_Controller`)
 
    ---------------------------------------------------------------------------
    --  Symmetric controller

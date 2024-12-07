@@ -4,7 +4,6 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Control.Routines;
@@ -110,8 +109,7 @@ begin
             limited new ASYMMETRIC_CONTROLLER with private;
 
          overriding
-         procedure Detach(controller: in out HELLO_COROUTINE;
-                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE);
+         procedure Detach(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE);
 
          task type HELLO_RUN (
             controller: not null access ASYMMETRIC_CONTROLLER'Class);
@@ -125,8 +123,7 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Detach(controller: in out HELLO_COROUTINE;
-                          X: Ada.Exceptions.EXCEPTION_OCCURRENCE)
+         procedure Detach(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE)
          is
             super : ASYMMETRIC_CONTROLLER
                renames ASYMMETRIC_CONTROLLER(controller);
@@ -157,8 +154,6 @@ begin
    Test_5:
    declare
       pragma Warnings (Off, "unreachable code");
-
-      type VOID is null record;
 
       package R is new Routines (Context_Type => VOID);
       use R;

@@ -39,7 +39,7 @@ private
    type ROUTINE_TYPE (main: ROUTINE_FUNCTION; context: CONTEXT_ACCESS) is
       limited new ASYMMETRIC_CONTROLLER with
       record
-         head   : ASYMMETRIC_CONTROLLER;
+         master : ASYMMETRIC_CONTROLLER;
          runner : Routine_Runner (ROUTINE_TYPE'Unchecked_Access);
       end record;
 

@@ -75,7 +75,7 @@ begin
       Put_Line("Game Over");
    exception
       when X: others =>
-         Gotcha.Report_Exception(X, "Oops at HEAD TASK!!");
+         Gotcha.Report_Exception(X, "Oops at MASTER TASK!!");
    end Test;
 
 end test_pingpong;

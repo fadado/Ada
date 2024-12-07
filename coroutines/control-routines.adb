@@ -17,7 +17,7 @@ package body Control . Routines is
    begin
       pragma Assert(routine.runner'Callable);
 
-      routine.head.Transfer(ASYMMETRIC_CONTROLLER(routine));
+      routine.master.Transfer(ASYMMETRIC_CONTROLLER(routine));
 
       -- is routine detached?
       if routine.state = DEAD then
