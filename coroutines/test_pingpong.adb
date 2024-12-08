@@ -11,14 +11,14 @@ with Gotcha;
 
 procedure test_pingpong
 is
-   task type PING_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
-   task type PONG_RUN(This, That: not null access SYMMETRIC_CONTROLLER);
+   task type PING_RUN(This, That: not null CONTROLLER_ACCESS);
+   task type PONG_RUN(This, That: not null CONTROLLER_ACCESS);
 
    task body PING_RUN is
-      Ping : SYMMETRIC_CONTROLLER renames This.all;
-      Pong : SYMMETRIC_CONTROLLER renames That.all;
+      Ping : CONTROLLER_TYPE renames This.all;
+      Pong : CONTROLLER_TYPE renames That.all;
    begin
-      Ping.Attach;
+      Ping.Initiate;
 
       for i in 1..10 loop
          Put("PING!  ");
@@ -31,26 +31,26 @@ is
       end loop;
 
    exception
-      when X: others => Ping.Detach(X); raise;
+      when X: others => Ping.Quit(X); raise;
    end PING_RUN;
 
    task body PONG_RUN is
-      Ping : SYMMETRIC_CONTROLLER renames This.all;
-      Pong : SYMMETRIC_CONTROLLER renames That.all;
+      Ping : CONTROLLER_TYPE renames This.all;
+      Pong : CONTROLLER_TYPE renames That.all;
    begin
-      Pong.Attach;
+      Pong.Initiate;
 
       for i in 1..10 loop
          Put_Line("PONG!");
          if i < 10 then
             Pong.Transfer(Ping);
          else
-            Pong.Detach;
+            Pong.Quit;
          end if;
       end loop;
 
    exception
-      when X: others => Pong.Detach(X); raise;
+      when X: others => Pong.Quit(X); raise;
    end PONG_RUN;
 
 begin
@@ -58,9 +58,9 @@ begin
 
    Test:
    declare
-      main         : SYMMETRIC_CONTROLLER;
-      ping_control : aliased SYMMETRIC_CONTROLLER;
-      pong_control : aliased SYMMETRIC_CONTROLLER;
+      main         : CONTROLLER_TYPE;
+      ping_control : aliased CONTROLLER_TYPE;
+      pong_control : aliased CONTROLLER_TYPE;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
                                pong_control'Unchecked_Access);
       pong_runner  : PONG_RUN (ping_control'Unchecked_Access,
@@ -69,7 +69,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Transfer(ping_control);
+      main.Call(ping_control);
 
       New_Line;
       Put_Line("Game Over");

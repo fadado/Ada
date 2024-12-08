@@ -23,23 +23,28 @@ begin
    declare
       pragma Warnings (Off, "unreachable code");
 
-      task type HELLO_RUN (controller: not null access ASYMMETRIC_CONTROLLER);
+      task type HELLO_RUN (controller: not null CONTROLLER_ACCESS);
       task body HELLO_RUN is
       begin
-         controller.Attach;
+         controller.Initiate;
          Put_Line("Test 1-Hello, world!");
-         controller.Suspend; -- closed here
-         controller.Detach;
+         controller.Suspend;
+         -- closed here
+         controller.Quit;
       exception
-         when Exit_Controller => controller.Die;
-         when X: others => controller.Detach(X); raise;
+         when Exit_Controller =>
+            controller.Reset;
+         when X: others =>
+            controller.Quit(X);
+            raise;
       end HELLO_RUN;
 
-      main          : ASYMMETRIC_CONTROLLER;
-      hello_control : aliased ASYMMETRIC_CONTROLLER;
+      main          : CONTROLLER_TYPE;
+      hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      main.Transfer(hello_control);
+      Put_Line(Standard_Error, "========================================================================");
+      main.Call(hello_control);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -49,25 +54,25 @@ begin
    Test_2:
    declare
       task type HELLO_RUN (
-         controller : not null access ASYMMETRIC_CONTROLLER'Class);
+         controller : not null access CONTROLLER_TYPE'Class);
       task body HELLO_RUN is
       begin
-         controller.Attach;
+         controller.Initiate;
          Put_Line("Test 2-Hello, world!");
-         controller.Detach;
+         controller.Quit;
       exception
-         when X: others => controller.Detach(X); raise;
+         when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
-      type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
+      type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
          record
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
-      main  : ASYMMETRIC_CONTROLLER;
+      main  : CONTROLLER_TYPE;
       hello : HELLO_COROUTINE;
    begin
-      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
+      main.Call(CONTROLLER_TYPE(hello));
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -79,24 +84,24 @@ begin
 
       task type HELLO_RUN (controller: not null access HELLO_COROUTINE);
 
-      type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
+      type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
          record
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
       task body HELLO_RUN is
       begin
-         controller.Attach;
+         controller.Initiate;
          Put_Line("Test 3-Hello, world!");
-         controller.Detach;
+         controller.Quit;
       exception
-         when X: others => controller.Detach(X); raise;
+         when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
-      main  : ASYMMETRIC_CONTROLLER;
+      main  : CONTROLLER_TYPE;
       hello : HELLO_COROUTINE;
    begin
-      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
+      main.Call(CONTROLLER_TYPE(hello));
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -106,16 +111,16 @@ begin
    declare
       package Hello_Package is
          type HELLO_COROUTINE is
-            limited new ASYMMETRIC_CONTROLLER with private;
+            limited new CONTROLLER_TYPE with private;
 
          overriding
-         procedure Detach(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE);
+         procedure Quit(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE);
 
          task type HELLO_RUN (
-            controller: not null access ASYMMETRIC_CONTROLLER'Class);
+            controller: not null access CONTROLLER_TYPE'Class);
 
       private
-         type HELLO_COROUTINE is limited new ASYMMETRIC_CONTROLLER with
+         type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
             record
                run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
             end record;
@@ -123,28 +128,28 @@ begin
 
       package body Hello_Package is
          overriding
-         procedure Detach(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE)
+         procedure Quit(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE)
          is
-            super : ASYMMETRIC_CONTROLLER
-               renames ASYMMETRIC_CONTROLLER(controller);
+            super : CONTROLLER_TYPE
+               renames CONTROLLER_TYPE(controller);
          begin
-            super.Detach(X);
-         end Detach;
+            super.Quit(X);
+         end Quit;
 
          task body HELLO_RUN is
          begin
-            controller.Attach;
+            controller.Initiate;
             Put_Line("Test 4-Hello, world!");
-            controller.Detach;
+            controller.Quit;
          exception
-            when X: others => controller.Detach(X); raise;
+            when X: others => controller.Quit(X); raise;
          end HELLO_RUN;
       end Hello_Package;
 
-      main  : ASYMMETRIC_CONTROLLER;
+      main  : CONTROLLER_TYPE;
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      main.Transfer(ASYMMETRIC_CONTROLLER(hello));
+      main.Call(CONTROLLER_TYPE(hello));
    end Test_4;
 
    ---------------------------------------------------------------------------

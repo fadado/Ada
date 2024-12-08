@@ -10,10 +10,22 @@ with Ada.Real_Time;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 with Control.Spin_Until;
+with Ada.Dispatching;
+
+-- debugging only
+with Ada.Text_IO;
 
 package body Control is
 
    use Ada.Task_Identification;
+
+   -- TODO: debug *deadlock*
+
+   procedure trace(s: STRING) is
+      use Ada.Text_IO;
+   begin
+      Put_Line(Standard_Error, s);
+   end trace;
 
    ---------------------------------------------------------------------------
    -- Local subprograms
@@ -23,13 +35,18 @@ package body Control is
    -- wait --
    ----------
 
-   procedure wait(controller: in out BASE_CONTROLLER'Class) is
+   procedure wait(controller: in out CONTROLLER_TYPE; caller: STRING:="") is
    begin
+      trace(" >>WAIT "&caller&" ENTER");
       controller.state := SUSPENDED;
 
-      Signals.Wait(controller.run);
+      trace(" >>WAIT "&caller&" SLEEP");
+      Signal.Wait(controller.run);
+
+      trace(" >>WAIT "&caller&" WAKEUP");
 
       if controller.state = DYING then
+         trace(" >>WAIT "&caller&" 4");
          -- obey received request to exit
          raise Exit_Controller;
       else
@@ -41,53 +58,85 @@ package body Control is
    -- is_master --
    ---------------
 
-   function is_master(controller: in out BASE_CONTROLLER'Class) return BOOLEAN
+   function is_master(controller: in out CONTROLLER_TYPE) return BOOLEAN
      with Inline
    is
-      type POINTER is not null access all BASE_CONTROLLER'Class;
+      subtype NN is not null CONTROLLER_ACCESS;
    begin
-      return POINTER'(controller.link)
-               = POINTER'(controller'Unchecked_Access);
+      return NN(controller.link) = controller'Unchecked_Access;
    end is_master;
+
+   -------------
+   -- migrate --
+   -------------
+
+   procedure migrate(controller: in out CONTROLLER_TYPE) is
+      use Ada.Exceptions;
+
+      procedure dealloc is new Ada.Unchecked_Deallocation (
+         EXCEPTION_TYPE,
+         EXCEPTION_ACCESS
+      );
+
+      id : EXCEPTION_ID := Exception_Identity(controller.migrant.all);
+      ms : STRING       := Exception_Message(controller.migrant.all);
+   begin
+      dealloc(controller.migrant);
+      controller.migrant := NULL;
+      Raise_Exception(id, ms);
+   end migrate;
 
    ---------------------------------------------------------------------------
    --  Base controller
    ---------------------------------------------------------------------------
 
-   ------------
-   -- Attach --
-   ------------
+   --------------
+   -- Initiate --
+   --------------
 
-   procedure Attach(controller: in out BASE_CONTROLLER) is
+   procedure Initiate(controller: in out CONTROLLER_TYPE) is
    begin
       pragma Assert(controller.state = EXPECTANT);
       pragma Assert(controller.id = Null_Task_Id);
 
-      controller.state := SUSPENDED;
       controller.id := Current_Task;
-      wait(controller);
+      wait(controller, "INITIATE");
 
       pragma Assert(controller.state = RUNNING);
-   end Attach;
+   end Initiate;
 
-   ------------
-   -- Detach --
-   ------------
+   -------------
+   -- Suspend --
+   -------------
 
-   procedure Detach(controller: in out BASE_CONTROLLER) is
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
+   procedure Suspend(controller: in out CONTROLLER_TYPE) is
+      invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
-      controller.Die;
-      Signals.Notify(back.run);
-   end Detach;
+      Signal.Notify(invoker.run);
+      wait(controller, "SUSPEND");
+   end Suspend;
 
-   procedure Detach(controller: in out BASE_CONTROLLER; X: EXCEPTION_TYPE)
+   ----------
+   -- Quit --
+   ----------
+
+   procedure Quit(controller: in out CONTROLLER_TYPE) is
+      back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
+   begin
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
+
+      controller.Reset;
+      Signal.Notify(back.run);
+   end Quit;
+
+   procedure Quit(controller: in out CONTROLLER_TYPE; X: EXCEPTION_TYPE)
    is
       use Ada.Exceptions;
-      back : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
+      back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.state = RUNNING);
 
@@ -97,24 +146,32 @@ package body Control is
 
       back.migrant := Save_Occurrence(X);
 
-      controller.Die;
-      Signals.Notify(back.run);
-   end Detach;
+      controller.Reset;
+      Signal.Notify(back.run);
+   end Quit;
 
-   --------------
-   -- Transfer --
-   --------------
+   -----------
+   -- Reset --
+   -----------
 
-   procedure Transfer(controller, target: in out BASE_CONTROLLER) is
-      use Ada.Exceptions;
+   procedure Reset(controller: in out CONTROLLER_TYPE) is
+   begin
+      controller.id      := Null_Task_Id;
+      controller.state   := DEAD;
+      controller.link    := NULL;
+      controller.migrant := NULL;
+    --Signal.Clear(controller.run);
+   end Reset;
 
-      function target_attached return BOOLEAN is
-         (target.id /= Null_Task_Id);
+   ----------
+   -- Call --
+   ----------
 
-      procedure dealloc is new Ada.Unchecked_Deallocation (
-         EXCEPTION_TYPE,
-         EXCEPTION_ACCESS
-      );
+   procedure Call(controller, target: in out CONTROLLER_TYPE) is
+      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+      function target_initiated return BOOLEAN is
+         (target.state /= EXPECTANT);
    begin
       if controller.id = Null_Task_Id then
          --  `controller` is an uninitialized master controller
@@ -131,100 +188,92 @@ package body Control is
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
-      if BASE_CONTROLLER'Class(controller) in ASYMMETRIC_CONTROLLER then
-         target.link := controller'Unchecked_Access;
-         --  stack like linking
-      elsif BASE_CONTROLLER'Class(controller) in SYMMETRIC_CONTROLLER then
-         target.link := controller.link;
-         --  only can detach to the first controller
-      else
-         raise Program_Error;
+      target.link := controller'Unchecked_Access;
+
+      Spin_Until(target_initiated'Access);
+
+      Signal.Notify(target.run);
+      wait(controller, "CALL");
+
+      if controller.migrant /= NULL then
+         --  `target` had an exception
+         pragma Assert(target.state = DEAD);
+         migrate(controller);
       end if;
+   end Call;
 
-      Spin_Until(target_attached'Access);
+   --------------
+   -- Transfer --
+   --------------
 
-      Signals.Notify(target.run);
+   procedure Transfer(controller, target: in out CONTROLLER_TYPE) is
+      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+      function target_initiated return BOOLEAN is
+         (target.state /= EXPECTANT);
+   begin
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
+      pragma Assert(not is_master(controller));
+
+      target.link := controller.link;
+
+      Spin_Until(target_initiated'Access);
+
+      Signal.Notify(target.run);
       wait(controller);
 
       if controller.migrant /= NULL then
          --  `target` had an exception
          pragma Assert(target.state = DEAD);
-         declare
-            id : EXCEPTION_ID := Exception_Identity(controller.migrant.all);
-            ms : STRING       := Exception_Message(controller.migrant.all);
-         begin
-            dealloc(controller.migrant);
-            controller.migrant := NULL;
-            Raise_Exception(id, ms);
-         end;
+         migrate(controller);
       end if;
    end Transfer;
-
-   ---------------------
-   -- Request_To_Exit --
-   ---------------------
-
-   procedure Request_To_Exit(controller: in out BASE_CONTROLLER)
-   is
-      function have_died return BOOLEAN is
-         (controller.state = DEAD);
-   begin
-      pragma Assert(controller.id /= Current_Task);
-
-      if controller.state = DEAD then
-         null;
-      elsif controller.state = SUSPENDED then
-         controller.state := DYING;
-         Signals.Notify(controller.run);
-         Spin_Until(have_died'Access);
-      else
-         raise Program_Error;
-      end if;
-   end Request_To_Exit;
-
-   ---------
-   -- Die --
-   ---------
-
-   procedure Die(controller: in out BASE_CONTROLLER) is
-   begin
-      controller.id      := Null_Task_Id;
-      controller.state   := DEAD;
-      controller.link    := NULL;
-      controller.migrant := NULL;
-    --Signals.Clear(controller.run);
-   end Die;
-
-   -------------
-   -- Suspend --
-   -------------
-
-   procedure Suspend(controller: in out BASE_CONTROLLER) is
-      invoker : BASE_CONTROLLER renames BASE_CONTROLLER(controller.link.all);
-   begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-
-      Signals.Notify(invoker.run);
-      wait(controller);
-   end Suspend;
-
-   ---------------------------------------------------------------------------
-   --  Symmetric controller
-   ---------------------------------------------------------------------------
 
    ----------
    -- Jump --
    ----------
 
-   procedure Jump(controller, target: in out SYMMETRIC_CONTROLLER) is
+   procedure Jump(controller, target: in out CONTROLLER_TYPE) is
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
-      controller.Die;
-      Signals.Notify(target.run);
+      controller.Reset;
+      Signal.Notify(target.run);
    end Jump;
+
+   ---------------------
+   -- Request_To_Exit --
+   ---------------------
+
+   procedure Request_To_Exit(target: in out CONTROLLER_TYPE)
+   is
+      function have_died return BOOLEAN is
+         (target.state = DEAD);
+   begin
+      trace("=>RTE");
+      pragma Assert(target.id /= Current_Task);
+
+      if target.state = DEAD then
+         null;
+      elsif target.state = SUSPENDED then
+         -- HACK: this is not the problem !!! ???
+         Ada.Dispatching.Yield;
+         delay 0.001;
+         delay 0.001;
+         Ada.Dispatching.Yield;
+         -- END
+
+         target.state := DYING;
+         trace("=>RTE Notify");
+         Signal.Notify(target.run);
+         Spin_Until(have_died'Access);
+      else
+         raise Program_Error;
+      end if;
+      trace("<=RTE");
+   end Request_To_Exit;
 
 end Control;
 

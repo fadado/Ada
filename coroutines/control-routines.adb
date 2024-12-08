@@ -17,9 +17,8 @@ package body Control . Routines is
    begin
       pragma Assert(routine.runner'Callable);
 
-      routine.master.Transfer(ASYMMETRIC_CONTROLLER(routine));
+      routine.master.Call(CONTROLLER_TYPE(routine));
 
-      -- is routine detached?
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
@@ -56,12 +55,12 @@ package body Control . Routines is
 
    task body Routine_Runner is
    begin
-      routine.Attach;
+      routine.Initiate;
       routine.main(routine);
-      routine.Detach;
+      routine.Quit;
    exception
-      when Exit_Controller => routine.Die;
-      when X: others       => routine.Detach(X);
+      when Exit_Controller => routine.Reset;
+      when X: others       => routine.Quit(X);
    end Routine_Runner;
 
 end Control . Routines;

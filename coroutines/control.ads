@@ -32,57 +32,46 @@ package Control is
    --  Facility for child packages and clients
 
    ---------------------------------------------------------------------------
-   --  Base (abstract) controller
+   --  CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   type BASE_CONTROLLER is abstract tagged limited private;
+   type CONTROLLER_TYPE is tagged limited private;
+   type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
    --  Common behavior for asymmetric and symmetric controlers
 
-   procedure Attach(controller: in out BASE_CONTROLLER);
-   --  Attach `controller` to the current task (raises `Exit_Controller`)
+   procedure Initiate(controller: in out CONTROLLER_TYPE);
+   --  Initiate `controller` to the current task (raises `Exit_Controller`)
 
-   procedure Detach(controller: in out BASE_CONTROLLER);
-   --  Detach `controller` from the current task 
-
-   procedure Detach(controller: in out BASE_CONTROLLER; X: in EXCEPTION_TYPE);
-   --  Detach and migrate exceptions to the suspended invoker
-
-   procedure Die(controller: in out BASE_CONTROLLER) with Inline;
-   --  Put `controller` to the final state
-
-   procedure Transfer(controller, target: in out BASE_CONTROLLER);
-   --  Transfers control to `target` (raises `target` migrated exceptions)
-
-   procedure Request_To_Exit(controller: in out BASE_CONTROLLER);
-   --  Force a suspended `controller` to exit
-
-   procedure Suspend(controller: in out BASE_CONTROLLER);
+   procedure Suspend(controller: in out CONTROLLER_TYPE);
    --  Transfers control to the invoker (raises `Exit_Controller`)
 
-   ---------------------------------------------------------------------------
-   --  Asymmetric controller
-   ---------------------------------------------------------------------------
+   procedure Quit(controller: in out CONTROLLER_TYPE);
+   --  Quit `controller` from the current task 
 
-   type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
-   --  Stack like transfer of control
+   procedure Quit(controller: in out CONTROLLER_TYPE; X: in EXCEPTION_TYPE);
+   --  Quit and migrate exceptions to the suspended invoker
 
-   ---------------------------------------------------------------------------
-   --  Symmetric controller
-   ---------------------------------------------------------------------------
+   procedure Reset(controller: in out CONTROLLER_TYPE) with Inline;
+   --  Put `controller` to the final state
 
-   type SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with private;
-   --  Graph like transfer of control
+   procedure Call(controller, target: in out CONTROLLER_TYPE);
+   --  TODO
 
-   procedure Jump(controller, target: in out SYMMETRIC_CONTROLLER);
-   --  Transfers control to `target` and detach `controller` from the current
-   --  task
+   procedure Transfer(controller, target: in out CONTROLLER_TYPE);
+   --  Transfers control to `target` (raises `target` migrated exceptions)
+
+   procedure Jump(controller, target: in out CONTROLLER_TYPE);
+   --  Transfers control to `target`
+
+   procedure Request_To_Exit(target: in out CONTROLLER_TYPE);
+   --  Force a suspended `target` to exit
 
 private
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
    ---------------------------------------------------------------------------
 
-   package Signals is
+   package Signal is
       use Ada.Synchronous_Task_Control;
 
       subtype SIGNAL is SUSPENSION_OBJECT;
@@ -98,7 +87,7 @@ private
 
       function Is_Cleared(S: in SIGNAL) return BOOLEAN
          is (not Is_Set(S)) with Inline;
-   end Signals;
+   end Signal;
 
    ---------------------------------------------------------------------------
    --  Full view for private types
@@ -106,17 +95,14 @@ private
 
    type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
 
-   type BASE_CONTROLLER is abstract tagged limited
+   type CONTROLLER_TYPE is tagged limited
       record
          id      : Ada.Task_Identification.TASK_ID;
          state   : STATUS_TYPE := EXPECTANT;
-         link    : access BASE_CONTROLLER'Class;
-         run     : Signals.SIGNAL;
+         link    : CONTROLLER_ACCESS;
+         run     : Signal.SIGNAL;
          migrant : EXCEPTION_ACCESS;
       end record;
-
-   type ASYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
-   type  SYMMETRIC_CONTROLLER is new BASE_CONTROLLER with null record;
 
 end Control;
 
