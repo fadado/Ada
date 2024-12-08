@@ -99,9 +99,9 @@ private
       is private end;
 
    type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
-      limited new ASYMMETRIC_CONTROLLER with 
+      limited new CONTROLLER_TYPE with 
       record
-         master : ASYMMETRIC_CONTROLLER;
+         master : CONTROLLER_TYPE;
          runner : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
          value  : OUTPUT_TYPE;
       end record;

@@ -37,9 +37,9 @@ private
    task type Routine_Runner (routine: not null ROUTINE_ACCESS);
 
    type ROUTINE_TYPE (main: ROUTINE_FUNCTION; context: CONTEXT_ACCESS) is
-      limited new ASYMMETRIC_CONTROLLER with
+      limited new CONTROLLER_TYPE with
       record
-         master : ASYMMETRIC_CONTROLLER;
+         master : CONTROLLER_TYPE;
          runner : Routine_Runner (ROUTINE_TYPE'Unchecked_Access);
       end record;
 
