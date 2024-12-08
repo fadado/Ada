@@ -17,13 +17,13 @@ package body Control . Generators is
    begin
       pragma Assert(generator.runner'Callable);
 
-      generator.master.Transfer(ASYMMETRIC_CONTROLLER(generator));
+      generator.master.Call(CONTROLLER_TYPE(generator));
 
       if generator.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      return generator.value;
+      return generator.output;
    end Resume;
 
    -----------
@@ -34,7 +34,7 @@ package body Control . Generators is
    begin
       pragma Assert(generator.runner'Callable);
 
-      generator.value := value;
+      generator.output := value;
       generator.Suspend;
    end Yield;
 
@@ -60,12 +60,12 @@ package body Control . Generators is
 
    task body Generator_Runner is
    begin
-      generator.Attach;
+      generator.Initiate;
       generator.main(generator);
-      generator.Detach;
+      generator.Quit;
    exception
-      when Exit_Controller => generator.Die;
-      when X: others       => generator.Detach(X);
+      when Exit_Controller => generator.Reset;
+      when X: others       => generator.Quit(X);
    end Generator_Runner;
 
    ---------------------------------------------------------------------------
@@ -79,13 +79,13 @@ package body Control . Generators is
    function First(generator: in out GENERATOR_TYPE) return CURSOR_TYPE is
    begin
       if generator.state = EXPECTANT then
-         delay 0.01; -- give some time to attach
+         delay 0.01; -- give some time to initiate
          if generator.state = EXPECTANT then
             raise Constraint_Error
                with "Generator must be elaborated in a outer frame";
          end if;
       end if;
-      generator.value := generator.Resume;
+      generator.output := generator.Resume;
       return (source => generator'Unchecked_Access);
    exception
       when Stop_Iteration => return No_Element;
@@ -100,7 +100,7 @@ package body Control . Generators is
    begin
       if cursor /= No_Element then
          begin
-            generator.value := generator.Resume;
+            generator.output := generator.Resume;
          exception
             when Stop_Iteration => return No_Element;
          end;
@@ -127,7 +127,7 @@ package body Control . Generators is
       if cursor = No_Element then
          raise Constraint_Error with "Cursor has no element";
       end if;
-      return generator.value;
+      return generator.output;
    end Element;
 
    --------------
@@ -143,7 +143,7 @@ package body Control . Generators is
       cursor := First(generator);
       loop
          exit when cursor = No_Element;
-         callback(generator.value); -- hack: bypass Element(cursor)
+         callback(generator.output); -- hack: bypass Element(cursor)
          cursor := Next(cursor);
       end loop;
    end For_Each;
