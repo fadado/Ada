@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------
 
 pragma Restrictions (
-   No_Abort_Statements,
+ --No_Abort_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
    No_Requeue_Statements,
@@ -93,7 +93,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
+   type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD);
 
    type CONTROLLER_TYPE is tagged limited
       record

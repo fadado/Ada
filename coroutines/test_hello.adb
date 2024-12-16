@@ -45,6 +45,7 @@ begin
    begin
       Put_Line(Standard_Error, "========================================================================");
       main.Call(hello_control);
+      Put_Line(Standard_Error, "RTE=>");
       hello_control.Request_To_Exit;
    end Test_1;
 
