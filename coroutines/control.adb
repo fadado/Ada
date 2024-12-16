@@ -4,7 +4,6 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Ada.Dispatching;
 with Ada.Exceptions;
 with Ada.Real_Time;     
 with Ada.Task_Identification;
@@ -35,18 +34,19 @@ package body Control is
    -- wait --
    ----------
 
-   procedure wait(controller: in out CONTROLLER_TYPE; caller: STRING:="") is
+   procedure wait(controller: in out CONTROLLER_TYPE; caller: STRING:="")
+      with Inline is
    begin
-      trace(" >>WAIT "&caller&" ENTER");
+      trace(caller&" ENTER");
       controller.state := SUSPENDED;
 
-      trace(" >>WAIT "&caller&" SLEEP");
+      trace(caller&" SLEEP");
       Signal.Wait(controller.run);
 
-      trace(" >>WAIT "&caller&" WAKEUP");
+      trace(caller&" WAKEUP");
 
       if controller.state = DYING then
-         trace(" >>WAIT "&caller&" 4");
+         trace(caller&" Raise");
          -- obey received request to exit
          raise Exit_Controller;
       else
@@ -100,7 +100,7 @@ package body Control is
       pragma Assert(controller.id = Null_Task_Id);
 
       controller.id := Current_Task;
-      wait(controller, "INITIATE");
+      wait(controller, "Initiate");
 
       pragma Assert(controller.state = RUNNING);
    end Initiate;
@@ -116,7 +116,8 @@ package body Control is
       pragma Assert(controller.state = RUNNING);
 
       Signal.Notify(invoker.run);
-      wait(controller, "SUSPEND");
+      trace(">> S");
+      wait(controller, "Suspend");
    end Suspend;
 
    ----------
@@ -193,7 +194,8 @@ package body Control is
       Spin_Until(target_initiated'Access);
 
       Signal.Notify(target.run);
-      wait(controller, "CALL");
+      trace(">> T");
+      wait(controller, "Call");
 
       if controller.migrant /= NULL then
          --  `target` had an exception
@@ -258,22 +260,55 @@ package body Control is
       if target.state = DEAD then
          null;
       elsif target.state = SUSPENDED then
-         -- HACK: this is not the problem !!! ???
-         Ada.Dispatching.Yield;
-         delay 0.001;
-         delay 0.001;
-         Ada.Dispatching.Yield;
-         -- END
+         trace("=>RTE 2");
+
+         delay 0.1; -- HACK!!!
 
          target.state := DYING;
-         trace("=>RTE Notify");
          Signal.Notify(target.run);
+         trace(">> T");
          Spin_Until(have_died'Access);
       else
          raise Program_Error;
       end if;
       trace("<=RTE");
    end Request_To_Exit;
+
+--| ---------------------
+--| Thu, 19 Dec 2024 12:36:49 +0100
+--| Initiate ENTER
+--| Initiate SLEEP
+--| ========================================================================
+--| >> T
+--| Call ENTER
+--| Call SLEEP
+--| Initiate WAKEUP
+--| Test 1-Hello, world!
+--| >> S
+--| Suspend ENTER
+--| Suspend SLEEP
+--| Call WAKEUP
+--| =>RTE
+--| =>RTE 2
+--| >> T
+--| Suspend WAKEUP
+--| Suspend Raise
+--| <=RTE
+--| ---------------------
+--| Thu, 19 Dec 2024 12:36:49 +0100
+--| ========================================================================
+--| Initiate ENTER
+--| Initiate SLEEP
+--| Initiate WAKEUP
+--| Test 1-Hello, world!
+--| >> T
+--| Call ENTER
+--| Call SLEEP
+--| Call WAKEUP
+--| =>RTE
+--| >> S
+--| Suspend ENTER
+--| Suspend SLEEP
 
 end Control;
 
