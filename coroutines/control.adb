@@ -5,54 +5,18 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Exceptions;
-with Ada.Real_Time;     
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 with Control.Spin_Until;
 with Ada.Dispatching;
 
--- debugging only
-with Ada.Text_IO;
-
 package body Control is
 
    use Ada.Task_Identification;
 
-   -- TODO: debug *deadlock*
-
-   procedure trace(s: STRING) is
-      use Ada.Text_IO;
-   begin
-      Put_Line(Standard_Error, s);
-   end trace;
-
    ---------------------------------------------------------------------------
    -- Local subprograms
    ---------------------------------------------------------------------------
-
-   ----------
-   -- wait --
-   ----------
-
-   procedure wait(controller: in out CONTROLLER_TYPE; caller: STRING:="")
-      with Inline is
-   begin
-      trace(caller&" ENTER");
-      controller.state := SUSPENDED;
-
-      trace(caller&" SLEEP");
-      Signal.Wait(controller.run);
-
-      trace(caller&" WAKEUP");
-
-      if controller.state = DYING then
-         trace(caller&" Raise");
-         -- obey received request to exit
-         raise Exit_Controller;
-      else
-         controller.state := RUNNING;
-      end if;
-   end wait;
 
    ---------------
    -- is_master --
@@ -100,9 +64,16 @@ package body Control is
       pragma Assert(controller.id = Null_Task_Id);
 
       controller.id := Current_Task;
-      wait(controller, "Initiate");
 
-      pragma Assert(controller.state = RUNNING);
+      -- SUSPENDING
+      controller.state := SUSPENDED;
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
    end Initiate;
 
    -------------
@@ -115,9 +86,16 @@ package body Control is
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
+      -- SUSPENDING
+      controller.state := SUSPENDED;
       Signal.Notify(invoker.run);
-      trace(">> S");
-      wait(controller, "Suspend");
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
    end Suspend;
 
    ----------
@@ -193,9 +171,16 @@ package body Control is
 
       Spin_Until(target_initiated'Access);
 
+      -- SUSPENDING
+      controller.state := SUSPENDED;
       Signal.Notify(target.run);
-      trace(">> T");
-      wait(controller, "Call");
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
 
       if controller.migrant /= NULL then
          --  `target` had an exception
@@ -222,8 +207,16 @@ package body Control is
 
       Spin_Until(target_initiated'Access);
 
+      -- SUSPENDING
+      controller.state := SUSPENDED;
       Signal.Notify(target.run);
-      wait(controller);
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
 
       if controller.migrant /= NULL then
          --  `target` had an exception
@@ -241,8 +234,9 @@ package body Control is
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
-      controller.Reset;
       Signal.Notify(target.run);
+
+      raise Exit_Controller;
    end Jump;
 
    ---------------------
@@ -251,64 +245,31 @@ package body Control is
 
    procedure Request_To_Exit(target: in out CONTROLLER_TYPE)
    is
-      function have_died return BOOLEAN is
+      function target_died return BOOLEAN is
          (target.state = DEAD);
+      function target_suspended return BOOLEAN is
+         (target.state = SUSPENDED);
    begin
-      trace("=>RTE");
       pragma Assert(target.id /= Current_Task);
 
-      if target.state = DEAD then
-         null;
-      elsif target.state = SUSPENDED then
-         trace("=>RTE 2");
-
-         delay 0.1; -- HACK!!!
-
-         target.state := DYING;
-         Signal.Notify(target.run);
-         trace(">> T");
-         Spin_Until(have_died'Access);
-      else
-         raise Program_Error;
-      end if;
-      trace("<=RTE");
+   <<again>>
+      case target.state is
+         when DEAD =>
+            null;
+         when SUSPENDED =>
+            target.state := DYING;
+            Signal.Notify(target.run);
+            Spin_Until(target_died'Access);
+         when EXPECTANT =>
+            delay 0.0;
+            goto again;
+         when RUNNING =>
+            Spin_Until(target_suspended'Access);
+            goto again;
+         when DYING =>
+            raise Program_Error;
+      end case;
    end Request_To_Exit;
-
---| ---------------------
---| Thu, 19 Dec 2024 12:36:49 +0100
---| Initiate ENTER
---| Initiate SLEEP
---| ========================================================================
---| >> T
---| Call ENTER
---| Call SLEEP
---| Initiate WAKEUP
---| Test 1-Hello, world!
---| >> S
---| Suspend ENTER
---| Suspend SLEEP
---| Call WAKEUP
---| =>RTE
---| =>RTE 2
---| >> T
---| Suspend WAKEUP
---| Suspend Raise
---| <=RTE
---| ---------------------
---| Thu, 19 Dec 2024 12:36:49 +0100
---| ========================================================================
---| Initiate ENTER
---| Initiate SLEEP
---| Initiate WAKEUP
---| Test 1-Hello, world!
---| >> T
---| Call ENTER
---| Call SLEEP
---| Call WAKEUP
---| =>RTE
---| >> S
---| Suspend ENTER
---| Suspend SLEEP
 
 end Control;
 

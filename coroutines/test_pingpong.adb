@@ -31,6 +31,7 @@ is
       end loop;
 
    exception
+      when Exit_Controller => Ping.Reset;
       when X: others => Ping.Quit(X); raise;
    end PING_RUN;
 
