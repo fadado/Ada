@@ -12,7 +12,6 @@ use Control;
 with Gotcha;
 
 procedure test_hello is
-
 begin
    Gotcha.Set_Handlers;
 
