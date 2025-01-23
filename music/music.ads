@@ -20,7 +20,47 @@ package Music is
       with Inline;
 
    -- Pitch inversion
-   function Inversion(x: PITCH; i: PITCH_INTERVAL) return PITCH
+ --function Inversion(x: PITCH; i: PITCH_INTERVAL) return PITCH
+ --   with Inline;
+
+   ---------------------------------------
+   -- Encoded pitch-class and intervals --
+   ---------------------------------------
+
+   type PITCH_CLASS is mod 12;
+   type DIRECTED_INTERVAL is range 0..11;
+   type INTERVAL_CLASS is mod 7;
+
+   -- Standard interval names
+   Unison : constant DIRECTED_INTERVAL := 0;
+   Minor2 : constant DIRECTED_INTERVAL := 1;
+   Major2 : constant DIRECTED_INTERVAL := 2;
+   Minor3 : constant DIRECTED_INTERVAL := 3;
+   Major3 : constant DIRECTED_INTERVAL := 4;
+   Fourth : constant DIRECTED_INTERVAL := 5;
+   Tritone: constant DIRECTED_INTERVAL := 6;
+   Fifth  : constant DIRECTED_INTERVAL := 7;
+   Minor6 : constant DIRECTED_INTERVAL := 8;
+   Major6 : constant DIRECTED_INTERVAL := 9;
+   Minor7 : constant DIRECTED_INTERVAL := 10;
+   Major7 : constant DIRECTED_INTERVAL := 11;
+
+   -- Obtain pitch-class from a pich
+   --   PITCH_CLASS'Mod(x)
+
+   function Interval(x, y: PITCH_CLASS) return DIRECTED_INTERVAL
+      with Inline;
+
+   function "abs"(i: DIRECTED_INTERVAL) return INTERVAL_CLASS
+      with Inline;
+
+   function Transposition(x: PITCH_CLASS; i: DIRECTED_INTERVAL) return PITCH_CLASS
+      with Inline;
+
+   function Inversion(x: PITCH_CLASS; i: DIRECTED_INTERVAL) return PITCH_CLASS
+      with Inline;
+
+   function Multiplication(x, y: PITCH_CLASS) return PITCH_CLASS
       with Inline;
 
 end Music;
