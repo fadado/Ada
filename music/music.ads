@@ -8,59 +8,55 @@ package Music is
    subtype UNORDERED_INTERVAL is PITCH_INTERVAL range 0..127;
 
    -- Ordered pitch interval
-   function Interval(x, y: PITCH) return PITCH_INTERVAL
+   function Distance(x, y: PITCH) return PITCH_INTERVAL
       with Inline;
 
    -- Unordered pitch interval:
-   --     abs Interval(x, y)
+   --     abs Distance(x, y)
    -- function "abs"(i: PITCH_INTERVAL) return UNORDERED_INTERVAL;
 
    -- Pich transposition
    function Transposition(x: PITCH; i: PITCH_INTERVAL) return PITCH
       with Inline;
 
-   -- Pitch inversion
- --function Inversion(x: PITCH; i: PITCH_INTERVAL) return PITCH
- --   with Inline;
-
    ---------------------------------------
    -- Encoded pitch-class and intervals --
    ---------------------------------------
 
-   type PITCH_CLASS is mod 12;
-   type DIRECTED_INTERVAL is range 0..11;
-   type INTERVAL_CLASS is mod 7;
-
-   -- Standard interval names
-   Unison : constant DIRECTED_INTERVAL := 0;
-   Minor2 : constant DIRECTED_INTERVAL := 1;
-   Major2 : constant DIRECTED_INTERVAL := 2;
-   Minor3 : constant DIRECTED_INTERVAL := 3;
-   Major3 : constant DIRECTED_INTERVAL := 4;
-   Fourth : constant DIRECTED_INTERVAL := 5;
-   Tritone: constant DIRECTED_INTERVAL := 6;
-   Fifth  : constant DIRECTED_INTERVAL := 7;
-   Minor6 : constant DIRECTED_INTERVAL := 8;
-   Major6 : constant DIRECTED_INTERVAL := 9;
-   Minor7 : constant DIRECTED_INTERVAL := 10;
-   Major7 : constant DIRECTED_INTERVAL := 11;
+   type    PITCH_CLASS is mod 12;
+   subtype PC_INTERVAL is PITCH_CLASS;
+   type    INTERVAL_CLASS is mod 7;
 
    -- Obtain pitch-class from a pich
    --   PITCH_CLASS'Mod(x)
 
-   function Interval(x, y: PITCH_CLASS) return DIRECTED_INTERVAL
+   -- Congruent(x,y: PITCH):
+   --   PITCH_CLASS'Mod(x) = PITCH_CLASS'Mod(y)
+
+   -- Member(x: PITCH; pc: PITCH_CLASS):
+   --   PITCH_CLASS'Mod(x) = pc
+
+   -- Equivalent(i,j: PC_INTERVAL):
+   --   abs i = abs j
+
+   -- Complement(i: PC_INTERVAL):
+   --   -i
+
+   -- Member(i: PC_INTERVAL; ic: INTERVAL_CLASS):
+   --   abs i = ic
+
+   -- Ordered pitch-class interval ("directed" interval)
+   function Distance(x, y: PITCH_CLASS) return PC_INTERVAL
       with Inline;
 
-   function "abs"(i: DIRECTED_INTERVAL) return INTERVAL_CLASS
+   function Transposition(x: PITCH_CLASS; i: PC_INTERVAL) return PITCH_CLASS
       with Inline;
 
-   function Transposition(x: PITCH_CLASS; i: DIRECTED_INTERVAL) return PITCH_CLASS
+   function Inversion(x: PITCH_CLASS; i: PC_INTERVAL) return PITCH_CLASS
       with Inline;
 
-   function Inversion(x: PITCH_CLASS; i: DIRECTED_INTERVAL) return PITCH_CLASS
-      with Inline;
-
-   function Multiplication(x, y: PITCH_CLASS) return PITCH_CLASS
+   -- Unordered pitch-class interval
+   function "abs"(i: PC_INTERVAL) return INTERVAL_CLASS
       with Inline;
 
 end Music;

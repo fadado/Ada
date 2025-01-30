@@ -9,15 +9,18 @@ procedure Tests is
    use Ada.Text_IO;
    use Music;
 begin
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    declare
       x, y : PITCH;
       i, j : PITCH_INTERVAL;
       u : UNORDERED_INTERVAL;
    begin
       x := 60; y := 67;
-      i := Interval(x, y);
-      j := Interval(y, x);
-      u := abs Interval(y, x);
+      i := Distance(x, y);
+      j := Distance(y, x);
+      u := abs Distance(y, x);
 
       pragma Assert(i = 7);
       pragma Assert(j = -7);
@@ -26,14 +29,18 @@ begin
       pragma Assert(Transposition(x, i) = y);
       pragma Assert(Transposition(y, j) = x);
    end;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
    declare
       x, y : PITCH_CLASS;
-      i, j : DIRECTED_INTERVAL;
+      i, j : PC_INTERVAL;
       u : INTERVAL_CLASS;
    begin
       x := 0; y := 7;
-      i := Interval(x, y);
-      j := Interval(y, x);
+      i := Distance(x, y);
+      j := Distance(y, x);
       u := abs j;
 
       pragma Assert(i = 7);
@@ -42,11 +49,49 @@ begin
 
       pragma Assert(Transposition(x, i) = y);
       pragma Assert(Transposition(y, j) = x);
+      pragma Assert(x + i = y);
+      pragma Assert(y + j = x);
 
       pragma Assert(Inversion(0, 0) = 0);
       pragma Assert(Inversion(0, 5) = 5);
       pragma Assert(Inversion(1, 5) = 4);
       pragma Assert(Inversion(5, 2) = 9);
+      pragma Assert(2 - PITCH_CLASS'(5) = 9);
+
+      i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
+      i := -PC_INTERVAL'(11); pragma Assert(i = 1);
+   end;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+   begin
+      for x in PITCH_CLASS loop
+         for y in PITCH_CLASS loop
+            pragma Assert(Distance(x,y) = -Distance(y,x));
+
+            for z in PITCH_CLASS loop
+               pragma Assert(Distance(x,y)+Distance(y,z) = Distance(x,z));
+            end loop;
+         end loop;
+      end loop;
+
+      for i in PC_INTERVAL loop
+         pragma Assert(i + 0  = i);
+         pragma Assert(i + (-i) = 0);
+
+         for j in PC_INTERVAL loop
+            for k in PC_INTERVAL loop
+               pragma Assert((i+j)+k = i+(j+k));
+            end loop;
+         end loop;
+
+         for x in PITCH_CLASS loop
+            pragma Assert(Distance(x,Transposition(i,x)) = i);
+            pragma Assert(Inversion(x,i) = Transposition(i,-x));
+            pragma Assert(Inversion(x,i) = i-x);
+         end loop;
+      end loop;
    end;
 end Tests;
 
