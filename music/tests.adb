@@ -52,11 +52,11 @@ begin
       pragma Assert(x + i = y);
       pragma Assert(y + j = x);
 
-      pragma Assert(Inversion(0, 0) = 0);
-      pragma Assert(Inversion(0, 5) = 5);
-      pragma Assert(Inversion(1, 5) = 4);
-      pragma Assert(Inversion(5, 2) = 9);
-      pragma Assert(2 - PITCH_CLASS'(5) = 9);
+      x := 0; y := 0; pragma Assert(Inversion(x, y) = 0);
+      x := 0; y := 5; pragma Assert(Inversion(x, y) = 5);
+      x := 1; y := 5; pragma Assert(Inversion(x, y) = 4);
+      x := 5; y := 2; pragma Assert(Inversion(x, y) = 9);
+      x := 2; y := 5; pragma Assert(x - y = 9);
 
       i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
       i := -PC_INTERVAL'(11); pragma Assert(i = 1);

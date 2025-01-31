@@ -1,43 +1,58 @@
 package body Music is
-   ---------------------------------
-   -- Encoded pitch and intervals --
-   ---------------------------------
 
-   function Distance(x, y: PITCH) return PITCH_INTERVAL is
+   function Map(s: PC_SET;
+                f: access function (x: PITCH_CLASS) return PITCH_CLASS)
+     return PC_SET is
    begin
-      return PITCH_INTERVAL(y - x);
-   end Distance;
+      return t : PC_SET := VOID do
+         if s = VOID then
+            null;
+         elsif s = FULL then
+            -- t := FULL; ???
+            for x in PITCH_CLASS loop
+               t := BitSet(f(x)) or t;
+            end loop;
+         else
+            for x in PITCH_CLASS loop
+               if (BitSet(x) and s) /= VOID then
+                  t := BitSet(f(x)) or t;
+               end if;
+            end loop;
+         end if;
+      end return;
+   end Map;
 
-   function Transposition(x: PITCH; i: PITCH_INTERVAL) return PITCH is
+   function Cardinality(s: PC_SET) return SET_COUNT is
    begin
-      return x + PITCH'Base(i);
+      return a : SET_COUNT := 0 do
+         if s = VOID then
+            null;
+         elsif s = FULL then
+            a := SET_COUNT'Last;
+         else
+            for t of BitSet loop
+               if (t and s) /= VOID then
+                  a := a+1;
+               end if;
+            end loop;
+         end if;
+      end return;
+   end Cardinality;
+
+   function Transposition(i: PC_INTERVAL; s: PC_SET) return PC_SET
+   is
+      function f(x: PITCH_CLASS) return PITCH_CLASS is (x + i);
+   begin
+      return Map(s, f'Access);
    end Transposition;
 
-   ---------------------------------------
-   -- Encoded pitch-class and intervals --
-   ---------------------------------------
-
-   -- Ordered pitch-class interval ("directed" interval)
-   function Distance(x, y: PITCH_CLASS) return PC_INTERVAL is
+   function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET
+   is
+      function f(x: PITCH_CLASS) return PITCH_CLASS is (i - x);
    begin
-      return y - x;
-   end;
+      return Map(s, f'Access);
+   end Inversion;
 
-   function Transposition(x: PITCH_CLASS; i: PC_INTERVAL) return PITCH_CLASS is
-   begin
-      return x + i;
-   end;
-
-   function Inversion(x: PITCH_CLASS; i: PC_INTERVAL) return PITCH_CLASS is
-   begin
-      return i - x;
-   end;
-
-   -- Unordered pitch-class interval
-   function "abs"(i: PC_INTERVAL) return INTERVAL_CLASS is
-   begin
-      return INTERVAL_CLASS(if i < 7 then i else -i);
-   end;
 end Music;
 
 -- ¡ISO-8859-1!
