@@ -26,8 +26,8 @@ begin
       pragma Assert(j = -7);
       pragma Assert(u = 7);
 
-      pragma Assert(Transposition(x, i) = y);
-      pragma Assert(Transposition(y, j) = x);
+      pragma Assert(Transposition(i, x) = y);
+      pragma Assert(Transposition(j, y) = x);
    end;
 
    ---------------------------------------------------------------------
@@ -47,16 +47,16 @@ begin
       pragma Assert(j = 5);
       pragma Assert(u = 5);
 
-      pragma Assert(Transposition(x, i) = y);
-      pragma Assert(Transposition(y, j) = x);
+      pragma Assert(Transposition(i, x) = y);
+      pragma Assert(Transposition(j, y) = x);
       pragma Assert(x + i = y);
       pragma Assert(y + j = x);
 
-      pragma Assert(Inversion(0, 0) = 0);
-      pragma Assert(Inversion(0, 5) = 5);
-      pragma Assert(Inversion(1, 5) = 4);
-      pragma Assert(Inversion(5, 2) = 9);
-      pragma Assert(2 - PITCH_CLASS'(5) = 9);
+      x := 0; i := 0; pragma Assert(Inversion(i, x) = 0);
+      x := 0; i := 5; pragma Assert(Inversion(i, x) = 5);
+      x := 1; i := 5; pragma Assert(Inversion(i, x) = 4);
+      x := 5; i := 2; pragma Assert(Inversion(i, x) = 9);
+      x := 2; i := 5; pragma Assert(x - i = 9);
 
       i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
       i := -PC_INTERVAL'(11); pragma Assert(i = 1);
@@ -88,8 +88,8 @@ begin
 
          for x in PITCH_CLASS loop
             pragma Assert(Distance(x,Transposition(i,x)) = i);
-            pragma Assert(Inversion(x,i) = Transposition(i,-x));
-            pragma Assert(Inversion(x,i) = i-x);
+            pragma Assert(Inversion(i,x) = Transposition(i,-x));
+            pragma Assert(Inversion(i,x) = i-x);
          end loop;
       end loop;
    end;
