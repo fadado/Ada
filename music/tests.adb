@@ -60,12 +60,7 @@ begin
 
       i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
       i := -PC_INTERVAL'(11); pragma Assert(i = 1);
-   end;
 
-   ---------------------------------------------------------------------
-   --
-   ---------------------------------------------------------------------
-   begin
       for x in PITCH_CLASS loop
          for y in PITCH_CLASS loop
             pragma Assert(Distance(x,y) = -Distance(y,x));
@@ -93,6 +88,11 @@ begin
          end loop;
       end loop;
    end;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+
 end Tests;
 
 -- ¡ISO-8859-1!

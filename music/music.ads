@@ -1,3 +1,5 @@
+with Ada.Containers.Generic_Array_Sort;
+
 package Music is
    ---------------------------------
    -- Encoded pitch and intervals --
@@ -104,6 +106,47 @@ package Music is
    -- Symm_Difference(s,t: PC_SET): s xor t
    -- Is_Subset(s,t: PC_SET): (s and t) = s
    -- Are_Disjoin(s,t: PC_SET): (s and t) = VOID
+
+   -----------------------------
+   -- pitch-class ordered set --
+   -----------------------------
+
+   type INDEX is range 1..12;
+   type ORDER is array (INDEX range <>) of PITCH_CLASS;
+
+   procedure Sort is new 
+      Ada.Containers.Generic_Array_Sort (
+         INDEX, PITCH_CLASS, ORDER
+   );
+
+   function Member(x: PITCH_CLASS; s: ORDER) return BOOLEAN
+      is (for some k in s'Range => x = s(k)) with Inline;
+
+   function Cardinality(s: ORDER) return SET_COUNT
+      is (s'Length) with Inline;
+
+   function Transposition(i: PC_INTERVAL; s: ORDER) return ORDER;
+   function Inversion(i: PC_INTERVAL; s: ORDER) return ORDER;
+
+ -- TODO:
+ --function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
+ --function Retrograde(s: ORDER) return ORDER;
+ --function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
+
+   -----------------
+   -- Set <=> Seq --
+   -----------------
+
+   function Seq(s: PC_SET) return ORDER;
+   function Set(s: ORDER)  return PC_SET;
+
+   ----------------------
+   -- Interval pattern --
+   ----------------------
+
+   type INTERVAL_PATTERN is array (INDEX range <>) of PC_INTERVAL;
+
+   function Pattern(s: ORDER) return INTERVAL_PATTERN;
 
 end Music;
 -- ¡ISO-8859-1!
