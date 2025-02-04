@@ -1,5 +1,4 @@
 package body Music is
-
    ---------------------
    -- pitch-class set --
    ---------------------
@@ -29,10 +28,10 @@ package body Music is
          if s = VOID then
             null;
          elsif s = FULL then
-            -- t := FULL; ???
-            for x in PITCH_CLASS loop
-               t := BitSet(f(x)) or t;
-            end loop;
+            t := FULL;
+          --for x in PITCH_CLASS loop
+          --   t := BitSet(f(x)) or t;
+          --end loop;
          else
             for x in PITCH_CLASS loop
                if (BitSet(x) and s) /= VOID then
@@ -50,29 +49,29 @@ package body Music is
       return map(s, f'Access);
    end Transposition;
 
-   -- Counts the number of transpositions for a pitch-class set
-   function Transpositions(s: PC_SET) return SET_COUNT is
-      Z : SET_COUNT := PITCH_CLASS'Modulus;
-
-      function gcd(m, n: SET_COUNT) return SET_COUNT is
-         a, b, t : SET_COUNT;
-      begin
-         a := m; b := n;
-         while b /= 0 loop
-            t := a; a := b; b := t mod b;
-         end loop;
-         return a;
-      end gcd;
-   begin
-      return Z / gcd(Z, Cardinality(s));
-   end Transpositions;
-
    function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET
    is
       function f(x: PITCH_CLASS) return PITCH_CLASS is (i - x);
    begin
       return map(s, f'Access);
    end Inversion;
+
+   function Transpositions(s: PC_SET) return SET_COUNT
+   is
+      function gcd(m, n: SET_COUNT) return SET_COUNT is
+         a, b, t : SET_COUNT;
+      begin
+         a := m; b := n;
+         while b /= 0 loop
+            t := a; a := b; b := (t mod b);
+         end loop;
+         return a;
+      end gcd;
+
+      Z : SET_COUNT := SET_COUNT'Last;
+   begin
+      return Z / gcd(Z, Cardinality(s));
+   end Transpositions;
 
    -----------------------------
    -- pitch-class ordered set --

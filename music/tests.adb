@@ -4,6 +4,7 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
 with Music;
+with Music.MIDI;
 with DataBase;
 
 procedure Tests is
@@ -14,6 +15,7 @@ begin
    --
    ---------------------------------------------------------------------
    declare
+      use MIDI;
       x, y : PITCH;
       i, j : PITCH_INTERVAL;
       u : UNORDERED_INTERVAL;

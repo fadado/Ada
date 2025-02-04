@@ -1,26 +1,6 @@
 with Ada.Containers.Generic_Array_Sort;
 
 package Music is
-   ---------------------------------
-   -- Encoded pitch and intervals --
-   ---------------------------------
-
-   type    PITCH is range 0..127;
-   type    PITCH_INTERVAL is range -127..+127;
-   subtype UNORDERED_INTERVAL is PITCH_INTERVAL range 0..127;
-
-   -- Ordered pitch interval
-   function Distance(x, y: PITCH) return PITCH_INTERVAL
-      is (PITCH_INTERVAL(y - x)) with Inline;
-
-   -- Pich transposition
-   function Transposition(i: PITCH_INTERVAL; x: PITCH) return PITCH
-      is (x + PITCH'Base(i)) with Inline;
-
-   -- Unordered pitch interval
-   -- "abs"(i: PITCH_INTERVAL): UNORDERED_INTERVAL
-   --     abs Distance(x, y)
-
    ---------------------------------------
    -- Encoded pitch-class and intervals --
    ---------------------------------------
