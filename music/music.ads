@@ -95,6 +95,7 @@ package Music is
       ((BitSet(x) and s) /= VOID) with Inline;
 
    function Transposition(i: PC_INTERVAL; s: PC_SET) return PC_SET;
+   function Transpositions(s: PC_SET) return SET_COUNT;
    function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET;
 
    -- Add(x: PITCH_CLASS; s: PC_SET): BitSet(x) or s

@@ -50,6 +50,23 @@ package body Music is
       return map(s, f'Access);
    end Transposition;
 
+   -- Counts the number of transpositions for a pitch-class set
+   function Transpositions(s: PC_SET) return SET_COUNT is
+      Z : SET_COUNT := PITCH_CLASS'Modulus;
+
+      function gcd(m, n: SET_COUNT) return SET_COUNT is
+         a, b, t : SET_COUNT;
+      begin
+         a := m; b := n;
+         while b /= 0 loop
+            t := a; a := b; b := t mod b;
+         end loop;
+         return a;
+      end gcd;
+   begin
+      return Z / gcd(Z, Cardinality(s));
+   end Transpositions;
+
    function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET
    is
       function f(x: PITCH_CLASS) return PITCH_CLASS is (i - x);

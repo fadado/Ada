@@ -4,6 +4,7 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
 with Music;
+with DataBase;
 
 procedure Tests is
    use Ada.Text_IO;

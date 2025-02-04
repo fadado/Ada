@@ -4,7 +4,7 @@
 
 all: tests
 
-tests: music.ad[bs] tests.adb
+tests: music.ad[bs] database.ad[bs] tests.adb
 	gnatmake tests
 
 clean:
