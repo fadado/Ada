@@ -10,9 +10,10 @@ with DataBase;
 procedure Tests is
    use Ada.Text_IO;
    use Music;
+   package DB renames DataBase;
 begin
    ---------------------------------------------------------------------
-   --
+   -- MIDI pitch encoding
    ---------------------------------------------------------------------
    declare
       use MIDI;
@@ -34,7 +35,7 @@ begin
    end;
 
    ---------------------------------------------------------------------
-   --
+   -- Pitch-class and intervals
    ---------------------------------------------------------------------
    declare
       x, y : PITCH_CLASS;
@@ -63,7 +64,9 @@ begin
 
       i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
       i := -PC_INTERVAL'(11); pragma Assert(i = 1);
+   end;
 
+   begin
       for x in PITCH_CLASS loop
          for y in PITCH_CLASS loop
             pragma Assert(Distance(x,y) = -Distance(y,x));
@@ -89,6 +92,91 @@ begin
             pragma Assert(Inversion(i,x) = Transposition(i,-x));
             pragma Assert(Inversion(i,x) = i-x);
          end loop;
+      end loop;
+   end;
+
+   declare
+      s : ORDER := (0,2,4,5,7,9,11);
+      t : ORDER := (1,3,6,8,10);
+      diatonic  : PC_SET := DB.Name_To_Set(DB.Diatonic);
+      chromatic : PC_SET := DB.Name_To_Set(DB.Chromatic);
+   begin
+      pragma Assert(Set(s) = diatonic);
+      for x of s loop
+         pragma Assert(Member(x, chromatic));
+         pragma Assert(Member(x, diatonic));
+      end loop;
+      for x of t loop
+         pragma Assert(Member(x, chromatic));
+         pragma Assert(not Member(x, diatonic));
+      end loop;
+   end;
+
+   declare
+      function id(x: PITCH_CLASS) return PITCH_CLASS
+        is (Transposition(0, x)) with Inline;
+   begin
+      for x in PITCH_CLASS loop
+         for i in PC_INTERVAL loop
+            pragma Assert(id(Transposition(i,x)) = Transposition(i,x));
+            pragma Assert(Transposition(i,id(x)) = Transposition(i,x));
+            pragma Assert(id(Inversion(i,x)) = Inversion(i,x));
+            pragma Assert(Inversion(i,id(x)) = Inversion(i,x));
+         end loop;
+      end loop;
+   end;
+
+   declare
+      type PAIR is record a, b : PITCH_CLASS; end record;
+      pairs : array (POSITIVE range <>) of PAIR
+         := ((1,11),(2,10),(3,9),(4,8),(5,7),(6,6));
+      i, j : PC_INTERVAL;
+      c, d : INTERVAL_CLASS;
+   begin
+      for p of pairs loop
+         i := Distance(p.a,p.b);
+         j := Distance(p.b,p.a);
+         c := abs i;
+         d := abs j;
+         pragma Assert(-i = j);
+         pragma Assert(-j = i);
+         pragma Assert(NATURAL(p.a)+NATURAL(p.b) = 12);
+         pragma Assert(c = d);
+         pragma Assert(INTERVAL_CLASS'(abs i) = abs j);
+      end loop;
+   end;
+  
+
+   declare
+      use DB;
+      names : array (POSITIVE range <>) of SCALE_NAME := (
+         Lydian,
+         Major,
+         Ionian,
+         Mixolydian,
+         Dorian,
+         Minor,
+         Aeolian,
+         Phrygian,
+         Locrian
+      );
+      subtype SCALE is INDEX range INDEX'First..INDEX'First+6;
+      modes : array (POSITIVE range <>) of INTERVAL_PATTERN(SCALE) :=
+      (  (2,2,2,1,2,2,1),
+         (2,2,1,2,2,2,1),
+         (2,2,1,2,2,2,1),
+         (2,2,1,2,2,1,2),
+         (2,1,2,2,2,1,2),
+         (2,1,2,2,1,2,2),
+         (2,1,2,2,1,2,2),
+         (1,2,2,2,1,2,2),
+         (1,2,2,1,2,2,2)
+      );
+      s : ORDER(SCALE);
+   begin
+      for k in names'Range loop
+         s := Seq(Name_To_Set(names(k)));
+         pragma Assert(Pattern(s) = modes(k));
       end loop;
    end;
 
