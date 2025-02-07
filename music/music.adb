@@ -1,3 +1,5 @@
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 package body Music is
    ---------------------
    -- pitch-class set --
@@ -5,15 +7,13 @@ package body Music is
 
    function Cardinality(s: PC_SET) return SET_COUNT is
    begin
-      return a : SET_COUNT := 0 do
-         if s = VOID then
-            null;
-         elsif s = FULL then
-            a := SET_COUNT'Last;
-         else
+      return count : SET_COUNT := 0 do
+         if s = FULL then
+            count := SET_COUNT'Last;
+         elsif s /= VOID then
             for t of BitSet loop
                if (t and s) /= VOID then
-                  a := a+1;
+                  count := count + 1;
                end if;
             end loop;
          end if;
@@ -25,14 +25,9 @@ package body Music is
      return PC_SET is
    begin
       return t : PC_SET := VOID do
-         if s = VOID then
-            null;
-         elsif s = FULL then
-            t := FULL;
-          --for x in PITCH_CLASS loop
-          --   t := BitSet(f(x)) or t;
-          --end loop;
-         else
+         if s = FULL then
+            t := s;
+         elsif s /= VOID then
             for x in PITCH_CLASS loop
                if (BitSet(x) and s) /= VOID then
                   t := BitSet(f(x)) or t;
@@ -59,16 +54,16 @@ package body Music is
    function Transpositions(s: PC_SET) return SET_COUNT
    is
       function gcd(m, n: SET_COUNT) return SET_COUNT is
-         a, b, t : SET_COUNT;
+         a, b, c : SET_COUNT;
       begin
          a := m; b := n;
          while b /= 0 loop
-            t := a; a := b; b := (t mod b);
+            c := a; a := b; b := (c mod b);
          end loop;
          return a;
       end gcd;
 
-      Z : SET_COUNT := SET_COUNT'Last;
+      Z : constant SET_COUNT := SET_COUNT'Last;
    begin
       return Z / gcd(Z, Cardinality(s));
    end Transpositions;
@@ -93,6 +88,7 @@ package body Music is
      return ORDER is
    begin
       pragma Assert(s'Length > 0);
+
       return t : ORDER(s'Range) do
          for k in s'Range loop
             t(k) := f(s(k));
@@ -121,13 +117,12 @@ package body Music is
    function Seq(s: PC_SET) return ORDER
    is
       k : INDEX := INDEX'First;
+      l : constant INDEX := INDEX'First + INDEX(Cardinality(s)) - 1;
    begin
-      return t : ORDER(k..k+INDEX(Cardinality(s))-1) do
-         if s = VOID then
-            null;
-         elsif s = FULL then
+      return t : ORDER(k..l) do
+         if s = FULL then
             t := (0,1,2,3,4,5,6,7,8,9,10,11);
-         else
+         elsif s /= VOID then
             for x in PITCH_CLASS loop
                if (BitSet(x) and s) /= VOID then
                   t(k) := x;
@@ -136,6 +131,7 @@ package body Music is
                end if;
             end loop;
          end if;
+
          pragma Assert(invariant_sorted(t));
       end return;
    end Seq;
@@ -166,11 +162,13 @@ package body Music is
    function Pattern(s: ORDER) return INTERVAL_PATTERN is
    begin
       pragma Assert(s'Length > 1);
+
       return p : INTERVAL_PATTERN(s'Range) do
          for k in s'First+1..s'Last loop
             p(k-1) := Distance(s(k-1), s(k));
          end loop;
          p(s'Last) := Distance(s(s'Last), s(s'First));
+
          pragma Assert(invariant_octave(p));
       end return;
    end Pattern;
