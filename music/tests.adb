@@ -22,9 +22,9 @@ begin
       u : UNORDERED_INTERVAL;
    begin
       x := 60; y := 67;
-      i := Distance(x, y);
-      j := Distance(y, x);
-      u := abs Distance(y, x);
+      i := Interval(x, y);
+      j := Interval(y, x);
+      u := abs Interval(y, x);
 
       pragma Assert(i = 7);
       pragma Assert(j = -7);
@@ -43,8 +43,8 @@ begin
       u : INTERVAL_CLASS;
    begin
       x := 0; y := 7;
-      i := Distance(x, y);
-      j := Distance(y, x);
+      i := Interval(x, y);
+      j := Interval(y, x);
       u := abs j;
 
       pragma Assert(i = 7);
@@ -69,10 +69,10 @@ begin
    begin
       for x in PITCH_CLASS loop
          for y in PITCH_CLASS loop
-            pragma Assert(Distance(x,y) = -Distance(y,x));
+            pragma Assert(Interval(x,y) = -Interval(y,x));
 
             for z in PITCH_CLASS loop
-               pragma Assert(Distance(x,y)+Distance(y,z) = Distance(x,z));
+               pragma Assert(Interval(x,y)+Interval(y,z) = Interval(x,z));
             end loop;
          end loop;
       end loop;
@@ -88,7 +88,7 @@ begin
          end loop;
 
          for x in PITCH_CLASS loop
-            pragma Assert(Distance(x,Transposition(i,x)) = i);
+            pragma Assert(Interval(x,Transposition(i,x)) = i);
             pragma Assert(Inversion(i,x) = Transposition(i,-x));
             pragma Assert(Inversion(i,x) = i-x);
          end loop;
@@ -134,8 +134,8 @@ begin
       c, d : INTERVAL_CLASS;
    begin
       for p of pairs loop
-         i := Distance(p.a,p.b);
-         j := Distance(p.b,p.a);
+         i := Interval(p.a,p.b);
+         j := Interval(p.b,p.a);
          c := abs i;
          d := abs j;
          pragma Assert(-i = j);
@@ -146,7 +146,6 @@ begin
       end loop;
    end;
   
-
    declare
       use DB;
       names : array (POSITIVE range <>) of SCALE_NAME := (
@@ -183,6 +182,23 @@ begin
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
+
+   declare
+      diatonic : PC_SET := 2#101011010101#;
+      x, y : ORDER(1..3);
+   begin
+      pragma Assert(ORDER'(0,2,4,5,7,9,11) = Seq(diatonic));
+      pragma Assert(Transposition(2, diatonic) = 2#011010110101#);
+
+      pragma Assert(diatonic = Set(Seq(diatonic)));
+
+      x := ORDER'(0,1,4);
+      y := ORDER'(0,11,8);
+      pragma Assert(Inversion(0,x) = y);
+      x := ORDER'(0,4,7);
+      y := ORDER'(0,8,5);
+      pragma Assert(Inversion(0,x) = y);
+   end;
 
 end Tests;
 

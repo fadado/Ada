@@ -1,41 +1,41 @@
 package body DataBase is
 
    PCS : constant array (SCALE_NAME) of PC_SET := (
-      Acoustic =>            16#6D5#,
-      Aeolian =>             16#5AD#,
-      Augmented_Triad =>     16#111#,
-      Chromatic =>           16#FFF#,
-      Diatonic =>            16#AB5#,
-      Diminished_7th =>      16#249#,
-      Dorian =>              16#6AD#,
-      Double_Harmonic =>     16#9B3#,
-      Harmonic_Lidyan =>     16#6D5#,
-      Harmonic_Major =>      16#9B5#,
-      Harmonic_Minor =>      16#9AD#,
-      Hungarian_Major_I =>   16#6D9#,
-      Hungarian_Major_II =>  16#AD9#,
-      Ionian =>              16#AB5#,
-      Locrian =>             16#56B#,
-      Locrian_Major =>       16#575#,
-      Lydian =>              16#AD5#,
-      Lydian_Dominant =>     16#6D5#,
-      Lydian_Minor =>        16#5D5#,
-      Major =>               16#AB5#,
-      Melodic =>             16#AAD#,
-      Minor =>               16#5AD#,
-      Mixolydian =>          16#6B5#,
-      Monotonic =>           16#001#,
-      Octatonic =>           16#B6D#,
-      Pentatonic =>          16#295#,
-      Pentatonic1 =>         16#295#,
-      Pentatonic2 =>         16#2A5#,
-      Pentatonic3 =>         16#4A5#,
-      Pentatonic4 =>         16#4A9#,
-      Pentatonic5 =>         16#529#,
-      Phrygian =>            16#5AB#,
-      Spanish_Phrygian =>    16#5B3#,
-      Tritone =>             16#041#,
-      Whole_Tone =>          16#555#
+      Acoustic =>            2#101010110110#,
+      Aeolian =>             2#101101011010#,
+      Augmented_Triad =>     2#100010001000#,
+      Chromatic =>           2#111111111111#,
+      Diatonic =>            2#101011010101#,
+      Diminished_7th =>      2#100100100100#,
+      Dorian =>              2#101101010110#,
+      Double_Harmonic =>     2#110011011001#,
+      Harmonic_Lidyan =>     2#101010110110#,
+      Harmonic_Major =>      2#101011011001#,
+      Harmonic_Minor =>      2#101101011001#,
+      Hungarian_Major_I =>   2#100110110110#,
+      Hungarian_Major_II =>  2#100110110101#,
+      Ionian =>              2#101011010101#,
+      Locrian =>             2#110101101010#,
+      Locrian_Major =>       2#101011101010#,
+      Lydian =>              2#101010110101#,
+      Lydian_Dominant =>     2#101010110110#,
+      Lydian_Minor =>        2#101010111010#,
+      Major =>               2#101011010101#,
+      Melodic =>             2#101101010101#,
+      Minor =>               2#101101011010#,
+      Mixolydian =>          2#101011010110#,
+      Monotonic =>           2#100000000000#,
+      Octatonic =>           2#101101101101#,
+      Pentatonic =>          2#101010010100#,
+      Pentatonic1 =>         2#101010010100#,
+      Pentatonic2 =>         2#101001010100#,
+      Pentatonic3 =>         2#101001010010#,
+      Pentatonic4 =>         2#100101010010#,
+      Pentatonic5 =>         2#100101001010#,
+      Phrygian =>            2#110101011010#,
+      Spanish_Phrygian =>    2#110011011010#,
+      Tritone =>             2#100000100000#,
+      Whole_Tone =>          2#101010101010# 
    );
 
    function Name_To_Set(name: SCALE_NAME) return PC_SET is
@@ -43,10 +43,10 @@ package body DataBase is
       return PCS(name);
    end Name_To_Set;
 
-   function Set_To_Name(set: PC_SET) return SCALE_NAME is
+   function Set_To_Name(s: PC_SET) return SCALE_NAME is
    begin
       for name in SCALE_NAME loop
-         if PCS(name) = set then
+         if PCS(name) = s then
             return name;
          end if;
       end loop;

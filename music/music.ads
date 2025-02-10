@@ -23,7 +23,7 @@ package Music is
    --    (i+j)+k = i+(j+k)
    --    i + j = j + i
 
-   -- Laws for Distance (D), Transposition (T) and Inversion (I)
+   -- Laws for Interval (D), Transposition (T) and Inversion (I)
    -------------------------------------------------------------
    --    forall x,y,z in PITCH_CLASS:
    --       D(x,y) + D(y,z) = D(x,z)
@@ -35,7 +35,7 @@ package Music is
    --       I(i,x) = T(i,-x)
 
    -- Ordered pitch-class interval
-   function Distance(x, y: PITCH_CLASS) return PC_INTERVAL
+   function Interval(x, y: PITCH_CLASS) return PC_INTERVAL
       is (y - x) with Inline;
 
    function Transposition(i: PC_INTERVAL; x: PITCH_CLASS) return PITCH_CLASS
@@ -72,7 +72,7 @@ package Music is
    FULL : constant PC_SET := 16#FFF#;
 
    BitSet : constant array (PITCH_CLASS) of PC_SET :=
-      (1,2,4,8,16,32,64,128,256,512,1024,2048);
+      (2048,1024,512,256,128,64,32,16,8,4,2,1);
 
    function Cardinality(s: PC_SET) return SET_COUNT;
 

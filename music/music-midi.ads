@@ -10,7 +10,7 @@ package Music.MIDI is
    subtype UNORDERED_INTERVAL is PITCH_INTERVAL range 0..127;
 
    -- Ordered pitch interval
-   function Distance(x, y: PITCH) return PITCH_INTERVAL
+   function Interval(x, y: PITCH) return PITCH_INTERVAL
       is (PITCH_INTERVAL(y - x)) with Inline;
 
    -- Pich transposition
@@ -19,7 +19,7 @@ package Music.MIDI is
 
    -- Unordered pitch interval
    -- "abs"(i: PITCH_INTERVAL): UNORDERED_INTERVAL
-   --     abs Distance(x, y)
+   --     abs Interval(x, y)
 
 end Music.MIDI;
 -- ¡ISO-8859-1!

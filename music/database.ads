@@ -44,7 +44,7 @@ package DataBase is
    );
 
    function Name_To_Set(name: SCALE_NAME) return PC_SET;
-   function Set_To_Name(set: PC_SET) return SCALE_NAME;
+   function Set_To_Name(s: PC_SET) return SCALE_NAME;
 
 end DataBase;
 -- ¡ISO-8859-1!

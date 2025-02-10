@@ -25,9 +25,7 @@ package body Music is
      return PC_SET is
    begin
       return t : PC_SET := VOID do
-         if s = FULL then
-            t := s;
-         elsif s /= VOID then
+         if s /= VOID then
             for x in PITCH_CLASS loop
                if (BitSet(x) and s) /= VOID then
                   t := BitSet(f(x)) or t;
@@ -120,9 +118,7 @@ package body Music is
       l : constant INDEX := INDEX'First + INDEX(Cardinality(s)) - 1;
    begin
       return t : ORDER(k..l) do
-         if s = FULL then
-            t := (0,1,2,3,4,5,6,7,8,9,10,11);
-         elsif s /= VOID then
+         if s /= VOID then
             for x in PITCH_CLASS loop
                if (BitSet(x) and s) /= VOID then
                   t(k) := x;
@@ -165,9 +161,9 @@ package body Music is
 
       return p : INTERVAL_PATTERN(s'Range) do
          for k in s'First+1..s'Last loop
-            p(k-1) := Distance(s(k-1), s(k));
+            p(k-1) := Interval(s(k-1), s(k));
          end loop;
-         p(s'Last) := Distance(s(s'Last), s(s'First));
+         p(s'Last) := Interval(s(s'Last), s(s'First));
 
          pragma Assert(invariant_octave(p));
       end return;
