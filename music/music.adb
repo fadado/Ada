@@ -169,6 +169,23 @@ package body Music is
       end return;
    end Pattern;
 
+   --------------
+   -- Generate --
+   --------------
+
+   function Generate(origin: PITCH_CLASS; d, g: PC_INTERVAL) return PC_SET
+   is
+      t : PC_SET;
+   begin
+      return s : PC_SET := VOID do
+         for i in PC_INTERVAL'First..d-1 loop
+            t := BitSet(origin + i * g);
+            exit when (s and t) /= VOID; -- cycle detected
+            s := s or t;
+         end loop;
+      end return;
+   end Generate;
+
 end Music;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

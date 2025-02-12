@@ -137,6 +137,12 @@ package Music is
 
    function Pattern(s: ORDER) return INTERVAL_PATTERN;
 
+   --------------
+   -- Generate --
+   --------------
+
+   function Generate(origin: PITCH_CLASS; d, g: PC_INTERVAL) return PC_SET;
+
 end Music;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
