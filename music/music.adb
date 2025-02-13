@@ -26,7 +26,7 @@ package body Music is
    begin
       return t : PC_SET := VOID do
          if s /= VOID then
-            for x in PITCH_CLASS loop
+            for x in PITCH_CLASS'Range loop
                if (BitSet(x) and s) /= VOID then
                   t := BitSet(f(x)) or t;
                end if;
@@ -73,7 +73,7 @@ package body Music is
    function invariant_no_dups(s: ORDER) return BOOLEAN
       is (s'Length < 2 or else
             (for all k in s'First..s'Last-1 =>
-               (for all j in k+1..s'Last => s(j) /= s(k))))
+               (for all h in k+1..s'Last => s(h) /= s(k))))
       with Inline;
 
    function invariant_sorted(s: ORDER) return BOOLEAN
@@ -115,11 +115,11 @@ package body Music is
    function Seq(s: PC_SET) return ORDER
    is
       k : INDEX := INDEX'First;
-      l : constant INDEX := INDEX'First + INDEX(Cardinality(s)) - 1;
+      h : constant INDEX := INDEX'First + INDEX(Cardinality(s)) - 1;
    begin
-      return t : ORDER(k..l) do
+      return t : ORDER(k..h) do
          if s /= VOID then
-            for x in PITCH_CLASS loop
+            for x in PITCH_CLASS'Range loop
                if (BitSet(x) and s) /= VOID then
                   t(k) := x;
                   exit when k = INDEX'Last;
@@ -135,8 +135,8 @@ package body Music is
    function Set(s: ORDER) return PC_SET is
    begin
       return t : PC_SET := VOID do
-         for k in s'Range loop
-            t := BitSet(s(k)) or t;
+         for x of s loop
+            t := BitSet(x) or t;
          end loop;
       end return;
    end Set;
@@ -178,7 +178,7 @@ package body Music is
       t : PC_SET;
    begin
       return s : PC_SET := VOID do
-         for i in PC_INTERVAL'First..d-1 loop
+         for i in PC_INTERVAL'First..PC_INTERVAL'First+d-1 loop
             t := BitSet(origin + i * g);
             exit when (s and t) /= VOID; -- cycle detected
             s := s or t;

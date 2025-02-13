@@ -5,6 +5,7 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Text_IO;
 with Music;
 with Music.MIDI;
+with Music.Names;
 with DataBase;
 
 procedure Tests is
@@ -96,8 +97,10 @@ begin
    end;
 
    declare
-      s : ORDER := (0,2,4,5,7,9,11);
-      t : ORDER := (1,3,6,8,10);
+      use Music.Names;
+
+      s : HEPTACHORD := (0,2,4,5,7,9,11);
+      t : PENTACHORD := (1,3,6,8,10);
       diatonic  : PC_SET := DB.Name_To_Set(DB.Diatonic);
       chromatic : PC_SET := DB.Name_To_Set(DB.Chromatic);
    begin
@@ -148,6 +151,8 @@ begin
   
    declare
       use DB;
+      use Music.Names;
+
       names : array (POSITIVE range <>) of SCALE_NAME := (
          Lydian,
          Major,
@@ -171,7 +176,7 @@ begin
          (1,2,2,2,1,2,2),
          (1,2,2,1,2,2,2)
       );
-      s : ORDER(SCALE);
+      s : HEPTACHORD;
    begin
       for k in names'Range loop
          s := Seq(Name_To_Set(names(k)));
@@ -184,32 +189,29 @@ begin
    ---------------------------------------------------------------------
 
    declare
-      diatonic  : PC_SET := DB.Name_To_Set(DB.Diatonic);
-      pentatonic  : PC_SET := DB.Name_To_Set(DB.Pentatonic);
-      whole_tone  : PC_SET := DB.Name_To_Set(DB.Whole_Tone);
-      x, y : ORDER(1..3);
-      F  : PITCH_CLASS := 5;
-      B  : PITCH_CLASS := 11;
-      C  : PITCH_CLASS := 0;
-      Perfect_5 : PC_INTERVAL := 7;
-      Perfect_4 : PC_INTERVAL := 5;
-      Major_2 : PC_INTERVAL := 2;
+      use Music.Names;
+
+      diatonic   : constant PC_SET := DB.Name_To_Set(DB.Diatonic);
+      pentatonic : constant PC_SET := DB.Name_To_Set(DB.Pentatonic);
+      whole_tone : constant PC_SET := DB.Name_To_Set(DB.Whole_Tone);
+
+      x, y : TRICHORD;
    begin
-      pragma Assert(ORDER'(0,2,4,5,7,9,11) = Seq(diatonic));
-      pragma Assert(diatonic = Set(ORDER'(0,2,4,5,7,9,11)));
+      pragma Assert(HEPTACHORD'(0,2,4,5,7,9,11) = Seq(diatonic));
+      pragma Assert(diatonic = Set(HEPTACHORD'(0,2,4,5,7,9,11)));
       pragma Assert(Transposition(2, diatonic) = 2#011010110101#);
 
       pragma Assert(diatonic = Set(Seq(diatonic)));
 
-      x := ORDER'(0,1,4);
-      y := ORDER'(0,11,8);
+      x := TRICHORD'(0,1,4);
+      y := TRICHORD'(0,11,8);
       pragma Assert(Inversion(0,x) = y);
-      x := ORDER'(0,4,7);
-      y := ORDER'(0,8,5);
+      x := TRICHORD'(0,4,7);
+      y := TRICHORD'(0,8,5);
       pragma Assert(Inversion(0,x) = y);
 
-      pragma Assert(diatonic = Generate(F, 7, Perfect_5));
-      pragma Assert(diatonic = Generate(B, 7, Perfect_4));
+      pragma Assert(diatonic   = Generate(F, 7, Perfect_5));
+      pragma Assert(diatonic   = Generate(B, 7, Perfect_4));
       pragma Assert(pentatonic = Generate(C, 5, Perfect_5));
       pragma Assert(whole_tone = Generate(C, 6, Major_2));
    end;
