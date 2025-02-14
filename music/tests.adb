@@ -214,6 +214,9 @@ begin
       pragma Assert(diatonic   = Generate(B, 7, Perfect_4));
       pragma Assert(pentatonic = Generate(C, 5, Perfect_5));
       pragma Assert(whole_tone = Generate(C, 6, Major_2));
+
+      pragma Assert(Retrograde(Seq(diatonic)) = HEPTACHORD'(11,9,7,5,4,2,0));
+      pragma Assert(Rotate(Seq(diatonic), 1)  = HEPTACHORD'(2,4,5,7,9,11,0));
    end;
 
 end Tests;

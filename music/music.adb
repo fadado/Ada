@@ -130,7 +130,14 @@ package body Music is
       end return;
    end Retrograde;
 
- --function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
+   function Rotate(s: ORDER; n: INDEX:=1) return ORDER
+   is
+   begin
+      return t : ORDER(s'Range) do
+         t(s'First..s'Last-n) := s(s'First+n..s'Last);
+         t(s'Last-n+1..s'Last) := s(s'First..s'First+n-1);
+      end return;
+   end Rotate;
 
    -----------------
    -- Set <=> Seq --

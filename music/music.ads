@@ -127,8 +127,8 @@ package Music is
       is (Inversion(0, s)) with Inline;
 
    function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
- --function Retrograde(s: ORDER) return ORDER;
- --function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
+   function Retrograde(s: ORDER) return ORDER;
+   function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
 
    -----------------
    -- Set <=> Seq --
