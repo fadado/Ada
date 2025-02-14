@@ -116,15 +116,15 @@ begin
    end;
 
    declare
-      function id(x: PITCH_CLASS) return PITCH_CLASS
+      function identity(x: PITCH_CLASS) return PITCH_CLASS
         is (Transposition(0, x)) with Inline;
    begin
       for x in PITCH_CLASS loop
          for i in PC_INTERVAL loop
-            pragma Assert(id(Transposition(i,x)) = Transposition(i,x));
-            pragma Assert(Transposition(i,id(x)) = Transposition(i,x));
-            pragma Assert(id(Inversion(i,x)) = Inversion(i,x));
-            pragma Assert(Inversion(i,id(x)) = Inversion(i,x));
+            pragma Assert(identity(Transposition(i,x)) = Transposition(i,x));
+            pragma Assert(Transposition(i,identity(x)) = Transposition(i,x));
+            pragma Assert(identity(Inversion(i,x)) = Inversion(i,x));
+            pragma Assert(Inversion(i,identity(x)) = Inversion(i,x));
          end loop;
       end loop;
    end;
@@ -205,10 +205,10 @@ begin
 
       x := TRICHORD'(0,1,4);
       y := TRICHORD'(0,11,8);
-      pragma Assert(Inversion(0,x) = y);
+      pragma Assert(Inversion(x) = y);
       x := TRICHORD'(0,4,7);
       y := TRICHORD'(0,8,5);
-      pragma Assert(Inversion(0,x) = y);
+      pragma Assert(Inversion(x) = y);
 
       pragma Assert(diatonic   = Generate(F, 7, Perfect_5));
       pragma Assert(diatonic   = Generate(B, 7, Perfect_4));

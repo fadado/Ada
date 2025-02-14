@@ -44,6 +44,9 @@ package Music is
    function Inversion(i: PC_INTERVAL; x: PITCH_CLASS) return PITCH_CLASS
       is (i - x) with Inline;
 
+   function Inversion(x: PITCH_CLASS) return PITCH_CLASS
+      is (Inversion(0, x)) with Inline;
+
    -- Unordered pitch-class interval
    function "abs"(i: PC_INTERVAL) return INTERVAL_CLASS
       is (INTERVAL_CLASS(if i < 7 then i else -i)) with Inline;
@@ -82,6 +85,9 @@ package Music is
    function Transposition(i: PC_INTERVAL; s: PC_SET) return PC_SET;
    function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET;
 
+   function Inversion(s: PC_SET) return PC_SET
+      is (Inversion(0, s)) with Inline;
+
    function Transpositions(s: PC_SET) return SET_COUNT;
 
    -- More algebra of sets
@@ -116,6 +122,9 @@ package Music is
 
    function Transposition(i: PC_INTERVAL; s: ORDER) return ORDER;
    function Inversion(i: PC_INTERVAL; s: ORDER) return ORDER;
+
+   function Inversion(s: ORDER) return ORDER
+      is (Inversion(0, s)) with Inline;
 
  -- TODO:
  --function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
