@@ -108,6 +108,30 @@ package body Music is
       return map(s, f'Access);
    end Inversion;
 
+   function Position(i: PC_INTERVAL; s: ORDER) return INDEX is
+   begin
+      for k in s'Range loop
+         if s(k) = i then
+            return k;
+         end if;
+      end loop;
+      raise Constraint_Error;
+   end Position;
+
+   function Retrograde(s: ORDER) return ORDER
+   is
+      k : INDEX := INDEX'First;
+   begin
+      return t : ORDER(s'Range) do
+         for x of reverse s loop
+            t(k) := x;
+            k := k + 1;
+         end loop;
+      end return;
+   end Retrograde;
+
+ --function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
+
    -----------------
    -- Set <=> Seq --
    -----------------

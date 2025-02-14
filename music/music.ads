@@ -126,8 +126,7 @@ package Music is
    function Inversion(s: ORDER) return ORDER
       is (Inversion(0, s)) with Inline;
 
- -- TODO:
- --function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
+   function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
  --function Retrograde(s: ORDER) return ORDER;
  --function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
 
