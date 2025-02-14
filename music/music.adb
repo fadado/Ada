@@ -8,15 +8,16 @@ package body Music is
    function Cardinality(s: PC_SET) return SET_COUNT is
    begin
       return count : SET_COUNT := 0 do
-         if s = FULL then
-            count := SET_COUNT'Last;
-         elsif s /= VOID then
-            for t of BitSet loop
-               if (t and s) /= VOID then
-                  count := count + 1;
-               end if;
-            end loop;
-         end if;
+         case s is
+            when VOID => null;
+            when FULL => count := SET_COUNT'Last;
+            when others =>
+               for t of BitSet loop
+                  if (t and s) /= VOID then
+                     count := count+1;
+                  end if;
+               end loop;
+         end case;
       end return;
    end Cardinality;
 
@@ -25,13 +26,11 @@ package body Music is
      return PC_SET is
    begin
       return t : PC_SET := VOID do
-         if s /= VOID then
-            for x in PITCH_CLASS'Range loop
-               if (BitSet(x) and s) /= VOID then
-                  t := BitSet(f(x)) or t;
-               end if;
-            end loop;
-         end if;
+         for x in PITCH_CLASS loop
+            if (BitSet(x) and s) /= VOID then
+               t := BitSet(f(x)) or t;
+            end if;
+         end loop;
       end return;
    end map;
 
@@ -125,17 +124,16 @@ package body Music is
       return t : ORDER(s'Range) do
          for x of reverse s loop
             t(k) := x;
-            k := k + 1;
+            k := k+1;
          end loop;
       end return;
    end Retrograde;
 
-   function Rotate(s: ORDER; n: INDEX:=1) return ORDER
-   is
+   function Rotate(n: INDEX; s: ORDER) return ORDER is
    begin
       return t : ORDER(s'Range) do
-         t(s'First..s'Last-n) := s(s'First+n..s'Last);
-         t(s'Last-n+1..s'Last) := s(s'First..s'First+n-1);
+         t(s'First    .. s'Last-n) := s(s'First+n .. s'Last);
+         t(s'Last-n+1 .. s'Last)   := s(s'First   .. s'First+n-1);
       end return;
    end Rotate;
 
@@ -149,15 +147,13 @@ package body Music is
       h : constant INDEX := INDEX'First + INDEX(Cardinality(s)) - 1;
    begin
       return t : ORDER(k..h) do
-         if s /= VOID then
-            for x in PITCH_CLASS'Range loop
-               if (BitSet(x) and s) /= VOID then
-                  t(k) := x;
-                  exit when k = INDEX'Last;
-                  k := k+1;
-               end if;
-            end loop;
-         end if;
+         for x in PITCH_CLASS loop
+            if (BitSet(x) and s) /= VOID then
+               t(k) := x;
+               exit when k = INDEX'Last;
+               k := k+1;
+            end if;
+         end loop;
 
          pragma Assert(invariant_sorted(t));
       end return;
@@ -176,11 +172,11 @@ package body Music is
    -- Interval pattern --
    ----------------------
 
-   function invariant_octave(p: INTERVAL_PATTERN) return BOOLEAN
+   function invariant_octave(intervals: INTERVAL_PATTERN) return BOOLEAN
    is
       a : NATURAL := 0;
    begin
-      for i of p loop
+      for i of intervals loop
          a := a + NATURAL(i);
       end loop;
       return a = 12;
@@ -190,13 +186,13 @@ package body Music is
    begin
       pragma Assert(s'Length > 1);
 
-      return p : INTERVAL_PATTERN(s'Range) do
+      return intervals : INTERVAL_PATTERN(s'Range) do
          for k in s'First+1..s'Last loop
-            p(k-1) := Interval(s(k-1), s(k));
+            intervals(k-1) := Interval(s(k-1), s(k));
          end loop;
-         p(s'Last) := Interval(s(s'Last), s(s'First));
+         intervals(s'Last) := Interval(s(s'Last), s(s'First));
 
-         pragma Assert(invariant_octave(p));
+         pragma Assert(invariant_octave(intervals));
       end return;
    end Pattern;
 

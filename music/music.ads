@@ -83,6 +83,7 @@ package Music is
       ((BitSet(x) and s) /= VOID) with Inline;
 
    function Transposition(i: PC_INTERVAL; s: PC_SET) return PC_SET;
+
    function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET;
 
    function Inversion(s: PC_SET) return PC_SET
@@ -121,14 +122,20 @@ package Music is
       is (for some k in s'Range => x = s(k)) with Inline;
 
    function Transposition(i: PC_INTERVAL; s: ORDER) return ORDER;
+
    function Inversion(i: PC_INTERVAL; s: ORDER) return ORDER;
 
    function Inversion(s: ORDER) return ORDER
       is (Inversion(0, s)) with Inline;
 
    function Position(i: PC_INTERVAL; s: ORDER) return INDEX;
+
    function Retrograde(s: ORDER) return ORDER;
-   function Rotate(s: ORDER; n: INDEX:=1) return ORDER;
+
+   function Rotate(n: INDEX; s: ORDER) return ORDER;
+
+   function Rotate(s: ORDER) return ORDER
+      is (Rotate(1, s)) with Inline;
 
    -----------------
    -- Set <=> Seq --
