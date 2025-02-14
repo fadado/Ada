@@ -43,8 +43,11 @@ package DataBase is
       Whole_Tone
    );
 
-   function Name_To_Set(name: SCALE_NAME) return PC_SET;
-   function Set_To_Name(s: PC_SET) return SCALE_NAME;
+   function Name_To_Set
+     (name : SCALE_NAME) return PITCH_CLASS_SET;
+
+   function Set_To_Name
+     (s : PITCH_CLASS_SET) return SCALE_NAME;
 
 end DataBase;
 -- ¡ISO-8859-1!

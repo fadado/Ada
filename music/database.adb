@@ -1,6 +1,6 @@
 package body DataBase is
 
-   PCS : constant array (SCALE_NAME) of PC_SET := (
+   PCS : constant array (SCALE_NAME) of PITCH_CLASS_SET := (
       Acoustic =>            2#101010110110#,
       Aeolian =>             2#101101011010#,
       Augmented_Triad =>     2#100010001000#,
@@ -38,12 +38,14 @@ package body DataBase is
       Whole_Tone =>          2#101010101010# 
    );
 
-   function Name_To_Set(name: SCALE_NAME) return PC_SET is
+   function Name_To_Set
+     (name : SCALE_NAME) return PITCH_CLASS_SET is
    begin
       return PCS(name);
    end Name_To_Set;
 
-   function Set_To_Name(s: PC_SET) return SCALE_NAME is
+   function Set_To_Name
+     (s : PITCH_CLASS_SET) return SCALE_NAME is
    begin
       for name in SCALE_NAME loop
          if PCS(name) = s then
