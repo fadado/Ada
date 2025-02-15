@@ -5,14 +5,14 @@ package Music is
    -- Encoded pitch-class and intervals --
    ---------------------------------------
 
-   type    PITCH_CLASS is mod 12;
+   type PITCH_CLASS is mod 12;
 
-   subtype PITCH_CLASS_INTERVAL is PITCH_CLASS;
+   subtype PC_INTERVAL is PITCH_CLASS;
 
-   type    INTERVAL_CLASS is range 0..6;
+   type INTERVAL_CLASS is range 0..6;
 
-   -- PITCH_CLASS_INTERVAL properties
-   ----------------------------------
+   -- PC_INTERVAL properties
+   -------------------------
    -- Identity element:
    --    0
    -- Combination operation:
@@ -31,24 +31,24 @@ package Music is
    --       D(x,y) + D(y,z) = D(x,z)
    --    forall x,y   in PITCH_CLASS:
    --       D(x,y) = -D(y,x)
-   --    forall i in PITCH_CLASS_INTERVAL, forall x in PITCH_CLASS:
+   --    forall i in PC_INTERVAL, forall x in PITCH_CLASS:
    --       D(x,T(i,x)) = i
-   --    forall i in PITCH_CLASS_INTERVAL, forall x in PITCH_CLASS:
+   --    forall i in PC_INTERVAL, forall x in PITCH_CLASS:
    --       I(i,x) = T(i,-x)
 
    -- Ordered pitch-class interval
    function Interval
      (x : PITCH_CLASS;
-      y : PITCH_CLASS) return PITCH_CLASS_INTERVAL
+      y : PITCH_CLASS) return PC_INTERVAL
    is (y - x) with Inline;
 
    function Transposition
-     (i : PITCH_CLASS_INTERVAL;
+     (i : PC_INTERVAL;
       x : PITCH_CLASS) return PITCH_CLASS
    is (x + i) with Inline;
 
    function Inversion
-     (i : PITCH_CLASS_INTERVAL;
+     (i : PC_INTERVAL;
       x : PITCH_CLASS) return PITCH_CLASS
    is (i - x) with Inline;
 
@@ -58,7 +58,7 @@ package Music is
 
    -- Unordered pitch-class interval
    function "abs"
-     (i : PITCH_CLASS_INTERVAL) return INTERVAL_CLASS
+     (i : PC_INTERVAL) return INTERVAL_CLASS
    is (INTERVAL_CLASS(if i < 7 then i else -i)) with Inline;
 
    -- Expression examples
@@ -71,54 +71,54 @@ package Music is
    --    PITCH_CLASS'Mod(x) = pc
    -- Invert(x: PITCH_CLASS): PITCH_CLASS
    --    -x
-   -- Member(i: PITCH_CLASS_INTERVAL; ic: INTERVAL_CLASS): BOOLEAN
+   -- Member(i: PC_INTERVAL; ic: INTERVAL_CLASS): BOOLEAN
    --   abs i = ic
 
    ---------------------
    -- pitch-class set --
    ---------------------
 
-   type PITCH_CLASS_SET is mod 2**PITCH_CLASS'Modulus;
+   type PC_SET is mod 2**PITCH_CLASS'Modulus;
 
    type SET_COUNT is range 0..PITCH_CLASS'Modulus;
 
-   BitSet : constant array (PITCH_CLASS) of PITCH_CLASS_SET :=
+   BitSet : constant array (PITCH_CLASS) of PC_SET :=
      (2048,1024,512,256,128,64,32,16,8,4,2,1);
 
    function Cardinality
-     (s : PITCH_CLASS_SET) return SET_COUNT;
+     (s : PC_SET) return SET_COUNT;
 
    function Member
      (x : PITCH_CLASS;
-      s : PITCH_CLASS_SET) return BOOLEAN
+      s : PC_SET) return BOOLEAN
    is ((BitSet(x) and s) /= 16#000#) with Inline;
 
    function Transposition
-     (i : PITCH_CLASS_INTERVAL;
-      s : PITCH_CLASS_SET) return PITCH_CLASS_SET;
+     (i : PC_INTERVAL;
+      s : PC_SET) return PC_SET;
 
    function Inversion
-     (i : PITCH_CLASS_INTERVAL;
-      s : PITCH_CLASS_SET) return PITCH_CLASS_SET;
+     (i : PC_INTERVAL;
+      s : PC_SET) return PC_SET;
 
    function Inversion
-     (s : PITCH_CLASS_SET) return PITCH_CLASS_SET
+     (s : PC_SET) return PC_SET
    is (Inversion(0, s)) with Inline;
 
    function Transpositions
-     (s : PITCH_CLASS_SET) return SET_COUNT;
+     (s : PC_SET) return SET_COUNT;
 
    -- More algebra of sets
    -----------------------
-   -- Add(x: PITCH_CLASS; s: PITCH_CLASS_SET): BitSet(x) or s
-   -- Remove(x: PITCH_CLASS; s: PITCH_CLASS_SET): not BitSet(x) and s
-   -- Complement(s: PITCH_CLASS_SET): not s and 16#FFF#
-   -- Union(s,t: PITCH_CLASS_SET): s or t
-   -- Intersection(s,t: PITCH_CLASS_SET): s and t
-   -- Difference(s,t: PITCH_CLASS_SET): s and not t
-   -- Symm_Difference(s,t: PITCH_CLASS_SET): s xor t
-   -- Is_Subset(s,t: PITCH_CLASS_SET): (s and t) = s
-   -- Are_Disjoin(s,t: PITCH_CLASS_SET): (s and t) = 16#000#
+   -- Add(x: PITCH_CLASS; s: PC_SET): BitSet(x) or s
+   -- Remove(x: PITCH_CLASS; s: PC_SET): not BitSet(x) and s
+   -- Complement(s: PC_SET): not s and 16#FFF#
+   -- Union(s,t: PC_SET): s or t
+   -- Intersection(s,t: PC_SET): s and t
+   -- Difference(s,t: PC_SET): s and not t
+   -- Symm_Difference(s,t: PC_SET): s xor t
+   -- Is_Subset(s,t: PC_SET): (s and t) = s
+   -- Are_Disjoin(s,t: PC_SET): (s and t) = 16#000#
 
    -----------------------------
    -- pitch-class ordered set --
@@ -126,69 +126,69 @@ package Music is
 
    type TUPLE_INDEX is range 1..12; -- from single to dodecatuple
 
-   type PITCH_CLASS_TUPLE is
+   type PC_TUPLE is
      array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
    procedure Sort is new 
       Ada.Containers.Generic_Array_Sort (
-         TUPLE_INDEX, PITCH_CLASS, PITCH_CLASS_TUPLE
+         TUPLE_INDEX, PITCH_CLASS, PC_TUPLE
    );
 
    function Cardinality
-     (s : PITCH_CLASS_TUPLE) return SET_COUNT
+     (s : PC_TUPLE) return SET_COUNT
    is (s'Length) with Inline;
 
    function Member
      (x : PITCH_CLASS;
-      s : PITCH_CLASS_TUPLE) return BOOLEAN
+      s : PC_TUPLE) return BOOLEAN
    is (for some k in s'Range => x = s(k)) with Inline;
 
    function Transposition
-     (i : PITCH_CLASS_INTERVAL;
-      s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE;
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return PC_TUPLE;
 
    function Inversion
-     (i : PITCH_CLASS_INTERVAL;
-      s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE;
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return PC_TUPLE;
 
    function Inversion
-     (s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE
+     (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
 
    function Position
-     (i : PITCH_CLASS_INTERVAL;
-      s : PITCH_CLASS_TUPLE) return TUPLE_INDEX;
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return TUPLE_INDEX;
 
    function Retrograde
-     (s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE;
+     (s : PC_TUPLE) return PC_TUPLE;
 
    function Rotate
      (n : TUPLE_INDEX;
-      s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE;
+      s : PC_TUPLE) return PC_TUPLE;
 
    function Rotate
-     (s : PITCH_CLASS_TUPLE) return PITCH_CLASS_TUPLE
+     (s : PC_TUPLE) return PC_TUPLE
    is (Rotate(1, s)) with Inline;
 
-   -----------------
-   -- Set <=> Seq --
-   -----------------
+   -------------------
+   -- Set <=> Tuple --
+   -------------------
 
-   function Seq
-     (s : PITCH_CLASS_SET) return PITCH_CLASS_TUPLE;
+   function Tuple
+     (s : PC_SET) return PC_TUPLE;
 
    function Set
-     (s : PITCH_CLASS_TUPLE)  return PITCH_CLASS_SET;
+     (s : PC_TUPLE)  return PC_SET;
 
    ----------------------
    -- Interval pattern --
    ----------------------
 
    type INTERVAL_PATTERN is
-     array (TUPLE_INDEX range <>) of PITCH_CLASS_INTERVAL;
+     array (TUPLE_INDEX range <>) of PC_INTERVAL;
 
    function Pattern 
-     (s : PITCH_CLASS_TUPLE) return INTERVAL_PATTERN;
+     (s : PC_TUPLE) return INTERVAL_PATTERN;
 
    --------------
    -- Generate --
@@ -196,8 +196,8 @@ package Music is
 
    function Generate
      (origin : PITCH_CLASS;
-      d      : PITCH_CLASS_INTERVAL;
-      g      : PITCH_CLASS_INTERVAL) return PITCH_CLASS_SET;
+      d      : PC_INTERVAL;
+      g      : PC_INTERVAL) return PC_SET;
 
 end Music;
 -- ¡ISO-8859-1!

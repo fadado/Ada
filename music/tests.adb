@@ -40,7 +40,7 @@ begin
    ---------------------------------------------------------------------
    declare
       x, y : PITCH_CLASS;
-      i, j : PITCH_CLASS_INTERVAL;
+      i, j : PC_INTERVAL;
       u : INTERVAL_CLASS;
    begin
       x := 0; y := 7;
@@ -63,8 +63,8 @@ begin
       x := 5; i := 2; pragma Assert(Inversion(i, x) = 9);
       x := 2; i := 5; pragma Assert(x - i = 9);
 
-      i := -PITCH_CLASS_INTERVAL'(1);  pragma Assert(i = 11);
-      i := -PITCH_CLASS_INTERVAL'(11); pragma Assert(i = 1);
+      i := -PC_INTERVAL'(1);  pragma Assert(i = 11);
+      i := -PC_INTERVAL'(11); pragma Assert(i = 1);
    end;
 
    begin
@@ -78,12 +78,12 @@ begin
          end loop;
       end loop;
 
-      for i in PITCH_CLASS_INTERVAL loop
+      for i in PC_INTERVAL loop
          pragma Assert(i + 0  = i);
          pragma Assert(i + (-i) = 0);
 
-         for j in PITCH_CLASS_INTERVAL loop
-            for k in PITCH_CLASS_INTERVAL loop
+         for j in PC_INTERVAL loop
+            for k in PC_INTERVAL loop
                pragma Assert((i+j)+k = i+(j+k));
             end loop;
          end loop;
@@ -101,8 +101,8 @@ begin
 
       s : HEPTACHORD := (0,2,4,5,7,9,11);
       t : PENTACHORD := (1,3,6,8,10);
-      diatonic  : PITCH_CLASS_SET := DB.Name_To_Set(DB.Diatonic);
-      chromatic : PITCH_CLASS_SET := DB.Name_To_Set(DB.Chromatic);
+      diatonic  : PC_SET := DB.Name_To_Set(DB.Diatonic);
+      chromatic : PC_SET := DB.Name_To_Set(DB.Chromatic);
    begin
       pragma Assert(Set(s) = diatonic);
       for x of s loop
@@ -120,7 +120,7 @@ begin
         is (Transposition(0, x)) with Inline;
    begin
       for x in PITCH_CLASS loop
-         for i in PITCH_CLASS_INTERVAL loop
+         for i in PC_INTERVAL loop
             pragma Assert(identity(Transposition(i,x)) = Transposition(i,x));
             pragma Assert(Transposition(i,identity(x)) = Transposition(i,x));
             pragma Assert(identity(Inversion(i,x)) = Inversion(i,x));
@@ -133,7 +133,7 @@ begin
       type PAIR is record a, b : PITCH_CLASS; end record;
       pairs : array (POSITIVE range <>) of PAIR
          := ((1,11),(2,10),(3,9),(4,8),(5,7),(6,6));
-      i, j : PITCH_CLASS_INTERVAL;
+      i, j : PC_INTERVAL;
       c, d : INTERVAL_CLASS;
    begin
       for p of pairs loop
@@ -180,7 +180,7 @@ begin
       s : HEPTACHORD;
    begin
       for k in names'Range loop
-         s := Seq(Name_To_Set(names(k)));
+         s := Tuple(Name_To_Set(names(k)));
          pragma Assert(Pattern(s) = modes(k));
       end loop;
    end;
@@ -192,17 +192,17 @@ begin
    declare
       use Music.Names;
 
-      diatonic   : constant PITCH_CLASS_SET := DB.Name_To_Set(DB.Diatonic);
-      pentatonic : constant PITCH_CLASS_SET := DB.Name_To_Set(DB.Pentatonic);
-      whole_tone : constant PITCH_CLASS_SET := DB.Name_To_Set(DB.Whole_Tone);
+      diatonic   : constant PC_SET := DB.Name_To_Set(DB.Diatonic);
+      pentatonic : constant PC_SET := DB.Name_To_Set(DB.Pentatonic);
+      whole_tone : constant PC_SET := DB.Name_To_Set(DB.Whole_Tone);
 
       x, y : TRICHORD;
    begin
-      pragma Assert(HEPTACHORD'(0,2,4,5,7,9,11) = Seq(diatonic));
+      pragma Assert(HEPTACHORD'(0,2,4,5,7,9,11) = Tuple(diatonic));
       pragma Assert(diatonic = Set(HEPTACHORD'(0,2,4,5,7,9,11)));
       pragma Assert(Transposition(2, diatonic) = 2#011010110101#);
 
-      pragma Assert(diatonic = Set(Seq(diatonic)));
+      pragma Assert(diatonic = Set(Tuple(diatonic)));
 
       x := TRICHORD'(0,1,4);
       y := TRICHORD'(0,11,8);
@@ -216,9 +216,9 @@ begin
       pragma Assert(pentatonic = Generate(C, 5, Perfect_5));
       pragma Assert(whole_tone = Generate(C, 6, Major_2));
 
-      pragma Assert(Retrograde(Seq(diatonic)) = HEPTACHORD'(11,9,7,5,4,2,0));
-      pragma Assert(Rotate(1, Seq(diatonic))  = HEPTACHORD'(2,4,5,7,9,11,0));
-      pragma Assert(Rotate(2, Seq(diatonic))  = HEPTACHORD'(4,5,7,9,11,0,2));
+      pragma Assert(Retrograde(Tuple(diatonic)) = HEPTACHORD'(11,9,7,5,4,2,0));
+      pragma Assert(Rotate(1, Tuple(diatonic))  = HEPTACHORD'(2,4,5,7,9,11,0));
+      pragma Assert(Rotate(2, Tuple(diatonic))  = HEPTACHORD'(4,5,7,9,11,0,2));
    end;
 
 end Tests;
