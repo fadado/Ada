@@ -126,8 +126,7 @@ package Music is
 
    type TUPLE_INDEX is range 1..12; -- from single to dodecatuple
 
-   type PC_TUPLE is
-     array (TUPLE_INDEX range <>) of PITCH_CLASS;
+   type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
    procedure Sort is new 
       Ada.Containers.Generic_Array_Sort (

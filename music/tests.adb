@@ -219,6 +219,10 @@ begin
       pragma Assert(Retrograde(Tuple(diatonic)) = HEPTACHORD'(11,9,7,5,4,2,0));
       pragma Assert(Rotate(1, Tuple(diatonic))  = HEPTACHORD'(2,4,5,7,9,11,0));
       pragma Assert(Rotate(2, Tuple(diatonic))  = HEPTACHORD'(4,5,7,9,11,0,2));
+
+      y := TRICHORD'(7,3,1);
+      Sort(y);
+      pragma Assert(y = TRICHORD'(1,3,7));
    end;
 
 end Tests;

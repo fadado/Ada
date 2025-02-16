@@ -39,13 +39,15 @@ package body DataBase is
    );
 
    function Name_To_Set
-     (name : SCALE_NAME) return PC_SET is
+     (name : SCALE_NAME) return PC_SET
+   is
    begin
       return PCS(name);
    end Name_To_Set;
 
    function Set_To_Name
-     (s : PC_SET) return SCALE_NAME is
+     (s : PC_SET) return SCALE_NAME
+   is
    begin
       for name in SCALE_NAME loop
          if PCS(name) = s then

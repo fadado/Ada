@@ -5,7 +5,9 @@ package body Music is
    -- pitch-class set --
    ---------------------
 
-   function Cardinality(s: PC_SET) return SET_COUNT is
+   function Cardinality
+     (s : PC_SET) return SET_COUNT
+   is
    begin
       return count : SET_COUNT := 0 do
          case s is
@@ -21,9 +23,11 @@ package body Music is
       end return;
    end Cardinality;
 
-   function map(s: PC_SET;
-                f: access function (x: PITCH_CLASS) return PITCH_CLASS)
-     return PC_SET is
+   function map
+     (s : PC_SET;
+      f : access function (x: PITCH_CLASS) return PITCH_CLASS)
+     return PC_SET
+   is
    begin
       return t : PC_SET := 16#000# do
          for x in PITCH_CLASS loop
@@ -34,23 +38,31 @@ package body Music is
       end return;
    end map;
 
-   function Transposition(i: PC_INTERVAL; s: PC_SET) return PC_SET
+   function Transposition
+     (i : PC_INTERVAL;
+      s : PC_SET) return PC_SET
    is
-      function f(x: PITCH_CLASS) return PITCH_CLASS is (x + i);
+      function f (x: PITCH_CLASS) return PITCH_CLASS
+      is (Transposition(i, x));
    begin
       return map(s, f'Access);
    end Transposition;
 
-   function Inversion(i: PC_INTERVAL; s: PC_SET) return PC_SET
+   function Inversion
+     (i : PC_INTERVAL;
+      s : PC_SET) return PC_SET
    is
-      function f(x: PITCH_CLASS) return PITCH_CLASS is (i - x);
+      function f (x: PITCH_CLASS) return PITCH_CLASS
+      is (Inversion(i, x));
    begin
       return map(s, f'Access);
    end Inversion;
 
-   function Transpositions(s: PC_SET) return SET_COUNT
+   function Transpositions
+     (s : PC_SET) return SET_COUNT
    is
-      function gcd(m, n: SET_COUNT) return SET_COUNT is
+      function gcd (m, n: SET_COUNT) return SET_COUNT
+      is
          a, b, c : SET_COUNT;
       begin
          a := m; b := n;
@@ -69,20 +81,24 @@ package body Music is
    -- pitch-class ordered set --
    -----------------------------
 
-   function invariant_no_dups(s: PC_TUPLE) return BOOLEAN
-      is (s'Length < 2 or else
-            (for all k in s'First..s'Last-1 =>
-               (for all h in k+1..s'Last => s(h) /= s(k))))
-      with Inline;
+   function invariant_no_dups
+     (s : PC_TUPLE) return BOOLEAN
+   is (s'Length < 2 or else
+         (for all k in s'First..s'Last-1 =>
+            (for all h in k+1..s'Last => s(h) /= s(k))))
+   with Inline;
 
-   function invariant_sorted(s: PC_TUPLE) return BOOLEAN
-      is (s'Length < 2 or else
-            (for all k in s'First..s'Last-1 => s(k) < s(k+1)))
-      with Inline;
+   function invariant_sorted
+     (s : PC_TUPLE) return BOOLEAN
+   is (s'Length < 2 or else
+         (for all k in s'First..s'Last-1 => s(k) < s(k+1)))
+   with Inline;
 
-   function map(s: PC_TUPLE;
-                f: access function (x: PITCH_CLASS) return PITCH_CLASS)
-     return PC_TUPLE is
+   function map
+     (s : PC_TUPLE;
+      f : access function (x: PITCH_CLASS) return PITCH_CLASS)
+     return PC_TUPLE
+   is
    begin
       pragma Assert(s'Length > 0);
 
@@ -93,21 +109,30 @@ package body Music is
       end return;
    end map;
 
-   function Transposition(i: PC_INTERVAL; s: PC_TUPLE) return PC_TUPLE
+   function Transposition
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return PC_TUPLE
    is
-      function f(x: PITCH_CLASS) return PITCH_CLASS is (x + i);
+      function f (x: PITCH_CLASS) return PITCH_CLASS
+      is (Transposition(i, x));
    begin
       return map(s, f'Access);
    end Transposition;
 
-   function Inversion(i: PC_INTERVAL; s: PC_TUPLE) return PC_TUPLE
+   function Inversion
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return PC_TUPLE
    is
-      function f(x: PITCH_CLASS) return PITCH_CLASS is (i - x);
+      function f (x: PITCH_CLASS) return PITCH_CLASS
+      is (Inversion(i, x));
    begin
       return map(s, f'Access);
    end Inversion;
 
-   function Position(i: PC_INTERVAL; s: PC_TUPLE) return TUPLE_INDEX is
+   function Position
+     (i : PC_INTERVAL;
+      s : PC_TUPLE) return TUPLE_INDEX
+   is
    begin
       for k in s'Range loop
          if s(k) = i then
@@ -117,7 +142,8 @@ package body Music is
       raise Constraint_Error;
    end Position;
 
-   function Retrograde(s: PC_TUPLE) return PC_TUPLE
+   function Retrograde
+     (s : PC_TUPLE) return PC_TUPLE
    is
       k : TUPLE_INDEX := TUPLE_INDEX'First;
    begin
@@ -129,7 +155,10 @@ package body Music is
       end return;
    end Retrograde;
 
-   function Rotate(n: TUPLE_INDEX; s: PC_TUPLE) return PC_TUPLE is
+   function Rotate
+     (n : TUPLE_INDEX;
+      s : PC_TUPLE) return PC_TUPLE
+   is
    begin
       return t : PC_TUPLE(s'Range) do
          t(s'First    .. s'Last-n) := s(s'First+n .. s'Last);
@@ -141,11 +170,22 @@ package body Music is
    -- Set <=> Tuple --
    -------------------
 
-   function Tuple(s: PC_SET) return PC_TUPLE
+   function Set
+     (s : PC_TUPLE) return PC_SET
+   is
+   begin
+      return t : PC_SET := 16#000# do
+         for x of s loop
+            t := BitSet(x) or t;
+         end loop;
+      end return;
+   end Set;
+
+   function Tuple
+     (s : PC_SET) return PC_TUPLE
    is
       k : TUPLE_INDEX := TUPLE_INDEX'First;
-      h : constant TUPLE_INDEX :=
-            TUPLE_INDEX'First + TUPLE_INDEX(Cardinality(s)) - 1;
+      h : constant TUPLE_INDEX := k + TUPLE_INDEX(Cardinality(s)) - 1;
    begin
       return t : PC_TUPLE(k..h) do
          for x in PITCH_CLASS loop
@@ -160,20 +200,12 @@ package body Music is
       end return;
    end Tuple;
 
-   function Set(s: PC_TUPLE) return PC_SET is
-   begin
-      return t : PC_SET := 16#000# do
-         for x of s loop
-            t := BitSet(x) or t;
-         end loop;
-      end return;
-   end Set;
-
    ----------------------
    -- Interval pattern --
    ----------------------
 
-   function invariant_octave(intervals: INTERVAL_PATTERN) return BOOLEAN
+   function invariant_octave
+     (intervals : INTERVAL_PATTERN) return BOOLEAN
    is
       a : NATURAL := 0;
    begin
@@ -183,7 +215,9 @@ package body Music is
       return a = 12;
    end invariant_octave;
 
-   function Pattern(s: PC_TUPLE) return INTERVAL_PATTERN is
+   function Pattern
+     (s : PC_TUPLE) return INTERVAL_PATTERN
+   is
    begin
       pragma Assert(s'Length > 1);
 
@@ -201,7 +235,10 @@ package body Music is
    -- Generate --
    --------------
 
-   function Generate(origin: PITCH_CLASS; d, g: PC_INTERVAL) return PC_SET
+   function Generate
+     (origin : PITCH_CLASS;
+      d      : PC_INTERVAL;
+      g      : PC_INTERVAL) return PC_SET
    is
       t : PC_SET;
    begin
