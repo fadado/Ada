@@ -4,6 +4,20 @@ with Music.Tuples;
 
 package body Music is
 
+ --package pitch_class_tuples is 
+ --   new Music.Tuples (
+ --      Index_Type   => TUPLE_INDEX,
+ --      Element_Type => PITCH_CLASS,
+ --      Tuple_Type   => PC_TUPLE
+ --);
+
+   package interval_tuples is
+      new Music.Tuples (
+         Index_Type   => TUPLE_INDEX,
+         Element_Type => PC_INTERVAL,
+         Tuple_Type   => INTERVAL_PATTERN
+   );
+
    ---------------------
    -- pitch-class set --
    ---------------------
@@ -210,12 +224,9 @@ package body Music is
    function invariant_octave
      (intervals : INTERVAL_PATTERN) return BOOLEAN
    is
-      a : NATURAL := 0;
+      use interval_tuples;
    begin
-      for i of intervals loop
-         a := a + NATURAL(i);
-      end loop;
-      return a = 12;
+      return Sum(intervals) = 12;
    end invariant_octave;
 
    function Pattern

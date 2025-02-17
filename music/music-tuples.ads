@@ -2,8 +2,8 @@ with Ada.Containers.Generic_Array_Sort;
 
 generic
 
-   type INDEX_TYPE   is (<>);
-   type ELEMENT_TYPE is (<>);
+   type INDEX_TYPE   is range <>;
+   type ELEMENT_TYPE is mod <>;
    type TUPLE_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
 
 package Music.Tuples is
@@ -22,6 +22,9 @@ package Music.Tuples is
      (s : in out TUPLE_TYPE;
       i : in INDEX_TYPE;
       j : in INDEX_TYPE);
+
+   function Sum
+     (s : TUPLE_TYPE) return INTEGER;
 
 end Music.Tuples;
 -- ¡ISO-8859-1!

@@ -21,6 +21,17 @@ package body Music.Tuples is
       s(j) := a;
    end Swap;
 
+   function Sum
+     (s : TUPLE_TYPE) return INTEGER
+   is
+      a : INTEGER := 0;
+   begin
+      for n of s loop
+         a := a + INTEGER(n);
+      end loop;
+      return a;
+   end Sum;
+
 end Music.Tuples;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
