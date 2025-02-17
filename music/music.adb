@@ -1,6 +1,9 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
+with Music.Tuples;
+
 package body Music is
+
    ---------------------
    -- pitch-class set --
    ---------------------

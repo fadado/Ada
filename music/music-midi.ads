@@ -1,5 +1,3 @@
-with Ada.Containers.Generic_Array_Sort;
-
 -- An example implementation for pitches encoded as in MIDI.
 -- Several other encodings are possible.
 

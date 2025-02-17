@@ -1,11 +1,10 @@
--- tests.adb
-
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
 with Music;
 with Music.MIDI;
 with Music.Names;
+with Music.Tuples;
 with DataBase;
 
 procedure Tests is
@@ -197,6 +196,15 @@ begin
       whole_tone : constant PC_SET := DB.Name_To_Set(DB.Whole_Tone);
 
       x, y : TRICHORD;
+
+      package Pitch_Class_Tuples is 
+         new Music.Tuples (
+            Index_Type   => TUPLE_INDEX,
+            Element_Type => PITCH_CLASS,
+            Tuple_Type   => PC_TUPLE
+      );
+      use Pitch_Class_Tuples; -- Sort, Sorted, Swap...
+
    begin
       pragma Assert(HEPTACHORD'(0,2,4,5,7,9,11) = Tuple(diatonic));
       pragma Assert(diatonic = Set(HEPTACHORD'(0,2,4,5,7,9,11)));
@@ -221,8 +229,13 @@ begin
       pragma Assert(Rotate(2, Tuple(diatonic))  = HEPTACHORD'(4,5,7,9,11,0,2));
 
       y := TRICHORD'(7,3,1);
+      pragma Assert(y /= TRICHORD'(1,3,7));
+      pragma Assert(Sorted(y) /= y);
+      x := Sorted(y);
+      pragma Assert(Sorted(y) = TRICHORD'(1,3,7));
       Sort(y);
       pragma Assert(y = TRICHORD'(1,3,7));
+      pragma Assert(x = y);
    end;
 
 end Tests;

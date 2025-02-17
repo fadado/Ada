@@ -1,6 +1,7 @@
 with Ada.Containers.Generic_Array_Sort;
 
 package Music is
+
    ---------------------------------------
    -- Encoded pitch-class and intervals --
    ---------------------------------------
@@ -128,11 +129,6 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
-   procedure Sort is new 
-      Ada.Containers.Generic_Array_Sort (
-         TUPLE_INDEX, PITCH_CLASS, PC_TUPLE
-   );
-
    function Cardinality
      (s : PC_TUPLE) return SET_COUNT
    is (s'Length) with Inline;
@@ -183,8 +179,7 @@ package Music is
    -- Interval pattern --
    ----------------------
 
-   type INTERVAL_PATTERN is
-     array (TUPLE_INDEX range <>) of PC_INTERVAL;
+   type INTERVAL_PATTERN is array (TUPLE_INDEX range <>) of PC_INTERVAL;
 
    function Pattern 
      (s : PC_TUPLE) return INTERVAL_PATTERN;
