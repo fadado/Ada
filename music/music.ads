@@ -60,7 +60,8 @@ package Music is
    -- Unordered pitch-class interval
    function "abs"
      (i : PC_INTERVAL) return INTERVAL_CLASS
-   is (INTERVAL_CLASS(if i < 7 then i else -i)) with Inline;
+   is (INTERVAL_CLASS(PC_INTERVAL'Min(i, -i)))  with Inline;
+ --is (INTERVAL_CLASS(if i < 7 then i else -i)) with Inline;
 
    -- Expression examples
    ----------------------
@@ -79,9 +80,11 @@ package Music is
    -- pitch-class set --
    ---------------------
 
-   type PC_SET is mod 2**PITCH_CLASS'Modulus;
+   type PC_SET is mod 2**PITCH_CLASS'Modulus
+      with Default_Value => 16#000#;
 
-   type SET_COUNT is range 0..PITCH_CLASS'Modulus;
+   type SET_COUNT is range 0..PITCH_CLASS'Modulus
+      with Default_Value => 0;
 
    BitSet : constant array (PITCH_CLASS) of PC_SET :=
      (2048,1024,512,256,128,64,32,16,8,4,2,1);
@@ -129,6 +132,16 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
+   procedure Sort is
+      new Ada.Containers.Generic_Array_Sort (
+         Index_Type   => TUPLE_INDEX,
+         Element_Type => PITCH_CLASS,
+         Array_Type   => PC_TUPLE
+   );
+
+   function Sorted
+     (s : PC_TUPLE) return PC_TUPLE;
+
    function Cardinality
      (s : PC_TUPLE) return SET_COUNT
    is (s'Length) with Inline;
@@ -149,10 +162,6 @@ package Music is
    function Inversion
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
-
-   function Position
-     (i : PC_INTERVAL;
-      s : PC_TUPLE) return TUPLE_INDEX;
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE;

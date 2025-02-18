@@ -1,22 +1,6 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Music.Tuples;
-
 package body Music is
-
- --package pitch_class_tuples is 
- --   new Music.Tuples (
- --      Index_Type   => TUPLE_INDEX,
- --      Element_Type => PITCH_CLASS,
- --      Tuple_Type   => PC_TUPLE
- --);
-
-   package interval_tuples is
-      new Music.Tuples (
-         Index_Type   => TUPLE_INDEX,
-         Element_Type => PC_INTERVAL,
-         Tuple_Type   => INTERVAL_PATTERN
-   );
 
    ---------------------
    -- pitch-class set --
@@ -111,6 +95,15 @@ package body Music is
          (for all k in s'First..s'Last-1 => s(k) < s(k+1)))
    with Inline;
 
+   function Sorted
+     (s : PC_TUPLE) return PC_TUPLE
+   is
+   begin
+      return t : PC_TUPLE(s'Range) := s do
+         Sort(t);
+      end return;
+   end Sorted;
+
    function map
      (s : PC_TUPLE;
       f : access function (x: PITCH_CLASS) return PITCH_CLASS)
@@ -145,19 +138,6 @@ package body Music is
    begin
       return map(s, f'Access);
    end Inversion;
-
-   function Position
-     (i : PC_INTERVAL;
-      s : PC_TUPLE) return TUPLE_INDEX
-   is
-   begin
-      for k in s'Range loop
-         if s(k) = i then
-            return k;
-         end if;
-      end loop;
-      raise Constraint_Error;
-   end Position;
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
@@ -224,9 +204,18 @@ package body Music is
    function invariant_octave
      (intervals : INTERVAL_PATTERN) return BOOLEAN
    is
-      use interval_tuples;
+      function sum return INTEGER
+      is
+         a : INTEGER := 0;
+      begin
+         for n of intervals loop
+            a := a + INTEGER(n);
+         end loop;
+         return a;
+      end sum;
+
    begin
-      return Sum(intervals) = 12;
+      return sum = 12;
    end invariant_octave;
 
    function Pattern
