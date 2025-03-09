@@ -1,4 +1,4 @@
-with Ada.Containers.Generic_Array_Sort;
+with Generics;
 
 package Music is
 
@@ -132,12 +132,14 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
-   procedure Sort is
-      new Ada.Containers.Generic_Array_Sort (
-         Index_Type   => TUPLE_INDEX,
-         Element_Type => PITCH_CLASS,
-         Array_Type   => PC_TUPLE
+   package PC_Tuples is
+      new Generics.Tuples (
+         Index_Type     => TUPLE_INDEX,
+         Component_Type => PITCH_CLASS,
+         Tuple_Type     => PC_TUPLE
    );
+
+   procedure Sort(s: in out PC_TUPLE) renames PC_Tuples.Sort;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE;
