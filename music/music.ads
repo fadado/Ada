@@ -132,26 +132,45 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
-   package PC_Tuples is
-      new Generics.Tuples (
-         Index_Type     => TUPLE_INDEX,
-         Component_Type => PITCH_CLASS,
-         Tuple_Type     => PC_TUPLE
+   package PC_Tuple_Signature is
+      new Generics.Tuple_Signature (
+         Index_Type   => TUPLE_INDEX,
+         Element_Type => PITCH_CLASS,
+         Array_Type   => PC_TUPLE
    );
 
-   procedure Sort(s: in out PC_TUPLE) renames PC_Tuples.Sort;
-
-   function Sorted
-     (s : PC_TUPLE) return PC_TUPLE;
-
-   function Cardinality
-     (s : PC_TUPLE) return SET_COUNT
-   is (s'Length) with Inline;
+   package PC_Tuples is
+      new Generics.Tuples (PC_Tuple_Signature);
 
    function Member
      (x : PITCH_CLASS;
       s : PC_TUPLE) return BOOLEAN
-   is (for some k in s'Range => x = s(k)) with Inline;
+   renames PC_Tuples.Member;
+
+   function Retrograde
+     (s : PC_TUPLE) return PC_TUPLE
+   renames PC_Tuples.Reversed;
+
+   procedure Sort
+     (s: in out PC_TUPLE)
+   renames PC_Tuples.Sort;
+
+   function Sorted
+     (s : PC_TUPLE) return PC_TUPLE
+   renames PC_Tuples.Sorted;
+
+   function Rotate
+     (n : TUPLE_INDEX;
+      s : PC_TUPLE) return PC_TUPLE
+   renames PC_Tuples.Rotated;
+
+   function Rotate
+     (s : PC_TUPLE) return PC_TUPLE
+   is (Rotate(1, s)) with Inline;
+
+   function Cardinality
+     (s : PC_TUPLE) return SET_COUNT
+   is (s'Length) with Inline;
 
    function Transposition
      (i : PC_INTERVAL;
@@ -164,17 +183,6 @@ package Music is
    function Inversion
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
-
-   function Retrograde
-     (s : PC_TUPLE) return PC_TUPLE;
-
-   function Rotate
-     (n : TUPLE_INDEX;
-      s : PC_TUPLE) return PC_TUPLE;
-
-   function Rotate
-     (s : PC_TUPLE) return PC_TUPLE
-   is (Rotate(1, s)) with Inline;
 
    -------------------
    -- Set <=> Tuple --
