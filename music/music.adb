@@ -84,40 +84,17 @@ package body Music is
 
    function invariant_no_dups
      (s : PC_TUPLE) return BOOLEAN
-   is (s'Length < 2 or else
-         (for all k in s'First..s'Last-1 =>
-            (for all h in k+1..s'Last => s(h) /= s(k))))
-   with Inline;
+   renames PC_Tuples.Unique;
 
    function invariant_sorted
      (s : PC_TUPLE) return BOOLEAN
-   is (s'Length < 2 or else
-         (for all k in s'First..s'Last-1 => s(k) < s(k+1)))
-   with Inline;
-
-   function Sorted
-     (s : PC_TUPLE) return PC_TUPLE
-   is
-   begin
-      return t : PC_TUPLE(s'Range) := s do
-         Sort(t);
-      end return;
-   end Sorted;
+   renames PC_Tuples.Ordered;
 
    function map
      (s : PC_TUPLE;
       f : access function (x: PITCH_CLASS) return PITCH_CLASS)
-     return PC_TUPLE
-   is
-   begin
-      pragma Assert(s'Length > 0);
-
-      return t : PC_TUPLE(s'Range) do
-         for k in s'Range loop
-            t(k) := f(s(k));
-         end loop;
-      end return;
-   end map;
+      return PC_TUPLE
+   renames PC_Tuples.Map;
 
    function Transposition
      (i : PC_INTERVAL;
@@ -138,30 +115,6 @@ package body Music is
    begin
       return map(s, f'Access);
    end Inversion;
-
-   function Retrograde
-     (s : PC_TUPLE) return PC_TUPLE
-   is
-      k : TUPLE_INDEX := TUPLE_INDEX'First;
-   begin
-      return t : PC_TUPLE(s'Range) do
-         for x of reverse s loop
-            t(k) := x;
-            k := k+1;
-         end loop;
-      end return;
-   end Retrograde;
-
-   function Rotate
-     (n : TUPLE_INDEX;
-      s : PC_TUPLE) return PC_TUPLE
-   is
-   begin
-      return t : PC_TUPLE(s'Range) do
-         t(s'First    .. s'Last-n) := s(s'First+n .. s'Last);
-         t(s'Last-n+1 .. s'Last)   := s(s'First   .. s'First+n-1);
-      end return;
-   end Rotate;
 
    -------------------
    -- Set <=> Tuple --
@@ -206,10 +159,10 @@ package body Music is
    is
       function sum return INTEGER
       is
-         a : INTEGER := 0;
+         a : NATURAL := 0;
       begin
          for n of intervals loop
-            a := a + INTEGER(n);
+            a := a + NATURAL(n);
          end loop;
          return a;
       end sum;
