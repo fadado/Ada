@@ -25,11 +25,9 @@ package Generics is
    package Tuple_Signature
    is private end;
 
-   -- TODO: split Tuples / Orders
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
-      with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Tuples is
 
       function Map
@@ -42,9 +40,6 @@ package Generics is
          t : ARRAY_TYPE) return BOOLEAN
       with Inline;
 
-      function Ordered
-        (t : ARRAY_TYPE) return BOOLEAN;
-
       function Position
         (x : ELEMENT_TYPE;
          t : ARRAY_TYPE) return INDEX_TYPE;
@@ -56,6 +51,17 @@ package Generics is
         (n : INDEX_TYPE;
          t : ARRAY_TYPE) return ARRAY_TYPE;
 
+      function Unique
+        (t : ARRAY_TYPE) return BOOLEAN;
+
+   end Tuples;
+
+   generic
+      with package T_S_P is new Tuple_Signature(<>);
+      use T_S_P;
+      with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   package Orders is
+
       procedure Sort is
          new Ada.Containers.Generic_Array_Sort (
             Index_Type   => INDEX_TYPE,
@@ -63,13 +69,13 @@ package Generics is
             Array_Type   => ARRAY_TYPE
       );
 
+      function Ordered
+        (t : ARRAY_TYPE) return BOOLEAN;
+
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE;
 
-      function Unique
-        (t : ARRAY_TYPE) return BOOLEAN;
-
-   end Tuples;
+   end Orders;
 
 end Generics;
 -- ¡ISO-8859-1!

@@ -83,15 +83,6 @@ package body Generics is
          end return;
       end Rotated;
 
-      function Sorted
-        (t : ARRAY_TYPE) return ARRAY_TYPE
-      is
-      begin
-         return r : ARRAY_TYPE(t'Range) := t do
-            Sort(r);
-         end return;
-      end Sorted;
-
       function Unique
         (t : ARRAY_TYPE) return BOOLEAN
       is
@@ -104,6 +95,19 @@ package body Generics is
                (for all j in add(i, 1) .. t'Last => t(j) /= t(i)));
       end Unique;
 
+   end Tuples;
+
+   package body Orders is
+
+      function Sorted
+        (t : ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         return r : ARRAY_TYPE(t'Range) := t do
+            Sort(r);
+         end return;
+      end Sorted;
+
       function Ordered
         (t : ARRAY_TYPE) return BOOLEAN
       is
@@ -115,7 +119,7 @@ package body Generics is
             (for all i in t'First .. add(t'Last, -1) => t(i) < t(add(i, 1)));
       end Ordered;
 
-   end Tuples;
+   end Orders;
 
 end Generics;
 -- ¡ISO-8859-1!

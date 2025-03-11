@@ -141,6 +141,9 @@ package Music is
    package PC_Tuples is
       new Generics.Tuples (PC_Tuple_Signature);
 
+   package PC_Orders is
+      new Generics.Orders (PC_Tuple_Signature);
+
    function Member
      (x : PITCH_CLASS;
       s : PC_TUPLE) return BOOLEAN
@@ -152,11 +155,11 @@ package Music is
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Tuples.Sort;
+   renames PC_Orders.Sort;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuples.Sorted;
+   renames PC_Orders.Sorted;
 
    function Rotate
      (n : TUPLE_INDEX;
