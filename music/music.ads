@@ -138,33 +138,33 @@ package Music is
          Array_Type   => PC_TUPLE
    );
 
-   package PC_Tuples is
-      new Generics.Tuples (PC_Tuple_Signature);
+   package PC_Eq_Tuples is
+      new Generics.Eq_Tuples (PC_Tuple_Signature);
 
-   package PC_Orders is
-      new Generics.Orders (PC_Tuple_Signature);
+   package PC_Ord_Tuples is
+      new Generics.Ord_Tuples (PC_Tuple_Signature);
 
    function Member
      (x : PITCH_CLASS;
       s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuples.Member;
+   renames PC_Eq_Tuples.Member;
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuples.Reversed;
+   renames PC_Eq_Tuples.Reversed;
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Orders.Sort;
+   renames PC_Ord_Tuples.Sort;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Orders.Sorted;
+   renames PC_Ord_Tuples.Sorted;
 
    function Rotate
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuples.Rotated;
+   renames PC_Eq_Tuples.Rotated;
 
    function Rotate
      (s : PC_TUPLE) return PC_TUPLE

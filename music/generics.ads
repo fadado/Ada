@@ -28,7 +28,7 @@ package Generics is
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
-   package Tuples is
+   package Eq_Tuples is
 
       function Map
         (t : ARRAY_TYPE;
@@ -54,13 +54,13 @@ package Generics is
       function Unique
         (t : ARRAY_TYPE) return BOOLEAN;
 
-   end Tuples;
+   end Eq_Tuples;
 
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
       with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package Orders is
+   package Ord_Tuples is
 
       procedure Sort is
          new Ada.Containers.Generic_Array_Sort (
@@ -69,13 +69,13 @@ package Generics is
             Array_Type   => ARRAY_TYPE
       );
 
-      function Ordered
+      function Is_Ordered
         (t : ARRAY_TYPE) return BOOLEAN;
 
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE;
 
-   end Orders;
+   end Ord_Tuples;
 
 end Generics;
 -- ¡ISO-8859-1!

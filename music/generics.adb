@@ -16,7 +16,7 @@ package body Generics is
       return G(F(x));
    end Compose;
 
-   package body Tuples is
+   package body Eq_Tuples is
 
       function Map
         (t : ARRAY_TYPE;
@@ -95,9 +95,9 @@ package body Generics is
                (for all j in add(i, 1) .. t'Last => t(j) /= t(i)));
       end Unique;
 
-   end Tuples;
+   end Eq_Tuples;
 
-   package body Orders is
+   package body Ord_Tuples is
 
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE
@@ -108,7 +108,7 @@ package body Generics is
          end return;
       end Sorted;
 
-      function Ordered
+      function Is_Ordered
         (t : ARRAY_TYPE) return BOOLEAN
       is
          function add 
@@ -117,9 +117,9 @@ package body Generics is
       begin
          return t'Length < 2 or else
             (for all i in t'First .. add(t'Last, -1) => t(i) < t(add(i, 1)));
-      end Ordered;
+      end Is_Ordered;
 
-   end Orders;
+   end Ord_Tuples;
 
 end Generics;
 -- ¡ISO-8859-1!

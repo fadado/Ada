@@ -84,17 +84,17 @@ package body Music is
 
    function invariant_no_dups
      (s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuples.Unique;
+   renames PC_Eq_Tuples.Unique;
 
    function invariant_sorted
      (s : PC_TUPLE) return BOOLEAN
-   renames PC_Orders.Ordered;
+   renames PC_Ord_Tuples.Is_Ordered;
 
    function map
      (s : PC_TUPLE;
       f : access function (x: PITCH_CLASS) return PITCH_CLASS)
       return PC_TUPLE
-   renames PC_Tuples.Map;
+   renames PC_Eq_Tuples.Map;
 
    function Transposition
      (i : PC_INTERVAL;
