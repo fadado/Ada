@@ -84,26 +84,22 @@ package body Music is
 
    function invariant_no_dups
      (s : PC_TUPLE) return BOOLEAN
-   renames PC_Eq_Tuples.Unique;
+   renames PC_Eq_Tuples.Is_Unique;
 
    function invariant_sorted
      (s : PC_TUPLE) return BOOLEAN
    renames PC_Ord_Tuples.Is_Sorted;
-
-   function map
-     (s : PC_TUPLE;
-      f : access function (x: PITCH_CLASS) return PITCH_CLASS)
-      return PC_TUPLE
-   renames PC_Eq_Tuples.Map;
 
    function Transposition
      (i : PC_INTERVAL;
       s : PC_TUPLE) return PC_TUPLE
    is
       function f (x: PITCH_CLASS) return PITCH_CLASS
-      is (Transposition(i, x));
+      is (Transposition(i, x)) with Inline;
+
+      function m is new PC_Any_Tuples.Mapper (f);
    begin
-      return map(s, f'Access);
+      return m(s);
    end Transposition;
 
    function Inversion
@@ -111,9 +107,11 @@ package body Music is
       s : PC_TUPLE) return PC_TUPLE
    is
       function f (x: PITCH_CLASS) return PITCH_CLASS
-      is (Inversion(i, x));
+      is (Inversion(i, x)) with Inline;
+
+      function m is new PC_Any_Tuples.Mapper (f);
    begin
-      return map(s, f'Access);
+      return m(s);
    end Inversion;
 
    -------------------

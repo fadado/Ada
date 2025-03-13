@@ -138,24 +138,19 @@ package Music is
          Array_Type   => PC_TUPLE
    );
 
-   -- Equality tuples
+   -- Any tuples
 
-   package PC_Eq_Tuples is
-      new Generics.Eq_Tuples (PC_Tuple_Signature);
-
-   function Member
-     (x : PITCH_CLASS;
-      s : PC_TUPLE) return BOOLEAN
-   renames PC_Eq_Tuples.Member;
+   package PC_Any_Tuples is
+      new Generics.Any_Tuples (PC_Tuple_Signature);
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Eq_Tuples.Reversed;
+   renames PC_Any_Tuples.Reversed;
 
    function Rotate
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   renames PC_Eq_Tuples.Rotated;
+   renames PC_Any_Tuples.Rotated;
 
    function Rotate
      (s : PC_TUPLE) return PC_TUPLE
@@ -178,10 +173,23 @@ package Music is
    is (Inversion(0, s)) with Inline;
 
    function Maximum is
-      new PC_Eq_Tuples.Choose_The_Best(">");
+      new PC_Any_Tuples.Chooser (">");
 
    function Minimum is
-      new PC_Eq_Tuples.Choose_The_Best("<");
+      new PC_Any_Tuples.Chooser ("<");
+
+   function Sum is
+      new PC_Any_Tuples.Reducer ("+");
+
+   -- Equality tuples
+
+   package PC_Eq_Tuples is
+      new Generics.Eq_Tuples (PC_Tuple_Signature);
+
+   function Member
+     (x : PITCH_CLASS;
+      s : PC_TUPLE) return BOOLEAN
+   renames PC_Eq_Tuples.Member;
 
    -- Sortable tuples
 

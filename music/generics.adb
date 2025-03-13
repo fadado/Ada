@@ -16,43 +16,42 @@ package body Generics is
       return G(F(x));
    end Compose;
 
-   package body Eq_Tuples is
+   package body Any_Tuples is
 
-      function Map
-        (t : ARRAY_TYPE;
-         f : access function (x: ELEMENT_TYPE) return ELEMENT_TYPE)
-        return ARRAY_TYPE
+      -- Positional subprograms
+
+      function Mapper
+        (t : ARRAY_TYPE) return ARRAY_TYPE
       is
       begin
-         pragma Assert(t'Length > 0);
-
          return r : ARRAY_TYPE(t'Range) do
             for i in t'Range loop
-               r(i) := f(t(i));
+               r(i) := map(t(i));
             end loop;
          end return;
-      end Map;
+      end Mapper;
 
-      function Member
-        (x : ELEMENT_TYPE;
-         t : ARRAY_TYPE) return BOOLEAN
+      function Reducer
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
       is
       begin 
-         return (for some i in t'Range => x = t(i));
-      end Member;
+         return r : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               r := r + t(i);
+            end loop;
+         end return;
+      end Reducer;
 
-      function Position
-        (x : ELEMENT_TYPE;
-         t : ARRAY_TYPE) return INDEX_TYPE
+      function Chooser
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
       is
+         function "+" (L, R: ELEMENT_TYPE) return ELEMENT_TYPE
+         is (if better(L, R) then L else R) with Inline;
+
+         function reduce is new Reducer ("+");
       begin 
-         for i in t'Range loop
-            if t(i) = x then
-               return i;
-            end if;
-         end loop;
-         raise Constraint_Error;
-      end Position;
+         return reduce(t);
+      end Chooser;
 
       function Reversed
         (t : ARRAY_TYPE) return ARRAY_TYPE
@@ -83,30 +82,40 @@ package body Generics is
          end return;
       end Rotated;
 
-      function Unique
+   end Any_Tuples;
+
+      -- Equality subprograms
+   package body Eq_Tuples is
+
+      function Member
+        (x : ELEMENT_TYPE;
+         t : ARRAY_TYPE) return BOOLEAN
+      is
+      begin 
+         return (for some i in t'Range => x = t(i));
+      end Member;
+
+      function Position
+        (x : ELEMENT_TYPE;
+         t : ARRAY_TYPE) return INDEX_TYPE
+      is
+      begin 
+         for i in t'Range loop
+            if t(i) = x then
+               return i;
+            end if;
+         end loop;
+         raise Constraint_Error;
+      end Position;
+
+      function Is_Unique
         (t : ARRAY_TYPE) return BOOLEAN
       is
       begin
          return t'Length < 2 or else
             (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
                (for all j in INDEX_TYPE'Succ(i) .. t'Last => t(j) /= t(i)));
-      end Unique;
-
-      function Choose_The_Best
-         (t : ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         return e : ELEMENT_TYPE := t(t'First) do
-            if t'Length = 1 then
-               return;
-            end if;
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               if cmp(t(i), e) then
-                  e := t(i);
-               end if;
-            end loop;
-         end return;
-      end Choose_The_Best;
+      end Is_Unique;
 
    end Eq_Tuples;
 
