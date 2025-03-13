@@ -30,10 +30,20 @@ package Generics is
       use T_S_P;
    package Eq_Tuples is
 
-      function Map
-        (t : ARRAY_TYPE;
-         f : access function (x: ELEMENT_TYPE) return ELEMENT_TYPE)
-        return ARRAY_TYPE;
+      generic
+         with function map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Mapper
+        (t : ARRAY_TYPE) return ARRAY_TYPE;
+
+      generic
+         with function "+" (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Reducer
+        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
+      generic
+         with function better (L, R: ELEMENT_TYPE) return BOOLEAN;
+      function Chooser
+        (t : ARRAY_TYPE) return ELEMENT_TYPE;
 
       function Member
         (x : ELEMENT_TYPE;
@@ -54,18 +64,13 @@ package Generics is
       function Unique
         (t : ARRAY_TYPE) return BOOLEAN;
 
-      generic
-         with function cmp(x, y: ELEMENT_TYPE) return BOOLEAN;
-      function Choose_The_Best
-         (t : ARRAY_TYPE) return ELEMENT_TYPE;
-
    end Eq_Tuples;
 
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
       with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-      with function ">"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+    --with function ">"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Ord_Tuples is
 
       procedure Sort is

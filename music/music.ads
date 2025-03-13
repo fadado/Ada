@@ -178,10 +178,13 @@ package Music is
    is (Inversion(0, s)) with Inline;
 
    function Maximum is
-      new PC_Eq_Tuples.Choose_The_Best(">");
+      new PC_Eq_Tuples.Chooser (">");
 
    function Minimum is
-      new PC_Eq_Tuples.Choose_The_Best("<");
+      new PC_Eq_Tuples.Chooser ("<");
+
+   function Sum is
+      new PC_Eq_Tuples.Reducer ("+");
 
    -- Sortable tuples
 

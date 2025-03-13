@@ -18,20 +18,38 @@ package body Generics is
 
    package body Eq_Tuples is
 
-      function Map
-        (t : ARRAY_TYPE;
-         f : access function (x: ELEMENT_TYPE) return ELEMENT_TYPE)
-        return ARRAY_TYPE
+      function Mapper
+        (t : ARRAY_TYPE) return ARRAY_TYPE
       is
       begin
-         pragma Assert(t'Length > 0);
-
          return r : ARRAY_TYPE(t'Range) do
             for i in t'Range loop
-               r(i) := f(t(i));
+               r(i) := map(t(i));
             end loop;
          end return;
-      end Map;
+      end Mapper;
+
+      function Reducer
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         return r : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               r := r + t(i);
+            end loop;
+         end return;
+      end Reducer;
+
+      function Chooser
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
+      is
+         function "+" (L, R: ELEMENT_TYPE) return ELEMENT_TYPE
+         is (if better(L, R) then L else R) with Inline;
+
+         function reduce is new Reducer ("+");
+      begin 
+         return reduce(t);
+      end Chooser;
 
       function Member
         (x : ELEMENT_TYPE;
@@ -91,22 +109,6 @@ package body Generics is
             (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
                (for all j in INDEX_TYPE'Succ(i) .. t'Last => t(j) /= t(i)));
       end Unique;
-
-      function Choose_The_Best
-         (t : ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         return e : ELEMENT_TYPE := t(t'First) do
-            if t'Length = 1 then
-               return;
-            end if;
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               if cmp(t(i), e) then
-                  e := t(i);
-               end if;
-            end loop;
-         end return;
-      end Choose_The_Best;
 
    end Eq_Tuples;
 
