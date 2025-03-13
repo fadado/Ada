@@ -138,11 +138,10 @@ package Music is
          Array_Type   => PC_TUPLE
    );
 
+   -- Equality tuples
+
    package PC_Eq_Tuples is
       new Generics.Eq_Tuples (PC_Tuple_Signature);
-
-   package PC_Ord_Tuples is
-      new Generics.Ord_Tuples (PC_Tuple_Signature);
 
    function Member
      (x : PITCH_CLASS;
@@ -152,14 +151,6 @@ package Music is
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
    renames PC_Eq_Tuples.Reversed;
-
-   procedure Sort
-     (s: in out PC_TUPLE)
-   renames PC_Ord_Tuples.Sort;
-
-   function Sorted
-     (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Ord_Tuples.Sorted;
 
    function Rotate
      (n : TUPLE_INDEX;
@@ -185,6 +176,25 @@ package Music is
    function Inversion
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
+
+   function Maximum is
+      new PC_Eq_Tuples.Choose_The_Best(">");
+
+   function Minimum is
+      new PC_Eq_Tuples.Choose_The_Best("<");
+
+   -- Sortable tuples
+
+   package PC_Ord_Tuples is
+      new Generics.Ord_Tuples (PC_Tuple_Signature);
+
+   procedure Sort
+     (s: in out PC_TUPLE)
+   renames PC_Ord_Tuples.Sort;
+
+   function Sorted
+     (s : PC_TUPLE) return PC_TUPLE
+   renames PC_Ord_Tuples.Sorted;
 
    -------------------
    -- Set <=> Tuple --

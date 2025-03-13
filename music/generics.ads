@@ -54,12 +54,18 @@ package Generics is
       function Unique
         (t : ARRAY_TYPE) return BOOLEAN;
 
+      generic
+         with function cmp(x, y: ELEMENT_TYPE) return BOOLEAN;
+      function Choose_The_Best
+         (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
    end Eq_Tuples;
 
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
       with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      with function ">"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Ord_Tuples is
 
       procedure Sort is
@@ -69,7 +75,7 @@ package Generics is
             Array_Type   => ARRAY_TYPE
       );
 
-      function Is_Ordered
+      function Is_Sorted
         (t : ARRAY_TYPE) return BOOLEAN;
 
       function Sorted

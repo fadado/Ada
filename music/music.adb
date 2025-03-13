@@ -88,7 +88,7 @@ package body Music is
 
    function invariant_sorted
      (s : PC_TUPLE) return BOOLEAN
-   renames PC_Ord_Tuples.Is_Ordered;
+   renames PC_Ord_Tuples.Is_Sorted;
 
    function map
      (s : PC_TUPLE;

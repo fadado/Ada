@@ -31,7 +31,7 @@ package body Generics is
                r(i) := f(t(i));
             end loop;
          end return;
-      end map;
+      end Map;
 
       function Member
         (x : ELEMENT_TYPE;
@@ -86,14 +86,27 @@ package body Generics is
       function Unique
         (t : ARRAY_TYPE) return BOOLEAN
       is
-         function add 
-           (i: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
-         is (INDEX_TYPE'Val(INDEX_TYPE'Pos(i) + n)) with Inline;
       begin
          return t'Length < 2 or else
-            (for all i in t'First .. add(t'Last, -1) =>
-               (for all j in add(i, 1) .. t'Last => t(j) /= t(i)));
+            (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
+               (for all j in INDEX_TYPE'Succ(i) .. t'Last => t(j) /= t(i)));
       end Unique;
+
+      function Choose_The_Best
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         return e : ELEMENT_TYPE := t(t'First) do
+            if t'Length = 1 then
+               return;
+            end if;
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               if cmp(t(i), e) then
+                  e := t(i);
+               end if;
+            end loop;
+         end return;
+      end Choose_The_Best;
 
    end Eq_Tuples;
 
@@ -108,16 +121,14 @@ package body Generics is
          end return;
       end Sorted;
 
-      function Is_Ordered
+      function Is_Sorted
         (t : ARRAY_TYPE) return BOOLEAN
       is
-         function add 
-           (i: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
-         is (INDEX_TYPE'Val(INDEX_TYPE'Pos(i) + n)) with Inline;
       begin
          return t'Length < 2 or else
-            (for all i in t'First .. add(t'Last, -1) => t(i) < t(add(i, 1)));
-      end Is_Ordered;
+            (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
+               => t(i) < t(INDEX_TYPE'Succ(i)));
+      end Is_Sorted;
 
    end Ord_Tuples;
 
