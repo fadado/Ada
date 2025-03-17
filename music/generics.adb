@@ -16,42 +16,9 @@ package body Generics is
       return G(F(x));
    end Compose;
 
+   ---------------------------------------------------------------------
    package body Any_Tuples is
-
-      -- Positional subprograms
-
-      function Mapper
-        (t : ARRAY_TYPE) return ARRAY_TYPE
-      is
-      begin
-         return r : ARRAY_TYPE(t'Range) do
-            for i in t'Range loop
-               r(i) := map(t(i));
-            end loop;
-         end return;
-      end Mapper;
-
-      function Reducer
-         (t : ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         return r : ELEMENT_TYPE := t(t'First) do
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               r := r + t(i);
-            end loop;
-         end return;
-      end Reducer;
-
-      function Chooser
-         (t : ARRAY_TYPE) return ELEMENT_TYPE
-      is
-         function "+" (L, R: ELEMENT_TYPE) return ELEMENT_TYPE
-         is (if better(L, R) then L else R) with Inline;
-
-         function reduce is new Reducer ("+");
-      begin 
-         return reduce(t);
-      end Chooser;
+   ---------------------------------------------------------------------
 
       function Reversed
         (t : ARRAY_TYPE) return ARRAY_TYPE
@@ -82,10 +49,48 @@ package body Generics is
          end return;
       end Rotated;
 
+      function Mapper
+        (t : ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         return r : ARRAY_TYPE(t'Range) do
+            for i in t'Range loop
+               r(i) := map(t(i));
+            end loop;
+         end return;
+      end Mapper;
+
+      function Reducer
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         return r : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               r := reduce(r, t(i));
+            end loop;
+         end return;
+      end Reducer;
+
+      function Chooser
+         (t : ARRAY_TYPE) return ELEMENT_TYPE
+      is
+         function pick (L, R: ELEMENT_TYPE) return ELEMENT_TYPE
+           with Inline
+         is
+         begin
+            return (if better(L, R) then L else R);
+         end pick;
+
+         function choose is new Reducer (pick);
+      begin 
+         return choose(t);
+      end Chooser;
+
    end Any_Tuples;
 
-      -- Equality subprograms
+   ---------------------------------------------------------------------
    package body Eq_Tuples is
+   ---------------------------------------------------------------------
 
       function Member
         (x : ELEMENT_TYPE;
@@ -114,12 +119,15 @@ package body Generics is
       begin
          return t'Length < 2 or else
             (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
-               (for all j in INDEX_TYPE'Succ(i) .. t'Last => t(j) /= t(i)));
+               (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
+                  t(j) /= t(i)));
       end Is_Unique;
 
    end Eq_Tuples;
 
+   ---------------------------------------------------------------------
    package body Ord_Tuples is
+   ---------------------------------------------------------------------
 
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE

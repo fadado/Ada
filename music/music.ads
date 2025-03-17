@@ -184,7 +184,7 @@ package Music is
    -- Equality tuples
 
    package PC_Eq_Tuples is
-      new Generics.Eq_Tuples (PC_Tuple_Signature);
+      new Generics.Eq_Tuples (PC_Tuple_Signature, "=");
 
    function Member
      (x : PITCH_CLASS;
@@ -194,7 +194,7 @@ package Music is
    -- Sortable tuples
 
    package PC_Ord_Tuples is
-      new Generics.Ord_Tuples (PC_Tuple_Signature);
+      new Generics.Ord_Tuples (PC_Tuple_Signature, "<");
 
    procedure Sort
      (s: in out PC_TUPLE)

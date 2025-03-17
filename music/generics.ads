@@ -27,23 +27,7 @@ package Generics is
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
-      with function "="(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package Eq_Tuples is
-
-      generic
-         with function map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
-        (t : ARRAY_TYPE) return ARRAY_TYPE;
-
-      generic
-         with function "+" (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Reducer
-        (t : ARRAY_TYPE) return ELEMENT_TYPE;
-
-      generic
-         with function better (L, R: ELEMENT_TYPE) return BOOLEAN;
-      function Chooser
-        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+   package Any_Tuples is
 
       function Reversed
         (t : ARRAY_TYPE) return ARRAY_TYPE;
@@ -52,13 +36,28 @@ package Generics is
         (n : INDEX_TYPE;
          t : ARRAY_TYPE) return ARRAY_TYPE;
 
-   end Eq_Tuples;
+      generic
+         with function map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Mapper
+        (t : ARRAY_TYPE) return ARRAY_TYPE;
+
+      generic
+         with function reduce (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Reducer
+        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
+      generic
+         with function better (L, R: ELEMENT_TYPE) return BOOLEAN;
+      function Chooser
+        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
+   end Any_Tuples;
 
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
-      with function "="(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package Any_Tuples is
+      with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   package Eq_Tuples is
 
       function Member
         (x : ELEMENT_TYPE;
@@ -72,13 +71,12 @@ package Generics is
       function Is_Unique
         (t : ARRAY_TYPE) return BOOLEAN;
 
-   end Any_Tuples;
+   end Eq_Tuples;
 
    generic
       with package T_S_P is new Tuple_Signature(<>);
       use T_S_P;
-      with function "<"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-    --with function ">"(a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Ord_Tuples is
 
       procedure Sort is
