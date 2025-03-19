@@ -74,16 +74,14 @@ package body Generics is
       function Chooser
          (t : ARRAY_TYPE) return ELEMENT_TYPE
       is
-         function pick (L, R: ELEMENT_TYPE) return ELEMENT_TYPE
-           with Inline
-         is
-         begin
-            return (if better(L, R) then L else R);
-         end pick;
-
-         function choose is new Reducer (pick);
       begin 
-         return choose(t);
+         return r : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               if better(t(i), r) then
+                  r := t(i);
+               end if;
+            end loop;
+         end return;
       end Chooser;
 
    end Any_Tuples;
@@ -129,6 +127,39 @@ package body Generics is
    package body Ord_Tuples is
    ---------------------------------------------------------------------
 
+      -- Shell Sort
+
+      procedure Sort
+        (t : in out ARRAY_TYPE)
+      is
+         function add(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+         is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) + n)) with Inline;
+
+         function sub(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+         is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) - n)) with Inline;
+
+         increment : NATURAL := t'Length / 2;
+         j, k      : INDEX_TYPE;
+         tmp       : ELEMENT_TYPE;
+      begin
+         while increment > 0 loop
+            for i in add(t'First, increment) .. t'Last loop
+               tmp := t(i);
+               j   := i;
+               k   := sub(j, increment);
+               while j   >= add(t'First, increment) and then
+                     tmp <  t(k) loop
+                  k    := sub(j, increment);
+                  t(j) := t(k);
+                  j    := k;
+               end loop;
+               t(j) := tmp;
+            end loop;
+            increment := increment / 2;
+         end loop;
+         pragma Assert(Is_Sorted(t));
+      end Sort;
+
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE
       is
@@ -146,6 +177,32 @@ package body Generics is
             (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
                => t(i) < t(INDEX_TYPE'Succ(i)));
       end Is_Sorted;
+
+      -- Binary Search
+
+      function Search
+        (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
+      is
+         low    : INDEX_TYPE := t'First;
+         high   : INDEX_TYPE := t'Last;
+         middle : INDEX_TYPE;
+      begin
+         pragma Assert(Is_Sorted(t));
+
+         while low <= high loop
+            middle := INDEX_TYPE'Val((INDEX_TYPE'Pos(low) +
+                                      INDEX_TYPE'Pos(high)) / 2);
+            if t(middle) < x then
+               low := INDEX_TYPE'Succ(middle);
+            elsif t(middle) > x then
+               high := INDEX_TYPE'Pred(middle);
+            else
+               return middle;
+            end if;
+         end loop;
+
+         raise Constraint_Error;
+      end Search;
 
    end Ord_Tuples;
 

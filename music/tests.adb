@@ -235,6 +235,7 @@ begin
       whole_tone : constant PC_SET := DB.Name_To_Set(DB.Whole_Tone);
 
       x, y : TRICHORD;
+      raised : BOOLEAN;
 
    begin
       pragma Assert(HEPTACHORD'(0,2,4,5,7,9,11) = Tuple(diatonic));
@@ -267,6 +268,17 @@ begin
       Sort(y);
       pragma Assert(y = TRICHORD'(1,3,7));
       pragma Assert(x = y);
+      pragma Assert(Search(y, PITCH_CLASS'(1)) = 1);
+      pragma Assert(Search(y, PITCH_CLASS'(3)) = 2);
+      pragma Assert(Search(y, PITCH_CLASS'(7)) = 3);
+
+      begin
+         raised := FALSE;
+         pragma Assert(Search(y, PITCH_CLASS'(2)) = 3);
+      exception
+         when Constraint_Error => raised := TRUE;
+      end;
+      pragma Assert(raised);
    end;
 
 end Tests;

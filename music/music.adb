@@ -67,7 +67,7 @@ package body Music is
          a, b, c : SET_COUNT;
       begin
          a := m; b := n;
-         while b /= 0 loop
+         while b > 0 loop
             c := a; a := b; b := (c mod b);
          end loop;
          return a;
@@ -97,9 +97,9 @@ package body Music is
       function f (x: PITCH_CLASS) return PITCH_CLASS
       is (Transposition(i, x)) with Inline;
 
-      function m is new PC_Any_Tuples.Mapper (f);
+      function apply is new PC_Any_Tuples.Mapper (f);
    begin
-      return m(s);
+      return apply(s);
    end Transposition;
 
    function Inversion
@@ -109,9 +109,9 @@ package body Music is
       function f (x: PITCH_CLASS) return PITCH_CLASS
       is (Inversion(i, x)) with Inline;
 
-      function m is new PC_Any_Tuples.Mapper (f);
+      function apply is new PC_Any_Tuples.Mapper (f);
    begin
-      return m(s);
+      return apply(s);
    end Inversion;
 
    -------------------

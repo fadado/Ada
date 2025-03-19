@@ -1,5 +1,3 @@
-with Ada.Containers.Generic_Array_Sort;
-
 package Generics is
 
    generic
@@ -25,9 +23,11 @@ package Generics is
    package Tuple_Signature is private end;
 
    generic
-      with package T_S_P is new Tuple_Signature(<>);
-      use T_S_P;
+      with package Tuple_Signature_Package is new Tuple_Signature (<>);
+      use Tuple_Signature_Package;
+   ---------------------------------------------------------------------
    package Any_Tuples is
+   ---------------------------------------------------------------------
 
       function Reversed
         (t : ARRAY_TYPE) return ARRAY_TYPE;
@@ -54,10 +54,11 @@ package Generics is
    end Any_Tuples;
 
    generic
-      with package T_S_P is new Tuple_Signature(<>);
-      use T_S_P;
-      with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      with package Tuple_Signature_Package is new Tuple_Signature (<>);
+      use Tuple_Signature_Package;
+   ---------------------------------------------------------------------
    package Eq_Tuples is
+   ---------------------------------------------------------------------
 
       function Member
         (x : ELEMENT_TYPE;
@@ -74,23 +75,25 @@ package Generics is
    end Eq_Tuples;
 
    generic
-      with package T_S_P is new Tuple_Signature(<>);
-      use T_S_P;
+      with package Tuple_Signature_Package is new Tuple_Signature (<>);
+      use Tuple_Signature_Package;
       with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   ---------------------------------------------------------------------
    package Ord_Tuples is
+   ---------------------------------------------------------------------
 
-      procedure Sort is
-         new Ada.Containers.Generic_Array_Sort (
-            Index_Type   => INDEX_TYPE,
-            Element_Type => ELEMENT_TYPE,
-            Array_Type   => ARRAY_TYPE
-      );
+      procedure Sort
+        (t : in out ARRAY_TYPE);
 
       function Is_Sorted
         (t : ARRAY_TYPE) return BOOLEAN;
 
       function Sorted
         (t : ARRAY_TYPE) return ARRAY_TYPE;
+
+      function Search
+        (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE;
 
    end Ord_Tuples;
 
