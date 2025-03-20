@@ -132,25 +132,36 @@ package Music is
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
    package PC_Tuple_Signature is
-      new Generics.Tuple_Signature (
+      new Generics.Tuples.Signature (
          Index_Type   => TUPLE_INDEX,
          Element_Type => PITCH_CLASS,
          Array_Type   => PC_TUPLE
    );
 
-   -- Any tuples
+   -- Functors
 
-   package PC_Any_Tuples is
-      new Generics.Any_Tuples (PC_Tuple_Signature);
+   package PC_Tuple_Functors is
+      new Generics.Tuples.Functors (PC_Tuple_Signature);
+
+   function Maximum is
+      new PC_Tuple_Functors.Chooser (">");
+
+   function Minimum is
+      new PC_Tuple_Functors.Chooser ("<");
+
+   -- Location tuples
+
+   package PC_Tuple_Location is
+      new Generics.Tuples.Location (PC_Tuple_Signature);
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Any_Tuples.Reversed;
+   renames PC_Tuple_Location.Reversed;
 
    function Rotate
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   renames PC_Any_Tuples.Rotated;
+   renames PC_Tuple_Location.Rotated;
 
    function Rotate
      (s : PC_TUPLE) return PC_TUPLE
@@ -172,41 +183,32 @@ package Music is
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
 
-   function Maximum is
-      new PC_Any_Tuples.Chooser (">");
-
-   function Minimum is
-      new PC_Any_Tuples.Chooser ("<");
-
-   function Sum is
-      new PC_Any_Tuples.Reducer ("+");
-
    -- Equality tuples
 
-   package PC_Eq_Tuples is
-      new Generics.Eq_Tuples (PC_Tuple_Signature);
+   package PC_Tuple_Uniquity is
+      new Generics.Tuples.Uniquity (PC_Tuple_Signature, "=");
 
    function Member
      (x : PITCH_CLASS;
       s : PC_TUPLE) return BOOLEAN
-   renames PC_Eq_Tuples.Member;
+   renames PC_Tuple_Uniquity.Member;
 
-   -- Sortable tuples
+   -- Ordered tuples
 
-   package PC_Ord_Tuples is
-      new Generics.Ord_Tuples (PC_Tuple_Signature, "<");
+   package PC_Tuple_Order is
+      new Generics.Tuples.Order (PC_Tuple_Signature, "<", ">");
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Ord_Tuples.Sort;
+   renames PC_Tuple_Order.Sort;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Ord_Tuples.Sorted;
+   renames PC_Tuple_Order.Sorted;
 
    function Search
      (s : PC_TUPLE; x : PITCH_CLASS) return TUPLE_INDEX
-   renames PC_Ord_Tuples.Search;
+   renames PC_Tuple_Order.Search;
 
    -------------------
    -- Set <=> Tuple --

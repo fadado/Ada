@@ -16,86 +16,106 @@ package Generics is
      (x: A) return C
    with Inline;
 
-   generic
-      type INDEX_TYPE is (<>);
-      type ELEMENT_TYPE is private;
-      type ARRAY_TYPE is array(INDEX_TYPE range <>) of ELEMENT_TYPE;
-   package Tuple_Signature is private end;
-
-   generic
-      with package Tuple_Signature_Package is new Tuple_Signature (<>);
-      use Tuple_Signature_Package;
    ---------------------------------------------------------------------
-   package Any_Tuples is
+   package Tuples is
    ---------------------------------------------------------------------
-
-      function Reversed
-        (t : ARRAY_TYPE) return ARRAY_TYPE;
-
-      function Rotated
-        (n : INDEX_TYPE;
-         t : ARRAY_TYPE) return ARRAY_TYPE;
 
       generic
-         with function map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
-        (t : ARRAY_TYPE) return ARRAY_TYPE;
+         type INDEX_TYPE is (<>);
+         type ELEMENT_TYPE is private;
+         type ARRAY_TYPE is array(INDEX_TYPE range <>) of ELEMENT_TYPE;
+      package Signature is private end;
 
       generic
-         with function reduce (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Reducer
-        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+         with package Signature_Package is new Signature (<>);
+         use Signature_Package;
+      ------------------------------------------------------------------
+      package Functors is
+      ------------------------------------------------------------------
+         generic
+            with function Map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Mapper
+           (t : ARRAY_TYPE) return ARRAY_TYPE;
+
+         generic
+            with function Operation (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Reducer
+           (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
+         generic
+            with function Better (L, R: ELEMENT_TYPE) return BOOLEAN;
+         function Chooser
+           (t : ARRAY_TYPE) return ELEMENT_TYPE;
+
+         -- TODO: filter (test)
+      end Functors;
 
       generic
-         with function better (L, R: ELEMENT_TYPE) return BOOLEAN;
-      function Chooser
-        (t : ARRAY_TYPE) return ELEMENT_TYPE;
+         with package Signature_Package is new Signature (<>);
+         use Signature_Package;
+      ------------------------------------------------------------------
+      package Location is
+      ------------------------------------------------------------------
 
-   end Any_Tuples;
+         function Reversed
+           (t : ARRAY_TYPE) return ARRAY_TYPE;
 
-   generic
-      with package Tuple_Signature_Package is new Tuple_Signature (<>);
-      use Tuple_Signature_Package;
-   ---------------------------------------------------------------------
-   package Eq_Tuples is
-   ---------------------------------------------------------------------
+         function Rotated
+           (n : INDEX_TYPE;
+            t : ARRAY_TYPE) return ARRAY_TYPE;
 
-      function Member
-        (x : ELEMENT_TYPE;
-         t : ARRAY_TYPE) return BOOLEAN
-      with Inline;
+         -- TODO: shuffle, shuffled, take
+      end Location;
 
-      function Position
-        (x : ELEMENT_TYPE;
-         t : ARRAY_TYPE) return INDEX_TYPE;
+      generic
+         with package Signature_Package is new Signature (<>);
+         use Signature_Package;
+         with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      ------------------------------------------------------------------
+      package Uniquity is
+      ------------------------------------------------------------------
 
-      function Is_Unique
-        (t : ARRAY_TYPE) return BOOLEAN;
+         function Member
+           (x : ELEMENT_TYPE;
+            t : ARRAY_TYPE) return BOOLEAN
+         with Inline;
 
-   end Eq_Tuples;
+         function Position
+           (x : ELEMENT_TYPE;
+            t : ARRAY_TYPE) return INDEX_TYPE;
 
-   generic
-      with package Tuple_Signature_Package is new Tuple_Signature (<>);
-      use Tuple_Signature_Package;
-      with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-      with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   ---------------------------------------------------------------------
-   package Ord_Tuples is
-   ---------------------------------------------------------------------
+         function Is_Unique
+           (t : ARRAY_TYPE) return BOOLEAN;
 
-      procedure Sort
-        (t : in out ARRAY_TYPE);
+         -- TODO: squashed
+      end Uniquity;
 
-      function Is_Sorted
-        (t : ARRAY_TYPE) return BOOLEAN;
+      generic
+         with package Signature_Package is new Signature (<>);
+         use Signature_Package;
+         with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+         with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      ------------------------------------------------------------------
+      package Order is
+      ------------------------------------------------------------------
 
-      function Sorted
-        (t : ARRAY_TYPE) return ARRAY_TYPE;
+         procedure Sort
+           (t : in out ARRAY_TYPE);
 
-      function Search
-        (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE;
+         function Is_Sorted
+           (t : ARRAY_TYPE) return BOOLEAN;
 
-   end Ord_Tuples;
+         function Sorted
+           (t : ARRAY_TYPE) return ARRAY_TYPE
+         with Inline;
+
+         function Search
+           (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE;
+
+           -- TODO: merge
+      end Order;
+
+   end Tuples;
 
 end Generics;
 -- ¡ISO-8859-1!
