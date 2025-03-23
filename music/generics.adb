@@ -43,6 +43,11 @@ package body Generics is
             (t : ARRAY_TYPE) return ELEMENT_TYPE
          is
          begin 
+            -- require: t'Length > 0
+            if t'Length = 1 then
+               return t(t'First);
+            end if;
+            -- check: t'Length > 1
             return result : ELEMENT_TYPE := t(t'First) do
                for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
                   result := Operation(result, t(i));
@@ -56,6 +61,11 @@ package body Generics is
             (t : ARRAY_TYPE) return ELEMENT_TYPE
          is
          begin 
+            -- require: t'Length > 0
+            if t'Length = 1 then
+               return t(t'First);
+            end if;
+            -- check: t'Length > 1
             return result : ELEMENT_TYPE := t(t'First) do
                for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
                   if Better(t(i), result) then
@@ -119,6 +129,7 @@ package body Generics is
             t : ARRAY_TYPE) return INDEX_TYPE
          is
          begin 
+            -- require: t'Length > 0
             for i in t'Range loop
                if t(i) = x then
                   return i;
@@ -145,7 +156,6 @@ package body Generics is
     
          procedure Sort
            (t : in out ARRAY_TYPE)
-         -- Shell Sort
          is
             function add(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
             is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) + n)) with Inline;
@@ -153,6 +163,7 @@ package body Generics is
             function sub(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
             is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) - n)) with Inline;
     
+            -- Shell Sort
             increment : NATURAL := t'Length / 2;
             j, k      : INDEX_TYPE;
             tmp       : ELEMENT_TYPE;
@@ -162,7 +173,7 @@ package body Generics is
                   tmp := t(i);
                   j   := i;
                   k   := sub(j, increment);
-                  while j   >= add(t'First, increment) and then
+                  while j >= add(t'First, increment) and then
                         tmp <  t(k) loop
                      k    := sub(j, increment);
                      t(j) := t(k);
@@ -172,7 +183,7 @@ package body Generics is
                end loop;
                increment := increment / 2;
             end loop;
-            pragma Assert(Is_Sorted(t));
+            -- ensure: Is_Sorted(t)
          end Sort;
     
          function Sorted
@@ -195,14 +206,13 @@ package body Generics is
     
          function Search
            (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
-         -- Binary Search
          is
+            -- Binary Search
             low    : INDEX_TYPE := t'First;
             high   : INDEX_TYPE := t'Last;
             middle : INDEX_TYPE;
          begin
-            pragma Assert(Is_Sorted(t));
-    
+            -- require: Is_Sorted(t)
             while low <= high loop
                middle := INDEX_TYPE'Val((INDEX_TYPE'Pos(low) +
                                          INDEX_TYPE'Pos(high)) / 2);

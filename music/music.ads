@@ -1,3 +1,5 @@
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 with Generics;
 
 package Music is
@@ -111,6 +113,11 @@ package Music is
    function Transpositions
      (s : PC_SET) return SET_COUNT;
 
+   function Generate
+     (origin : PITCH_CLASS;
+      d      : PC_INTERVAL;
+      g      : PC_INTERVAL) return PC_SET;
+
    -- More algebra of sets
    -----------------------
    -- Add(x: PITCH_CLASS; s: PC_SET): BitSet(x) or s
@@ -214,11 +221,13 @@ package Music is
    -- Set <=> Tuple --
    -------------------
 
-   function Tuple
-     (s : PC_SET) return PC_TUPLE;
-
    function Set
-     (s : PC_TUPLE) return PC_SET;
+     (s : PC_TUPLE) return PC_SET
+   with Pre => PC_Tuple_Order.Is_Sorted(s);
+
+   function Tuple
+     (s : PC_SET) return PC_TUPLE
+   with Post => PC_Tuple_Order.Is_Sorted(Tuple'Result);
 
    ----------------------
    -- Interval pattern --
@@ -227,16 +236,12 @@ package Music is
    type INTERVAL_PATTERN is array (TUPLE_INDEX range <>) of PC_INTERVAL;
 
    function Pattern 
-     (s : PC_TUPLE) return INTERVAL_PATTERN;
+     (s : PC_TUPLE) return INTERVAL_PATTERN
+   with Pre  => s'Length > 1,
+        Post => invariant_octave(Pattern'Result);
 
-   --------------
-   -- Generate --
-   --------------
-
-   function Generate
-     (origin : PITCH_CLASS;
-      d      : PC_INTERVAL;
-      g      : PC_INTERVAL) return PC_SET;
+   function invariant_octave
+     (intervals : INTERVAL_PATTERN) return BOOLEAN;
 
 end Music;
 -- ¡ISO-8859-1!

@@ -1,5 +1,3 @@
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 package body Music is
 
    ---------------------
@@ -78,17 +76,25 @@ package body Music is
       return Z / gcd(Z, Cardinality(s));
    end Transpositions;
 
+   function Generate
+     (origin : PITCH_CLASS;
+      d      : PC_INTERVAL;
+      g      : PC_INTERVAL) return PC_SET
+   is
+      t : PC_SET;
+   begin
+      return s : PC_SET := 16#000# do
+         for i in PC_INTERVAL'First..PC_INTERVAL'First+d-1 loop
+            t := BitSet(origin + i * g);
+            exit when (s and t) /= 16#000#; -- cycle detected
+            s := s or t;
+         end loop;
+      end return;
+   end Generate;
+
    -----------------------------
    -- pitch-class ordered set --
    -----------------------------
-
-   function invariant_no_dups
-     (s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuple_Uniquity.Is_Unique;
-
-   function invariant_sorted
-     (s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuple_Order.Is_Sorted;
 
    function Transposition
      (i : PC_INTERVAL;
@@ -97,7 +103,8 @@ package body Music is
       function f (x: PITCH_CLASS) return PITCH_CLASS
       is (Transposition(i, x)) with Inline;
 
-      function apply is new PC_Tuple_Functors.Mapper (f);
+      function apply is
+         new PC_Tuple_Functors.Mapper (f);
    begin
       return apply(s);
    end Transposition;
@@ -109,7 +116,8 @@ package body Music is
       function f (x: PITCH_CLASS) return PITCH_CLASS
       is (Inversion(i, x)) with Inline;
 
-      function apply is new PC_Tuple_Functors.Mapper (f);
+      function apply is
+         new PC_Tuple_Functors.Mapper (f);
    begin
       return apply(s);
    end Inversion;
@@ -143,8 +151,6 @@ package body Music is
                k := k+1;
             end if;
          end loop;
-
-         pragma Assert(invariant_sorted(t));
       end return;
    end Tuple;
 
@@ -173,37 +179,13 @@ package body Music is
      (s : PC_TUPLE) return INTERVAL_PATTERN
    is
    begin
-      pragma Assert(s'Length > 1);
-
       return intervals : INTERVAL_PATTERN(s'Range) do
          for k in s'First+1..s'Last loop
             intervals(k-1) := Interval(s(k-1), s(k));
          end loop;
          intervals(s'Last) := Interval(s(s'Last), s(s'First));
-
-         pragma Assert(invariant_octave(intervals));
       end return;
    end Pattern;
-
-   --------------
-   -- Generate --
-   --------------
-
-   function Generate
-     (origin : PITCH_CLASS;
-      d      : PC_INTERVAL;
-      g      : PC_INTERVAL) return PC_SET
-   is
-      t : PC_SET;
-   begin
-      return s : PC_SET := 16#000# do
-         for i in PC_INTERVAL'First..PC_INTERVAL'First+d-1 loop
-            t := BitSet(origin + i * g);
-            exit when (s and t) /= 16#000#; -- cycle detected
-            s := s or t;
-         end loop;
-      end return;
-   end Generate;
 
 end Music;
 -- ¡ISO-8859-1!

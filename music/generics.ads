@@ -1,4 +1,7 @@
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 package Generics is
+   pragma Pure(Generics);
 
    generic
       type T(<>) is private;
@@ -32,6 +35,7 @@ package Generics is
       ------------------------------------------------------------------
       package Functors is
       ------------------------------------------------------------------
+
          generic
             with function Map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
          function Mapper
@@ -40,12 +44,14 @@ package Generics is
          generic
             with function Operation (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
          function Reducer
-           (t : ARRAY_TYPE) return ELEMENT_TYPE;
+           (t : ARRAY_TYPE) return ELEMENT_TYPE
+         with Pre => t'Length > 0;
 
          generic
             with function Better (L, R: ELEMENT_TYPE) return BOOLEAN;
          function Chooser
-           (t : ARRAY_TYPE) return ELEMENT_TYPE;
+           (t : ARRAY_TYPE) return ELEMENT_TYPE
+         with Pre => t'Length > 0;
 
          -- TODO: filter (test)
       end Functors;
@@ -82,7 +88,8 @@ package Generics is
 
          function Position
            (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return INDEX_TYPE;
+            t : ARRAY_TYPE) return INDEX_TYPE
+         with Pre => t'Length > 0;
 
          function Is_Unique
            (t : ARRAY_TYPE) return BOOLEAN;
@@ -100,17 +107,20 @@ package Generics is
       ------------------------------------------------------------------
 
          procedure Sort
-           (t : in out ARRAY_TYPE);
+           (t : in out ARRAY_TYPE)
+         with Post => Is_Sorted(t);
 
          function Is_Sorted
-           (t : ARRAY_TYPE) return BOOLEAN;
+           (t : ARRAY_TYPE) return BOOLEAN
+         with Inline;
 
          function Sorted
            (t : ARRAY_TYPE) return ARRAY_TYPE
          with Inline;
 
          function Search
-           (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE;
+           (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
+         with Pre => Is_Sorted(t);
 
            -- TODO: merge
       end Order;
