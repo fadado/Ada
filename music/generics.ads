@@ -81,6 +81,9 @@ package Generics is
       package Uniquity is
       ------------------------------------------------------------------
 
+         function Is_Unique
+           (t : ARRAY_TYPE) return BOOLEAN;
+
          function Member
            (x : ELEMENT_TYPE;
             t : ARRAY_TYPE) return BOOLEAN
@@ -90,9 +93,6 @@ package Generics is
            (x : ELEMENT_TYPE;
             t : ARRAY_TYPE) return INDEX_TYPE
          with Pre => t'Length > 0;
-
-         function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN;
 
          -- TODO: squashed
       end Uniquity;
@@ -106,13 +106,22 @@ package Generics is
       package Order is
       ------------------------------------------------------------------
 
-         procedure Sort
-           (t : in out ARRAY_TYPE)
-         with Post => Is_Sorted(t);
-
          function Is_Sorted
            (t : ARRAY_TYPE) return BOOLEAN
          with Inline;
+
+         function Is_Unique
+           (t : ARRAY_TYPE) return BOOLEAN
+         with Inline;
+
+         function Member
+           (x : ELEMENT_TYPE;
+            t : ARRAY_TYPE) return BOOLEAN
+         with Pre => Is_Sorted(t);
+
+         procedure Sort
+           (t : in out ARRAY_TYPE)
+         with Post => Is_Sorted(t);
 
          function Sorted
            (t : ARRAY_TYPE) return ARRAY_TYPE

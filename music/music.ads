@@ -190,20 +190,15 @@ package Music is
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
 
-   -- Equality tuples
-
-   package PC_Tuple_Uniquity is
-      new Generics.Tuples.Uniquity (PC_Tuple_Signature, "=");
-
-   function Member
-     (x : PITCH_CLASS;
-      s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuple_Uniquity.Member;
-
    -- Ordered tuples
 
    package PC_Tuple_Order is
       new Generics.Tuples.Order (PC_Tuple_Signature, "<", ">");
+
+   function Member
+     (x : PITCH_CLASS;
+      s : PC_TUPLE) return BOOLEAN
+   renames PC_Tuple_Order.Member;
 
    procedure Sort
      (s: in out PC_TUPLE)
@@ -223,11 +218,11 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => PC_Tuple_Order.Is_Sorted(s);
+   with Pre => PC_Tuple_Order.Is_Unique(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE
-   with Post => PC_Tuple_Order.Is_Sorted(Tuple'Result);
+   with Post => PC_Tuple_Order.Is_Unique(Tuple'Result);
 
    ----------------------
    -- Interval pattern --

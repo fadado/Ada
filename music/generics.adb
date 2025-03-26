@@ -47,6 +47,7 @@ package body Generics is
             if t'Length = 1 then
                return t(t'First);
             end if;
+
             -- check: t'Length > 1
             return result : ELEMENT_TYPE := t(t'First) do
                for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
@@ -65,6 +66,7 @@ package body Generics is
             if t'Length = 1 then
                return t(t'First);
             end if;
+
             -- check: t'Length > 1
             return result : ELEMENT_TYPE := t(t'First) do
                for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
@@ -116,6 +118,16 @@ package body Generics is
       package body Uniquity is
       ------------------------------------------------------------------
     
+         function Is_Unique
+           (t : ARRAY_TYPE) return BOOLEAN
+         is
+         begin
+            return t'Length < 2 or else
+               (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
+                  (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
+                     not (t(j) = t(i))));
+         end Is_Unique;
+    
          function Member
            (x : ELEMENT_TYPE;
             t : ARRAY_TYPE) return BOOLEAN
@@ -131,28 +143,58 @@ package body Generics is
          begin 
             -- require: t'Length > 0
             for i in t'Range loop
-               if t(i) = x then
+               if x = t(i) then
                   return i;
                end if;
             end loop;
+
             raise Constraint_Error;
          end Position;
-    
-         function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN
-         is
-         begin
-            return t'Length < 2 or else
-               (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
-                  (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
-                     not (t(j) = t(i))));
-         end Is_Unique;
     
       end Uniquity;
     
       ------------------------------------------------------------------
       package body Order is
       ------------------------------------------------------------------
+    
+         function Is_Sorted
+           (t : ARRAY_TYPE) return BOOLEAN
+         is
+         begin
+            return t'Length < 2 or else
+               (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
+                  => t(i) < t(INDEX_TYPE'Succ(i))
+                     or else not(t(i) > t(INDEX_TYPE'Succ(i))));
+         end Is_Sorted;
+    
+         function Is_Unique
+           (t : ARRAY_TYPE) return BOOLEAN
+         is
+         begin
+            -- require: Is_Sorted(t)
+            return t'Length < 2 or else
+               (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
+                  => t(i) < t(INDEX_TYPE'Succ(i)));
+         end Is_Unique;
+    
+         function Member
+           (x : ELEMENT_TYPE;
+            t : ARRAY_TYPE) return BOOLEAN
+         is
+         begin 
+            -- require: Is_Sorted(t)
+            for y of t loop
+               if y > x then
+                  return FALSE;
+               elsif x < y then
+                  null;
+               else
+                  return TRUE;
+               end if;
+            end loop;
+
+            return FALSE;
+         end Member;
     
          procedure Sort
            (t : in out ARRAY_TYPE)
@@ -174,7 +216,7 @@ package body Generics is
                   j   := i;
                   k   := sub(j, increment);
                   while j >= add(t'First, increment) and then
-                        tmp <  t(k) loop
+                        tmp < t(k) loop
                      k    := sub(j, increment);
                      t(j) := t(k);
                      j    := k;
@@ -194,15 +236,6 @@ package body Generics is
                Sort(result);
             end return;
          end Sorted;
-    
-         function Is_Sorted
-           (t : ARRAY_TYPE) return BOOLEAN
-         is
-         begin
-            return t'Length < 2 or else
-               (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
-                  => t(i) < t(INDEX_TYPE'Succ(i)));
-         end Is_Sorted;
     
          function Search
            (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
