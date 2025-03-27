@@ -86,8 +86,7 @@ package Generics is
 
          function Member
            (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return BOOLEAN
-         with Inline;
+            t : ARRAY_TYPE) return BOOLEAN;
 
          function Position
            (x : ELEMENT_TYPE;
@@ -107,12 +106,15 @@ package Generics is
       ------------------------------------------------------------------
 
          function Is_Sorted
-           (t : ARRAY_TYPE) return BOOLEAN
-         with Inline;
+           (t : ARRAY_TYPE) return BOOLEAN;
+
+         pragma Assertion_Policy(Ignore);
 
          function Is_Unique
            (t : ARRAY_TYPE) return BOOLEAN
-         with Inline;
+         with Pre => Is_Sorted(t);
+
+         pragma Assertion_Policy(Check);
 
          function Member
            (x : ELEMENT_TYPE;

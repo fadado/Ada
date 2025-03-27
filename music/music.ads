@@ -145,21 +145,21 @@ package Music is
          Array_Type   => PC_TUPLE
    );
 
-   -- Functors
+   -- Packages
 
    package PC_Tuple_Functors is
       new Generics.Tuples.Functors (PC_Tuple_Signature);
 
-   function Maximum is
-      new PC_Tuple_Functors.Chooser (">");
-
-   function Minimum is
-      new PC_Tuple_Functors.Chooser ("<");
-
-   -- Location tuples
-
    package PC_Tuple_Location is
       new Generics.Tuples.Location (PC_Tuple_Signature);
+
+   package PC_Tuple_Uniquity is
+      new Generics.Tuples.Uniquity (PC_Tuple_Signature, "=");
+
+   package PC_Tuple_Order is
+      new Generics.Tuples.Order (PC_Tuple_Signature, "<", ">");
+
+   -- Subprograms
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
@@ -190,16 +190,6 @@ package Music is
      (s : PC_TUPLE) return PC_TUPLE
    is (Inversion(0, s)) with Inline;
 
-   -- Ordered tuples
-
-   package PC_Tuple_Order is
-      new Generics.Tuples.Order (PC_Tuple_Signature, "<", ">");
-
-   function Member
-     (x : PITCH_CLASS;
-      s : PC_TUPLE) return BOOLEAN
-   renames PC_Tuple_Order.Member;
-
    procedure Sort
      (s: in out PC_TUPLE)
    renames PC_Tuple_Order.Sort;
@@ -218,7 +208,7 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => PC_Tuple_Order.Is_Unique(s);
+   with Pre => PC_Tuple_Uniquity.Is_Unique(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE
