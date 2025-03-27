@@ -192,7 +192,7 @@ package Music is
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Tuple_Order.Sort;
+   renames PC_Tuple_Order.Sort_It;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE

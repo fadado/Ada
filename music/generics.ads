@@ -121,7 +121,7 @@ package Generics is
             t : ARRAY_TYPE) return BOOLEAN
          with Pre => Is_Sorted(t);
 
-         procedure Sort
+         procedure Sort_It
            (t : in out ARRAY_TYPE)
          with Post => Is_Sorted(t);
 

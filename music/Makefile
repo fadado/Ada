@@ -2,10 +2,14 @@
 
 .SILENT:
 
-all: tests
+all: tests_music tests_generics
 
-tests: generics.ad[bs] music.ad[bs] music-*.ad[bs] database.ad[bs] tests.adb
-	gnatmake tests
+tests_music: music.ad[bs] music-*.ad[bs] database.ad[bs] tests_music.adb
+	gnatmake tests_music
+
+tests_generics: generics.ad[bs] tests_generics.adb
+	gnatmake tests_generics
 
 clean:
-	rm -f *.o *.ali tests *.ads.* *.adb.*
+	rm -f *.o *.ali  *.ads.* *.adb.* \
+		tests_music tests_generics

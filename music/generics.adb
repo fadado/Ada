@@ -196,7 +196,7 @@ package body Generics is
             return FALSE;
          end Member;
     
-         procedure Sort
+         procedure Sort_It
            (t : in out ARRAY_TYPE)
          is
             function add(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
@@ -226,14 +226,14 @@ package body Generics is
                increment := increment / 2;
             end loop;
             -- ensure: Is_Sorted(t)
-         end Sort;
+         end Sort_It;
     
          function Sorted
            (t : ARRAY_TYPE) return ARRAY_TYPE
          is
          begin
             return result : ARRAY_TYPE(t'Range) := t do
-               Sort(result);
+               Sort_It(result);
             end return;
          end Sorted;
     
