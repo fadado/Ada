@@ -102,6 +102,10 @@ begin
       Reverse_It(t(9..15));
       pragma Assert(t = " amam imamim em");
 
+      s := "mi mama me mima";
+      Rotate_It(3, s);
+      Put_Line(s);
+      pragma Assert(s = "mama me mimami ");
    end;
 
 end Tests_Generics;

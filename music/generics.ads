@@ -44,6 +44,10 @@ package Generics is
          function Reversed
            (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
+         procedure Rotate_It
+           (n : in     INDEX_TYPE;
+            t : in out ARRAY_TYPE);
+
          function Rotated
            (n : in INDEX_TYPE;
             t : in ARRAY_TYPE) return ARRAY_TYPE;

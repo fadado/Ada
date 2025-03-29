@@ -53,19 +53,25 @@ package body Generics is
             end return;
          end Reversed;
 
+         -- left
+         procedure Rotate_It
+           (n : in     INDEX_TYPE;
+            t : in out ARRAY_TYPE)
+         is
+         begin
+            Reverse_It(t(t'First .. n));
+            Reverse_It(t(INDEX_TYPE'Succ(n) .. t'Last));
+            Reverse_It(t);
+         end Rotate_It;
+
+         -- rigth
          function Rotated
            (n : in INDEX_TYPE;
             t : in ARRAY_TYPE) return ARRAY_TYPE
          is
-            subtype NDX is INDEX_TYPE;
-            i : constant NDX := NDX'Val(NDX'Pos(t'Last)  - NDX'Pos(n));
-            j : constant NDX := NDX'Val(NDX'Pos(t'First) + NDX'Pos(n));
-            k : constant NDX := NDX'Val(NDX'Pos(t'Last)  - NDX'Pos(n) + 1);
-            l : constant NDX := NDX'Val(NDX'Pos(t'First) + NDX'Pos(n) - 1);
          begin
-            return result : ARRAY_TYPE(t'Range) do
-               result(t'First .. i)      := t(j       .. t'Last);
-               result(k       .. t'Last) := t(t'First .. l);
+            return result : ARRAY_TYPE(t'Range) := t do
+               Rotate_It(n, result);
             end return;
          end Rotated;
     
