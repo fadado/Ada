@@ -4,6 +4,8 @@ with Generics;
 
 package Music is
 
+   Not_Found : exception renames Generics.Tuples.Not_Found;
+
    ---------------------------------------
    -- Encoded pitch-class and intervals --
    ---------------------------------------

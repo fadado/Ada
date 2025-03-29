@@ -1,7 +1,7 @@
 package body Generics is
 
    procedure Swap
-     (x, y: in out T)
+     (x, y : in out T)
    is
       z : constant T := x;
    begin
@@ -10,7 +10,7 @@ package body Generics is
    end Swap;
 
    function Compose
-     (x: A) return C
+     (x : in A) return C
    is
    begin
       return G(F(x));
@@ -25,9 +25,20 @@ package body Generics is
       ------------------------------------------------------------------
     
        --generic
-       --   with function Map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
+       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         procedure Apply_To
+           (t : in out ARRAY_TYPE)
+         is
+         begin
+            for i in t'Range loop
+               t(i) := Map(t(i));
+            end loop;
+         end Apply_To;
+
+       --generic
+       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
          function Mapper
-           (t : ARRAY_TYPE) return ARRAY_TYPE
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
          is
          begin
             return result : ARRAY_TYPE(t'Range) do
@@ -38,9 +49,9 @@ package body Generics is
          end Mapper;
     
        --generic
-       --   with function Operation (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
+       --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
          function Reducer
-            (t : ARRAY_TYPE) return ELEMENT_TYPE
+            (t : in ARRAY_TYPE) return ELEMENT_TYPE
          is
          begin 
             -- require: t'Length > 0
@@ -57,9 +68,9 @@ package body Generics is
          end Reducer;
     
        --generic
-       --   with function Better (L, R: ELEMENT_TYPE) return BOOLEAN;
+       --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
          function Chooser
-            (t : ARRAY_TYPE) return ELEMENT_TYPE
+            (t : in ARRAY_TYPE) return ELEMENT_TYPE
          is
          begin 
             -- require: t'Length > 0
@@ -84,7 +95,7 @@ package body Generics is
       ------------------------------------------------------------------
     
          function Reversed
-           (t : ARRAY_TYPE) return ARRAY_TYPE
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
          is
             i : INTEGER := INDEX_TYPE'Pos(INDEX_TYPE'First);
          begin
@@ -97,8 +108,8 @@ package body Generics is
          end Reversed;
     
          function Rotated
-           (n : INDEX_TYPE;
-            t : ARRAY_TYPE) return ARRAY_TYPE
+           (n : in INDEX_TYPE;
+            t : in ARRAY_TYPE) return ARRAY_TYPE
          is
             subtype NDX is INDEX_TYPE;
             i : constant NDX := NDX'Val(NDX'Pos(t'Last)  - NDX'Pos(n));
@@ -119,7 +130,7 @@ package body Generics is
       ------------------------------------------------------------------
     
          function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN
+           (t : in ARRAY_TYPE) return BOOLEAN
          is
          begin
             return t'Length < 2 or else
@@ -129,16 +140,16 @@ package body Generics is
          end Is_Unique;
     
          function Member
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return BOOLEAN
+           (x : in ELEMENT_TYPE;
+            t : in ARRAY_TYPE) return BOOLEAN
          is
          begin 
             return (for some i in t'Range => x = t(i));
          end Member;
     
          function Position
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return INDEX_TYPE
+           (x : in ELEMENT_TYPE;
+            t : in ARRAY_TYPE) return INDEX_TYPE
          is
          begin 
             -- require: t'Length > 0
@@ -148,7 +159,7 @@ package body Generics is
                end if;
             end loop;
 
-            raise Constraint_Error;
+            raise Not_Found;
          end Position;
     
       end Uniquity;
@@ -158,7 +169,7 @@ package body Generics is
       ------------------------------------------------------------------
     
          function Is_Sorted
-           (t : ARRAY_TYPE) return BOOLEAN
+           (t : in ARRAY_TYPE) return BOOLEAN
          is
          begin
             return t'Length < 2 or else
@@ -168,7 +179,7 @@ package body Generics is
          end Is_Sorted;
     
          function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN
+           (t : in ARRAY_TYPE) return BOOLEAN
          is
          begin
             -- require: Is_Sorted(t)
@@ -177,24 +188,24 @@ package body Generics is
                   => t(i) < t(INDEX_TYPE'Succ(i)));
          end Is_Unique;
     
-         function Member
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return BOOLEAN
-         is
-         begin 
-            -- require: Is_Sorted(t)
-            for y of t loop
-               if y > x then
-                  return FALSE;
-               elsif x < y then
-                  null;
-               else
-                  return TRUE;
-               end if;
-            end loop;
+       --function Member
+       --  (x : in ELEMENT_TYPE;
+       --   t : in ARRAY_TYPE) return BOOLEAN
+       --is
+       --begin 
+       --   -- require: Is_Sorted(t)
+       --   for y of t loop
+       --      if y > x then
+       --         return FALSE;
+       --      elsif x < y then
+       --         null;
+       --      else
+       --         return TRUE;
+       --      end if;
+       --   end loop;
 
-            return FALSE;
-         end Member;
+       --   return FALSE;
+       --end Member;
     
          procedure Sort_It
            (t : in out ARRAY_TYPE)
@@ -229,7 +240,7 @@ package body Generics is
          end Sort_It;
     
          function Sorted
-           (t : ARRAY_TYPE) return ARRAY_TYPE
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
          is
          begin
             return result : ARRAY_TYPE(t'Range) := t do
@@ -238,7 +249,7 @@ package body Generics is
          end Sorted;
     
          function Search
-           (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
+           (t : in ARRAY_TYPE; x : in ELEMENT_TYPE) return INDEX_TYPE
          is
             -- Binary Search
             low    : INDEX_TYPE := t'First;
@@ -258,7 +269,7 @@ package body Generics is
                end if;
             end loop;
     
-            raise Constraint_Error;
+            raise Not_Found;
          end Search;
     
       end Order;

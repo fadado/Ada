@@ -236,7 +236,7 @@ begin
          raised := FALSE;
          pragma Assert(Search(y, PITCH_CLASS'(2)) = 3);
       exception
-         when Constraint_Error => raised := TRUE;
+         when Not_Found => raised := TRUE;
       end;
       pragma Assert(raised);
    end;

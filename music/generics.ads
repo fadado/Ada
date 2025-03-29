@@ -6,22 +6,24 @@ package Generics is
    generic
       type T(<>) is private;
    procedure Swap
-     (x, y: in out T)
+     (x, y : in out T)
    with Inline;
 
    generic
       type A(<>) is limited private;
       type B(<>) is limited private;
       type C(<>) is limited private;
-      with function F(x: A) return B;
-      with function G(x: B) return C;
+      with function F(x: in A) return B;
+      with function G(x: in B) return C;
    function Compose
-     (x: A) return C
+     (x : in A) return C
    with Inline;
 
    ---------------------------------------------------------------------
    package Tuples is
    ---------------------------------------------------------------------
+
+      Not_Found : exception;
 
       generic
          type INDEX_TYPE is (<>);
@@ -37,20 +39,25 @@ package Generics is
       ------------------------------------------------------------------
 
          generic
-            with function Map (x: ELEMENT_TYPE) return ELEMENT_TYPE;
-         function Mapper
-           (t : ARRAY_TYPE) return ARRAY_TYPE;
+            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         procedure Apply_To
+           (t : in out ARRAY_TYPE);
 
          generic
-            with function Operation (L, R: ELEMENT_TYPE) return ELEMENT_TYPE;
+            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Mapper
+           (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+         generic
+            with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
          function Reducer
-           (t : ARRAY_TYPE) return ELEMENT_TYPE
+           (t : in ARRAY_TYPE) return ELEMENT_TYPE
          with Pre => t'Length > 0;
 
          generic
-            with function Better (L, R: ELEMENT_TYPE) return BOOLEAN;
+            with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
          function Chooser
-           (t : ARRAY_TYPE) return ELEMENT_TYPE
+           (t : in ARRAY_TYPE) return ELEMENT_TYPE
          with Pre => t'Length > 0;
 
          -- TODO: filter (test)
@@ -64,11 +71,11 @@ package Generics is
       ------------------------------------------------------------------
 
          function Reversed
-           (t : ARRAY_TYPE) return ARRAY_TYPE;
+           (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
          function Rotated
-           (n : INDEX_TYPE;
-            t : ARRAY_TYPE) return ARRAY_TYPE;
+           (n : in INDEX_TYPE;
+            t : in ARRAY_TYPE) return ARRAY_TYPE;
 
          -- TODO: shuffle, shuffled, take
       end Location;
@@ -82,15 +89,15 @@ package Generics is
       ------------------------------------------------------------------
 
          function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN;
+           (t : in ARRAY_TYPE) return BOOLEAN;
 
          function Member
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return BOOLEAN;
+           (x : in ELEMENT_TYPE;
+            t : in ARRAY_TYPE) return BOOLEAN;
 
          function Position
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return INDEX_TYPE
+           (x : in ELEMENT_TYPE;
+            t : in ARRAY_TYPE) return INDEX_TYPE
          with Pre => t'Length > 0;
 
          -- TODO: squashed
@@ -106,31 +113,31 @@ package Generics is
       ------------------------------------------------------------------
 
          function Is_Sorted
-           (t : ARRAY_TYPE) return BOOLEAN;
+           (t : in ARRAY_TYPE) return BOOLEAN;
 
          pragma Assertion_Policy(Ignore);
 
          function Is_Unique
-           (t : ARRAY_TYPE) return BOOLEAN
+           (t : in ARRAY_TYPE) return BOOLEAN
          with Pre => Is_Sorted(t);
 
          pragma Assertion_Policy(Check);
 
-         function Member
-           (x : ELEMENT_TYPE;
-            t : ARRAY_TYPE) return BOOLEAN
-         with Pre => Is_Sorted(t);
+       --function Member
+       --  (x : in ELEMENT_TYPE;
+       --   t : in ARRAY_TYPE) return BOOLEAN
+       --with Pre => Is_Sorted(t);
 
          procedure Sort_It
            (t : in out ARRAY_TYPE)
          with Post => Is_Sorted(t);
 
          function Sorted
-           (t : ARRAY_TYPE) return ARRAY_TYPE
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
          with Inline;
 
          function Search
-           (t : ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
+           (t : in ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
          with Pre => Is_Sorted(t);
 
            -- TODO: merge

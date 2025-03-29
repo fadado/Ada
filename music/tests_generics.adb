@@ -3,16 +3,35 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Text_IO;
 with Generics;
 
+use Ada.Text_IO;
+
 procedure Tests_Generics is
-   use Ada.Text_IO;
+
+   package Text_Signature is
+      new Generics.Tuples.Signature (POSITIVE, CHARACTER, STRING);
+
+   package Text_Functors is
+      new Generics.Tuples.Functors (Text_Signature);
+
+   package Text_Location is
+      new Generics.Tuples.Location (Text_Signature);
+
+   package Text_Uniquity is
+      new Generics.Tuples.Uniquity (Text_Signature, "=");
+
+   package Text_Order is
+      new Generics.Tuples.Order (Text_Signature, "<", ">");
+
+   package G renames Generics;
+
+   raised : BOOLEAN;
+
 begin
    ---------------------------------------------------------------------
    -- Generics
    ---------------------------------------------------------------------
 
    declare
-      package G renames Generics;
-
       procedure Swap is new G.Swap(INTEGER);
       procedure Swap is new G.Swap(STRING);
 
@@ -31,8 +50,6 @@ begin
    end;
 
    declare
-      package G renames Generics;
-
       function as_int(x: FLOAT) return INTEGER is (INTEGER(x));
       function as_str(x: INTEGER) return STRING is (x'Image);
 
@@ -42,6 +59,27 @@ begin
       );
    begin
       pragma Assert(float_to_string(3.14) = " 3");
+   end;
+
+   declare
+   begin
+      pragma Assert(Text_Location.Reversed("aeiou") = "uoiea");
+      pragma Assert(Text_Location.Rotated(1, "aeiou") = "eioua");
+      pragma Assert(Text_Location.Rotated(5-1, "aeiou") = "uaeio");
+
+      pragma Assert(Text_Uniquity.Is_Unique("aeiou"));
+      pragma Assert(not Text_Uniquity.Is_Unique("aeioua"));
+      pragma Assert(Text_Uniquity.Member('i', "aeiou"));
+      pragma Assert(not Text_Uniquity.Member('x', "aeiou"));
+      pragma Assert(Text_Uniquity.Position('i', "aeiou") = 3);
+
+      begin
+         raised := FALSE;
+         pragma Assert(Text_Uniquity.Position('x', "aeiou") = 99);
+      exception
+         when Generics.Tuples.Not_Found => raised := TRUE;
+      end;
+      pragma Assert(raised);
    end;
 
 end Tests_Generics;
