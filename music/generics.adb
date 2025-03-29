@@ -1,5 +1,7 @@
 package body Generics is
 
+ --generic
+ --   type T(<>) is private;
    procedure Swap
      (x, y : in out T)
    is
@@ -9,6 +11,12 @@ package body Generics is
       y := z;
    end Swap;
 
+ --generic
+ --   type A(<>) is limited private;
+ --   type B(<>) is limited private;
+ --   type C(<>) is limited private;
+ --   with function F(x : in A) return B;
+ --   with function G(x : in B) return C;
    function Compose
      (x : in A) return C
    is
@@ -28,7 +36,7 @@ package body Generics is
            (t : in out ARRAY_TYPE)
          is
             procedure swap is
-               new Generics.Swap(ELEMENT_TYPE);
+               new Generics.Swap (ELEMENT_TYPE);
 
             i : INTEGER := INDEX_TYPE'Pos(t'First);
             j : INTEGER := INDEX_TYPE'Pos(t'Last);
@@ -43,17 +51,12 @@ package body Generics is
          function Reversed
            (t : in ARRAY_TYPE) return ARRAY_TYPE
          is
-            i : INTEGER := INDEX_TYPE'Pos(INDEX_TYPE'First);
          begin
-            return result : ARRAY_TYPE(t'Range) do
-               for x of reverse t loop
-                  result(INDEX_TYPE'Val(i)) := x;
-                  i := i + 1;
-               end loop;
+            return result : ARRAY_TYPE(t'Range) := t do
+               Reverse_It(result);
             end return;
          end Reversed;
 
-         -- left
          procedure Rotate_It
            (n : in     INDEX_TYPE;
             t : in out ARRAY_TYPE)
@@ -64,7 +67,6 @@ package body Generics is
             Reverse_It(t);
          end Rotate_It;
 
-         -- rigth
          function Rotated
            (n : in INDEX_TYPE;
             t : in ARRAY_TYPE) return ARRAY_TYPE
@@ -90,14 +92,6 @@ package body Generics is
                   (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
                      not (t(j) = t(i))));
          end Is_Unique;
-    
-         function Member
-           (x : in ELEMENT_TYPE;
-            t : in ARRAY_TYPE) return BOOLEAN
-         is
-         begin 
-            return (for some i in t'Range => x = t(i));
-         end Member;
     
          function Position
            (x : in ELEMENT_TYPE;

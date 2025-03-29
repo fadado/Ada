@@ -13,8 +13,8 @@ package Generics is
       type A(<>) is limited private;
       type B(<>) is limited private;
       type C(<>) is limited private;
-      with function F(x: in A) return B;
-      with function G(x: in B) return C;
+      with function F(x : in A) return B;
+      with function G(x : in B) return C;
    function Compose
      (x : in A) return C
    with Inline;
@@ -42,15 +42,19 @@ package Generics is
            (t : in out ARRAY_TYPE);
 
          function Reversed
-           (t : in ARRAY_TYPE) return ARRAY_TYPE;
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
+         with Inline;
 
          procedure Rotate_It
            (n : in     INDEX_TYPE;
             t : in out ARRAY_TYPE);
+         -- Rotate left!
+         -- Rotate right: Rotate_It(t'Length-n, t);
 
          function Rotated
            (n : in INDEX_TYPE;
-            t : in ARRAY_TYPE) return ARRAY_TYPE;
+            t : in ARRAY_TYPE) return ARRAY_TYPE
+         with Inline;
 
          -- TODO: shuffle, shuffled, take
       end Location;
@@ -68,7 +72,9 @@ package Generics is
 
          function Member
            (x : in ELEMENT_TYPE;
-            t : in ARRAY_TYPE) return BOOLEAN;
+            t : in ARRAY_TYPE) return BOOLEAN
+         is (for some i in t'Range => x = t(i))
+         with Inline;
 
          function Position
            (x : in ELEMENT_TYPE;
