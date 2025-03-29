@@ -66,12 +66,11 @@ begin
 
    ------------------------------------------------------------------
    -- Tuples.Location
-   -- Tuples.Uniquity
    ------------------------------------------------------------------
 
    declare
       use Text_Location;
-      use Text_Uniquity;
+
       Not_Found : exception renames Generics.Tuples.Not_Found;
 
       s : STRING := "mi mama me mima";
@@ -80,20 +79,6 @@ begin
       pragma Assert(Reversed("aeiou") = "uoiea");
       pragma Assert(Rotated(1, "aeiou") = "eioua");
       pragma Assert(Rotated(5-1, "aeiou") = "uaeio");
-
-      pragma Assert(Is_Unique("aeiou"));
-      pragma Assert(not Is_Unique("aeioua"));
-      pragma Assert(Member('i', "aeiou"));
-      pragma Assert(not Member('x', "aeiou"));
-      pragma Assert(Position('i', "aeiou") = 3);
-
-      begin
-         raised := FALSE;
-         pragma Assert(Position('x', "aeiou") = 99);
-      exception
-         when Not_Found => raised := TRUE;
-      end;
-      pragma Assert(raised);
 
       Reverse_It(s);
       pragma Assert(s = "amim em amam im");
@@ -104,8 +89,40 @@ begin
 
       s := "mi mama me mima";
       Rotate_It(3, s);
-      Put_Line(s);
       pragma Assert(s = "mama me mimami ");
+
+      s := "mi mama me mima";
+      Rotate_It(15-3, s);
+      pragma Assert(s = "imami mama me m");
+   end;
+
+   ------------------------------------------------------------------
+   -- Tuples.Uniquity
+   ------------------------------------------------------------------
+
+   declare
+      use Text_Uniquity;
+
+      Not_Found : exception renames Generics.Tuples.Not_Found;
+
+      s : STRING := "mi mama me mima";
+      t : STRING := s;
+   begin
+      pragma Assert(Is_Unique("aeiou"));
+      pragma Assert(not Is_Unique("aeioua"));
+
+      pragma Assert(Member('i', "aeiou"));
+      pragma Assert(not Member('x', "aeiou"));
+
+
+      pragma Assert(Position('i', "aeiou") = 3);
+      begin
+         raised := FALSE;
+         pragma Assert(Position('x', "aeiou") = 99);
+      exception
+         when Not_Found => raised := TRUE;
+      end;
+      pragma Assert(raised);
    end;
 
 end Tests_Generics;
