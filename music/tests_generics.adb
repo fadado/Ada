@@ -28,7 +28,7 @@ procedure Tests_Generics is
 
 begin
    ---------------------------------------------------------------------
-   -- Generics
+   -- Swap
    ---------------------------------------------------------------------
 
    declare
@@ -49,6 +49,9 @@ begin
       pragma Assert(s = "Hola");
    end;
 
+   ---------------------------------------------------------------------
+   -- Compose
+   ---------------------------------------------------------------------
    declare
       function as_int(x: FLOAT) return INTEGER is (INTEGER(x));
       function as_str(x: INTEGER) return STRING is (x'Image);
@@ -61,25 +64,44 @@ begin
       pragma Assert(float_to_string(3.14) = " 3");
    end;
 
-   declare
-   begin
-      pragma Assert(Text_Location.Reversed("aeiou") = "uoiea");
-      pragma Assert(Text_Location.Rotated(1, "aeiou") = "eioua");
-      pragma Assert(Text_Location.Rotated(5-1, "aeiou") = "uaeio");
+   ------------------------------------------------------------------
+   -- Tuples.Location
+   -- Tuples.Uniquity
+   ------------------------------------------------------------------
 
-      pragma Assert(Text_Uniquity.Is_Unique("aeiou"));
-      pragma Assert(not Text_Uniquity.Is_Unique("aeioua"));
-      pragma Assert(Text_Uniquity.Member('i', "aeiou"));
-      pragma Assert(not Text_Uniquity.Member('x', "aeiou"));
-      pragma Assert(Text_Uniquity.Position('i', "aeiou") = 3);
+   declare
+      use Text_Location;
+      use Text_Uniquity;
+      Not_Found : exception renames Generics.Tuples.Not_Found;
+
+      s : STRING := "mi mama me mima";
+      t : STRING := s;
+   begin
+      pragma Assert(Reversed("aeiou") = "uoiea");
+      pragma Assert(Rotated(1, "aeiou") = "eioua");
+      pragma Assert(Rotated(5-1, "aeiou") = "uaeio");
+
+      pragma Assert(Is_Unique("aeiou"));
+      pragma Assert(not Is_Unique("aeioua"));
+      pragma Assert(Member('i', "aeiou"));
+      pragma Assert(not Member('x', "aeiou"));
+      pragma Assert(Position('i', "aeiou") = 3);
 
       begin
          raised := FALSE;
-         pragma Assert(Text_Uniquity.Position('x', "aeiou") = 99);
+         pragma Assert(Position('x', "aeiou") = 99);
       exception
-         when Generics.Tuples.Not_Found => raised := TRUE;
+         when Not_Found => raised := TRUE;
       end;
       pragma Assert(raised);
+
+      Reverse_It(s);
+      pragma Assert(s = "amim em amam im");
+
+      Reverse_It(t(1..8));
+      Reverse_It(t(9..15));
+      pragma Assert(t = " amam imamim em");
+
    end;
 
 end Tests_Generics;

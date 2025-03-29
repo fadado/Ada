@@ -1,7 +1,7 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 package Generics is
-   pragma Pure(Generics);
+ --pragma Pure(Generics);
 
    generic
       type T(<>) is private;
@@ -35,40 +35,11 @@ package Generics is
          with package Signature_Package is new Signature (<>);
          use Signature_Package;
       ------------------------------------------------------------------
-      package Functors is
-      ------------------------------------------------------------------
-
-         generic
-            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         procedure Apply_To
-           (t : in out ARRAY_TYPE);
-
-         generic
-            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         function Mapper
-           (t : in ARRAY_TYPE) return ARRAY_TYPE;
-
-         generic
-            with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         function Reducer
-           (t : in ARRAY_TYPE) return ELEMENT_TYPE
-         with Pre => t'Length > 0;
-
-         generic
-            with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
-         function Chooser
-           (t : in ARRAY_TYPE) return ELEMENT_TYPE
-         with Pre => t'Length > 0;
-
-         -- TODO: filter (test)
-      end Functors;
-
-      generic
-         with package Signature_Package is new Signature (<>);
-         use Signature_Package;
-      ------------------------------------------------------------------
       package Location is
       ------------------------------------------------------------------
+
+         procedure Reverse_It
+           (t : in out ARRAY_TYPE);
 
          function Reversed
            (t : in ARRAY_TYPE) return ARRAY_TYPE;
@@ -142,6 +113,38 @@ package Generics is
 
            -- TODO: merge
       end Order;
+
+      generic
+         with package Signature_Package is new Signature (<>);
+         use Signature_Package;
+      ------------------------------------------------------------------
+      package Functors is
+      ------------------------------------------------------------------
+
+         generic
+            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         procedure Apply_To
+           (t : in out ARRAY_TYPE);
+
+         generic
+            with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Mapper
+           (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+         generic
+            with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Reducer
+           (t : in ARRAY_TYPE) return ELEMENT_TYPE
+         with Pre => t'Length > 0;
+
+         generic
+            with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
+         function Chooser
+           (t : in ARRAY_TYPE) return ELEMENT_TYPE
+         with Pre => t'Length > 0;
+
+         -- TODO: filter (test)
+      end Functors;
 
    end Tuples;
 

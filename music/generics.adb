@@ -21,79 +21,25 @@ package body Generics is
    ---------------------------------------------------------------------
 
       ------------------------------------------------------------------
-      package body Functors is
-      ------------------------------------------------------------------
-    
-       --generic
-       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         procedure Apply_To
-           (t : in out ARRAY_TYPE)
-         is
-         begin
-            for i in t'Range loop
-               t(i) := Map(t(i));
-            end loop;
-         end Apply_To;
-
-       --generic
-       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         function Mapper
-           (t : in ARRAY_TYPE) return ARRAY_TYPE
-         is
-         begin
-            return result : ARRAY_TYPE(t'Range) do
-               for i in t'Range loop
-                  result(i) := Map(t(i));
-               end loop;
-            end return;
-         end Mapper;
-    
-       --generic
-       --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
-         function Reducer
-            (t : in ARRAY_TYPE) return ELEMENT_TYPE
-         is
-         begin 
-            -- require: t'Length > 0
-            if t'Length = 1 then
-               return t(t'First);
-            end if;
-
-            -- check: t'Length > 1
-            return result : ELEMENT_TYPE := t(t'First) do
-               for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-                  result := Operation(result, t(i));
-               end loop;
-            end return;
-         end Reducer;
-    
-       --generic
-       --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
-         function Chooser
-            (t : in ARRAY_TYPE) return ELEMENT_TYPE
-         is
-         begin 
-            -- require: t'Length > 0
-            if t'Length = 1 then
-               return t(t'First);
-            end if;
-
-            -- check: t'Length > 1
-            return result : ELEMENT_TYPE := t(t'First) do
-               for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-                  if Better(t(i), result) then
-                     result := t(i);
-                  end if;
-               end loop;
-            end return;
-         end Chooser;
-    
-      end Functors;
-    
-      ------------------------------------------------------------------
       package body Location is
       ------------------------------------------------------------------
-    
+
+         procedure Reverse_It
+           (t : in out ARRAY_TYPE)
+         is
+            procedure swap is
+               new Generics.Swap(ELEMENT_TYPE);
+
+            i : INTEGER := INDEX_TYPE'Pos(t'First);
+            j : INTEGER := INDEX_TYPE'Pos(t'Last);
+         begin
+            while i < j loop
+               swap(t(INDEX_TYPE'Val(i)), t(INDEX_TYPE'Val(j)));
+               i := i + 1;
+               j := j - 1;
+            end loop;
+         end Reverse_It;
+
          function Reversed
            (t : in ARRAY_TYPE) return ARRAY_TYPE
          is
@@ -102,11 +48,11 @@ package body Generics is
             return result : ARRAY_TYPE(t'Range) do
                for x of reverse t loop
                   result(INDEX_TYPE'Val(i)) := x;
-                  i := i+1;
+                  i := i + 1;
                end loop;
             end return;
          end Reversed;
-    
+
          function Rotated
            (n : in INDEX_TYPE;
             t : in ARRAY_TYPE) return ARRAY_TYPE
@@ -273,6 +219,76 @@ package body Generics is
          end Search;
     
       end Order;
+
+      ------------------------------------------------------------------
+      package body Functors is
+      ------------------------------------------------------------------
+    
+       --generic
+       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         procedure Apply_To
+           (t : in out ARRAY_TYPE)
+         is
+         begin
+            for i in t'Range loop
+               t(i) := Map(t(i));
+            end loop;
+         end Apply_To;
+
+       --generic
+       --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Mapper
+           (t : in ARRAY_TYPE) return ARRAY_TYPE
+         is
+         begin
+            return result : ARRAY_TYPE(t'Range) do
+               for i in t'Range loop
+                  result(i) := Map(t(i));
+               end loop;
+            end return;
+         end Mapper;
+    
+       --generic
+       --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
+         function Reducer
+            (t : in ARRAY_TYPE) return ELEMENT_TYPE
+         is
+         begin 
+            -- require: t'Length > 0
+            if t'Length = 1 then
+               return t(t'First);
+            end if;
+
+            -- check: t'Length > 1
+            return result : ELEMENT_TYPE := t(t'First) do
+               for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+                  result := Operation(result, t(i));
+               end loop;
+            end return;
+         end Reducer;
+    
+       --generic
+       --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
+         function Chooser
+            (t : in ARRAY_TYPE) return ELEMENT_TYPE
+         is
+         begin 
+            -- require: t'Length > 0
+            if t'Length = 1 then
+               return t(t'First);
+            end if;
+
+            -- check: t'Length > 1
+            return result : ELEMENT_TYPE := t(t'First) do
+               for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+                  if Better(t(i), result) then
+                     result := t(i);
+                  end if;
+               end loop;
+            end return;
+         end Chooser;
+    
+      end Functors;
 
    end Tuples;
 
