@@ -1,10 +1,12 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Generics;
+with Generics.Tuples;
+use  Generics;
 
 package Music is
 
-   Not_Found : exception renames Generics.Tuples.Not_Found;
+
+   Not_Found : exception renames Tuples.Not_Found;
 
    ---------------------------------------
    -- Encoded pitch-class and intervals --
@@ -141,7 +143,7 @@ package Music is
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
    package PC_Tuple_Signature is
-      new Generics.Tuples.Signature (
+      new Tuples.Signature (
          Index_Type   => TUPLE_INDEX,
          Element_Type => PITCH_CLASS,
          Array_Type   => PC_TUPLE
@@ -150,16 +152,16 @@ package Music is
    -- Packages
 
    package PC_Tuple_Functors is
-      new Generics.Tuples.Functors (PC_Tuple_Signature);
+      new Tuples.Functors (PC_Tuple_Signature);
 
    package PC_Tuple_Location is
-      new Generics.Tuples.Location (PC_Tuple_Signature);
+      new Tuples.Location (PC_Tuple_Signature);
 
    package PC_Tuple_Uniquity is
-      new Generics.Tuples.Uniquity (PC_Tuple_Signature, "=");
+      new Tuples.Uniquity (PC_Tuple_Signature, "=");
 
    package PC_Tuple_Order is
-      new Generics.Tuples.Order (PC_Tuple_Signature, "<", ">");
+      new Tuples.Order (PC_Tuple_Signature, "<", ">");
 
    -- Subprograms
 

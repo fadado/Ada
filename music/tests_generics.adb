@@ -1,28 +1,27 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
-with Generics;
+with Generics.Tuples;
 
 use Ada.Text_IO;
+use Generics;
 
 procedure Tests_Generics is
 
    package Text_Signature is
-      new Generics.Tuples.Signature (POSITIVE, CHARACTER, STRING);
+      new Tuples.Signature (POSITIVE, CHARACTER, STRING);
 
    package Text_Functors is
-      new Generics.Tuples.Functors (Text_Signature);
+      new Tuples.Functors (Text_Signature);
 
    package Text_Location is
-      new Generics.Tuples.Location (Text_Signature);
+      new Tuples.Location (Text_Signature);
 
    package Text_Uniquity is
-      new Generics.Tuples.Uniquity (Text_Signature, "=");
+      new Tuples.Uniquity (Text_Signature, "=");
 
    package Text_Order is
-      new Generics.Tuples.Order (Text_Signature, "<", ">");
-
-   package G renames Generics;
+      new Tuples.Order (Text_Signature, "<", ">");
 
    raised : BOOLEAN;
 
@@ -32,8 +31,8 @@ begin
    ---------------------------------------------------------------------
 
    declare
-      procedure Swap is new G.Swap(INTEGER);
-      procedure Swap is new G.Swap(STRING);
+      procedure swap is new Generics.Swap(INTEGER);
+      procedure swap is new Generics.Swap(STRING);
 
       a, b : INTEGER;
       v : array (1..2) of INTEGER := (1, 2);
@@ -41,11 +40,11 @@ begin
       t : STRING := "Hola";
    begin
       a := 1; b := 2;
-      Swap(a, b);
+      swap(a, b);
       pragma Assert(a = 2 and b = 1);
-      Swap(v(1), v(2));
+      swap(v(1), v(2));
       pragma Assert(v = (2,1));
-      Swap(s, t);
+      swap(s, t);
       pragma Assert(s = "Hola");
    end;
 
@@ -56,7 +55,7 @@ begin
       function as_int(x: FLOAT) return INTEGER is (INTEGER(x));
       function as_str(x: INTEGER) return STRING is (x'Image);
 
-      function float_to_string is new G.Compose (
+      function float_to_string is new Compose (
          FLOAT, INTEGER, STRING,
             as_int,  as_str
       );
@@ -71,7 +70,7 @@ begin
    declare
       use Text_Location;
 
-      Not_Found : exception renames Generics.Tuples.Not_Found;
+      Not_Found : exception renames Tuples.Not_Found;
 
       s : STRING := "mi mama me mima";
       t : STRING := s;
@@ -103,7 +102,7 @@ begin
    declare
       use Text_Uniquity;
 
-      Not_Found : exception renames Generics.Tuples.Not_Found;
+      Not_Found : exception renames Tuples.Not_Found;
 
       s : STRING := "mi mama me mima";
       t : STRING := s;
