@@ -6,7 +6,7 @@ use  Generics;
 package Music is
 
 
-   Not_Found : exception renames Tuples.Not_Found;
+   Not_Found : exception renames Generics.Not_Found;
 
    ---------------------------------------
    -- Encoded pitch-class and intervals --

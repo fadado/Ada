@@ -67,7 +67,7 @@ begin
    declare
       use Text_Place;
 
-      Not_Found : exception renames Tuples.Not_Found;
+      Not_Found : exception renames Generics.Not_Found;
 
       s : STRING := "mi mama me mima";
       t : STRING := s;
@@ -99,7 +99,7 @@ begin
    declare
       use Text_Equiv;
 
-      Not_Found : exception renames Tuples.Not_Found;
+      Not_Found : exception renames Generics.Not_Found;
 
       s : STRING := "mi mama me mima";
       t : STRING := s;

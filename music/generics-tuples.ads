@@ -4,8 +4,6 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 package Generics.Tuples is
 ------------------------------------------------------------------------
 
-   Not_Found : exception;
-
    generic
       type INDEX_TYPE is (<>);
       type ELEMENT_TYPE is private;
@@ -18,6 +16,10 @@ package Generics.Tuples is
       use Signature_Package;
    package Place is
    ---------------------------------------------------------------------
+
+      function "=" (a, b: ELEMENT_TYPE) return BOOLEAN
+      is (raise Not_Implemented) with Inline;
+      -- Forbid private type equality!
 
       procedure Reverse_It
         (t : in out ARRAY_TYPE);

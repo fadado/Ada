@@ -2,14 +2,18 @@
 
 .SILENT:
 
+GENERICS=generics.ad[bs] generics-*.ad[bs]
+MUSIC=music.ad[bs] music-*.ad[bs] database.ad[bs]
+
 all: tests_music tests_generics
 
-tests_music: music.ad[bs] music-*.ad[bs] database.ad[bs] tests_music.adb
+tests_music: $(MUSIC) $(GENERICS) tests_music.adb
 	gnatmake tests_music
 
-tests_generics: generics.ad[bs] generics-*.ad[bs] tests_generics.adb
+tests_generics: $(GENERICS) tests_generics.adb
 	gnatmake tests_generics
 
+TESTS=tests_music tests_generics
+
 clean:
-	rm -f *.o *.ali  *.ads.* *.adb.* \
-		tests_music tests_generics
+	rm -f *.o *.ali  *.ads.* *.adb.* $(TESTS)

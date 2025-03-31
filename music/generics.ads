@@ -3,6 +3,9 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 package Generics is
    pragma Pure(Generics);
 
+   Not_Found       : exception;
+   Not_Implemented : exception;
+
    generic
       type T(<>) is private;
    procedure Swap
