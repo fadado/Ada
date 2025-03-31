@@ -151,14 +151,11 @@ package Music is
 
    -- Packages
 
-   package PC_Tuple_Functors is
-      new Tuples.Functors (PC_Tuple_Signature);
+   package PC_Tuple_Place is
+      new Tuples.Place (PC_Tuple_Signature);
 
-   package PC_Tuple_Location is
-      new Tuples.Location (PC_Tuple_Signature);
-
-   package PC_Tuple_Uniquity is
-      new Tuples.Uniquity (PC_Tuple_Signature, "=");
+   package PC_Tuple_Equiv is
+      new Tuples.Equiv (PC_Tuple_Signature, "=");
 
    package PC_Tuple_Order is
       new Tuples.Order (PC_Tuple_Signature, "<", ">");
@@ -167,12 +164,12 @@ package Music is
 
    function Retrograde
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Location.Reversed;
+   renames PC_Tuple_Place.Reversed;
 
    function Rotate
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Location.Rotated;
+   renames PC_Tuple_Place.Rotated;
 
    function Rotate
      (s : PC_TUPLE) return PC_TUPLE
@@ -212,7 +209,7 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => PC_Tuple_Uniquity.Is_Unique(s);
+   with Pre => PC_Tuple_Equiv.Is_Unique(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE

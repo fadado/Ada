@@ -16,7 +16,7 @@ package Generics.Tuples is
    generic
       with package Signature_Package is new Signature (<>);
       use Signature_Package;
-   package Location is
+   package Place is
    ---------------------------------------------------------------------
 
       procedure Reverse_It
@@ -38,14 +38,42 @@ package Generics.Tuples is
       with Inline;
 
       -- TODO: shuffle, shuffled, take
-   end Location;
+
+      --------------
+      -- Functors --
+      --------------
+
+      generic
+         with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      procedure Apply_To
+        (t : in out ARRAY_TYPE);
+
+      generic
+         with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Mapper
+        (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+      generic
+         with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Reducer
+        (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      with Pre => t'Length > 0;
+
+      generic
+         with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
+      function Chooser
+        (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      with Pre => t'Length > 0;
+
+      -- TODO: filter (test)
+   end Place;
 
    ---------------------------------------------------------------------
    generic
       with package Signature_Package is new Signature (<>);
       use Signature_Package;
       with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package Uniquity is
+   package Equiv is
    ---------------------------------------------------------------------
 
       function Is_Unique
@@ -63,7 +91,7 @@ package Generics.Tuples is
       with Pre => t'Length > 0;
 
       -- TODO: squashed
-   end Uniquity;
+   end Equiv;
 
    ---------------------------------------------------------------------
    generic
@@ -99,38 +127,6 @@ package Generics.Tuples is
 
         -- TODO: merge
    end Order;
-
-   ---------------------------------------------------------------------
-   generic
-      with package Signature_Package is new Signature (<>);
-      use Signature_Package;
-   package Functors is
-   ---------------------------------------------------------------------
-
-      generic
-         with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      procedure Apply_To
-        (t : in out ARRAY_TYPE);
-
-      generic
-         with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
-        (t : in ARRAY_TYPE) return ARRAY_TYPE;
-
-      generic
-         with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Reducer
-        (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      with Pre => t'Length > 0;
-
-      generic
-         with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
-      function Chooser
-        (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      with Pre => t'Length > 0;
-
-      -- TODO: filter (test)
-   end Functors;
 
 end Generics.Tuples;
 -- ¡ISO-8859-1!

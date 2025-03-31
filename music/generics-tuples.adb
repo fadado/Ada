@@ -3,7 +3,7 @@ package body Generics.Tuples is
 ------------------------------------------------------------------------
 
    ---------------------------------------------------------------------
-   package body Location is
+   package body Place is
    ---------------------------------------------------------------------
 
       procedure Reverse_It
@@ -51,10 +51,77 @@ package body Generics.Tuples is
          end return;
       end Rotated;
  
-   end Location;
+      --------------
+      -- Functors --
+      --------------
+
+    --generic
+    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      procedure Apply_To
+        (t : in out ARRAY_TYPE)
+      is
+      begin
+         for i in t'Range loop
+            t(i) := Map(t(i));
+         end loop;
+      end Apply_To;
+
+    --generic
+    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Mapper
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         return result : ARRAY_TYPE(t'Range) do
+            for i in t'Range loop
+               result(i) := Map(t(i));
+            end loop;
+         end return;
+      end Mapper;
+ 
+    --generic
+    --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Reducer
+         (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         -- require: t'Length > 0
+         if t'Length = 1 then
+            return t(t'First);
+         end if;
+
+         -- check: t'Length > 1
+         return result : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               result := Operation(result, t(i));
+            end loop;
+         end return;
+      end Reducer;
+ 
+    --generic
+    --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
+      function Chooser
+         (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         -- require: t'Length > 0
+         if t'Length = 1 then
+            return t(t'First);
+         end if;
+
+         -- check: t'Length > 1
+         return result : ELEMENT_TYPE := t(t'First) do
+            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
+               if Better(t(i), result) then
+                  result := t(i);
+               end if;
+            end loop;
+         end return;
+      end Chooser;
+   end Place;
 
    ---------------------------------------------------------------------
-   package body Uniquity is
+   package body Equiv is
    ---------------------------------------------------------------------
  
       function Is_Unique
@@ -82,7 +149,7 @@ package body Generics.Tuples is
          raise Not_Found;
       end Position;
  
-   end Uniquity;
+   end Equiv;
  
    ---------------------------------------------------------------------
    package body Order is
@@ -174,76 +241,6 @@ package body Generics.Tuples is
       end Search;
  
    end Order;
-
-   ---------------------------------------------------------------------
-   package body Functors is
-   ---------------------------------------------------------------------
- 
-    --generic
-    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      procedure Apply_To
-        (t : in out ARRAY_TYPE)
-      is
-      begin
-         for i in t'Range loop
-            t(i) := Map(t(i));
-         end loop;
-      end Apply_To;
-
-    --generic
-    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
-        (t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
-      begin
-         return result : ARRAY_TYPE(t'Range) do
-            for i in t'Range loop
-               result(i) := Map(t(i));
-            end loop;
-         end return;
-      end Mapper;
- 
-    --generic
-    --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Reducer
-         (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         -- require: t'Length > 0
-         if t'Length = 1 then
-            return t(t'First);
-         end if;
-
-         -- check: t'Length > 1
-         return result : ELEMENT_TYPE := t(t'First) do
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               result := Operation(result, t(i));
-            end loop;
-         end return;
-      end Reducer;
- 
-    --generic
-    --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
-      function Chooser
-         (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         -- require: t'Length > 0
-         if t'Length = 1 then
-            return t(t'First);
-         end if;
-
-         -- check: t'Length > 1
-         return result : ELEMENT_TYPE := t(t'First) do
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               if Better(t(i), result) then
-                  result := t(i);
-               end if;
-            end loop;
-         end return;
-      end Chooser;
- 
-   end Functors;
 
 end Generics.Tuples;
 -- ¡ISO-8859-1!

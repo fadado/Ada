@@ -11,14 +11,11 @@ procedure Tests_Generics is
    package Text_Signature is
       new Tuples.Signature (POSITIVE, CHARACTER, STRING);
 
-   package Text_Functors is
-      new Tuples.Functors (Text_Signature);
+   package Text_Place is
+      new Tuples.Place (Text_Signature);
 
-   package Text_Location is
-      new Tuples.Location (Text_Signature);
-
-   package Text_Uniquity is
-      new Tuples.Uniquity (Text_Signature, "=");
+   package Text_Equiv is
+      new Tuples.Equiv (Text_Signature, "=");
 
    package Text_Order is
       new Tuples.Order (Text_Signature, "<", ">");
@@ -64,11 +61,11 @@ begin
    end;
 
    ------------------------------------------------------------------
-   -- Tuples.Location
+   -- Tuples.Place
    ------------------------------------------------------------------
 
    declare
-      use Text_Location;
+      use Text_Place;
 
       Not_Found : exception renames Tuples.Not_Found;
 
@@ -96,11 +93,11 @@ begin
    end;
 
    ------------------------------------------------------------------
-   -- Tuples.Uniquity
+   -- Tuples.Equiv
    ------------------------------------------------------------------
 
    declare
-      use Text_Uniquity;
+      use Text_Equiv;
 
       Not_Found : exception renames Tuples.Not_Found;
 
