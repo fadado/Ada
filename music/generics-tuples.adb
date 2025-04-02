@@ -134,10 +134,11 @@ package body Generics.Tuples is
                   not (t(j) = t(i))));
       end Is_Unique;
  
-      function Position
+      function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
       is
+         -- Linear Search
       begin 
          -- require: t'Length > 0
          for i in t'Range loop
@@ -147,7 +148,7 @@ package body Generics.Tuples is
          end loop;
 
          raise Not_Found;
-      end Position;
+      end Search;
  
    end Equiv;
  
@@ -217,7 +218,8 @@ package body Generics.Tuples is
       end Sorted;
  
       function Search
-        (t : in ARRAY_TYPE; x : in ELEMENT_TYPE) return INDEX_TYPE
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return INDEX_TYPE
       is
          -- Binary Search
          low    : INDEX_TYPE := t'First;
@@ -240,6 +242,18 @@ package body Generics.Tuples is
          raise Not_Found;
       end Search;
  
+      function Member
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return BOOLEAN
+      is
+         dummy : INDEX_TYPE;
+      begin
+         dummy := Search(x, t);
+         return TRUE;
+      exception
+         when Not_Found => return FALSE;
+      end Member;
+
    end Order;
 
 end Generics.Tuples;

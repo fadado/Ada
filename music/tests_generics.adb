@@ -111,10 +111,10 @@ begin
       pragma Assert(not Member('x', "aeiou"));
 
 
-      pragma Assert(Position('i', "aeiou") = 3);
+      pragma Assert(Search('i', "aeiou") = 3);
       begin
          raised := FALSE;
-         pragma Assert(Position('x', "aeiou") = 99);
+         pragma Assert(Search('x', "aeiou") = 99);
       exception
          when Not_Found => raised := TRUE;
       end;

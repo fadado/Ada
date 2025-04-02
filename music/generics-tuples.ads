@@ -87,7 +87,7 @@ package Generics.Tuples is
       is (for some i in t'Range => x = t(i))
       with Inline;
 
-      function Position
+      function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => t'Length > 0;
@@ -101,6 +101,7 @@ package Generics.Tuples is
       use Signature_Package;
       with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
       with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+      with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Order is
    ---------------------------------------------------------------------
 
@@ -123,11 +124,16 @@ package Generics.Tuples is
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       with Inline;
 
+      function Member
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return BOOLEAN
+      with Inline;
+
       function Search
-        (t : in ARRAY_TYPE; x : ELEMENT_TYPE) return INDEX_TYPE
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => Is_Sorted(t);
 
-        -- TODO: merge
    end Order;
 
 end Generics.Tuples;

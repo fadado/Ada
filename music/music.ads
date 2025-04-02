@@ -201,7 +201,7 @@ package Music is
 
    function Search
      (s : PC_TUPLE; x : PITCH_CLASS) return TUPLE_INDEX
-   renames PC_Tuple_Order.Search;
+   is (PC_Tuple_Order.Search(x, s)) with Inline;
 
    -------------------
    -- Set <=> Tuple --
