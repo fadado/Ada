@@ -228,13 +228,13 @@ begin
       Sort(y);
       pragma Assert(y = TRICHORD'(1,3,7));
       pragma Assert(x = y);
-      pragma Assert(Search(y, PITCH_CLASS'(1)) = 1);
-      pragma Assert(Search(y, PITCH_CLASS'(3)) = 2);
-      pragma Assert(Search(y, PITCH_CLASS'(7)) = 3);
+      pragma Assert(Search(PITCH_CLASS'(1), y) = 1);
+      pragma Assert(Search(PITCH_CLASS'(3), y) = 2);
+      pragma Assert(Search(PITCH_CLASS'(7), y) = 3);
 
       begin
          raised := FALSE;
-         pragma Assert(Search(y, PITCH_CLASS'(2)) = 3);
+         pragma Assert(Search(PITCH_CLASS'(2), y) = 3);
       exception
          when Not_Found => raised := TRUE;
       end;

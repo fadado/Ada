@@ -200,8 +200,9 @@ package Music is
    renames PC_Tuple_Order.Sorted;
 
    function Search
-     (s : PC_TUPLE; x : PITCH_CLASS) return TUPLE_INDEX
-   is (PC_Tuple_Order.Search(x, s)) with Inline;
+     (x : PITCH_CLASS;
+      t : PC_TUPLE) return TUPLE_INDEX
+   renames PC_Tuple_Order.Search;
 
    -------------------
    -- Set <=> Tuple --

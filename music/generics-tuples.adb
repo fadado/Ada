@@ -2,6 +2,19 @@
 package body Generics.Tuples is
 ------------------------------------------------------------------------
 
+ --generic
+ --   with package Signature_Package is new Signature (<>);
+ --   use Signature_Package;
+ --   with procedure Do_It(t: in out ARRAY_TYPE);
+   function Applied
+     (t : in ARRAY_TYPE) return ARRAY_TYPE
+   is
+   begin
+      return result : ARRAY_TYPE(t'Range) := t do
+         Do_It(result);
+      end return;
+   end Applied;
+
    ---------------------------------------------------------------------
    package body Place is
    ---------------------------------------------------------------------
@@ -22,15 +35,6 @@ package body Generics.Tuples is
          end loop;
       end Reverse_It;
 
-      function Reversed
-        (t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
-      begin
-         return result : ARRAY_TYPE(t'Range) := t do
-            Reverse_It(result);
-         end return;
-      end Reversed;
-
       procedure Rotate_It
         (n : in     INDEX_TYPE;
          t : in out ARRAY_TYPE)
@@ -44,13 +48,13 @@ package body Generics.Tuples is
       function Rotated
         (n : in INDEX_TYPE;
          t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
+      is  
       begin
          return result : ARRAY_TYPE(t'Range) := t do
             Rotate_It(n, result);
          end return;
       end Rotated;
- 
+
       --------------
       -- Functors --
       --------------
@@ -208,15 +212,6 @@ package body Generics.Tuples is
          -- ensure: Is_Sorted(t)
       end Sort_It;
  
-      function Sorted
-        (t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
-      begin
-         return result : ARRAY_TYPE(t'Range) := t do
-            Sort_It(result);
-         end return;
-      end Sorted;
- 
       function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
@@ -246,10 +241,8 @@ package body Generics.Tuples is
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return BOOLEAN
       is
-         dummy : INDEX_TYPE;
       begin
-         dummy := Search(x, t);
-         return TRUE;
+         return Search(x, t) >= t'First; -- always true if found
       exception
          when Not_Found => return FALSE;
       end Member;
