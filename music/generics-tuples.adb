@@ -49,10 +49,13 @@ package body Generics.Tuples is
         (n : in INDEX_TYPE;
          t : in ARRAY_TYPE) return ARRAY_TYPE
       is  
+         procedure R (t: in out ARRAY_TYPE) with Inline is
+         begin
+            Rotate_It(n, t);
+         end;
+         function F is new Applied (Signature_Package, R);
       begin
-         return result : ARRAY_TYPE(t'Range) := t do
-            Rotate_It(n, result);
-         end return;
+         return F(t);
       end Rotated;
 
       --------------
@@ -75,12 +78,10 @@ package body Generics.Tuples is
       function Mapper
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
+         procedure P is new Apply_To (Map);
+         function  F is new Applied  (Signature_Package, P);
       begin
-         return result : ARRAY_TYPE(t'Range) do
-            for i in t'Range loop
-               result(i) := Map(t(i));
-            end loop;
-         end return;
+         return F(t);
       end Mapper;
  
     --generic
@@ -183,10 +184,10 @@ package body Generics.Tuples is
       procedure Sort_It
         (t : in out ARRAY_TYPE)
       is
-         function add(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+         function add (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
          is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) + n)) with Inline;
  
-         function sub(m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+         function sub (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
          is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) - n)) with Inline;
  
          -- Shell Sort

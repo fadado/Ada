@@ -43,8 +43,7 @@ package Generics.Tuples is
 
      function Rotated
         (n : in INDEX_TYPE;
-         t : in ARRAY_TYPE) return ARRAY_TYPE
-      with Inline;
+         t : in ARRAY_TYPE) return ARRAY_TYPE;
 
       -- TODO: shuffle, shuffled, take
 
@@ -132,8 +131,7 @@ package Generics.Tuples is
 
       function Member
         (x : in ELEMENT_TYPE;
-         t : in ARRAY_TYPE) return BOOLEAN
-      with Inline;
+         t : in ARRAY_TYPE) return BOOLEAN;
 
       function Search
         (x : in ELEMENT_TYPE;
