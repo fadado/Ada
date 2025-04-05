@@ -61,11 +61,11 @@ package Generics.Tuples is
       function Applier
         (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
-    --generic
-    --   with package Output is new Signature (<>);
-    --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
-    --function Mapper
-    --  (t : in ARRAY_TYPE) return Output.ARRAY_TYPE;
+      generic
+         with package Output is new Signature (<>);
+         with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
+      function Mapper
+        (t : in ARRAY_TYPE) return Output.ARRAY_TYPE;
 
       generic
          with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
@@ -120,13 +120,9 @@ package Generics.Tuples is
       function Is_Sorted
         (t : in ARRAY_TYPE) return BOOLEAN;
 
-      pragma Assertion_Policy(Ignore);
-
       function Is_Unique
         (t : in ARRAY_TYPE) return BOOLEAN
       with Pre => Is_Sorted(t);
-
-      pragma Assertion_Policy(Check);
 
       procedure Sort_It
         (t : in out ARRAY_TYPE)

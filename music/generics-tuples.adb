@@ -86,18 +86,28 @@ package body Generics.Tuples is
  
     --generic
     --   with package Output is new Signature (<>);
-    --   use Output;
     --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
-    --function Mapper
-    --  (t : in ARRAY_TYPE) return Output.ARRAY_TYPE
-    --is
-    --begin
-    --   return result : Output.ARRAY_TYPE(t'Range) do
-    --      for i in t'Range loop
-    --         result(i) := Map(t(i));
-    --      end loop;
-    --   end return;
-    --end Mapper;
+      function Mapper
+        (t : in ARRAY_TYPE) return Output.ARRAY_TYPE
+      is
+         subtype OI is Output.INDEX_TYPE;
+         subtype OA is Output.ARRAY_TYPE;
+
+         first : constant INTEGER := OI'Pos(OI'First);
+         last  : constant INTEGER := first + t'Length - 1;
+         index : OI := OI'Val(first);
+
+         use Output; -- makes compiler happy!
+      begin
+         return result : OA(OI'Val(first) .. OI'Val(last)) do
+            pragma Assert(t'Length = result'Length);
+            for i in t'Range loop
+               result(index) := Map(t(i));
+               exit when index = OI'Last;
+               index := OI'Succ(index);
+            end loop;
+         end return;
+      end Mapper;
 
     --generic
     --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
