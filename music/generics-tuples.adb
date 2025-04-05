@@ -6,14 +6,14 @@ package body Generics.Tuples is
  --   with package Signature_Package is new Signature (<>);
  --   use Signature_Package;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
-   function Applied
+   function Functional
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
       return result : ARRAY_TYPE(t'Range) := t do
          Do_It(result);
       end return;
-   end Applied;
+   end Functional;
 
    ---------------------------------------------------------------------
    package body Place is
@@ -53,7 +53,7 @@ package body Generics.Tuples is
          begin
             Rotate_It(n, t);
          end;
-         function F is new Applied (Signature_Package, R);
+         function F is new Functional (Signature_Package, R);
       begin
          return F(t);
       end Rotated;
@@ -75,15 +75,30 @@ package body Generics.Tuples is
 
     --generic
     --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
+      function Applier
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
          procedure P is new Apply_To (Map);
-         function  F is new Applied  (Signature_Package, P);
+         function  F is new Functional (Signature_Package, P);
       begin
          return F(t);
-      end Mapper;
+      end Applier;
  
+    --generic
+    --   with package Output is new Signature (<>);
+    --   use Output;
+    --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
+    --function Mapper
+    --  (t : in ARRAY_TYPE) return Output.ARRAY_TYPE
+    --is
+    --begin
+    --   return result : Output.ARRAY_TYPE(t'Range) do
+    --      for i in t'Range loop
+    --         result(i) := Map(t(i));
+    --      end loop;
+    --   end return;
+    --end Mapper;
+
     --generic
     --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
       function Reducer

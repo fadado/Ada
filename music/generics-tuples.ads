@@ -14,7 +14,7 @@ package Generics.Tuples is
       with package Signature_Package is new Signature (<>);
       use Signature_Package;
       with procedure Do_It(t: in out ARRAY_TYPE);
-   function Applied
+   function Functional
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    with Inline;
 
@@ -33,7 +33,7 @@ package Generics.Tuples is
         (t : in out ARRAY_TYPE);
 
       function Reversed is
-         new Applied (Signature_Package, Reverse_It);
+         new Functional (Signature_Package, Reverse_It);
 
       procedure Rotate_It
         (n : in     INDEX_TYPE;
@@ -41,7 +41,7 @@ package Generics.Tuples is
       -- Rotate left!
       -- Rotate right: Rotate_It(t'Length-n, t);
 
-     function Rotated
+      function Rotated
         (n : in INDEX_TYPE;
          t : in ARRAY_TYPE) return ARRAY_TYPE;
 
@@ -58,8 +58,14 @@ package Generics.Tuples is
 
       generic
          with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Mapper
+      function Applier
         (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+    --generic
+    --   with package Output is new Signature (<>);
+    --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
+    --function Mapper
+    --  (t : in ARRAY_TYPE) return Output.ARRAY_TYPE;
 
       generic
          with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
@@ -127,7 +133,7 @@ package Generics.Tuples is
       with Post => Is_Sorted(t);
 
       function Sorted is
-         new Applied (Signature_Package, Sort_It);
+         new Functional (Signature_Package, Sort_It);
 
       function Member
         (x : in ELEMENT_TYPE;
