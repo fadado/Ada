@@ -15,7 +15,23 @@ package body Generics.Tuples is
       end return;
    end Functional;
 
+ --generic
+ --   with package Signature_Package is new Signature (<>);
+ --   use Signature_Package;
+ --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+   procedure Procedural
+     (t : in out ARRAY_TYPE)
+   is
+   begin
+      for i in t'Range loop
+         t(i) := Map(t(i));
+      end loop;
+   end Procedural;
+
    ---------------------------------------------------------------------
+ --generic
+ --   with package Signature_Package is new Signature (<>);
+ --   use Signature_Package;
    package body Place is
    ---------------------------------------------------------------------
 
@@ -25,13 +41,13 @@ package body Generics.Tuples is
          procedure swap is
             new Generics.Swap (ELEMENT_TYPE);
 
-         i : INTEGER := INDEX_TYPE'Pos(t'First);
-         j : INTEGER := INDEX_TYPE'Pos(t'Last);
+         i : INDEX_TYPE := t'First;
+         j : INDEX_TYPE := t'Last;
       begin
          while i < j loop
-            swap(t(INDEX_TYPE'Val(i)), t(INDEX_TYPE'Val(j)));
-            i := i + 1;
-            j := j - 1;
+            swap(t(i), t(j));
+            i := INDEX_TYPE'Succ(i);
+            j := INDEX_TYPE'Pred(j);
          end loop;
       end Reverse_It;
 
@@ -64,21 +80,10 @@ package body Generics.Tuples is
 
     --generic
     --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      procedure Apply_To
-        (t : in out ARRAY_TYPE)
-      is
-      begin
-         for i in t'Range loop
-            t(i) := Map(t(i));
-         end loop;
-      end Apply_To;
-
-    --generic
-    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
       function Applier
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
-         procedure P is new Apply_To (Map);
+         procedure P is new Procedural (Signature_Package, Map);
          function  F is new Functional (Signature_Package, P);
       begin
          return F(t);
@@ -154,6 +159,10 @@ package body Generics.Tuples is
    end Place;
 
    ---------------------------------------------------------------------
+ --generic
+ --   with package Signature_Package is new Signature (<>);
+ --   use Signature_Package;
+ --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package body Equiv is
    ---------------------------------------------------------------------
  
@@ -186,6 +195,12 @@ package body Generics.Tuples is
    end Equiv;
  
    ---------------------------------------------------------------------
+ --generic
+ --   with package Signature_Package is new Signature (<>);
+ --   use Signature_Package;
+ --   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+ --   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+ --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package body Order is
    ---------------------------------------------------------------------
  

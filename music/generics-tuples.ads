@@ -18,6 +18,13 @@ package Generics.Tuples is
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    with Inline;
 
+   generic
+      with package Signature_Package is new Signature (<>);
+      use Signature_Package;
+      with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
+   procedure Procedural
+      (t : in out ARRAY_TYPE);
+
    ---------------------------------------------------------------------
    generic
       with package Signature_Package is new Signature (<>);
@@ -50,11 +57,6 @@ package Generics.Tuples is
       --------------
       -- Functors --
       --------------
-
-      generic
-         with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      procedure Apply_To
-        (t : in out ARRAY_TYPE);
 
       generic
          with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
