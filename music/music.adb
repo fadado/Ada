@@ -84,7 +84,7 @@ package body Music is
       t : PC_SET;
    begin
       return s : PC_SET := 16#000# do
-         for i in PC_INTERVAL'First..PC_INTERVAL'First+d-1 loop
+         for i in PC_INTERVAL'First .. PC_INTERVAL'First+d-1 loop
             t := BitSet(origin + i * g);
             exit when (s and t) /= 16#000#; -- cycle detected
             s := s or t;
@@ -104,7 +104,7 @@ package body Music is
       is (Transposition(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Place.Applier (f);
+         new PC_Tuple_Place.Mapper (PC_Tuple_Signature, f);
    begin
       return apply(s);
    end Transposition;
@@ -117,7 +117,7 @@ package body Music is
       is (Inversion(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Place.Applier (f);
+         new PC_Tuple_Place.Mapper (PC_Tuple_Signature, f);
    begin
       return apply(s);
    end Inversion;
@@ -179,8 +179,8 @@ package body Music is
      (s : PC_TUPLE) return INTERVAL_PATTERN
    is
    begin
-      return intervals : INTERVAL_PATTERN(s'Range) do
-         for k in s'First+1..s'Last loop
+      return intervals : INTERVAL_PATTERN (s'Range) do
+         for k in s'First+1 .. s'Last loop
             intervals(k-1) := Interval(s(k-1), s(k));
          end loop;
          intervals(s'Last) := Interval(s(s'Last), s(s'First));

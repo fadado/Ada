@@ -6,27 +6,14 @@ package body Generics.Tuples is
  --   with package Signature_Package is new Signature (<>);
  --   use Signature_Package;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
-   function Functional
+   function Functor
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
-      return result : ARRAY_TYPE(t'Range) := t do
+      return result : ARRAY_TYPE := t do
          Do_It(result);
       end return;
-   end Functional;
-
- --generic
- --   with package Signature_Package is new Signature (<>);
- --   use Signature_Package;
- --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-   procedure Procedural
-     (t : in out ARRAY_TYPE)
-   is
-   begin
-      for i in t'Range loop
-         t(i) := Map(t(i));
-      end loop;
-   end Procedural;
+   end Functor;
 
    ---------------------------------------------------------------------
  --generic
@@ -69,7 +56,7 @@ package body Generics.Tuples is
          begin
             Rotate_It(n, t);
          end;
-         function F is new Functional (Signature_Package, R);
+         function F is new Functor (Signature_Package, R);
       begin
          return F(t);
       end Rotated;
@@ -78,17 +65,6 @@ package body Generics.Tuples is
       -- Functors --
       --------------
 
-    --generic
-    --   with function Map (x: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Applier
-        (t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
-         procedure P is new Procedural (Signature_Package, Map);
-         function  F is new Functional (Signature_Package, P);
-      begin
-         return F(t);
-      end Applier;
- 
     --generic
     --   with package Output is new Signature (<>);
     --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
@@ -108,8 +84,8 @@ package body Generics.Tuples is
             declare
                i : OI := OI'Val(first);
             begin
-               for j in t'Range loop
-                  result(i) := Map(t(j));
+               for e of t loop
+                  result(i) := Map(e);
                   exit when i = OI'Last;
                   i := OI'Succ(i);
                end loop;
@@ -130,8 +106,8 @@ package body Generics.Tuples is
 
          -- check: t'Length > 1
          return result : ELEMENT_TYPE := t(t'First) do
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               result := Operation(result, t(i));
+            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
+               result := Operation(result, e);
             end loop;
          end return;
       end Reducer;
@@ -149,9 +125,9 @@ package body Generics.Tuples is
 
          -- check: t'Length > 1
          return result : ELEMENT_TYPE := t(t'First) do
-            for i in INDEX_TYPE'Succ(t'First) .. t'Last loop
-               if Better(t(i), result) then
-                  result := t(i);
+            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
+               if Better(e, result) then
+                  result := e;
                end if;
             end loop;
          end return;
