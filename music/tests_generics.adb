@@ -24,6 +24,23 @@ procedure Tests_Generics is
 
 begin
    ---------------------------------------------------------------------
+   -- Empty arrays and slice
+   ---------------------------------------------------------------------
+   declare
+      type INDEX is range 1..2;
+      type EMPTY is array (INDEX range 1..INDEX'Pred(INDEX'First)) of INTEGER;
+      type XXXXX is array (EMPTY'Range) of INTEGER;
+   begin
+      Pragma Assert(EMPTY'First  = 1);
+      Pragma Assert(EMPTY'Last   = 0);
+      Pragma Assert(EMPTY'Length = 0);
+      Pragma Assert(XXXXX'First  = 1);
+      Pragma Assert(XXXXX'Last   = 0);
+      Pragma Assert(XXXXX'Length = 0);
+      Pragma Assert(INDEX'Pred(INDEX'First) = 0);
+   end;
+
+   ---------------------------------------------------------------------
    -- Swap
    ---------------------------------------------------------------------
 

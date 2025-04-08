@@ -11,17 +11,20 @@ package Generics.Tuples is
    package Signature is private end;
 
    generic
-      with package Signature_Package is new Signature (<>);
-      use Signature_Package;
+      with package Source is new Signature (<>);
+      use Source;
       with procedure Do_It(t: in out ARRAY_TYPE);
    function Functor
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    with Inline;
 
+   -- In place application:
+   --    for e of t(i..j) loop e := f(e); end loop;
+
    ---------------------------------------------------------------------
    generic
-      with package Signature_Package is new Signature (<>);
-      use Signature_Package;
+      with package Source is new Signature (<>);
+      use Source;
    package Place is
    ---------------------------------------------------------------------
 
@@ -33,7 +36,7 @@ package Generics.Tuples is
         (t : in out ARRAY_TYPE);
 
       function Reversed is
-         new Functor (Signature_Package, Reverse_It);
+         new Functor (Source, Reverse_It);
 
       procedure Rotate_It
         (n : in     INDEX_TYPE;
@@ -45,17 +48,27 @@ package Generics.Tuples is
         (n : in INDEX_TYPE;
          t : in ARRAY_TYPE) return ARRAY_TYPE;
 
-      -- TODO: shuffle, shuffled, take
-
       --------------
       -- Functors --
       --------------
 
       generic
-         with package Output is new Signature (<>);
-         with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
+         with package Target is new Signature (<>);
+         with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Mapper
-        (t : in ARRAY_TYPE) return Output.ARRAY_TYPE;
+        (t : in ARRAY_TYPE) return Target.ARRAY_TYPE;
+
+      generic
+         with package Target is new Signature (<>);
+         with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+      function Zipper
+        (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
+      with Pre => s'Length = t'Length and then s'First = t'First;
+
+      generic
+         with function Test (X: in ELEMENT_TYPE) return BOOLEAN;
+      function Filter
+        (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
       generic
          with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
@@ -69,13 +82,12 @@ package Generics.Tuples is
         (t : in ARRAY_TYPE) return ELEMENT_TYPE
       with Pre => t'Length > 0;
 
-      -- TODO: filter (test)
    end Place;
 
    ---------------------------------------------------------------------
    generic
-      with package Signature_Package is new Signature (<>);
-      use Signature_Package;
+      with package Source is new Signature (<>);
+      use Source;
       with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package Equiv is
    ---------------------------------------------------------------------
@@ -86,7 +98,6 @@ package Generics.Tuples is
       function Member
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return BOOLEAN
-      is (for some i in t'Range => x = t(i))
       with Inline;
 
       function Search
@@ -94,13 +105,15 @@ package Generics.Tuples is
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => t'Length > 0;
 
-      -- TODO: squashed
+      function Squashed
+        (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
    end Equiv;
 
    ---------------------------------------------------------------------
    generic
-      with package Signature_Package is new Signature (<>);
-      use Signature_Package;
+      with package Source is new Signature (<>);
+      use Source;
       with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
       with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
       with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
@@ -119,7 +132,7 @@ package Generics.Tuples is
       with Post => Is_Sorted(t);
 
       function Sorted is
-         new Functor (Signature_Package, Sort_It);
+         new Functor (Source, Sort_It);
 
       function Member
         (x : in ELEMENT_TYPE;

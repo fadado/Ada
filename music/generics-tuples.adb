@@ -3,8 +3,8 @@ package body Generics.Tuples is
 ------------------------------------------------------------------------
 
  --generic
- --   with package Signature_Package is new Signature (<>);
- --   use Signature_Package;
+ --   with package Source is new Signature (<>);
+ --   use Source;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
    function Functor
      (t : in ARRAY_TYPE) return ARRAY_TYPE
@@ -17,8 +17,8 @@ package body Generics.Tuples is
 
    ---------------------------------------------------------------------
  --generic
- --   with package Signature_Package is new Signature (<>);
- --   use Signature_Package;
+ --   with package Source is new Signature (<>);
+ --   use Source;
    package body Place is
    ---------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ package body Generics.Tuples is
          begin
             Rotate_It(n, t);
          end;
-         function F is new Functor (Signature_Package, R);
+         function F is new Functor (Source, R);
       begin
          return F(t);
       end Rotated;
@@ -66,32 +66,78 @@ package body Generics.Tuples is
       --------------
 
     --generic
-    --   with package Output is new Signature (<>);
-    --   with function Map (x: in ELEMENT_TYPE) return Output.ELEMENT_TYPE;
+    --   with package Target is new Signature (<>);
+    --   with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Mapper
-        (t : in ARRAY_TYPE) return Output.ARRAY_TYPE
+        (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       is
-         subtype OI is Output.INDEX_TYPE;
-         subtype OA is Output.ARRAY_TYPE;
+         subtype TI is Target.INDEX_TYPE;
+         subtype TA is Target.ARRAY_TYPE;
 
-         first : constant INTEGER := OI'Pos(OI'First);
-         last  : constant INTEGER := first + t'Length - 1;
+         first : constant TI := TI'First;
+         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
 
-         use Output; -- makes compiler happy!
+         use type Target.INDEX_TYPE; -- makes compiler happy!
       begin
-         return result : OA (OI'Val(first) .. OI'Val(last)) do
+         return result : TA (first .. last) do
             pragma Assert(t'Length = result'Length);
             declare
-               i : OI := OI'Val(first);
+               i : TI := first;
             begin
                for e of t loop
                   result(i) := Map(e);
-                  exit when i = OI'Last;
-                  i := OI'Succ(i);
+                  exit when i = result'Last;
+                  i := TI'Succ(i);
                end loop;
             end;
          end return;
       end Mapper;
+
+    --generic
+    --   with package Target is new Signature (<>);
+    --   with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+      function Zipper
+        (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
+      is
+         subtype TI is Target.INDEX_TYPE;
+         subtype TA is Target.ARRAY_TYPE;
+
+         first : constant TI := TI'First;
+         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
+         i     : Source.INDEX_TYPE := s'First;
+      begin
+         -- require: s'Length = t'Length and then s'First = t'First
+         return result : TA (first .. last) do
+            pragma Assert(t'Length = result'Length);
+            for j in result'Range loop
+               result(j) := Zip(s(i), t(i));
+               exit when i = s'Last;
+               i := Source.INDEX_TYPE'Succ(i);
+            end loop;
+         end return;
+      end Zipper;
+
+    --generic
+    --   with function Test (X: in ELEMENT_TYPE) return BOOLEAN;
+      function Filter
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+         s : ARRAY_TYPE (t'Range);
+         i : INDEX_TYPE := s'First;
+      begin
+         for e of t loop
+            if Test(e) then
+               s(i) := e;
+               exit when i = s'Last;
+               i := INDEX_TYPE'Succ(i);
+            end if;
+         end loop;
+         if i = s'Last then -- all e accepted
+            return s;
+         else
+            return s(s'First .. INDEX_TYPE'Pred(i));
+         end if;
+      end Filter;
 
     --generic
     --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
@@ -132,12 +178,13 @@ package body Generics.Tuples is
             end loop;
          end return;
       end Chooser;
+
    end Place;
 
    ---------------------------------------------------------------------
  --generic
- --   with package Signature_Package is new Signature (<>);
- --   use Signature_Package;
+ --   with package Source is new Signature (<>);
+ --   use Source;
  --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    package body Equiv is
    ---------------------------------------------------------------------
@@ -152,6 +199,14 @@ package body Generics.Tuples is
                   not (t(j) = t(i))));
       end Is_Unique;
  
+      function Member
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return BOOLEAN
+      is
+      begin
+         return (for some i in t'Range => x = t(i));
+      end Member;
+
       function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
@@ -168,12 +223,40 @@ package body Generics.Tuples is
          raise Not_Found;
       end Search;
  
+      function Squashed
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         if t'Length < 2 then
+            return t;
+         end if;
+         declare
+            s : ARRAY_TYPE (t'Range);
+            i : INDEX_TYPE := s'First;
+         begin
+            for j in t'Range loop
+               if j = t'Last or else
+                  not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
+               then
+                  s(i) := t(j);
+                  exit when i = s'Last;
+                  i := INDEX_TYPE'Succ(i);
+               end if;
+            end loop;
+            if i = s'Last then -- no duplicates found
+               return s;
+            else
+               return s(s'First .. INDEX_TYPE'Pred(i));
+            end if;
+         end;
+      end Squashed;
+
    end Equiv;
  
    ---------------------------------------------------------------------
  --generic
- --   with package Signature_Package is new Signature (<>);
- --   use Signature_Package;
+ --   with package Source is new Signature (<>);
+ --   use Source;
  --   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
  --   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
  --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
