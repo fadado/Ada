@@ -106,7 +106,8 @@ package Generics.Tuples is
       with Pre => t'Length > 0;
 
       function Squashed
-        (t : in ARRAY_TYPE) return ARRAY_TYPE;
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      with Post => Is_Unique(Squashed'Result);
 
    end Equiv;
 
@@ -136,12 +137,18 @@ package Generics.Tuples is
 
       function Member
         (x : in ELEMENT_TYPE;
-         t : in ARRAY_TYPE) return BOOLEAN;
+         t : in ARRAY_TYPE) return BOOLEAN
+      with Pre => Is_Sorted(t);
 
       function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => Is_Sorted(t);
+
+      function Squashed
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      with Pre  => Is_Sorted(t),
+           Post => Is_Unique(Squashed'Result);
 
    end Order;
 

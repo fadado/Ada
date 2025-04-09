@@ -345,10 +345,45 @@ package body Generics.Tuples is
          t : in ARRAY_TYPE) return BOOLEAN
       is
       begin
-         return Search(x, t) >= t'First; -- always true if found
-      exception
-         when Not_Found => return FALSE;
+         for e of t loop
+            if e < x then
+               null;
+            elsif e > x then
+               return FALSE;
+            else
+               return TRUE;
+            end if;
+         end loop;
+         return FALSE;
       end Member;
+
+      function Squashed
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         if t'Length < 2 then
+            return t;
+         end if;
+         declare
+            s : ARRAY_TYPE (t'Range);
+            i : INDEX_TYPE := s'First;
+         begin
+            for j in t'Range loop
+               if j = t'Last or else
+                  not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
+               then
+                  s(i) := t(j);
+                  exit when i = s'Last;
+                  i := INDEX_TYPE'Succ(i);
+               end if;
+            end loop;
+            if i = s'Last then -- no duplicates found
+               return s;
+            else
+               return s(s'First .. INDEX_TYPE'Pred(i));
+            end if;
+         end;
+      end Squashed;
 
    end Order;
 
