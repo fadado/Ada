@@ -210,11 +210,11 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => PC_Tuple_Equiv.Is_Unique(s);
+   with Pre => PC_Tuple_Equiv.Is_Set(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE
-   with Post => PC_Tuple_Order.Is_Unique(Tuple'Result);
+   with Post => PC_Tuple_Order.Is_Set(Tuple'Result);
 
    ----------------------
    -- Interval pattern --

@@ -2,20 +2,6 @@
 package body Generics.Tuples is
 ------------------------------------------------------------------------
 
- --generic
- --   with package Source is new Signature (<>);
- --   use Source;
- --   with procedure Do_It(t: in out ARRAY_TYPE);
-   function Functor
-     (t : in ARRAY_TYPE) return ARRAY_TYPE
-   is
-   begin
-      return result : ARRAY_TYPE := t do
-         Do_It(result);
-      end return;
-   end Functor;
-
-   ---------------------------------------------------------------------
    generic
       with package Source is new Signature (<>);
       use Source;
@@ -30,6 +16,7 @@ package body Generics.Tuples is
       if t'Length < 2 then
          return t;
       end if;
+
       declare
          s : ARRAY_TYPE (t'Range);
          i : INDEX_TYPE := s'First;
@@ -43,6 +30,7 @@ package body Generics.Tuples is
                i := INDEX_TYPE'Succ(i);
             end if;
          end loop;
+
          if i = s'Last then -- no duplicates found
             return s;
          else
@@ -50,6 +38,19 @@ package body Generics.Tuples is
          end if;
       end;
    end squasher;
+
+ --generic
+ --   with package Source is new Signature (<>);
+ --   use Source;
+ --   with procedure Do_It(t: in out ARRAY_TYPE);
+   function Functor
+     (t : in ARRAY_TYPE) return ARRAY_TYPE
+   is
+   begin
+      return result : ARRAY_TYPE := t do
+         Do_It(result);
+      end return;
+   end Functor;
 
    ---------------------------------------------------------------------
  --generic
@@ -97,10 +98,6 @@ package body Generics.Tuples is
          return F(t);
       end Rotated;
 
-      --------------
-      -- Functors --
-      --------------
-
     --generic
     --   with package Target is new Signature (<>);
     --   with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
@@ -113,10 +110,11 @@ package body Generics.Tuples is
          first : constant TI := TI'First;
          last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
 
-         use type Target.INDEX_TYPE; -- makes compiler happy!
+         use type TI; -- makes compiler happy!
       begin
          return result : TA (first .. last) do
             pragma Assert(t'Length = result'Length);
+
             declare
                i : TI := first;
             begin
@@ -140,16 +138,21 @@ package body Generics.Tuples is
 
          first : constant TI := TI'First;
          last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
-         i     : Source.INDEX_TYPE := s'First;
       begin
          -- require: s'Length = t'Length and then s'First = t'First
+
          return result : TA (first .. last) do
             pragma Assert(t'Length = result'Length);
-            for j in result'Range loop
-               result(j) := Zip(s(i), t(i));
-               exit when i = s'Last;
-               i := Source.INDEX_TYPE'Succ(i);
-            end loop;
+
+            declare
+               i : Source.INDEX_TYPE := s'first;
+            begin
+               for j in result'Range loop
+                  result(j) := Zip(s(i), t(i));
+                  exit when i = s'Last;
+                  i := Source.INDEX_TYPE'Succ(i);
+               end loop;
+            end;
          end return;
       end Zipper;
 
@@ -168,6 +171,7 @@ package body Generics.Tuples is
                i := INDEX_TYPE'Succ(i);
             end if;
          end loop;
+
          if i = s'Last then -- all e accepted
             return s;
          else
@@ -182,11 +186,11 @@ package body Generics.Tuples is
       is
       begin 
          -- require: t'Length > 0
+
          if t'Length = 1 then
             return t(t'First);
          end if;
 
-         -- check: t'Length > 1
          return result : ELEMENT_TYPE := t(t'First) do
             for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
                result := Operation(result, e);
@@ -201,11 +205,11 @@ package body Generics.Tuples is
       is
       begin 
          -- require: t'Length > 0
+
          if t'Length = 1 then
             return t(t'First);
          end if;
 
-         -- check: t'Length > 1
          return result : ELEMENT_TYPE := t(t'First) do
             for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
                if Better(e, result) then
@@ -225,16 +229,6 @@ package body Generics.Tuples is
    package body Equiv is
    ---------------------------------------------------------------------
  
-      function Is_Unique
-        (t : in ARRAY_TYPE) return BOOLEAN
-      is
-      begin
-         return t'Length < 2 or else
-            (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
-               (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
-                  not (t(j) = t(i))));
-      end Is_Unique;
- 
       function Member
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return BOOLEAN
@@ -250,6 +244,7 @@ package body Generics.Tuples is
          -- Linear Search
       begin 
          -- require: t'Length > 0
+
          for i in t'Range loop
             if x = t(i) then
                return i;
@@ -259,13 +254,25 @@ package body Generics.Tuples is
          raise Not_Found;
       end Search;
  
-      function Squashed
+      function Is_Set
+        (t : in ARRAY_TYPE) return BOOLEAN
+      is
+      begin
+         return t'Length < 2 or else
+            (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
+               (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
+                  not (t(j) = t(i))));
+      end Is_Set;
+ 
+      function As_Set
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
          function squash is new squasher (Source, Member);
       begin
          return squash(t);
-      end Squashed;
+
+         -- ensure: Is_Set(As_Set'Result);
+      end As_Set;
 
    end Equiv;
  
@@ -289,16 +296,6 @@ package body Generics.Tuples is
                   or else not(t(i) > t(INDEX_TYPE'Succ(i))));
       end Is_Sorted;
  
-      function Is_Unique
-        (t : in ARRAY_TYPE) return BOOLEAN
-      is
-      begin
-         -- require: Is_Sorted(t)
-         return t'Length < 2 or else
-            (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
-               => t(i) < t(INDEX_TYPE'Succ(i)));
-      end Is_Unique;
- 
       procedure Sort_It
         (t : in out ARRAY_TYPE)
       is
@@ -318,19 +315,44 @@ package body Generics.Tuples is
                tmp := t(i);
                j   := i;
                k   := sub(j, increment);
+
                while j >= add(t'First, increment) and then
                      tmp < t(k) loop
                   k    := sub(j, increment);
                   t(j) := t(k);
                   j    := k;
                end loop;
+
                t(j) := tmp;
             end loop;
+
             increment := increment / 2;
          end loop;
+
          -- ensure: Is_Sorted(t)
       end Sort_It;
  
+      function Member
+        (x : in ELEMENT_TYPE;
+         t : in ARRAY_TYPE) return BOOLEAN
+      is
+         -- Linear Search on sorted array
+      begin
+         -- require: Is_Sorted(t);
+
+         for e of t loop
+            if e < x then
+               null;
+            elsif e > x then
+               return FALSE;
+            else
+               return TRUE;
+            end if;
+         end loop;
+
+         return FALSE;
+      end Member;
+
       function Search
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return INDEX_TYPE
@@ -341,6 +363,7 @@ package body Generics.Tuples is
          middle : INDEX_TYPE;
       begin
          -- require: Is_Sorted(t)
+
          while low <= high loop
             middle := INDEX_TYPE'Val((INDEX_TYPE'Pos(low) +
                                       INDEX_TYPE'Pos(high)) / 2);
@@ -355,31 +378,29 @@ package body Generics.Tuples is
  
          raise Not_Found;
       end Search;
- 
-      function Member
-        (x : in ELEMENT_TYPE;
-         t : in ARRAY_TYPE) return BOOLEAN
+
+      function Is_Set
+        (t : in ARRAY_TYPE) return BOOLEAN
       is
       begin
-         for e of t loop
-            if e < x then
-               null;
-            elsif e > x then
-               return FALSE;
-            else
-               return TRUE;
-            end if;
-         end loop;
-         return FALSE;
-      end Member;
+         -- require: Is_Sorted(t)
 
-      function Squashed
+         return t'Length < 2 or else
+            (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
+               => t(i) < t(INDEX_TYPE'Succ(i)));
+      end Is_Set;
+ 
+      function As_Set
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
          function squash is new squasher (Source, Member);
       begin
+         -- require: Is_Sorted(t);
+
          return squash(t);
-      end Squashed;
+
+         -- ensure: Is_Set(As_Set'Result);
+      end As_Set;
 
    end Order;
 

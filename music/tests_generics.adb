@@ -121,8 +121,8 @@ begin
       s : STRING := "mi mama me mima";
       t : STRING := s;
    begin
-      pragma Assert(Is_Unique("aeiou"));
-      pragma Assert(not Is_Unique("aeioua"));
+      pragma Assert(Is_Set("aeiou"));
+      pragma Assert(not Is_Set("aeioua"));
 
       pragma Assert(Member('i', "aeiou"));
       pragma Assert(not Member('x', "aeiou"));

@@ -18,9 +18,6 @@ package Generics.Tuples is
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    with Inline;
 
-   -- In place application:
-   --    for e of t(i..j) loop e := f(e); end loop;
-
    ---------------------------------------------------------------------
    generic
       with package Source is new Signature (<>);
@@ -47,10 +44,6 @@ package Generics.Tuples is
       function Rotated
         (n : in INDEX_TYPE;
          t : in ARRAY_TYPE) return ARRAY_TYPE;
-
-      --------------
-      -- Functors --
-      --------------
 
       generic
          with package Target is new Signature (<>);
@@ -92,9 +85,6 @@ package Generics.Tuples is
    package Equiv is
    ---------------------------------------------------------------------
 
-      function Is_Unique
-        (t : in ARRAY_TYPE) return BOOLEAN;
-
       function Member
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return BOOLEAN
@@ -105,10 +95,13 @@ package Generics.Tuples is
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => t'Length > 0;
 
-      function Squashed
+      function Is_Set
+        (t : in ARRAY_TYPE) return BOOLEAN;
+
+      function As_Set
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       with Inline,
-           Post => Is_Unique(Squashed'Result);
+           Post => Is_Set(As_Set'Result);
 
    end Equiv;
 
@@ -124,10 +117,6 @@ package Generics.Tuples is
 
       function Is_Sorted
         (t : in ARRAY_TYPE) return BOOLEAN;
-
-      function Is_Unique
-        (t : in ARRAY_TYPE) return BOOLEAN
-      with Pre => Is_Sorted(t);
 
       procedure Sort_It
         (t : in out ARRAY_TYPE)
@@ -146,11 +135,15 @@ package Generics.Tuples is
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => Is_Sorted(t);
 
-      function Squashed
+      function Is_Set
+        (t : in ARRAY_TYPE) return BOOLEAN
+      with Pre => Is_Sorted(t);
+
+      function As_Set
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       with Inline,
            Pre  => Is_Sorted(t),
-           Post => Is_Unique(Squashed'Result);
+           Post => Is_Set(As_Set'Result);
 
    end Order;
 
