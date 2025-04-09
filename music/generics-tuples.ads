@@ -107,7 +107,8 @@ package Generics.Tuples is
 
       function Squashed
         (t : in ARRAY_TYPE) return ARRAY_TYPE
-      with Post => Is_Unique(Squashed'Result);
+      with Inline,
+           Post => Is_Unique(Squashed'Result);
 
    end Equiv;
 
@@ -147,7 +148,8 @@ package Generics.Tuples is
 
       function Squashed
         (t : in ARRAY_TYPE) return ARRAY_TYPE
-      with Pre  => Is_Sorted(t),
+      with Inline,
+           Pre  => Is_Sorted(t),
            Post => Is_Unique(Squashed'Result);
 
    end Order;

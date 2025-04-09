@@ -16,6 +16,42 @@ package body Generics.Tuples is
    end Functor;
 
    ---------------------------------------------------------------------
+   generic
+      with package Source is new Signature (<>);
+      use Source;
+      with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
+   function squasher
+     (t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+   function squasher
+     (t : in ARRAY_TYPE) return ARRAY_TYPE
+   is
+   begin
+      if t'Length < 2 then
+         return t;
+      end if;
+      declare
+         s : ARRAY_TYPE (t'Range);
+         i : INDEX_TYPE := s'First;
+      begin
+         for j in t'Range loop
+            if j = t'Last or else
+               not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
+            then
+               s(i) := t(j);
+               exit when i = s'Last;
+               i := INDEX_TYPE'Succ(i);
+            end if;
+         end loop;
+         if i = s'Last then -- no duplicates found
+            return s;
+         else
+            return s(s'First .. INDEX_TYPE'Pred(i));
+         end if;
+      end;
+   end squasher;
+
+   ---------------------------------------------------------------------
  --generic
  --   with package Source is new Signature (<>);
  --   use Source;
@@ -226,29 +262,9 @@ package body Generics.Tuples is
       function Squashed
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
+         function squash is new squasher (Source, Member);
       begin
-         if t'Length < 2 then
-            return t;
-         end if;
-         declare
-            s : ARRAY_TYPE (t'Range);
-            i : INDEX_TYPE := s'First;
-         begin
-            for j in t'Range loop
-               if j = t'Last or else
-                  not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
-               then
-                  s(i) := t(j);
-                  exit when i = s'Last;
-                  i := INDEX_TYPE'Succ(i);
-               end if;
-            end loop;
-            if i = s'Last then -- no duplicates found
-               return s;
-            else
-               return s(s'First .. INDEX_TYPE'Pred(i));
-            end if;
-         end;
+         return squash(t);
       end Squashed;
 
    end Equiv;
@@ -360,29 +376,9 @@ package body Generics.Tuples is
       function Squashed
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
+         function squash is new squasher (Source, Member);
       begin
-         if t'Length < 2 then
-            return t;
-         end if;
-         declare
-            s : ARRAY_TYPE (t'Range);
-            i : INDEX_TYPE := s'First;
-         begin
-            for j in t'Range loop
-               if j = t'Last or else
-                  not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
-               then
-                  s(i) := t(j);
-                  exit when i = s'Last;
-                  i := INDEX_TYPE'Succ(i);
-               end if;
-            end loop;
-            if i = s'Last then -- no duplicates found
-               return s;
-            else
-               return s(s'First .. INDEX_TYPE'Pred(i));
-            end if;
-         end;
+         return squash(t);
       end Squashed;
 
    end Order;
