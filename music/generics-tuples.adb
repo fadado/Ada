@@ -18,23 +18,23 @@ package body Generics.Tuples is
       end if;
 
       declare
-         s : ARRAY_TYPE (t'Range);
-         i : INDEX_TYPE := s'First;
+         result : ARRAY_TYPE (t'Range);
+         i : INDEX_TYPE := result'First;
       begin
          for j in t'Range loop
             if j = t'Last or else
                not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
             then
-               s(i) := t(j);
-               exit when i = s'Last;
+               result(i) := t(j);
+               exit when i = result'Last;
                i := INDEX_TYPE'Succ(i);
             end if;
          end loop;
 
-         if i = s'Last then -- no duplicates found
-            return s;
+         if i = result'Last then -- no duplicates found
+            return result;
          else
-            return s(s'First .. INDEX_TYPE'Pred(i));
+            return result(result'First .. INDEX_TYPE'Pred(i));
          end if;
       end;
    end squasher;
@@ -104,24 +104,23 @@ package body Generics.Tuples is
       function Mapper
         (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       is
+         subtype SI is Source.INDEX_TYPE;
          subtype TI is Target.INDEX_TYPE;
          subtype TA is Target.ARRAY_TYPE;
 
          first : constant TI := TI'First;
          last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
-
-         use type TI; -- makes compiler happy!
       begin
          return result : TA (first .. last) do
             pragma Assert(t'Length = result'Length);
 
             declare
-               i : TI := first;
+               i : SI := t'First;
             begin
-               for e of t loop
-                  result(i) := Map(e);
-                  exit when i = result'Last;
-                  i := TI'Succ(i);
+               for e of result loop
+                  e := Map(t(i));
+                  exit when i = t'Last;
+                  i := SI'Succ(i);
                end loop;
             end;
          end return;
@@ -133,6 +132,7 @@ package body Generics.Tuples is
       function Zipper
         (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       is
+         subtype SI is Source.INDEX_TYPE;
          subtype TI is Target.INDEX_TYPE;
          subtype TA is Target.ARRAY_TYPE;
 
@@ -145,12 +145,12 @@ package body Generics.Tuples is
             pragma Assert(t'Length = result'Length);
 
             declare
-               i : Source.INDEX_TYPE := s'first;
+               i : SI := t'first;
             begin
-               for j in result'Range loop
-                  result(j) := Zip(s(i), t(i));
-                  exit when i = s'Last;
-                  i := Source.INDEX_TYPE'Succ(i);
+               for e of result loop
+                  e := Zip(s(i), t(i));
+                  exit when i = t'Last;
+                  i := SI'Succ(i);
                end loop;
             end;
          end return;
@@ -161,21 +161,21 @@ package body Generics.Tuples is
       function Filter
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
-         s : ARRAY_TYPE (t'Range);
-         i : INDEX_TYPE := s'First;
+         result : ARRAY_TYPE (t'Range);
+         i : INDEX_TYPE := result'First;
       begin
          for e of t loop
             if Test(e) then
-               s(i) := e;
-               exit when i = s'Last;
+               result(i) := e;
+               exit when i = result'Last;
                i := INDEX_TYPE'Succ(i);
             end if;
          end loop;
 
-         if i = s'Last then -- all e accepted
-            return s;
+         if i = result'Last then -- all e accepted
+            return result;
          else
-            return s(s'First .. INDEX_TYPE'Pred(i));
+            return result(result'First .. INDEX_TYPE'Pred(i));
          end if;
       end Filter;
 
@@ -234,7 +234,7 @@ package body Generics.Tuples is
          t : in ARRAY_TYPE) return BOOLEAN
       is
       begin
-         return (for some i in t'Range => x = t(i));
+         return (for some e of t => x = e);
       end Member;
 
       function Search
