@@ -95,13 +95,13 @@ package Generics.Tuples is
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => t'Length > 0;
 
-      function Is_Set
+      function Contains_Duplicates
         (t : in ARRAY_TYPE) return BOOLEAN;
 
-      function As_Set
+      function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       with Inline,
-           Post => Is_Set(As_Set'Result);
+           Post => not Contains_Duplicates(Remove_Duplicates'Result);
 
    end Equiv;
 
@@ -135,15 +135,15 @@ package Generics.Tuples is
          t : in ARRAY_TYPE) return INDEX_TYPE
       with Pre => Is_Sorted(t);
 
-      function Is_Set
+      function Contains_Duplicates
         (t : in ARRAY_TYPE) return BOOLEAN
       with Pre => Is_Sorted(t);
 
-      function As_Set
+      function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       with Inline,
            Pre  => Is_Sorted(t),
-           Post => Is_Set(As_Set'Result);
+           Post => not Contains_Duplicates(Remove_Duplicates'Result);
 
    end Order;
 

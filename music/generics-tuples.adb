@@ -254,25 +254,25 @@ package body Generics.Tuples is
          raise Not_Found;
       end Search;
  
-      function Is_Set
+      function Contains_Duplicates
         (t : in ARRAY_TYPE) return BOOLEAN
       is
       begin
-         return t'Length < 2 or else
-            (for all i in t'First .. INDEX_TYPE'Pred(t'Last) =>
-               (for all j in INDEX_TYPE'Succ(i) .. t'Last =>
-                  not (t(j) = t(i))));
-      end Is_Set;
+         return t'Length > 1 and then
+            (for some i in t'First .. INDEX_TYPE'Pred(t'Last) =>
+               (for some j in INDEX_TYPE'Succ(i) .. t'Last =>
+                  t(j) = t(i)));
+      end Contains_Duplicates;
  
-      function As_Set
+      function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
          function squash is new squasher (Source, Member);
       begin
          return squash(t);
 
-         -- ensure: Is_Set(As_Set'Result);
-      end As_Set;
+         -- ensure: Contains_Duplicates(Remove_Duplicates'Result);
+      end Remove_Duplicates;
 
    end Equiv;
  
@@ -379,18 +379,18 @@ package body Generics.Tuples is
          raise Not_Found;
       end Search;
 
-      function Is_Set
+      function Contains_Duplicates
         (t : in ARRAY_TYPE) return BOOLEAN
       is
       begin
          -- require: Is_Sorted(t)
 
-         return t'Length < 2 or else
-            (for all i in t'First .. INDEX_TYPE'Pred(t'Last)
-               => t(i) < t(INDEX_TYPE'Succ(i)));
-      end Is_Set;
+         return t'Length > 1 and then
+            (for some i in t'First .. INDEX_TYPE'Pred(t'Last)
+               => not (t(i) < t(INDEX_TYPE'Succ(i))));
+      end Contains_Duplicates;
  
-      function As_Set
+      function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
          function squash is new squasher (Source, Member);
@@ -399,8 +399,8 @@ package body Generics.Tuples is
 
          return squash(t);
 
-         -- ensure: Is_Set(As_Set'Result);
-      end As_Set;
+         -- ensure: Contains_Duplicates(Remove_Duplicates'Result);
+      end Remove_Duplicates;
 
    end Order;
 
