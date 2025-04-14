@@ -36,24 +36,25 @@ package Generics.Tuples is
          new Functor (Source, Reverse_It);
 
       procedure Rotate_It
-        (n : in     INDEX_TYPE;
-         t : in out ARRAY_TYPE);
+        (n : in     NATURAL;
+         t : in out ARRAY_TYPE)
+      with Pre => n <= t'Length;
       -- Rotate left!
-      -- Rotate right: Rotate_It(t'Length-n, t);
+      -- To rotate right: Rotate_It(t'Length - n, t);
 
       function Rotated
-        (n : in INDEX_TYPE;
+        (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE;
 
       generic
          with package Target is new Signature (<>);
-         with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+         with function Mapping (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Mapper
         (t : in ARRAY_TYPE) return Target.ARRAY_TYPE;
 
       generic
          with package Target is new Signature (<>);
-         with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+         with function Zipping (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Zipper
         (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       with Pre => s'Length = t'Length and then s'First = t'First;
@@ -92,8 +93,7 @@ package Generics.Tuples is
 
       function Search
         (x : in ELEMENT_TYPE;
-         t : in ARRAY_TYPE) return INDEX_TYPE
-      with Pre => t'Length > 0;
+         t : in ARRAY_TYPE) return INDEX_TYPE;
 
       function Contains_Duplicates
         (t : in ARRAY_TYPE) return BOOLEAN;

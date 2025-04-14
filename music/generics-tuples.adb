@@ -76,17 +76,35 @@ package body Generics.Tuples is
       end Reverse_It;
 
       procedure Rotate_It
-        (n : in     INDEX_TYPE;
+        (n : in     NATURAL;
          t : in out ARRAY_TYPE)
       is
+         function even (x : NATURAL) return BOOLEAN
+         is (x mod 2 = 0) with Inline;
       begin
-         Reverse_It(t(t'First .. n));
-         Reverse_It(t(INDEX_TYPE'Succ(n) .. t'Last));
-         Reverse_It(t);
+         -- require: n <= t'Length
+
+         if n = 0 or else n = t'Length then
+            return;
+         end if;
+
+         if t'Length = 1 or else (t'Length = 2 and then even(n)) then
+            return;
+         end if;
+
+         declare
+            m  : constant INTEGER := INDEX_TYPE'Pos(INDEX_TYPE'First);
+            r1 : constant INDEX_TYPE := INDEX_TYPE'Val(m + n - 1);
+            r2 : constant INDEX_TYPE := INDEX_TYPE'Succ(r1);
+         begin
+            Reverse_It(t(t'First .. r1));
+            Reverse_It(t(r2      .. t'Last));
+            Reverse_It(t);
+         end;
       end Rotate_It;
 
       function Rotated
-        (n : in INDEX_TYPE;
+        (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE
       is  
          procedure R (t: in out ARRAY_TYPE) with Inline is
@@ -100,7 +118,7 @@ package body Generics.Tuples is
 
     --generic
     --   with package Target is new Signature (<>);
-    --   with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+    --   with function Mapping (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Mapper
         (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       is
@@ -118,7 +136,7 @@ package body Generics.Tuples is
                i : SI := t'First;
             begin
                for e of result loop
-                  e := Map(t(i));
+                  e := Mapping(t(i));
                   exit when i = t'Last;
                   i := SI'Succ(i);
                end loop;
@@ -128,7 +146,7 @@ package body Generics.Tuples is
 
     --generic
     --   with package Target is new Signature (<>);
-    --   with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+    --   with function Zipping (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
       function Zipper
         (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
       is
@@ -148,7 +166,7 @@ package body Generics.Tuples is
                i : SI := t'first;
             begin
                for e of result loop
-                  e := Zip(s(i), t(i));
+                  e := Zipping(s(i), t(i));
                   exit when i = t'Last;
                   i := SI'Succ(i);
                end loop;
@@ -271,7 +289,7 @@ package body Generics.Tuples is
       begin
          return squash(t);
 
-         -- ensure: Contains_Duplicates(Remove_Duplicates'Result);
+         -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
       end Remove_Duplicates;
 
    end Equiv;
@@ -399,7 +417,7 @@ package body Generics.Tuples is
 
          return squash(t);
 
-         -- ensure: Contains_Duplicates(Remove_Duplicates'Result);
+         -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
       end Remove_Duplicates;
 
    end Order;

@@ -217,8 +217,8 @@ begin
       pragma Assert(whole_tone = Generate(C, 6, Major_2));
 
       pragma Assert(Retrograde(Tuple(diatonic)) = HEPTACHORD'(11,9,7,5,4,2,0));
-      pragma Assert(Rotate(1, Tuple(diatonic))  = HEPTACHORD'(2,4,5,7,9,11,0));
-      pragma Assert(Rotate(2, Tuple(diatonic))  = HEPTACHORD'(4,5,7,9,11,0,2));
+      pragma Assert(Rotate(1, Tuple(diatonic))  = HEPTACHORD'(11,0,2,4,5,7,9));
+      pragma Assert(Rotate(2, Tuple(diatonic))  = HEPTACHORD'(9,11,0,2,4,5,7));
 
       y := TRICHORD'(7,3,1);
       pragma Assert(y /= TRICHORD'(1,3,7));

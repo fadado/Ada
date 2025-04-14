@@ -16,10 +16,20 @@ package Generics is
       type A(<>) is limited private;
       type B(<>) is limited private;
       type C(<>) is limited private;
-      with function F(x : in A) return B;
-      with function G(x : in B) return C;
+      with function F(x: in A) return B;
+      with function G(x: in B) return C;
    function Compose
      (x : in A) return C
+   with Inline;
+
+   generic
+      type A(<>) is limited private;
+      type B(<>) is limited private;
+      type C(<>) is limited private;
+      with function F(x: in A; y: in B) return C;
+      X : A;
+   function Partial
+     (y : in B) return C
    with Inline;
 
 end Generics;

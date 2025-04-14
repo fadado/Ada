@@ -15,14 +15,27 @@ package body Generics is
  --   type A(<>) is limited private;
  --   type B(<>) is limited private;
  --   type C(<>) is limited private;
- --   with function F(x : in A) return B;
- --   with function G(x : in B) return C;
+ --   with function F(x: in A) return B;
+ --   with function G(x: in B) return C;
    function Compose
      (x : in A) return C
    is
    begin
       return G(F(x));
    end Compose;
+
+ --generic
+ --   type A(<>) is limited private;
+ --   type B(<>) is limited private;
+ --   type C(<>) is limited private;
+ --   with function F(x: in A; y: in B) return C;
+ --   X : A;
+   function Partial
+     (y : in b) return C
+   is
+   begin
+      return F(x, y);
+   end Partial;
 
 end Generics;
 -- ¡ISO-8859-1!

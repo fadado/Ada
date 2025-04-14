@@ -15,7 +15,7 @@ package body Music is
             when others =>
                for t of BitSet loop
                   if (t and s) /= 16#000# then
-                     count := count+1;
+                     count := SET_COUNT'Succ(count);
                   end if;
                end loop;
          end case;
@@ -84,7 +84,7 @@ package body Music is
       t : PC_SET;
    begin
       return s : PC_SET := 16#000# do
-         for i in PC_INTERVAL'First .. PC_INTERVAL'First+d-1 loop
+         for i in PC_INTERVAL'First .. PC_INTERVAL'First + d - 1 loop
             t := BitSet(origin + i * g);
             exit when (s and t) /= 16#000#; -- cycle detected
             s := s or t;
@@ -141,14 +141,14 @@ package body Music is
      (s : PC_SET) return PC_TUPLE
    is
       k : TUPLE_INDEX := TUPLE_INDEX'First;
-      h : constant TUPLE_INDEX := k + TUPLE_INDEX(Cardinality(s)) - 1;
+      h : constant TUPLE_INDEX := k - 1 + TUPLE_INDEX(Cardinality(s));
    begin
       return t : PC_TUPLE(k..h) do
          for x in PITCH_CLASS loop
             if (BitSet(x) and s) /= 16#000# then
                t(k) := x;
                exit when k = TUPLE_INDEX'Last;
-               k := k+1;
+               k := TUPLE_INDEX'Succ(k);
             end if;
          end loop;
       end return;
@@ -180,8 +180,12 @@ package body Music is
    is
    begin
       return intervals : INTERVAL_PATTERN (s'Range) do
-         for k in s'First+1 .. s'Last loop
-            intervals(k-1) := Interval(s(k-1), s(k));
+         for k in TUPLE_INDEX'Succ(s'First) .. s'Last loop
+            declare
+               i : constant TUPLE_INDEX := TUPLE_INDEX'Pred(k);
+            begin
+               intervals(i) := Interval(s(i), s(k));
+            end;
          end loop;
          intervals(s'Last) := Interval(s(s'Last), s(s'First));
       end return;
