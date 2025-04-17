@@ -15,7 +15,7 @@ procedure Tests_Generics is
       new Tuples.Place (Text_Signature);
 
    package Text_Equiv is
-      new Tuples.Equiv (Text_Signature, "=");
+      new Tuples.Equivalence (Text_Signature, "=");
 
    package Text_Order is
       new Tuples.Order (Text_Signature, "<", ">");
@@ -90,8 +90,8 @@ begin
       t : STRING := s;
    begin
       pragma Assert(Reversed("aeiou") = "uoiea");
-      pragma Assert(Rotated(1, "aeiou") = "eioua");
-      pragma Assert(Rotated(5-1, "aeiou") = "uaeio");
+      pragma Assert(Left_Rotated(1, "aeiou") = "eioua");
+      pragma Assert(Left_Rotated(5-1, "aeiou") = "uaeio");
 
       Reverse_It(s);
       pragma Assert(s = "amim em amam im");
@@ -101,16 +101,16 @@ begin
       pragma Assert(t = " amam imamim em");
 
       s := "mi mama me mima";
-      Rotate_It(3, s);
+      Left_Rotate_It(3, s);
       pragma Assert(s = "mama me mimami ");
 
       s := "mi mama me mima";
-      Rotate_It(15-3, s);
+      Left_Rotate_It(15-3, s);
       pragma Assert(s = "imami mama me m");
    end;
 
    ------------------------------------------------------------------
-   -- Tuples.Equiv
+   -- Tuples.Equivalence
    ------------------------------------------------------------------
 
    declare

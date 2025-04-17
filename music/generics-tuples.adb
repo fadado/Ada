@@ -62,8 +62,7 @@ package body Generics.Tuples is
       procedure Reverse_It
         (t : in out ARRAY_TYPE)
       is
-         procedure swap is
-            new Generics.Swap (ELEMENT_TYPE);
+         procedure swap is new Generics.Swap (ELEMENT_TYPE);
 
          i : INDEX_TYPE := t'First;
          j : INDEX_TYPE := t'Last;
@@ -75,20 +74,22 @@ package body Generics.Tuples is
          end loop;
       end Reverse_It;
 
-      procedure Rotate_It
+      procedure Left_Rotate_It
         (n : in     NATURAL;
          t : in out ARRAY_TYPE)
       is
-         function even (x : NATURAL) return BOOLEAN
-         is (x mod 2 = 0) with Inline;
+         procedure swap is new Generics.Swap (ELEMENT_TYPE);
       begin
          -- require: n <= t'Length
 
-         if n = 0 or else n = t'Length then
+         if n = 0 or else n = t'Length or else t'Length = 1 then
             return;
          end if;
 
-         if t'Length = 1 or else (t'Length = 2 and then even(n)) then
+         if t'Length = 2 then
+            if n mod 2 /= 0 then -- odd?
+               swap(t(t'First), t(t'Last));
+            end if;
             return;
          end if;
 
@@ -101,20 +102,28 @@ package body Generics.Tuples is
             Reverse_It(t(r2      .. t'Last));
             Reverse_It(t);
          end;
-      end Rotate_It;
+      end Left_Rotate_It;
 
-      function Rotated
+      function Left_Rotated
         (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE
       is  
          procedure R (t: in out ARRAY_TYPE) with Inline is
          begin
-            Rotate_It(n, t);
+            Left_Rotate_It(n, t);
          end;
          function F is new Functor (Source, R);
       begin
          return F(t);
-      end Rotated;
+      end Left_Rotated;
+
+      procedure Right_Rotate_It
+        (n : in     NATURAL;
+         t : in out ARRAY_TYPE)
+      is
+      begin
+         Left_Rotate_It(t'Length - n, t);
+      end Right_Rotate_It;
 
     --generic
     --   with package Target is new Signature (<>);
@@ -244,7 +253,7 @@ package body Generics.Tuples is
  --   with package Source is new Signature (<>);
  --   use Source;
  --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package body Equiv is
+   package body Equivalence is
    ---------------------------------------------------------------------
  
       function Member
@@ -292,7 +301,7 @@ package body Generics.Tuples is
          -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
       end Remove_Duplicates;
 
-   end Equiv;
+   end Equivalence;
  
    ---------------------------------------------------------------------
  --generic

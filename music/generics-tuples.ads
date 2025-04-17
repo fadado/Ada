@@ -35,16 +35,25 @@ package Generics.Tuples is
       function Reversed is
          new Functor (Source, Reverse_It);
 
-      procedure Rotate_It
+      procedure Left_Rotate_It
         (n : in     NATURAL;
          t : in out ARRAY_TYPE)
       with Pre => n <= t'Length;
-      -- Rotate left!
-      -- To rotate right: Rotate_It(t'Length - n, t);
 
-      function Rotated
+      function Left_Rotated
         (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE;
+
+      procedure Right_Rotate_It
+        (n : in     NATURAL;
+         t : in out ARRAY_TYPE)
+      with Inline,
+           Pre => n <= t'Length;
+
+      function Right_Rotated
+        (n : in NATURAL;
+         t : in ARRAY_TYPE) return ARRAY_TYPE
+      is (Left_Rotated(t'Length - n, t)) with Inline;
 
       generic
          with package Target is new Signature (<>);
@@ -83,7 +92,7 @@ package Generics.Tuples is
       with package Source is new Signature (<>);
       use Source;
       with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package Equiv is
+   package Equivalence is
    ---------------------------------------------------------------------
 
       function Member
@@ -103,7 +112,7 @@ package Generics.Tuples is
       with Inline,
            Post => not Contains_Duplicates(Remove_Duplicates'Result);
 
-   end Equiv;
+   end Equivalence;
 
    ---------------------------------------------------------------------
    generic
