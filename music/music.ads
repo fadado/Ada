@@ -169,12 +169,12 @@ package Music is
    function Rotate
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   is (PC_Tuple_Place.Rotated(NATURAL(s'Length - n), s))
+   is (PC_Tuple_Place.Right_Rotated(NATURAL(n), s))
    with Inline;
-   -- Right rotate!
 
    function Rotate is new Generics.Partial
-      (TUPLE_INDEX, PC_TUPLE, PC_TUPLE, Rotate, 1);
+     (TUPLE_INDEX, PC_TUPLE, PC_TUPLE,
+      Rotate, 1);
    -- Generated: function Rotate (s : PC_TUPLE) return PC_TUPLE;
 
    function Cardinality
@@ -190,7 +190,8 @@ package Music is
       s : PC_TUPLE) return PC_TUPLE;
 
    function Inversion is new Generics.Partial
-      (PC_INTERVAL, PC_TUPLE, PC_TUPLE, Inversion, 0);
+     (PC_INTERVAL, PC_TUPLE, PC_TUPLE,
+      Inversion, 0);
    -- Generated: function Inversion (s : PC_TUPLE) return PC_TUPLE;
 
    procedure Sort
