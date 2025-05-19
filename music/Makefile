@@ -2,18 +2,25 @@
 
 .SILENT:
 
+LIB=./LIBRARY
+GNATFLAGS=-q
+
 GENERICS=generics.ad[bs] generics-*.ad[bs]
+
 MUSIC=music.ad[bs] music-*.ad[bs] database.ad[bs]
 
-all: tests_music tests_generics
+all: $(LIB) $(LIB)/tests_music $(LIB)/tests_generics
+	$(LIB)/tests_generics
+	$(LIB)/tests_music
 
-tests_music: $(MUSIC) $(GENERICS) tests_music.adb
-	gnatmake tests_music
+$(LIB):
+	@test -d $(LIB) || mkdir $(LIB)
 
-tests_generics: $(GENERICS) tests_generics.adb
-	gnatmake tests_generics
+$(LIB)/tests_music: $(MUSIC) $(GENERICS) tests_music.adb
+	gnatmake $(GNATFLAGS) --subdirs=$(LIB) tests_music.adb
 
-TESTS=tests_music tests_generics
+$(LIB)/tests_generics: $(GENERICS) tests_generics.adb
+	gnatmake $(GNATFLAGS) --subdirs=$(LIB) tests_generics.adb
 
 clean:
-	rm -f *.o *.ali  *.ads.* *.adb.* $(TESTS)
+	rm -rf $(LIB)
