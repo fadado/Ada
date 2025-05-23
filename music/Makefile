@@ -7,7 +7,7 @@ GNATFLAGS=-q
 
 GENERICS=generics.ad[bs] generics-*.ad[bs]
 
-MUSIC=music.ad[bs] music-*.ad[bs] database.ad[bs]
+MUSIC=music.ad[bs] music-*.ad[bs]
 
 all: $(LIB) $(LIB)/tests_music $(LIB)/tests_generics
 	$(LIB)/tests_generics

@@ -1,4 +1,4 @@
-package body DataBase is
+package body Music.DataBase is
 
    PCS : constant array (SCALE_NAME) of PC_SET := (
       Acoustic =>            2#101010110110#,
@@ -57,7 +57,7 @@ package body DataBase is
       raise Constraint_Error;
    end Set_To_Name;
 
-end DataBase;
+end Music.DataBase;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

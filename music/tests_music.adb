@@ -4,12 +4,12 @@ with Ada.Text_IO;
 with Music;
 with Music.MIDI;
 with Music.Names;
-with DataBase;
+with Music.DataBase;
 
 procedure Tests_Music is
    use Ada.Text_IO;
    use Music;
-   package DB renames DataBase;
+   package DB renames Music.DataBase;
 begin
    ---------------------------------------------------------------------
    -- MIDI pitch encoding
@@ -148,7 +148,7 @@ begin
    end;
   
    declare
-      use DB;
+      use Music.Database;
       use Music.Names;
 
       names : array (POSITIVE range <>) of SCALE_NAME := (
