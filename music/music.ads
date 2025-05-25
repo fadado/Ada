@@ -154,7 +154,10 @@ package Music is
    package PC_Tuple_Place is
       new Tuples.Place (PC_Tuple_Signature);
 
-   package PC_Tuple_Equiv is
+   package PC_Tuple_Applicative is
+      new Tuples.Applicative (PC_Tuple_Signature);
+
+   package PC_Tuple_Equivalence is
       new Tuples.Equivalence (PC_Tuple_Signature, "=");
 
    package PC_Tuple_Order is
@@ -213,7 +216,7 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => not PC_Tuple_Equiv.Contains_Duplicates(s);
+   with Pre => not PC_Tuple_Equivalence.Contains_Duplicates(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE

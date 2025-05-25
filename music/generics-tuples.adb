@@ -43,14 +43,14 @@ package body Generics.Tuples is
  --   with package Source is new Signature (<>);
  --   use Source;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
-   function Functor
+   function Fuctional
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
       return result : ARRAY_TYPE := t do
          Do_It(result);
       end return;
-   end Functor;
+   end Fuctional;
 
    ---------------------------------------------------------------------
  --generic
@@ -112,7 +112,7 @@ package body Generics.Tuples is
          begin
             Left_Rotate_It(n, t);
          end;
-         function F is new Functor (Source, R);
+         function F is new Fuctional (Source, R);
       begin
          return F(t);
       end Left_Rotated;
@@ -124,6 +124,15 @@ package body Generics.Tuples is
       begin
          Left_Rotate_It(t'Length - n, t);
       end Right_Rotate_It;
+
+   end Place;
+
+   ---------------------------------------------------------------------
+ --generic
+ --   with package Source is new Signature (<>);
+ --   use Source;
+   package body Applicative is
+   ---------------------------------------------------------------------
 
     --generic
     --   with package Target is new Signature (<>);
@@ -246,7 +255,7 @@ package body Generics.Tuples is
          end return;
       end Chooser;
 
-   end Place;
+   end Applicative;
 
    ---------------------------------------------------------------------
  --generic

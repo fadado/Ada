@@ -14,7 +14,7 @@ package Generics.Tuples is
       with package Source is new Signature (<>);
       use Source;
       with procedure Do_It(t: in out ARRAY_TYPE);
-   function Functor
+   function Fuctional
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    with Inline;
 
@@ -33,7 +33,7 @@ package Generics.Tuples is
         (t : in out ARRAY_TYPE);
 
       function Reversed is
-         new Functor (Source, Reverse_It);
+         new Fuctional (Source, Reverse_It);
 
       procedure Left_Rotate_It
         (n : in     NATURAL;
@@ -54,6 +54,15 @@ package Generics.Tuples is
         (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE
       is (Left_Rotated(t'Length - n, t)) with Inline;
+
+   end Place;
+
+   ---------------------------------------------------------------------
+   generic
+      with package Source is new Signature (<>);
+      use Source;
+   package Applicative is
+   ---------------------------------------------------------------------
 
       generic
          with package Target is new Signature (<>);
@@ -85,7 +94,7 @@ package Generics.Tuples is
         (t : in ARRAY_TYPE) return ELEMENT_TYPE
       with Pre => t'Length > 0;
 
-   end Place;
+   end Applicative;
 
    ---------------------------------------------------------------------
    generic
@@ -132,7 +141,7 @@ package Generics.Tuples is
       with Post => Is_Sorted(t);
 
       function Sorted is
-         new Functor (Source, Sort_It);
+         new Fuctional (Source, Sort_It);
 
       function Member
         (x : in ELEMENT_TYPE;

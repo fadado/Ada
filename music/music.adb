@@ -104,7 +104,7 @@ package body Music is
       is (Transposition(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Place.Mapper (PC_Tuple_Signature, f);
+         new PC_Tuple_Applicative.Mapper (PC_Tuple_Signature, f);
    begin
       return apply(s);
    end Transposition;
@@ -117,7 +117,7 @@ package body Music is
       is (Inversion(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Place.Mapper (PC_Tuple_Signature, f);
+         new PC_Tuple_Applicative.Mapper (PC_Tuple_Signature, f);
    begin
       return apply(s);
    end Inversion;
