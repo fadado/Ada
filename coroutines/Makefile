@@ -2,9 +2,10 @@
 
 .SILENT:
 
-all: test_hello test_pingpong test_fibonacci
+LIB=./LIBRARY
+GNATFLAGS=-q
 
-LIBRARY := \
+CTRLIB := \
 	control.ad[sb] \
 	control-spin_until.ad[sb] \
 	gotcha.ad[sb]
@@ -15,17 +16,30 @@ RUTLIB := \
 GENLIB := \
 	control-generators.ad[sb]
 
+all: $(LIB) \
+     $(LIB)/test_hello \
+     $(LIB)/test_pingpong \
+     $(LIB)/test_fibonacci
+	@echo Done!
+
+$(LIB):
+	@test -d $(LIB) || mkdir $(LIB)
+
 # Test using the package Controllers and Routines
-test_hello: test_hello.adb ${LIBRARY} ${RUTLIB}
-	@gnatmake test_hello
+$(LIB)/test_hello: test_hello.adb ${CTRLIB} ${RUTLIB}
+	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using symmetric Controllers
-test_pingpong: test_pingpong.adb ${LIBRARY}
-	@gnatmake test_pingpong
+$(LIB)/test_pingpong: test_pingpong.adb ${CTRLIB}
+	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using the package Generators
-test_fibonacci: test_fibonacci.adb ${LIBRARY} ${GENLIB}
-	@gnatmake test_fibonacci
+$(LIB)/test_fibonacci: test_fibonacci.adb ${CTRLIB} ${GENLIB}
+	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+
+hello:     $(LIB)/test_hello;     $<
+pingpong:  $(LIB)/test_pingpong;  $<
+fibonacci: $(LIB)/test_fibonacci; $<
 
 clean:
-	@rm -f *.o *.ali test_pingpong test_hello test_fibonacci *.ads.* *.adb.*
+	rm -rf $(LIB)

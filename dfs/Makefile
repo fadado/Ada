@@ -2,10 +2,21 @@
 
 .SILENT:
 
-all: dodeca
+LIB=./LIBRARY
+GNATFLAGS=-q
 
-dodeca: dodeca.adb dodeca-*.ad? dfs.ad?
-	gnatmake -O dodeca
+DFSLIB := dfs.ad[sb]
+
+all: $(LIB) $(LIB)/dodeca
+	@echo Done!
+
+$(LIB)/dodeca: dodeca.adb dodeca-*.ad[sb] $(DFSLIB)
+	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+
+$(LIB):
+	@test -d $(LIB) || mkdir $(LIB)
+
+dodeca: $(LIB)/dodeca; $<
 
 clean:
-	rm -f *.o *.ali dodeca
+	rm -rf $(LIB)

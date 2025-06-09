@@ -3,7 +3,7 @@
 with DFS;
 
 procedure Dodeca is
-   pragma Optimize(Time);
+ --pragma Optimize(Time);
 
    ---------------------------------------------------------------------
    -- Client side types

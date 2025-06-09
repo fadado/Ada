@@ -5,22 +5,24 @@
 LIB=./LIBRARY
 GNATFLAGS=-q
 
-GENERICS=generics.ad[bs] generics-*.ad[bs]
+GENLIB=generics.ad[bs] generics-*.ad[bs]
 
-MUSIC=music.ad[bs] music-*.ad[bs]
+MUSLIB=music.ad[bs] music-*.ad[bs]
 
 all: $(LIB) $(LIB)/tests_music $(LIB)/tests_generics
-	$(LIB)/tests_generics
-	$(LIB)/tests_music
+	@echo Done!
 
 $(LIB):
 	@test -d $(LIB) || mkdir $(LIB)
 
-$(LIB)/tests_music: $(MUSIC) $(GENERICS) tests_music.adb
-	gnatmake $(GNATFLAGS) --subdirs=$(LIB) tests_music.adb
+$(LIB)/tests_music: $(MUSLIB) $(GENLIB) tests_music.adb
+	gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
-$(LIB)/tests_generics: $(GENERICS) tests_generics.adb
-	gnatmake $(GNATFLAGS) --subdirs=$(LIB) tests_generics.adb
+$(LIB)/tests_generics: $(GENLIB) tests_generics.adb
+	gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+
+music:    $(LIB)/tests_music;    $<
+generics: $(LIB)/tests_generics; $<
 
 clean:
 	rm -rf $(LIB)
