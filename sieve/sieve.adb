@@ -13,7 +13,7 @@ procedure sieve is
    -- Set of numbers to search for primes
    ------------------------------------------------------------
 
-   subtype NUMBER is INTEGER range 1 .. INTEGER'Last;
+   subtype NUMBER is POSITIVE;
 
    Close_Filter : constant NUMBER := 1;
    -- We use 1 as a token to signal task's ending
@@ -35,20 +35,20 @@ procedure sieve is
          Default_Capacity => Queue_Size
       );
 
-   subtype T_QUEUE is BSQ.Queue;
-   type QUEUE is access T_QUEUE;
+   subtype SYNCRONIZED_QUEUE is BSQ.Queue;
+   type QUEUE is access SYNCRONIZED_QUEUE;
 
    ------------------------------------------------------------
    -- Task to generate odd numbers starting at 3
    ------------------------------------------------------------
 
-   task type T_GENERATOR (
+   task type ODD_NUMBERS_GENERATOR (
       Limit        : NUMBER;
       Output_Queue : QUEUE
    );
-   type GENERATOR is access T_GENERATOR;
+   type GENERATOR is access ODD_NUMBERS_GENERATOR;
 
-   task body T_GENERATOR is
+   task body ODD_NUMBERS_GENERATOR is
       candidate : NUMBER := 3;
    begin
       while candidate <= Limit loop
@@ -56,31 +56,35 @@ procedure sieve is
          candidate := candidate + 2;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end T_GENERATOR;
+   end ODD_NUMBERS_GENERATOR;
 
    ------------------------------------------------------------
    -- Task to reject (or pass) prime cadidates
    ------------------------------------------------------------
 
-   task type T_FILTER (
+   task type FILTER_PRIME_MULTIPLES (
       Input_Queue  : QUEUE;
       Output_Queue : QUEUE;
       Prime        : NUMBER
    );
-   type FILTER is access T_FILTER;
+   type FILTER is access FILTER_PRIME_MULTIPLES;
 
-   task body T_FILTER is
+   task body FILTER_PRIME_MULTIPLES is
+      function Is_Multiple(n : NUMBER) return BOOLEAN
+         is (n rem Prime = 0) with Inline;
       candidate : NUMBER;
    begin
       loop
          Input_Queue.Dequeue(candidate);
          exit when candidate = Close_Filter;
-         if (candidate rem Prime) /= 0 then
+         if Is_Multiple(candidate) then
+            null;
+         else
             Output_Queue.Enqueue(candidate);
          end if;
       end loop;
       Output_Queue.Enqueue(Close_Filter);
-   end T_FILTER;
+   end FILTER_PRIME_MULTIPLES;
 
    ------------------------------------------------------------
    -- Build a chain of filters
@@ -90,21 +94,30 @@ procedure sieve is
    procedure Print(N: NUMBER) with Inline;
 
    procedure Build_Sieve(Limit: NUMBER) is
-      prime         : NUMBER;
+      prime         : NUMBER := 2; -- the only even prime
       input, output : QUEUE;
-      odds          : GENERATOR;
-      layer         : FILTER;
    begin
-      input := new T_QUEUE;
-      odds  := new T_GENERATOR (Limit, input);
-      Print(2);
+      Print(prime);
+
+      input := new SYNCRONIZED_QUEUE;
+      declare
+         G : GENERATOR;
+      begin
+         G := new ODD_NUMBERS_GENERATOR (Limit, input);
+      end;
+
       loop
          input.Dequeue(prime);
          exit when prime = Close_Filter;
          Print(prime);
-         output := new T_QUEUE;
-         layer  := new T_FILTER (input, output, prime);
-         input  := output;
+
+         output := new SYNCRONIZED_QUEUE;
+         declare
+            F : FILTER;
+         begin
+            F := new FILTER_PRIME_MULTIPLES (input, output, prime);
+         end;
+         input := output;
       end loop;
       Print;
    end Build_Sieve;
