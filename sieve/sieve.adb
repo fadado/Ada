@@ -29,6 +29,7 @@ procedure sieve is
       new Containers.Synchronized_Queue_Interfaces (
          Element_Type => NUMBER
       );
+
    package BSQ is
       new Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => SQI,
@@ -43,18 +44,19 @@ procedure sieve is
    ------------------------------------------------------------
 
    task type ODD_NUMBERS_GENERATOR (
-      Limit        : NUMBER;
-      Output_Queue : QUEUE
+      Output_Queue : QUEUE;
+      Limit        : NUMBER
    );
    type GENERATOR is access ODD_NUMBERS_GENERATOR;
 
    task body ODD_NUMBERS_GENERATOR is
-      candidate : NUMBER := 3;
+      odd : NUMBER := 3;
    begin
-      while candidate <= Limit loop
-         Output_Queue.Enqueue(candidate);
-         candidate := candidate + 2;
+      while odd <= Limit loop
+         Output_Queue.Enqueue(odd);
+         odd := odd + 2;
       end loop;
+
       Output_Queue.Enqueue(Close_Filter);
    end ODD_NUMBERS_GENERATOR;
 
@@ -72,17 +74,20 @@ procedure sieve is
    task body FILTER_PRIME_MULTIPLES is
       function Is_Multiple(n : NUMBER) return BOOLEAN
          is (n rem Prime = 0) with Inline;
+
       candidate : NUMBER;
    begin
       loop
          Input_Queue.Dequeue(candidate);
          exit when candidate = Close_Filter;
+
          if Is_Multiple(candidate) then
             null;
          else
             Output_Queue.Enqueue(candidate);
          end if;
       end loop;
+
       Output_Queue.Enqueue(Close_Filter);
    end FILTER_PRIME_MULTIPLES;
 
@@ -90,37 +95,48 @@ procedure sieve is
    -- Build a chain of filters
    ------------------------------------------------------------
 
-   procedure Print with Inline;
-   procedure Print(N: NUMBER) with Inline;
+   task type SIEVE_GENERATOR (
+      Output_Queue : QUEUE;
+      Limit        : NUMBER
+   );
 
-   procedure Build_Sieve(Limit: NUMBER) is
+   task body SIEVE_GENERATOR is
       prime         : NUMBER := 2; -- the only even prime
       input, output : QUEUE;
    begin
-      Print(prime);
+      Output_Queue.Enqueue(prime);
 
-      input := new SYNCRONIZED_QUEUE;
+      output := new SYNCRONIZED_QUEUE;
       declare
          G : GENERATOR;
       begin
-         G := new ODD_NUMBERS_GENERATOR (Limit, input);
+         G := new ODD_NUMBERS_GENERATOR (
+                     Output_Queue => output,
+                     Limit        => Limit
+              );
       end;
 
       loop
+         input := output;
+
          input.Dequeue(prime);
          exit when prime = Close_Filter;
-         Print(prime);
+         Output_Queue.Enqueue(prime);
 
          output := new SYNCRONIZED_QUEUE;
          declare
             F : FILTER;
          begin
-            F := new FILTER_PRIME_MULTIPLES (input, output, prime);
+            F := new FILTER_PRIME_MULTIPLES (
+                        Input_Queue  => input,
+                        Output_Queue => output,
+                        Prime        => prime
+                 );
          end;
-         input := output;
       end loop;
-      Print;
-   end Build_Sieve;
+
+      Output_Queue.Enqueue(Close_Filter);
+   end SIEVE_GENERATOR;
 
    ------------------------------------------------------------
    -- Output utilities
@@ -128,15 +144,15 @@ procedure sieve is
 
    Count : NATURAL := 0;
 
-   procedure Print is
-      use Text_IO;
+   procedure Print with Inline is
    begin
-      New_Line;
+      Text_IO.New_Line;
    end;
 
-   procedure Print(N: NUMBER) is
+   procedure Print(N: NUMBER) with Inline is
       use Text_IO;
       use Integer_Text_IO;
+
       Field_Size : constant := 7;
       Columns    : constant := 10;
    begin
@@ -154,26 +170,49 @@ procedure sieve is
 begin
    declare
       use Command_Line;
+
       procedure Usage is
          use Text_IO;
       begin
          Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");
          Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
       end;
+
       limit : NUMBER;
    begin
       Set_Exit_Status(Failure);
+
       if Argument_Count = 0 then
          limit := 541; -- first 100 primes
       else
          begin
             limit := NUMBER'Value(Argument(1));
-            if limit = 1 then raise Constraint_Error; end if;
+            if limit = 1 then
+               raise Constraint_Error;
+            end if;
          exception
-            when Constraint_Error => Usage; return;
+            when Constraint_Error =>
+               Usage;
+               return;
          end;
       end if;
-      Build_Sieve(Limit => limit);
+
+      declare
+         primes : QUEUE := new SYNCRONIZED_QUEUE;
+         sieve  : SIEVE_GENERATOR (
+                     Output_Queue => primes,
+                     Limit        => limit
+                  );
+         N : NUMBER;
+      begin
+         loop
+            primes.Dequeue(N);
+            exit when N = Close_Filter;
+            Print(N);
+         end loop;
+         Print;
+      end;
+
       Set_Exit_Status(Success);
    end;
 end sieve;
