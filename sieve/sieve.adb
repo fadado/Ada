@@ -9,21 +9,23 @@ with Ada.Containers.Bounded_Synchronized_Queues;
 use Ada;
 
 procedure sieve is
+   procedure error(message: STRING) with Inline is
+      use Text_IO;
+   begin
+         Put_Line(Standard_Error, message);
+   end error;
+
    ------------------------------------------------------------
    -- Set of numbers to search for primes
    ------------------------------------------------------------
 
    subtype NUMBER is POSITIVE;
-
-   Number_One : constant NUMBER := 1;
-   -- We use 1 as a token to signal task's ending
+   -- We use 1 as a token to signal task's ending;
+   -- primes are >= 2
 
    ------------------------------------------------------------
    -- Channels between tasks
    ------------------------------------------------------------
-
-   Queue_Size : constant := 2;
-   -- A greater size does not improve performance
 
    package Synchronized_Queue_Interface is
       new Containers.Synchronized_Queue_Interfaces (
@@ -33,7 +35,7 @@ procedure sieve is
    package Bounded_Synchronized_Queue is
       new Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => Synchronized_Queue_Interface,
-         Default_Capacity => Queue_Size
+         Default_Capacity => 2   -- > 2 is not faster
       );
 
    subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.Queue;
@@ -57,7 +59,10 @@ procedure sieve is
          odd := odd + 2;
       end loop;
 
-      Output.Enqueue(Number_One);
+      Output.Enqueue(1);
+
+   exception
+      when others => error( "Unexpected exception");
    end ODD_NUMBERS_GENERATOR;
 
    ------------------------------------------------------------
@@ -79,7 +84,7 @@ procedure sieve is
    begin
       loop
          Input.Dequeue(candidate);
-         exit when candidate = Number_One;
+         exit when candidate = 1;
 
          if Is_Multiple(candidate) then
             null; -- reject candidate
@@ -88,7 +93,10 @@ procedure sieve is
          end if;
       end loop;
 
-      Output.Enqueue(Number_One);
+      Output.Enqueue(1);
+
+   exception
+      when others => error("Unexpected exception");
    end FILTER_PRIME_MULTIPLES;
 
    ------------------------------------------------------------
@@ -101,34 +109,38 @@ procedure sieve is
    );
 
    task body SIEVE_GENERATOR is
-      prime       : NUMBER := 2; -- the only even prime
-      left, right : CHANNEL;
+      prime  : NUMBER;
+      source : CHANNEL;
+      result : CHANNEL;
    begin
-      Output.Enqueue(prime);
+      Output.Enqueue(2); -- the only even prime
 
-      right := new NUMERIC_CHANNEL;
+      result := new NUMERIC_CHANNEL;
       declare
          G : GENERATOR;
       begin
-         G := new ODD_NUMBERS_GENERATOR (right, Limit);
+         G := new ODD_NUMBERS_GENERATOR (result, Limit);
       end;
 
       loop
-         left := right;
+         source := result;
 
-         left.Dequeue(prime);
-         exit when prime = Number_One;
+         source.Dequeue(prime);
+         exit when prime = 1;
          Output.Enqueue(prime);
 
-         right := new NUMERIC_CHANNEL;
+         result := new NUMERIC_CHANNEL;
          declare
             F : FILTER;
          begin
-            F := new FILTER_PRIME_MULTIPLES (left, right, prime);
+            F := new FILTER_PRIME_MULTIPLES (source, result, prime);
          end;
       end loop;
 
-      Output.Enqueue(Number_One);
+      Output.Enqueue(1);
+
+   exception
+      when others => error("Unexpected exception");
    end SIEVE_GENERATOR;
 
    ------------------------------------------------------------
@@ -178,7 +190,7 @@ begin
       if Argument_Count > 0 then
          begin
             M := NUMBER'Value(Argument(1));
-            if M = Number_One then
+            if M = 1 then
                raise Constraint_Error;
             end if;
          exception
@@ -197,7 +209,7 @@ begin
          sieve  := new SIEVE_GENERATOR (Output => primes, Limit => M);
          loop
             primes.Dequeue(N);
-            exit when N = Number_One;
+            exit when N = 1;
             Print(N);
          end loop;
          Print;
@@ -205,6 +217,9 @@ begin
 
       Set_Exit_Status(Success);
    end;
+
+   exception
+      when others => error("Unexpected exception at top level");
 end sieve;
 
 -- ¡ISO-8859-1!
