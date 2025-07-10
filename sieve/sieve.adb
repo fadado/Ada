@@ -8,7 +8,7 @@ with Ada.Containers.Bounded_Synchronized_Queues;
 
 use Ada;
 
-procedure sieve is
+procedure Sieve is
    procedure error(message: STRING) with Inline is
       use Text_IO;
    begin
@@ -107,6 +107,7 @@ procedure sieve is
       Output : CHANNEL;
       Limit  : NUMBER
    );
+   type SIEVE is access SIEVE_GENERATOR;
 
    task body SIEVE_GENERATOR is
       prime  : NUMBER;
@@ -202,11 +203,14 @@ begin
 
       declare
          primes : CHANNEL;
-         sieve  : access SIEVE_GENERATOR;
          N      : NUMBER;
       begin
          primes := new NUMERIC_CHANNEL;
-         sieve  := new SIEVE_GENERATOR (Output => primes, Limit => M);
+         declare
+            S : SIEVE;
+         begin
+            S := new SIEVE_GENERATOR (Output => primes, Limit => M);
+         end;
          loop
             primes.Dequeue(N);
             exit when N = 1;
@@ -220,7 +224,7 @@ begin
 
    exception
       when others => error("Unexpected exception at top level");
-end sieve;
+end Sieve;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
