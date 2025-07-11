@@ -49,7 +49,10 @@ procedure Sieve is
       Output : CHANNEL;
       Limit  : NUMBER
    );
+
    type GENERATOR is access ODD_NUMBERS_GENERATOR;
+
+   procedure Launch(X: GENERATOR) is null with Inline;
 
    task body ODD_NUMBERS_GENERATOR is
       odd : NUMBER := 3;
@@ -74,7 +77,10 @@ procedure Sieve is
       Output : CHANNEL;
       Prime  : NUMBER
    );
+
    type FILTER is access FILTER_PRIME_MULTIPLES;
+
+   procedure Launch(X: FILTER) is null with Inline;
 
    task body FILTER_PRIME_MULTIPLES is
       function Is_Multiple(n : NUMBER) return BOOLEAN
@@ -107,7 +113,10 @@ procedure Sieve is
       Output : CHANNEL;
       Limit  : NUMBER
    );
+
    type SIEVE is access SIEVE_GENERATOR;
+
+   procedure Launch(X: SIEVE) is null with Inline;
 
    task body SIEVE_GENERATOR is
       prime  : NUMBER;
@@ -117,11 +126,9 @@ procedure Sieve is
       Output.Enqueue(2); -- the only even prime
 
       result := new NUMERIC_CHANNEL;
-      declare
-         G : GENERATOR;
-      begin
-         G := new ODD_NUMBERS_GENERATOR (result, Limit);
-      end;
+      Launch (
+         new ODD_NUMBERS_GENERATOR (result, Limit)
+      );
 
       loop
          source := result;
@@ -131,11 +138,9 @@ procedure Sieve is
          Output.Enqueue(prime);
 
          result := new NUMERIC_CHANNEL;
-         declare
-            F : FILTER;
-         begin
-            F := new FILTER_PRIME_MULTIPLES (source, result, prime);
-         end;
+         Launch (
+            new FILTER_PRIME_MULTIPLES (source, result, prime)
+         );
       end loop;
 
       Output.Enqueue(1);
@@ -184,14 +189,14 @@ begin
          Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
       end;
 
-      M : NUMBER := 541; -- default limit: the first 100 primes
+      limit : NUMBER := 541; -- default limit: the first 100 primes
    begin
       Set_Exit_Status(Failure);
 
       if Argument_Count > 0 then
          begin
-            M := NUMBER'Value(Argument(1));
-            if M = 1 then
+            limit := NUMBER'Value(Argument(1));
+            if limit = 1 then
                raise Constraint_Error;
             end if;
          exception
@@ -206,11 +211,10 @@ begin
          N      : NUMBER;
       begin
          primes := new NUMERIC_CHANNEL;
-         declare
-            S : SIEVE;
-         begin
-            S := new SIEVE_GENERATOR (Output => primes, Limit => M);
-         end;
+         Launch (
+            new SIEVE_GENERATOR (primes, limit)
+         );
+
          loop
             primes.Dequeue(N);
             exit when N = 1;
