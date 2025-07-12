@@ -1,19 +1,22 @@
 -- sieve.adb
 
-with Ada.Text_IO;
-with Ada.Integer_Text_IO;
+with Ada.Exceptions;
 with Ada.Command_Line;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
+with Ada.Text_IO;
+with Ada.Integer_Text_IO;
 
 use Ada;
 
 procedure Sieve is
-   procedure error(message: STRING) with Inline is
+
+   procedure Report_Exception(X: Exceptions.EXCEPTION_OCCURRENCE) is
       use Text_IO;
    begin
-         Put_Line(Standard_Error, message);
-   end error;
+      New_Line(Standard_Error);
+      Put_Line(Standard_Error, Exceptions.Exception_Information(X));
+   end Report_Exception;
 
    ------------------------------------------------------------
    -- Set of numbers to search for primes
@@ -38,7 +41,8 @@ procedure Sieve is
          Default_Capacity => 2   -- > 2 is not faster
       );
 
-   subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.Queue;
+   subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.QUEUE;
+
    type CHANNEL is access NUMERIC_CHANNEL;
 
    ------------------------------------------------------------
@@ -65,7 +69,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error( "Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end ODD_NUMBERS_GENERATOR;
 
    ------------------------------------------------------------
@@ -102,7 +106,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error("Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end FILTER_PRIME_MULTIPLES;
 
    ------------------------------------------------------------
@@ -146,7 +150,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error("Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end SIEVE_GENERATOR;
 
    ------------------------------------------------------------
@@ -227,7 +231,7 @@ begin
    end;
 
    exception
-      when others => error("Unexpected exception at top level");
+      when X : others => Report_Exception(X); raise;
 end Sieve;
 
 -- ¡ISO-8859-1!
