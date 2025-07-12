@@ -1,19 +1,22 @@
 -- sieve.adb
 
-with Ada.Text_IO;
-with Ada.Integer_Text_IO;
+with Ada.Exceptions;
 with Ada.Command_Line;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
+with Ada.Text_IO;
+with Ada.Integer_Text_IO;
 
 use Ada;
 
 procedure Sieve is
-   procedure error(message: STRING) with Inline is
+
+   procedure Report_Exception(X: Exceptions.EXCEPTION_OCCURRENCE) is
       use Text_IO;
    begin
-         Put_Line(Standard_Error, message);
-   end error;
+      New_Line(Standard_Error);
+      Put_Line(Standard_Error, Exceptions.Exception_Information(X));
+   end Report_Exception;
 
    ------------------------------------------------------------
    -- Set of numbers to search for primes
@@ -38,7 +41,8 @@ procedure Sieve is
          Default_Capacity => 2   -- > 2 is not faster
       );
 
-   subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.Queue;
+   subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.QUEUE;
+
    type CHANNEL is access NUMERIC_CHANNEL;
 
    ------------------------------------------------------------
@@ -65,7 +69,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error( "Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end ODD_NUMBERS_GENERATOR;
 
    ------------------------------------------------------------
@@ -102,7 +106,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error("Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end FILTER_PRIME_MULTIPLES;
 
    ------------------------------------------------------------
@@ -146,44 +150,20 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when others => error("Unexpected exception");
+      when X : others => Report_Exception(X); raise;
    end SIEVE_GENERATOR;
 
-   ------------------------------------------------------------
-   -- Output utilities
-   ------------------------------------------------------------
-
-   Count : NATURAL := 0;
-
-   procedure Print with Inline is
-   begin
-      Text_IO.New_Line;
-   end;
-
-   procedure Print(N: NUMBER) with Inline is
-      use Text_IO;
-      use Integer_Text_IO;
-
-      Field_Size : constant := 7;
-      Columns    : constant := 10;
-   begin
-      Count := Count + 1;
-      Put(N, Width => Field_Size);
-      if (Count rem Columns) = 0 then
-         New_Line;
-      end if;
-   end;
-
 ------------------------------------------------------------------------
--- Manage command line and start the sieve
+-- Manage command line and start and consume the sieve
 ------------------------------------------------------------------------
 
 begin
    declare
       use Command_Line;
+      use Text_IO;
+      use Integer_Text_IO;
 
       procedure Usage is
-         use Text_IO;
       begin
          Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");
          Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
@@ -207,6 +187,19 @@ begin
       end if;
 
       declare
+         Count : NATURAL := 0;
+
+         procedure Print(N: NUMBER) with Inline is
+            Field_Size : constant := 7;
+            Columns    : constant := 10;
+         begin
+            Count := Count + 1;
+            Put(N, Width => Field_Size);
+            if (Count rem Columns) = 0 then
+               New_Line;
+            end if;
+         end;
+
          primes : CHANNEL;
          N      : NUMBER;
       begin
@@ -220,14 +213,10 @@ begin
             exit when N = 1;
             Print(N);
          end loop;
-         Print;
+         New_Line;
       end;
-
       Set_Exit_Status(Success);
    end;
-
-   exception
-      when others => error("Unexpected exception at top level");
 end Sieve;
 
 -- ¡ISO-8859-1!
