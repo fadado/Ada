@@ -1,22 +1,26 @@
 -- sieve.adb
 
-with Ada.Exceptions;
 with Ada.Command_Line;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Bounded_Synchronized_Queues;
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
+with Ada.Exceptions;
+with Ada.Task_Identification;
 
 use Ada;
 
 procedure Sieve is
 
-   procedure Report_Exception(X: Exceptions.EXCEPTION_OCCURRENCE) is
+   procedure Halt(X: Exceptions.EXCEPTION_OCCURRENCE) is
       use Text_IO;
+      use Task_Identification;
    begin
       New_Line(Standard_Error);
       Put_Line(Standard_Error, Exceptions.Exception_Information(X));
-   end Report_Exception;
+
+      Abort_Task(Environment_Task);
+   end Halt;
 
    ------------------------------------------------------------
    -- Set of numbers to search for primes
@@ -69,7 +73,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when X : others => Report_Exception(X); raise;
+      when X : others => Halt(X);
    end ODD_NUMBERS_GENERATOR;
 
    ------------------------------------------------------------
@@ -106,7 +110,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when X : others => Report_Exception(X); raise;
+      when X : others => Halt(X);
    end FILTER_PRIME_MULTIPLES;
 
    ------------------------------------------------------------
@@ -150,7 +154,7 @@ procedure Sieve is
       Output.Enqueue(1);
 
    exception
-      when X : others => Report_Exception(X); raise;
+      when X : others => Halt(X);
    end SIEVE_GENERATOR;
 
 ------------------------------------------------------------------------
@@ -169,7 +173,22 @@ begin
          Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
       end;
 
-      limit : NUMBER := 541; -- default limit: the first 100 primes
+      Count : NATURAL := 0;
+
+      procedure Print(N: NUMBER) with Inline is
+         Field_Size : constant := 7;
+         Columns    : constant := 10;
+      begin
+         Count := Count + 1;
+         Put(N, Width => Field_Size);
+         if (Count rem Columns) = 0 then
+            New_Line;
+         end if;
+      end;
+
+      limit  : NUMBER := 541; -- default limit: the first 100 primes
+      primes : CHANNEL;
+      N      : NUMBER;
    begin
       Set_Exit_Status(Failure);
 
@@ -186,35 +205,18 @@ begin
          end;
       end if;
 
-      declare
-         Count : NATURAL := 0;
+      primes := new NUMERIC_CHANNEL;
+      Launch (
+         new SIEVE_GENERATOR (primes, limit)
+      );
 
-         procedure Print(N: NUMBER) with Inline is
-            Field_Size : constant := 7;
-            Columns    : constant := 10;
-         begin
-            Count := Count + 1;
-            Put(N, Width => Field_Size);
-            if (Count rem Columns) = 0 then
-               New_Line;
-            end if;
-         end;
+      loop
+         primes.Dequeue(N);
+         exit when N = 1;
+         Print(N);
+      end loop;
+      New_Line;
 
-         primes : CHANNEL;
-         N      : NUMBER;
-      begin
-         primes := new NUMERIC_CHANNEL;
-         Launch (
-            new SIEVE_GENERATOR (primes, limit)
-         );
-
-         loop
-            primes.Dequeue(N);
-            exit when N = 1;
-            Print(N);
-         end loop;
-         New_Line;
-      end;
       Set_Exit_Status(Success);
    end;
 end Sieve;
