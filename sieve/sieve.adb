@@ -161,17 +161,10 @@ procedure Sieve is
 -- Manage command line and start and consume the sieve
 ------------------------------------------------------------------------
 
-begin
-   declare
-      use Command_Line;
+   procedure Display_Sieve(limit: NUMBER)
+   is
       use Text_IO;
       use Integer_Text_IO;
-
-      procedure Usage is
-      begin
-         Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");
-         Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
-      end;
 
       Count : NATURAL := 0;
 
@@ -181,30 +174,15 @@ begin
       begin
          Count := Count + 1;
          Put(N, Width => Field_Size);
-         if (Count rem Columns) = 0 then
+         if Count = Columns then
+            Count := 0;
             New_Line;
          end if;
       end;
 
-      limit  : NUMBER := 541; -- default limit: the first 100 primes
       primes : CHANNEL;
       N      : NUMBER;
    begin
-      Set_Exit_Status(Failure);
-
-      if Argument_Count > 0 then
-         begin
-            limit := NUMBER'Value(Argument(1));
-            if limit = 1 then
-               raise Constraint_Error;
-            end if;
-         exception
-            when Constraint_Error =>
-               Usage;
-               return;
-         end;
-      end if;
-
       primes := new NUMERIC_CHANNEL;
       Launch (
          new SIEVE_GENERATOR (primes, limit)
@@ -215,7 +193,40 @@ begin
          exit when N = 1;
          Print(N);
       end loop;
+
       New_Line;
+   end Display_Sieve;
+
+begin
+   declare
+      use Command_Line;
+
+      procedure Usage is
+         use Text_IO;
+      begin
+         Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");
+         Put_Line(Standard_Error, "LIMIT must by a number greater than 1");
+      end;
+
+      limit : NUMBER := 541; -- default limit: the first 100 primes
+   begin
+      Set_Exit_Status(Failure);
+
+      if Argument_Count > 0 then
+         begin
+            limit := NUMBER'Value(Argument(1));
+            -- this conversion can raise Constraint_Error
+
+            if limit = 1 then raise Constraint_Error; end if;
+            -- extra constraint
+         exception
+            when Constraint_Error =>
+               Usage;
+               return;
+         end;
+      end if;
+
+      Display_Sieve(limit);
 
       Set_Exit_Status(Success);
    end;
