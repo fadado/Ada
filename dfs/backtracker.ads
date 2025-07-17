@@ -1,4 +1,4 @@
--- dfs.ads
+-- backtracker.ads
 
 generic
    type CHOICE is (<>);
@@ -10,38 +10,38 @@ generic
    type SOLUTION is array (LEVEL) of CHOICE;
    -- Vector of choices
 
-   with procedure Output (
-         path : SOLUTION
-     ) is <>;
+   with procedure Found
+     (path : SOLUTION)
+   is <>;
    -- Called for each solution found
 
-   with function Reject (
-         path  : SOLUTION;
-         depth : LEVEL;
-         item  : CHOICE
-     ) return BOOLEAN is <>;
+   with function Reject
+     (path  : SOLUTION;
+      depth : LEVEL;
+      item  : CHOICE) return BOOLEAN
+   is <>;
    -- Check constraints for the current node
 
-   with procedure Enter (
-         path  : SOLUTION;
-         depth : LEVEL;
-         item  : CHOICE
-     ) is <>;
+   with procedure Enter
+     (path  : SOLUTION;
+      depth : LEVEL;
+      item  : CHOICE)
+   is <>;
    -- Hook to run before entering one level down
 
-   with procedure Leave (
-         path  : SOLUTION;
-         depth : LEVEL;
-         item  : CHOICE
-     ) is <>;
+   with procedure Leave
+     (path  : SOLUTION;
+      depth : LEVEL;
+      item  : CHOICE)
+   is <>;
    -- Hook to run after exiting one level down
 
-package DFS is
+package Backtracker is
 
-   procedure Search;
+   procedure Goal;
    -- Walk the tree prunning when a node is rejected
 
-end DFS;
+end Backtracker;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -12,7 +12,9 @@ use Ada;
 
 procedure Sieve is
 
-   procedure Halt(X: Exceptions.EXCEPTION_OCCURRENCE) is
+   procedure Halt
+     (X: Exceptions.EXCEPTION_OCCURRENCE)
+   is
       use Text_IO;
       use Task_Identification;
    begin
@@ -60,9 +62,10 @@ procedure Sieve is
 
    type GENERATOR is access ODD_NUMBERS_GENERATOR;
 
-   procedure Launch(X: GENERATOR) is null with Inline;
+   procedure Launch (X: GENERATOR) is null with Inline;
 
-   task body ODD_NUMBERS_GENERATOR is
+   task body ODD_NUMBERS_GENERATOR
+   is
       odd : NUMBER := 3;
    begin
       while odd <= Limit loop
@@ -88,11 +91,14 @@ procedure Sieve is
 
    type FILTER is access FILTER_PRIME_MULTIPLES;
 
-   procedure Launch(X: FILTER) is null with Inline;
+   procedure Launch (X: FILTER) is null with Inline;
 
-   task body FILTER_PRIME_MULTIPLES is
-      function Is_Multiple(n : NUMBER) return BOOLEAN
-         is (n rem Prime = 0) with Inline;
+   task body FILTER_PRIME_MULTIPLES
+   is
+      function Is_Multiple 
+        (n : NUMBER) return BOOLEAN
+      is (n rem Prime = 0)
+      with Inline;
 
       candidate : NUMBER;
    begin
@@ -124,9 +130,10 @@ procedure Sieve is
 
    type SIEVE is access SIEVE_GENERATOR;
 
-   procedure Launch(X: SIEVE) is null with Inline;
+   procedure Launch (X: SIEVE) is null with Inline;
 
-   task body SIEVE_GENERATOR is
+   task body SIEVE_GENERATOR
+   is
       prime  : NUMBER;
       source : CHANNEL;
       result : CHANNEL;
@@ -161,27 +168,31 @@ procedure Sieve is
 -- Manage command line and start and consume the sieve
 ------------------------------------------------------------------------
 
-   procedure Display_Sieve(limit: NUMBER)
+   procedure Display_Sieve 
+     (limit: NUMBER)
    is
       use Text_IO;
       use Integer_Text_IO;
 
-      Count : NATURAL := 0;
+      count : NATURAL := 0;
 
-      procedure Print(N: NUMBER) with Inline is
+      procedure Print
+        (n: NUMBER)
+      with Inline
+      is
          Field_Size : constant := 7;
          Columns    : constant := 10;
       begin
-         Count := Count + 1;
-         Put(N, Width => Field_Size);
-         if Count = Columns then
-            Count := 0;
+         count := count + 1;
+         Put(n, Width => Field_Size);
+         if count = Columns then
+            count := 0;
             New_Line;
          end if;
       end;
 
       primes : CHANNEL;
-      N      : NUMBER;
+      n      : NUMBER;
    begin
       primes := new NUMERIC_CHANNEL;
       Launch (
@@ -189,9 +200,9 @@ procedure Sieve is
       );
 
       loop
-         primes.Dequeue(N);
-         exit when N = 1;
-         Print(N);
+         primes.Dequeue(n);
+         exit when n = 1;
+         Print(n);
       end loop;
 
       New_Line;
@@ -201,7 +212,8 @@ begin
    declare
       use Command_Line;
 
-      procedure Usage is
+      procedure Usage
+      is
          use Text_IO;
       begin
          Put_Line(Standard_Error, "Usage: ./sieve [LIMIT]");

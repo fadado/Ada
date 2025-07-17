@@ -5,18 +5,18 @@
 LIB=./LIBRARY
 GNATFLAGS=-q
 
-DFSLIB := dfs.ad[sb]
+DFSLIB := backtracker.ad[sb]
 
-all: $(LIB) $(LIB)/dodeca
+all: $(LIB) $(LIB)/test_dodeca
 	@echo Done!
 
-$(LIB)/dodeca: dodeca.adb dodeca-*.ad[sb] $(DFSLIB)
+$(LIB)/test_dodeca: test_dodeca.adb test_dodeca-*.ad[sb] $(DFSLIB)
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 $(LIB):
 	@test -d $(LIB) || mkdir $(LIB)
 
-dodeca: $(LIB)/dodeca; $<
+test_dodeca: $(LIB)/test_dodeca; $<
 
 clean:
 	rm -rf $(LIB)

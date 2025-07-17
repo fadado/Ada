@@ -1,9 +1,8 @@
--- dodeca.adb
+-- test_dodeca.adb
 
-with DFS;
+with Backtracker;
 
-procedure Dodeca is
- --pragma Optimize(Time);
+procedure test_Dodeca is
 
    ---------------------------------------------------------------------
    -- Client side types
@@ -21,6 +20,7 @@ procedure Dodeca is
    task Printer is
       entry Output(serie: TONE_ROW);
    end Printer;
+
    task body Printer is separate;
    -- Accept calls to print series
 
@@ -36,38 +36,35 @@ procedure Dodeca is
    -- Sets of notes and intervals in use
 
    -- Compute interval
-   function last_interval (
-         path  : TONE_ROW;
-         depth : ORDER;
-         item  : TONE
-     )
-     return INTERVAL
-     with Inline
+   function last_interval
+     (path  : TONE_ROW;
+      depth : ORDER;
+      item  : TONE) return INTERVAL
+   with Inline
    is
-      -- previous tone
       item_up : TONE renames path(ORDER'Pred(depth));
+      -- previous tone
    begin
       return INTERVAL(abs(item - item_up));
    end;
 
    -- Reasons to prune
-   function Reject (
-         path  : TONE_ROW;
-         depth : ORDER;
-         item  : TONE
-     )
-     return BOOLEAN is
+   function Reject
+     (path  : TONE_ROW;
+      depth : ORDER;
+      item  : TONE) return BOOLEAN
+   is
    begin
       return  Used_Tones(item)
       or else Used_Intervals(last_interval(path, depth, item));
    end;
 
    -- Wrap the recursive calls
-   procedure Enter (
-         path  : TONE_ROW;
-         depth : ORDER;
-         item  : TONE
-     ) is
+   procedure Enter
+     (path  : TONE_ROW;
+      depth : ORDER;
+      item  : TONE)
+   is
    begin
       Used_Tones(item) := TRUE;
       if depth > ORDER'First then
@@ -75,11 +72,11 @@ procedure Dodeca is
       end if;
    end;
 
-   procedure Leave (
-         path  : TONE_ROW;
-         depth : ORDER;
-         item  : TONE
-     ) is
+   procedure Leave
+     (path  : TONE_ROW;
+      depth : ORDER;
+      item  : TONE)
+   is
    begin
       Used_Tones(item) := FALSE;
       if depth > ORDER'First then
@@ -93,20 +90,20 @@ begin
    ---------------------------------------------------------------------
    declare
       package Dodecaphonic_Panintervalic_Series is
-         new DFS (
+         new Backtracker (
            CHOICE   => TONE,
            LEVEL    => ORDER,
            SOLUTION => TONE_ROW,
-           Output   => Printer.Output
-         --Reject   => Reject,
-         --Enter    => Enter,
-         --Leave    => Leave
+           Found    => Printer.Output,
+           Reject   => Reject,
+           Enter    => Enter,
+           Leave    => Leave
          );
    begin
-      Dodecaphonic_Panintervalic_Series.Search;
+      Dodecaphonic_Panintervalic_Series.Goal;
    end;
 
-end Dodeca;
+end test_Dodeca;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
