@@ -12,13 +12,13 @@ procedure test_Dodeca is
    -- 12 chromatic notes
 
    type ORDER is range 1..12;
-   -- Position inside the serie
+   -- Position inside the series
 
    type TONE_ROW is array (ORDER) of TONE;
-   -- dodecaphonic serie
+   -- dodecaphonic series
 
    task Printer is
-      entry Output(serie: TONE_ROW);
+      entry Output(series: TONE_ROW);
    end Printer;
 
    task body Printer is separate;
@@ -35,52 +35,59 @@ procedure test_Dodeca is
    Used_Intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
    -- Sets of notes and intervals in use
 
-   -- Compute interval
+   -- Compute last interval
    function last_interval
-     (path  : TONE_ROW;
-      depth : ORDER;
-      item  : TONE) return INTERVAL
+     (series : TONE_ROW;
+      index  : ORDER;
+      note   : TONE) return INTERVAL
    with Inline
    is
-      item_up : TONE renames path(ORDER'Pred(depth));
+      note_up : TONE renames series(ORDER'Pred(index));
       -- previous tone
    begin
-      return INTERVAL(abs(item - item_up));
+      return INTERVAL(abs(note - note_up));
    end;
 
    -- Reasons to prune
-   function Reject
-     (path  : TONE_ROW;
-      depth : ORDER;
-      item  : TONE) return BOOLEAN
+   function Rejected
+     (series : TONE_ROW;
+      index  : ORDER;
+      note   : TONE) return BOOLEAN
    is
    begin
-      return  Used_Tones(item)
-      or else Used_Intervals(last_interval(path, depth, item));
+      if index = ORDER'First then
+         return FALSE;
+      elsif Used_Tones(note) then
+         return TRUE;
+      elsif Used_Intervals(last_interval(series, index, note)) then
+         return TRUE;
+      else
+         return FALSE;
+      end if;
    end;
 
    -- Wrap the recursive calls
    procedure Enter
-     (path  : TONE_ROW;
-      depth : ORDER;
-      item  : TONE)
+     (series : TONE_ROW;
+      index  : ORDER;
+      note   : TONE)
    is
    begin
-      Used_Tones(item) := TRUE;
-      if depth > ORDER'First then
-         Used_Intervals(last_interval(path, depth, item)) := TRUE;
+      Used_Tones(note) := TRUE;
+      if index > ORDER'First then
+         Used_Intervals(last_interval(series, index, note)) := TRUE;
       end if;
    end;
 
    procedure Leave
-     (path  : TONE_ROW;
-      depth : ORDER;
-      item  : TONE)
+     (series : TONE_ROW;
+      index  : ORDER;
+      note   : TONE)
    is
    begin
-      Used_Tones(item) := FALSE;
-      if depth > ORDER'First then
-         Used_Intervals(last_interval(path, depth, item)) := FALSE;
+      Used_Tones(note) := FALSE;
+      if index > ORDER'First then
+         Used_Intervals(last_interval(series, index, note)) := FALSE;
       end if;
    end;
 
@@ -91,16 +98,16 @@ begin
    declare
       package Dodecaphonic_Panintervalic_Series is
          new Backtracker (
-           CHOICE   => TONE,
-           LEVEL    => ORDER,
-           SOLUTION => TONE_ROW,
-           Found    => Printer.Output,
-           Reject   => Reject,
-           Enter    => Enter,
-           Leave    => Leave
+           NODE_VALUE      => TONE,
+           VECTOR_INDEX    => ORDER,
+           VECTOR_SOLUTION => TONE_ROW,
+           Found           => Printer.Output,
+           Rejected        => Rejected,
+           Enter           => Enter,
+           Leave           => Leave
          );
    begin
-      Dodecaphonic_Panintervalic_Series.Goal;
+      Dodecaphonic_Panintervalic_Series.Traverse;
    end;
 
 end test_Dodeca;

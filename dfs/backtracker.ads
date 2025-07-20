@@ -1,44 +1,44 @@
 -- backtracker.ads
 
 generic
-   type CHOICE is (<>);
+   type NODE_VALUE is (<>);
    -- Set of available choices
 
-   type LEVEL is (<>);
+   type VECTOR_INDEX is (<>);
    -- Search tree levels
 
-   type SOLUTION is array (LEVEL) of CHOICE;
+   type VECTOR_SOLUTION is array (VECTOR_INDEX) of NODE_VALUE;
    -- Vector of choices
 
    with procedure Found
-     (path : SOLUTION)
+     (solution : VECTOR_SOLUTION)
    is <>;
    -- Called for each solution found
 
-   with function Reject
-     (path  : SOLUTION;
-      depth : LEVEL;
-      item  : CHOICE) return BOOLEAN
+   with function Rejected
+     (solution : VECTOR_SOLUTION;
+      index    : VECTOR_INDEX;
+      value    : NODE_VALUE) return BOOLEAN
    is <>;
    -- Check constraints for the current node
 
    with procedure Enter
-     (path  : SOLUTION;
-      depth : LEVEL;
-      item  : CHOICE)
+     (solution : VECTOR_SOLUTION;
+      index    : VECTOR_INDEX;
+      value    : NODE_VALUE)
    is <>;
    -- Hook to run before entering one level down
 
    with procedure Leave
-     (path  : SOLUTION;
-      depth : LEVEL;
-      item  : CHOICE)
+     (solution : VECTOR_SOLUTION;
+      index    : VECTOR_INDEX;
+      value    : NODE_VALUE)
    is <>;
    -- Hook to run after exiting one level down
 
 package Backtracker is
 
-   procedure Goal;
+   procedure Traverse with Inline;
    -- Walk the tree prunning when a node is rejected
 
 end Backtracker;

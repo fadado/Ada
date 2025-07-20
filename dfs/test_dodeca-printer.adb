@@ -6,15 +6,15 @@ separate (test_Dodeca)
 task body Printer is
    use Ada.Text_IO;
 
-   serie : TONE_ROW;
+   series : TONE_ROW; -- local reference: Printer.series
 begin
    loop
       select
-         accept Output(serie : TONE_ROW) do
-            Printer.serie := serie;
+         accept Output(series : TONE_ROW) do
+            Printer.series := series;
          end Output;
-         for tone of serie loop
-            Put(tone'Image);
+         for t of series loop
+            Put(t'Image);
          end loop;
          New_Line;
       or
