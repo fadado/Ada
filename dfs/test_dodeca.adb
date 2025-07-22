@@ -1,4 +1,5 @@
--- test_dodeca.adb
+-- Generates all-interval twelve-tone rows
+--    https://en.wikipedia.org/wiki/All-interval_twelve-tone_row
 
 with Backtracker;
 
