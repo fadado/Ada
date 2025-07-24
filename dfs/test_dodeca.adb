@@ -5,102 +5,96 @@ with Backtracker;
 
 procedure test_Dodeca is
 
-   ---------------------------------------------------------------------
-   -- Client side types
-   ---------------------------------------------------------------------
+   type PITCH_CLASS is mod 12;
+   -- 12 chromatic tones
 
-   type TONE is range 1..12;
-   -- 12 chromatic notes
-
-   type ORDER is range 1..12;
+   type TUPLE_INDEX is range 1..12;
    -- Position inside the series
 
-   type TONE_ROW is array (ORDER) of TONE;
+   type TONE_ROW is array (TUPLE_INDEX) of PITCH_CLASS;
    -- dodecaphonic series
-
-   task Printer is
-      entry Output(series: TONE_ROW);
-   end Printer;
-
-   task body Printer is separate;
-   -- Accept calls to print series
-
-   ---------------------------------------------------------------------
-   -- Constraints
-   ---------------------------------------------------------------------
 
    type INTERVAL is range 1..11;
    -- Constraining unique intervals
 
-   Used_Tones     : array (TONE)     of BOOLEAN := (others => FALSE);
+   Used_Tones     : array (PITCH_CLASS) of BOOLEAN := (others => FALSE);
    Used_Intervals : array (INTERVAL) of BOOLEAN := (others => FALSE);
-   -- Sets of notes and intervals in use
+   -- Sets of tones and intervals in use
 
    -- Compute last interval
    function last_interval
      (series : TONE_ROW;
-      index  : ORDER;
-      note   : TONE) return INTERVAL
+      index  : TUPLE_INDEX;
+      tone   : PITCH_CLASS) return INTERVAL
    with Inline
    is
-      note_up : TONE renames series(ORDER'Pred(index));
+      tone_up : PITCH_CLASS renames series(TUPLE_INDEX'Pred(index));
       -- previous tone
    begin
-      return INTERVAL(abs(note - note_up));
+      if tone > tone_up then
+         return INTERVAL(tone - tone_up);
+      else
+         return INTERVAL(tone_up - tone);
+      end if;
    end;
 
-   -- Reasons to prune
+   -- Reasons to prune?
    function Rejected
      (series : TONE_ROW;
-      index  : ORDER;
-      note   : TONE) return BOOLEAN
+      index  : TUPLE_INDEX;
+      tone   : PITCH_CLASS) return BOOLEAN
    is
    begin
-      if index = ORDER'First then
+      if index = TUPLE_INDEX'First then
          return FALSE;
-      elsif Used_Tones(note) then
+      elsif Used_Tones(tone) then
          return TRUE;
-      elsif Used_Intervals(last_interval(series, index, note)) then
+      elsif Used_Intervals(last_interval(series, index, tone)) then
          return TRUE;
       else
          return FALSE;
       end if;
    end;
 
-   -- Wrap the recursive calls
+   -- Hook-before when tone is accepted at index in series
    procedure Enter
      (series : TONE_ROW;
-      index  : ORDER;
-      note   : TONE)
+      index  : TUPLE_INDEX;
+      tone   : PITCH_CLASS)
    is
    begin
-      Used_Tones(note) := TRUE;
-      if index > ORDER'First then
-         Used_Intervals(last_interval(series, index, note)) := TRUE;
+      Used_Tones(tone) := TRUE;
+      if index > TUPLE_INDEX'First then
+         Used_Intervals(last_interval(series, index, tone)) := TRUE;
       end if;
    end;
 
+   -- Hook-after when tone is accepted at index in series
    procedure Leave
      (series : TONE_ROW;
-      index  : ORDER;
-      note   : TONE)
+      index  : TUPLE_INDEX;
+      tone   : PITCH_CLASS)
    is
    begin
-      Used_Tones(note) := FALSE;
-      if index > ORDER'First then
-         Used_Intervals(last_interval(series, index, note)) := FALSE;
+      Used_Tones(tone) := FALSE;
+      if index > TUPLE_INDEX'First then
+         Used_Intervals(last_interval(series, index, tone)) := FALSE;
       end if;
    end;
 
+   -- Accept calls to print series
+   task Printer is
+      entry Output(series: TONE_ROW);
+   end Printer;
+
+   task body Printer is separate;
+
 begin
-   ---------------------------------------------------------------------
-   -- Generate all panintervalic twelve-tone tone-rows
-   ---------------------------------------------------------------------
    declare
-      package Dodecaphonic_Panintervalic_Series is
+      package All_Intervals_Twelve_Tone_Rows is
          new Backtracker (
-           NODE_VALUE      => TONE,
-           VECTOR_INDEX    => ORDER,
+           NODE_VALUE      => PITCH_CLASS,
+           VECTOR_INDEX    => TUPLE_INDEX,
            VECTOR_SOLUTION => TONE_ROW,
            Found           => Printer.Output,
            Rejected        => Rejected,
@@ -108,7 +102,7 @@ begin
            Leave           => Leave
          );
    begin
-      Dodecaphonic_Panintervalic_Series.Traverse;
+      All_Intervals_Twelve_Tone_Rows.Traverse;
    end;
 
 end test_Dodeca;

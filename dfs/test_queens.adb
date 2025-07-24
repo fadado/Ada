@@ -11,16 +11,6 @@ procedure test_queens is
    type COLUMN_INDEX is new ROW_INDEX;
    type CHESS_BOARD  is array(ROW_INDEX) of COLUMN_INDEX;
 
-   procedure Output(board: CHESS_BOARD)
-   is
-      use Ada.Text_IO;
-   begin
-      for column of board loop
-         Put(column'Image);
-      end loop;
-      New_Line;
-   end Output;
-
    type LESS_DIAGONAL_ID is range ROW_INDEX'First - ROW_INDEX'Last
                                .. ROW_INDEX'Last  - ROW_INDEX'First;
    type PLUS_DIAGONAL_ID is range ROW_INDEX'First + ROW_INDEX'First
@@ -81,6 +71,16 @@ procedure test_queens is
    begin
       Used_Column(col) := FALSE;
    end;
+
+   procedure Output(board: CHESS_BOARD)
+   is
+      use Ada.Text_IO;
+   begin
+      for column of board loop
+         Put(column'Image);
+      end loop;
+      New_Line;
+   end Output;
 
 begin
    declare
