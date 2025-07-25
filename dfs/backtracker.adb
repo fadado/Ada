@@ -1,7 +1,6 @@
 -- backtracker.adb
 
 package body Backtracker is
-
    solution : VECTOR_SOLUTION; -- (partial) solution
 
    -- Try to add one step to the partial solution
@@ -33,7 +32,6 @@ package body Backtracker is
    begin
       traverse(VECTOR_INDEX'First);
    end Traverse;
-
 end Backtracker;
 
 -- ¡ISO-8859-1!

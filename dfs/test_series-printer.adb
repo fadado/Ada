@@ -1,11 +1,10 @@
 -- test_series-output.adb
 
 with Ada.Text_IO;
+use  Ada.Text_IO;
 
 separate (test_Series)
 task body Printer is
-   use Ada.Text_IO;
-
    series : TONE_ROW; -- local reference: Printer.series
 begin
    loop

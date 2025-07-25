@@ -37,10 +37,8 @@ generic
    -- Hook to run after exiting one level down
 
 package Backtracker is
-
    procedure Traverse with Inline;
    -- Walk the tree prunning when a node is rejected
-
 end Backtracker;
 
 -- ¡ISO-8859-1!

@@ -6,7 +6,6 @@ with Ada.Text_IO;
 with Backtracker;
 
 procedure test_queens is
-
    type ROW_INDEX    is range 1..8;
    type COLUMN_INDEX is new ROW_INDEX;
    type CHESS_BOARD  is array(ROW_INDEX) of COLUMN_INDEX;
@@ -97,7 +96,6 @@ begin
    begin
       Queens_8.Traverse;
    end;
-
 end test_queens;
 
 -- ¡ISO-8859-1!

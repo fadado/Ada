@@ -4,7 +4,6 @@
 with Backtracker;
 
 procedure test_Series is
-
    type PITCH_CLASS is mod 12;
    -- 12 chromatic tones
 
@@ -31,11 +30,15 @@ procedure test_Series is
       tone_up : PITCH_CLASS renames series(TUPLE_INDEX'Pred(index));
       -- previous tone
    begin
-      if tone > tone_up then
-         return INTERVAL(tone - tone_up);
-      else
-         return INTERVAL(tone_up - tone);
-      end if;
+      -- ordered pitch-class interval
+      return INTERVAL(tone_up - tone);
+
+    -- buggy old version using unordered pitch interval
+    --if tone > tone_up then
+    --   return INTERVAL(tone - tone_up);
+    --else
+    --   return INTERVAL(tone_up - tone);
+    --end if;
    end;
 
    -- Reasons to prune?
@@ -104,7 +107,6 @@ begin
    begin
       All_Intervals_Twelve_Tone_Rows.Traverse;
    end;
-
 end test_Series;
 
 -- ¡ISO-8859-1!
