@@ -14,7 +14,13 @@ begin
             Printer.series := series;
          end Output;
          for t of series loop
-            Put(t'Image);
+            if t < 10 then
+               Put(t'Image);
+            elsif t = 10 then
+               Put(" A");
+            elsif t = 11 then
+               Put(" B");
+            end if;
          end loop;
          New_Line;
       or
