@@ -1,8 +1,8 @@
--- test_dodeca-output.adb
+-- test_series-output.adb
 
 with Ada.Text_IO;
 
-separate (test_Dodeca)
+separate (test_Series)
 task body Printer is
    use Ada.Text_IO;
 

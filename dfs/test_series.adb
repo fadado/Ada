@@ -3,7 +3,7 @@
 
 with Backtracker;
 
-procedure test_Dodeca is
+procedure test_Series is
 
    type PITCH_CLASS is mod 12;
    -- 12 chromatic tones
@@ -105,7 +105,7 @@ begin
       All_Intervals_Twelve_Tone_Rows.Traverse;
    end;
 
-end test_Dodeca;
+end test_Series;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
