@@ -1,5 +1,7 @@
 -- backtracker.adb
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 package body Backtracker is
    solution : VECTOR_SOLUTION; -- (partial) solution
 
@@ -7,10 +9,15 @@ package body Backtracker is
    procedure traverse
      (index : VECTOR_INDEX)
    is
+      function accepted (value : NODE_VALUE) return BOOLEAN with Inline
+      is
+      begin
+         return not Rejected(solution, index, value);
+      end accepted;
    begin
       -- try to extend the solution with each choice
       for value in NODE_VALUE loop
-         if not Rejected(solution, index, value) then
+         if accepted(value) then
             solution(index) := value;
             -- accept value for the current level
 
