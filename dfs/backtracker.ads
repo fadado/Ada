@@ -1,5 +1,7 @@
 -- backtracker.ads
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 generic
    type NODE_VALUE is (<>);
    -- Set of available choices
@@ -37,8 +39,12 @@ generic
    -- Hook to run after exiting one level down
 
 package Backtracker is
-   procedure Traverse with Inline;
-   -- Walk the tree prunning when a node is rejected
+   type FOREST_SET is array (NODE_VALUE) of BOOLEAN;
+
+   procedure Traverse
+     (forest : FOREST_SET := (others => TRUE))
+   with Pre => VECTOR_SOLUTION'Length > 1;
+   -- Walk the indicated trees, prunning when a node is rejected
 end Backtracker;
 
 -- ¡ISO-8859-1!

@@ -35,9 +35,19 @@ package body Backtracker is
 
    -- Walk the tree prunning when a node is rejected
    procedure Traverse
+     (forest : FOREST_SET := (others => TRUE))
    is
+      first : constant VECTOR_INDEX := VECTOR_INDEX'First;
    begin
-      traverse(VECTOR_INDEX'First);
+      for value in NODE_VALUE loop
+         if forest(value) then
+            solution(first) := value;
+
+            Enter(solution, first, value);
+            traverse(VECTOR_INDEX'Succ(first));
+            Leave(solution, first, value);
+         end if;
+      end loop;
    end Traverse;
 end Backtracker;
 

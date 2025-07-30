@@ -104,8 +104,11 @@ begin
            Enter           => Enter,
            Leave           => Leave
          );
+      use All_Intervals_Twelve_Tone_Rows;
    begin
-      All_Intervals_Twelve_Tone_Rows.Traverse;
+    --Traverse(FOREST_SET'(0 => TRUE, others => FALSE));
+      --
+      Traverse;
    end;
 end test_Series;
 
