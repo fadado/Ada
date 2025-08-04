@@ -6,7 +6,7 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control.Routines;
+with Control.CoRoutines;
 use Control;
 
 with Gotcha;
@@ -152,17 +152,17 @@ begin
    end Test_4;
 
    ---------------------------------------------------------------------------
-   --  Test 5 - Routines example
+   --  Test 5 - CoRoutines example
    ---------------------------------------------------------------------------
 
    Test_5:
    declare
       pragma Warnings (Off, "unreachable code");
 
-      package R is new Routines (Context_Type => VOID);
+      package R is new CoRoutines (Context_Type => VOID);
       use R;
 
-      procedure subgen(routine: not null ROUTINE_ACCESS) is
+      procedure subgen(routine: not null COROUTINE_ACCESS) is
       begin
          Put("He");
          routine.Yield;
@@ -170,7 +170,7 @@ begin
          raise Stop_Iteration;
       end subgen;
 
-      procedure hello_world(routine: not null ROUTINE_ACCESS) is
+      procedure hello_world(routine: not null COROUTINE_ACCESS) is
       begin
          Put("Test 5-");
          routine.Yield;
@@ -181,7 +181,7 @@ begin
          Put_Line("!");
       end;
 
-      hello : ROUTINE_TYPE (hello_world'Access, NULL);
+      hello : COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
       loop hello.Resume; end loop;

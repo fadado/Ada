@@ -11,7 +11,7 @@ CTRLIB := \
 	gotcha.ad[sb]
 
 RUTLIB := \
-	control-routines.ad[sb]
+	control-coroutines.ad[sb]
 
 GENLIB := \
 	control-generators.ad[sb]
@@ -25,7 +25,7 @@ all: $(LIB) \
 $(LIB):
 	@test -d $(LIB) || mkdir $(LIB)
 
-# Test using the package Controllers and Routines
+# Test using the package Controllers and CoRoutines
 $(LIB)/test_hello: test_hello.adb ${CTRLIB} ${RUTLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 

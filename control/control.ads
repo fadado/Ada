@@ -83,9 +83,9 @@ private
 
       procedure Clear(S: in out SIGNAL) renames Set_False;
 
-      function Is_Set(S: in SIGNAL) return BOOLEAN renames Current_State;
+      function  Is_Set(S: in SIGNAL) return BOOLEAN renames Current_State;
 
-      function Is_Cleared(S: in SIGNAL) return BOOLEAN
+      function  Is_Cleared(S: in SIGNAL) return BOOLEAN
          is (not Is_Set(S)) with Inline;
    end Signal;
 

@@ -4,16 +4,16 @@
 
 with Control.Spin_Until;
 
-package body Control . Routines is
+package body Control . CoRoutines is
    ---------------------------------------------------------------------------
-   --  ROUTINE_TYPE methods
+   --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
    ------------
    -- Resume --
    ------------
 
-   procedure Resume(routine: in out ROUTINE_TYPE) is
+   procedure Resume(routine: in out COROUTINE_TYPE) is
    begin
       pragma Assert(routine.runner'Callable);
 
@@ -28,7 +28,7 @@ package body Control . Routines is
    -- Yield --
    -----------
 
-   procedure Yield(routine: in out ROUTINE_TYPE) is
+   procedure Yield(routine: in out COROUTINE_TYPE) is
    begin
       pragma Assert(routine.runner'Callable);
       routine.Suspend;
@@ -38,7 +38,7 @@ package body Control . Routines is
    -- Close --
    -----------
 
-   procedure Close(routine: in out ROUTINE_TYPE) is
+   procedure Close(routine: in out COROUTINE_TYPE) is
       function runner_terminated return BOOLEAN is
          (routine.runner'Terminated);
    begin
@@ -50,10 +50,10 @@ package body Control . Routines is
    end Close;
 
    --------------------
-   -- Routine_Runner --
+   -- CoRoutine_Runner --
    --------------------
 
-   task body Routine_Runner is
+   task body CoRoutine_Runner is
    begin
       routine.Initiate;
       routine.main(routine);
@@ -61,9 +61,9 @@ package body Control . Routines is
    exception
       when Exit_Controller => routine.Reset;
       when X: others       => routine.Quit(X);
-   end Routine_Runner;
+   end CoRoutine_Runner;
 
-end Control . Routines;
+end Control . CoRoutines;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
