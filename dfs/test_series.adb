@@ -1,6 +1,8 @@
 -- Generates all-interval twelve-tone rows
 --    https://en.wikipedia.org/wiki/All-interval_twelve-tone_row
 
+pragma Assertion_Policy(Ignore); -- Check / Ignore
+
 with Backtracker;
 
 procedure test_Series is
@@ -48,9 +50,9 @@ procedure test_Series is
       tone   : PITCH_CLASS) return BOOLEAN
    is
    begin
-      if index = TUPLE_INDEX'First then
-         return FALSE;
-      elsif Used_Tones(tone) then
+      pragma Assert(index > TUPLE_INDEX'First);
+
+      if Used_Tones(tone) then
          return TRUE;
       elsif Used_Intervals(last_interval(series, index, tone)) then
          return TRUE;

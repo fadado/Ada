@@ -1,6 +1,8 @@
 -- Solves the
 --    https://en.wikipedia.org/wiki/Eight_queens_puzzle
 
+pragma Assertion_Policy(Ignore); -- Check / Ignore
+
 with Ada.Text_IO;
 
 with Backtracker;
@@ -25,6 +27,8 @@ procedure test_queens is
       col   : COLUMN_INDEX) return BOOLEAN
    is
    begin
+      pragma Assert(row > ROW_INDEX'First);
+
       if Used_Column(col) then
          return TRUE;
       end if;
