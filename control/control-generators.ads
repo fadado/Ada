@@ -22,11 +22,13 @@ package Control . Generators is
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
    type GENERATOR_FUNCTION is
-      not null access procedure (generator: not null GENERATOR_ACCESS);
+      not null access procedure (generator: in not null GENERATOR_ACCESS);
    --  Procedure type for the main program
 
-   type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
-      tagged limited private
+   type GENERATOR_TYPE (
+      main    : GENERATOR_FUNCTION;
+      context : CONTEXT_ACCESS
+   ) is tagged limited private
    with
       Constant_Indexing => Generator_C_I,
       Default_Iterator  => Iterate,
@@ -98,12 +100,14 @@ private
    task type Generator_Runner (generator: not null GENERATOR_ACCESS)
       is private end;
 
-   type GENERATOR_TYPE (main: GENERATOR_FUNCTION; context: CONTEXT_ACCESS) is
-      limited new CONTROLLER_TYPE with 
+   type GENERATOR_TYPE (
+         main    : GENERATOR_FUNCTION;
+         context : CONTEXT_ACCESS
+   ) is limited new CONTROLLER_TYPE with 
       record
-         master : CONTROLLER_TYPE;
-         runner : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
-         output : OUTPUT_TYPE;
+         master  : CONTROLLER_TYPE;
+         runner  : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
+         output  : OUTPUT_TYPE;
       end record;
 
    type CURSOR_TYPE is

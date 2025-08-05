@@ -7,13 +7,11 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control.Generators;
-use Control;
-
+with Control.Generators; use Control;
 with Gotcha;
 
-procedure test_fibonacci is
-   
+procedure test_fibonacci
+is
    Limit : constant := 10;
 
    package fibonacci_types is new Generators (

@@ -11,7 +11,9 @@ use Control;
 
 with Gotcha;
 
-procedure test_hello is
+procedure test_hello
+is
+   Environment_Controller : CONTROLLER_TYPE;
 begin
    Gotcha.Set_Handlers;
 
@@ -32,18 +34,17 @@ begin
          controller.Quit;
       exception
          when Exit_Controller =>
-            controller.Reset;
+            controller.Die;
          when X: others =>
             controller.Quit(X);
             raise;
       end HELLO_RUN;
 
-      main          : CONTROLLER_TYPE;
       hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       Put_Line(Standard_Error, "========================================================================");
-      main.Call(hello_control);
+      Environment_Controller.Call(hello_control);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -68,10 +69,9 @@ begin
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
 
-      main  : CONTROLLER_TYPE;
       hello : HELLO_COROUTINE;
    begin
-      main.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Call(CONTROLLER_TYPE(hello));
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -97,10 +97,9 @@ begin
          when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
-      main  : CONTROLLER_TYPE;
       hello : HELLO_COROUTINE;
    begin
-      main.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Call(CONTROLLER_TYPE(hello));
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -145,10 +144,9 @@ begin
          end HELLO_RUN;
       end Hello_Package;
 
-      main  : CONTROLLER_TYPE;
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      main.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Call(CONTROLLER_TYPE(hello));
    end Test_4;
 
    ---------------------------------------------------------------------------

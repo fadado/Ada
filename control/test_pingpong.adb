@@ -31,8 +31,8 @@ is
       end loop;
 
    exception
-      when Exit_Controller => Ping.Reset;
-      when X: others => Ping.Quit(X); raise;
+      when Exit_Controller => Ping.Die;
+      when X: others       => Ping.Quit(X); raise;
    end PING_RUN;
 
    task body PONG_RUN is
@@ -54,12 +54,13 @@ is
       when X: others => Pong.Quit(X); raise;
    end PONG_RUN;
 
+   Environment_Controller : CONTROLLER_TYPE;
+
 begin
    Gotcha.Set_Handlers;
 
    Test:
    declare
-      main         : CONTROLLER_TYPE;
       ping_control : aliased CONTROLLER_TYPE;
       pong_control : aliased CONTROLLER_TYPE;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
@@ -70,7 +71,7 @@ begin
       Put_Line("The players are ready...");
       New_Line;
 
-      main.Call(ping_control);
+      Environment_Controller.Call(ping_control);
 
       New_Line;
       Put_Line("Game Over");

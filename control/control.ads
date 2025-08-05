@@ -4,11 +4,12 @@
 
 pragma Restrictions (
    No_Abort_Statements,
+   No_Select_Statements,
+   No_Requeue_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,
-   No_Requeue_Statements,
    No_Local_Protected_Objects,
-   No_Select_Statements
+   No_Dynamic_Priorities
 );
 
         with Ada.Exceptions;
@@ -18,18 +19,17 @@ private with Ada.Task_Identification;
 package Control is
 
    Exit_Controller : exception;
-   --  Visible, but raised *only* on `Request_To_Exit` and to be handled
-   --  *only* on task body handlers
+   --  Visible, but to be handled *only* on task body handlers
 
    Stop_Iteration : exception;
-   --  Raised in child packages to indicate iterator exhaustion
+   --  Shared definition to be used by child packages
+
+   type VOID is null record;
+   --  Common type for child packages and clients using empty contexts
 
    subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;
    subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-   --  Simple renaming to avoid `use`
-
-   type VOID is null record;
-   --  Facility for child packages and clients
+   --  Simple renaming to simplify naming and avoid `use`
 
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE
@@ -37,34 +37,49 @@ package Control is
 
    type CONTROLLER_TYPE is tagged limited private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
-   --  Common behavior for asymmetric and symmetric controlers
+   --  Base parent for asymmetric and symmetric derived controlers
 
-   procedure Initiate(controller: in out CONTROLLER_TYPE);
-   --  Initiate `controller` to the current task (raises `Exit_Controller`)
+   procedure Initiate
+     (controller : in out CONTROLLER_TYPE);
+   --  Initiate `controller` in the current task
 
-   procedure Suspend(controller: in out CONTROLLER_TYPE);
-   --  Transfers control to the invoker (raises `Exit_Controller`)
+   procedure Quit
+     (controller : in out CONTROLLER_TYPE);
+   --  Quit `controller` returning control to a suspended invoker
 
-   procedure Quit(controller: in out CONTROLLER_TYPE);
-   --  Quit `controller` from the current task 
+   procedure Quit
+     (controller : in out CONTROLLER_TYPE;
+      X          : in EXCEPTION_TYPE);
+   --  Quit and migrate exceptions to a suspended controller
 
-   procedure Quit(controller: in out CONTROLLER_TYPE; X: in EXCEPTION_TYPE);
-   --  Quit and migrate exceptions to the suspended invoker
+   procedure Die
+     (controller : in out CONTROLLER_TYPE);
+   --  Set `controller` to the DEAD state
 
-   procedure Reset(controller: in out CONTROLLER_TYPE) with Inline;
-   --  Put `controller` to the final state
+   procedure Call
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to `target` (for asymetric
+   --  coroutines)
 
-   procedure Call(controller, target: in out CONTROLLER_TYPE);
-   --  TODO
+   procedure Suspend
+     (controller : in out CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to a suspended controller
 
-   procedure Transfer(controller, target: in out CONTROLLER_TYPE);
-   --  Transfers control to `target` (raises `target` migrated exceptions)
+   procedure Transfer
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to `target` (for symmetric
+   --  coroutines)
 
-   procedure Jump(controller, target: in out CONTROLLER_TYPE);
+   procedure Jump
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE);
    --  Transfers control to `target`
 
-   procedure Request_To_Exit(target: in out CONTROLLER_TYPE);
-   --  Force a suspended `target` to exit
+   procedure Request_To_Exit
+     (target : in out CONTROLLER_TYPE);
+   --  Force to exit a suspended `target`
 
 private
    ---------------------------------------------------------------------------
@@ -74,33 +89,35 @@ private
    package Signal is
       use Ada.Synchronous_Task_Control;
 
-      subtype SIGNAL is SUSPENSION_OBJECT;
+      subtype T is SUSPENSION_OBJECT;
       --  `FALSE` initialized semaphores for *two* tasks only
 
-      procedure Wait(S: in out SIGNAL) renames Suspend_Until_True;
+      procedure Wait(S: in out T) renames Suspend_Until_True;
 
-      procedure Notify(S: in out SIGNAL) renames Set_True;
+      procedure Notify(S: in out T) renames Set_True;
 
-      procedure Clear(S: in out SIGNAL) renames Set_False;
+      procedure Clear(S: in out T) renames Set_False;
 
-      function  Is_Set(S: in SIGNAL) return BOOLEAN renames Current_State;
+      function  Is_Set(S: in T) return BOOLEAN renames Current_State;
 
-      function  Is_Cleared(S: in SIGNAL) return BOOLEAN
+      function  Is_Cleared(S: in T) return BOOLEAN
          is (not Is_Set(S)) with Inline;
    end Signal;
 
    ---------------------------------------------------------------------------
-   --  Full view for private types
+   --  Full view for CONTROLLER_TYPE
    ---------------------------------------------------------------------------
+
+   use Ada.Task_Identification;
 
    type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
 
    type CONTROLLER_TYPE is tagged limited
       record
-         id      : Ada.Task_Identification.TASK_ID;
+         id      : TASK_ID;
          state   : STATUS_TYPE := EXPECTANT;
          link    : CONTROLLER_ACCESS;
-         run     : Signal.SIGNAL;
+         run     : Signal.T;
          migrant : EXCEPTION_ACCESS;
       end record;
 

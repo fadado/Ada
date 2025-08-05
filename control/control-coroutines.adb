@@ -13,7 +13,9 @@ package body Control . CoRoutines is
    -- Resume --
    ------------
 
-   procedure Resume(routine: in out COROUTINE_TYPE) is
+   procedure Resume
+     (routine: in out COROUTINE_TYPE)
+   is
    begin
       pragma Assert(routine.runner'Callable);
 
@@ -28,7 +30,9 @@ package body Control . CoRoutines is
    -- Yield --
    -----------
 
-   procedure Yield(routine: in out COROUTINE_TYPE) is
+   procedure Yield
+     (routine: in out COROUTINE_TYPE)
+   is
    begin
       pragma Assert(routine.runner'Callable);
       routine.Suspend;
@@ -38,9 +42,11 @@ package body Control . CoRoutines is
    -- Close --
    -----------
 
-   procedure Close(routine: in out COROUTINE_TYPE) is
-      function runner_terminated return BOOLEAN is
-         (routine.runner'Terminated);
+   procedure Close
+     (routine: in out COROUTINE_TYPE)
+   is
+      function runner_terminated return BOOLEAN
+         is (routine.runner'Terminated);
    begin
       routine.Request_To_Exit;
 
@@ -53,13 +59,14 @@ package body Control . CoRoutines is
    -- CoRoutine_Runner --
    --------------------
 
-   task body CoRoutine_Runner is
+   task body CoRoutine_Runner
+   is
    begin
       routine.Initiate;
       routine.main(routine);
       routine.Quit;
    exception
-      when Exit_Controller => routine.Reset;
+      when Exit_Controller => routine.Die;
       when X: others       => routine.Quit(X);
    end CoRoutine_Runner;
 

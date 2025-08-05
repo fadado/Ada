@@ -64,7 +64,7 @@ package body Control . Generators is
       generator.main(generator);
       generator.Quit;
    exception
-      when Exit_Controller => generator.Reset;
+      when Exit_Controller => generator.Die;
       when X: others       => generator.Quit(X);
    end Generator_Runner;
 

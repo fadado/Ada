@@ -64,10 +64,10 @@ package body Gotcha is
       Set_Dependents_Fallback_Handler(Pass.Handle'Access);
    end Set_Handlers;
 
-   procedure Die is
+   procedure Stop is
    begin
       Abort_Task(Current_Task);
-   end Die;
+   end Stop;
 
 end Gotcha;
 

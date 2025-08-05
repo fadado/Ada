@@ -4,15 +4,12 @@
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Ada.Exceptions;
-with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
-with Control.Spin_Until;
 with Ada.Dispatching;
 
-package body Control is
+with Control.Spin_Until;
 
-   use Ada.Task_Identification;
+package body Control is
 
    ---------------------------------------------------------------------------
    -- Local subprograms
@@ -22,19 +19,21 @@ package body Control is
    -- is_master --
    ---------------
 
-   function is_master(controller: in out CONTROLLER_TYPE) return BOOLEAN
-     with Inline
+   function is_master
+     (controller : in out CONTROLLER_TYPE) return BOOLEAN
+   with Inline
    is
-      subtype NN is not null CONTROLLER_ACCESS;
    begin
-      return NN(controller.link) = controller'Unchecked_Access;
+      return controller.link = controller'Unchecked_Access;
    end is_master;
 
    -------------
    -- migrate --
    -------------
 
-   procedure migrate(controller: in out CONTROLLER_TYPE) is
+   procedure migrate
+     (controller : in out CONTROLLER_TYPE)
+   is
       use Ada.Exceptions;
 
       procedure dealloc is new Ada.Unchecked_Deallocation (
@@ -42,8 +41,10 @@ package body Control is
          EXCEPTION_ACCESS
       );
 
-      id : EXCEPTION_ID := Exception_Identity(controller.migrant.all);
-      ms : STRING       := Exception_Message(controller.migrant.all);
+      migrant : EXCEPTION_TYPE renames controller.migrant.all;
+
+      id : constant EXCEPTION_ID := Exception_Identity(migrant);
+      ms : constant STRING       := Exception_Message(migrant);
    begin
       dealloc(controller.migrant);
       controller.migrant := NULL;
@@ -58,7 +59,9 @@ package body Control is
    -- Initiate --
    --------------
 
-   procedure Initiate(controller: in out CONTROLLER_TYPE) is
+   procedure Initiate
+     (controller : in out CONTROLLER_TYPE)
+   is
    begin
       pragma Assert(controller.state = EXPECTANT);
       pragma Assert(controller.id = Null_Task_Id);
@@ -76,81 +79,68 @@ package body Control is
       controller.state := RUNNING;
    end Initiate;
 
-   -------------
-   -- Suspend --
-   -------------
-
-   procedure Suspend(controller: in out CONTROLLER_TYPE) is
-      invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
-   begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-
-      -- SUSPENDING
-      controller.state := SUSPENDED;
-      Signal.Notify(invoker.run);
-      Signal.Wait(controller.run);
-
-      -- RESUMING
-      if controller.state = DYING then
-         raise Exit_Controller;
-      end if;
-      controller.state := RUNNING;
-   end Suspend;
-
    ----------
    -- Quit --
    ----------
 
-   procedure Quit(controller: in out CONTROLLER_TYPE) is
+   procedure Quit
+     (controller : in out CONTROLLER_TYPE)
+   is
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
 
-      controller.Reset;
+      controller.Die;
       Signal.Notify(back.run);
    end Quit;
 
-   procedure Quit(controller: in out CONTROLLER_TYPE; X: EXCEPTION_TYPE)
+   procedure Quit
+     (controller : in out CONTROLLER_TYPE; X: EXCEPTION_TYPE)
    is
       use Ada.Exceptions;
+
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.state = RUNNING);
 
       if is_master(controller) then
-         raise Program_Error with "nowhere to migrate";
+         raise Program_Error with "nowhere to resume";
       end if;
 
       back.migrant := Save_Occurrence(X);
 
-      controller.Reset;
+      controller.Die;
       Signal.Notify(back.run);
    end Quit;
 
-   -----------
-   -- Reset --
-   -----------
+   ---------
+   -- Die --
+   ---------
 
-   procedure Reset(controller: in out CONTROLLER_TYPE) is
+   procedure Die
+     (controller : in out CONTROLLER_TYPE)
+   is
    begin
       controller.id      := Null_Task_Id;
       controller.state   := DEAD;
       controller.link    := NULL;
       controller.migrant := NULL;
     --Signal.Clear(controller.run);
-   end Reset;
+   end Die;
 
    ----------
    -- Call --
    ----------
 
-   procedure Call(controller, target: in out CONTROLLER_TYPE) is
+   procedure Call
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
+   is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
-      function target_initiated return BOOLEAN is
-         (target.state /= EXPECTANT);
+      function target_initiated return BOOLEAN
+         is (target.state /= EXPECTANT);
    begin
       if controller.id = Null_Task_Id then
          --  `controller` is an uninitialized master controller
@@ -189,15 +179,42 @@ package body Control is
       end if;
    end Call;
 
+   -------------
+   -- Suspend --
+   -------------
+
+   procedure Suspend
+     (controller : in out CONTROLLER_TYPE)
+   is
+      invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
+   begin
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
+
+      -- SUSPENDING
+      controller.state := SUSPENDED;
+      Signal.Notify(invoker.run);
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
+   end Suspend;
+
    --------------
    -- Transfer --
    --------------
 
-   procedure Transfer(controller, target: in out CONTROLLER_TYPE) is
+   procedure Transfer
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
+   is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
-      function target_initiated return BOOLEAN is
-         (target.state /= EXPECTANT);
+      function target_initiated return BOOLEAN
+         is (target.state /= EXPECTANT);
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
@@ -229,7 +246,10 @@ package body Control is
    -- Jump --
    ----------
 
-   procedure Jump(controller, target: in out CONTROLLER_TYPE) is
+   procedure Jump
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
+   is
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
@@ -243,12 +263,13 @@ package body Control is
    -- Request_To_Exit --
    ---------------------
 
-   procedure Request_To_Exit(target: in out CONTROLLER_TYPE)
+   procedure Request_To_Exit
+     (target : in out CONTROLLER_TYPE)
    is
-      function target_died return BOOLEAN is
-         (target.state = DEAD);
-      function target_suspended return BOOLEAN is
-         (target.state = SUSPENDED);
+      function target_died return BOOLEAN
+         is (target.state = DEAD);
+      function target_suspended return BOOLEAN
+         is (target.state = SUSPENDED);
    begin
       pragma Assert(target.id /= Current_Task);
 
@@ -261,7 +282,7 @@ package body Control is
             Signal.Notify(target.run);
             Spin_Until(target_died'Access);
          when EXPECTANT =>
-            delay 0.0;
+            Ada.Dispatching.Yield;
             goto again;
          when RUNNING =>
             Spin_Until(target_suspended'Access);

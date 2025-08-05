@@ -17,7 +17,7 @@ package Gotcha is
       X : Ada.Exceptions.EXCEPTION_OCCURRENCE;
       S : STRING);
 
-   procedure Die;
+   procedure Stop;
 
    protected Pass is
       procedure Handle (

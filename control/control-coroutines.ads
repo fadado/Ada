@@ -17,30 +17,37 @@ package Control . CoRoutines is
    type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
    type COROUTINE_FUNCTION is
-      not null access procedure (routine: not null COROUTINE_ACCESS);
+      not null access procedure (routine: in not null COROUTINE_ACCESS);
    --  Procedure access type for the main program
 
-   type COROUTINE_TYPE (main: COROUTINE_FUNCTION; context: CONTEXT_ACCESS) is
-      tagged limited private;
+   type COROUTINE_TYPE (
+      main    : COROUTINE_FUNCTION;
+      context : CONTEXT_ACCESS
+   ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   procedure Resume(routine: in out COROUTINE_TYPE);
+   procedure Resume
+     (routine: in out COROUTINE_TYPE);
    --  Resume `routine` and raises `Stop_Iteration` when dead
 
-   procedure Yield(routine: in out COROUTINE_TYPE);
+   procedure Yield
+     (routine: in out COROUTINE_TYPE);
    --  Yields control only
 
-   procedure Close(routine: in out COROUTINE_TYPE);
+   procedure Close
+     (routine: in out COROUTINE_TYPE);
    --  Force `routine` to exit
 
 private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
 
-   type COROUTINE_TYPE (main: COROUTINE_FUNCTION; context: CONTEXT_ACCESS) is
-      limited new CONTROLLER_TYPE with
+   type COROUTINE_TYPE (
+         main    : COROUTINE_FUNCTION;
+         context : CONTEXT_ACCESS
+   ) is limited new CONTROLLER_TYPE with
       record
-         master : CONTROLLER_TYPE;
-         runner : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
+         master  : CONTROLLER_TYPE;
+         runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
       end record;
 
 end Control . CoRoutines;
