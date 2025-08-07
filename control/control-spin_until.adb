@@ -7,7 +7,9 @@ with Ada.Real_Time;
 
 use Ada.Real_Time;
 
-procedure Control . Spin_Until(done: access function return BOOLEAN) is
+procedure Control . Spin_Until
+  (done : access function return BOOLEAN)
+is
    msec : constant := 100; -- are 100ms enough?
    stop : TIME := Clock + Milliseconds(msec);
 begin

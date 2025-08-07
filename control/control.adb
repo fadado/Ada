@@ -179,11 +179,11 @@ package body Control is
       end if;
    end Resume;
 
-   -------------
-   -- Suspend --
-   -------------
+   -----------
+   -- Yield --
+   -----------
 
-   procedure Suspend
+   procedure Yield
      (controller : in out CONTROLLER_TYPE)
    is
       invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
@@ -201,7 +201,7 @@ package body Control is
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;
-   end Suspend;
+   end Yield;
 
    --------------
    -- Transfer --

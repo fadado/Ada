@@ -14,7 +14,7 @@ package body Control . CoRoutines is
    ------------
 
    procedure Resume
-     (routine: in out COROUTINE_TYPE)
+     (routine : in out COROUTINE_TYPE)
    is
    begin
       pragma Assert(routine.runner'Callable);
@@ -31,11 +31,12 @@ package body Control . CoRoutines is
    -----------
 
    procedure Yield
-     (routine: in out COROUTINE_TYPE)
+     (routine : in out COROUTINE_TYPE)
    is
+      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
       pragma Assert(routine.runner'Callable);
-      routine.Suspend;
+      parent.Yield;
    end Yield;
 
    -----------
@@ -43,7 +44,7 @@ package body Control . CoRoutines is
    -----------
 
    procedure Close
-     (routine: in out COROUTINE_TYPE)
+     (routine : in out COROUTINE_TYPE)
    is
       function runner_terminated return BOOLEAN
          is (routine.runner'Terminated);

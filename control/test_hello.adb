@@ -29,7 +29,7 @@ begin
       begin
          controller.Initiate;
          Put_Line("Test 1-Hello, world!");
-         controller.Suspend;
+         controller.Yield;
          -- closed here
          controller.Quit;
       exception

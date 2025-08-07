@@ -27,15 +27,15 @@ package Control . CoRoutines is
    --  Coroutine type with *only* transfer of control
 
    procedure Resume
-     (routine: in out COROUTINE_TYPE);
+     (routine : in out COROUTINE_TYPE);
    --  Resume `routine` and raises `Stop_Iteration` when dead
 
    procedure Yield
-     (routine: in out COROUTINE_TYPE);
+     (routine : in out COROUTINE_TYPE);
    --  Yields control only
 
    procedure Close
-     (routine: in out COROUTINE_TYPE);
+     (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
 
 private

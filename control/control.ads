@@ -62,7 +62,7 @@ package Control is
    --  Suspend `controller` and transfers control to `target` (for asymetric
    --  coroutines)
 
-   procedure Suspend
+   procedure Yield
      (controller : in out CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to a suspended controller
 
