@@ -43,8 +43,7 @@ begin
       hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      Put_Line(Standard_Error, "========================================================================");
-      Environment_Controller.Call(hello_control);
+      Environment_Controller.Resume(hello_control);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -71,7 +70,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Environment_Controller.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -99,7 +98,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Environment_Controller.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -146,7 +145,7 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      Environment_Controller.Call(CONTROLLER_TYPE(hello));
+      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
    end Test_4;
 
    ---------------------------------------------------------------------------
@@ -186,6 +185,8 @@ begin
    exception
       when Stop_Iteration => null;
    end Test_5;
+
+   New_Line;
 
 exception
    when X : others =>

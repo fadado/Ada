@@ -19,7 +19,7 @@ package body Control . CoRoutines is
    begin
       pragma Assert(routine.runner'Callable);
 
-      routine.master.Call(CONTROLLER_TYPE(routine));
+      routine.master.Resume(CONTROLLER_TYPE(routine));
 
       if routine.state = DEAD then
          raise Stop_Iteration;

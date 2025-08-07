@@ -163,6 +163,8 @@ begin
       end;
    end Test_6;
 
+   New_Line;
+
 exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");

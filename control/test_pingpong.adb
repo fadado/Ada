@@ -69,12 +69,11 @@ begin
                                pong_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
-      New_Line;
 
-      Environment_Controller.Call(ping_control);
+      Environment_Controller.Resume(ping_control);
 
-      New_Line;
       Put_Line("Game Over");
+      New_Line;
    exception
       when X: others =>
          Gotcha.Report_Exception(X, "Oops at MASTER TASK!!");

@@ -129,11 +129,11 @@ package body Control is
     --Signal.Clear(controller.run);
    end Die;
 
-   ----------
-   -- Call --
-   ----------
+   ------------
+   -- Resume --
+   ------------
 
-   procedure Call
+   procedure Resume
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE)
    is
@@ -177,7 +177,7 @@ package body Control is
          pragma Assert(target.state = DEAD);
          migrate(controller);
       end if;
-   end Call;
+   end Resume;
 
    -------------
    -- Suspend --

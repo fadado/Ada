@@ -56,7 +56,7 @@ package Control is
      (controller : in out CONTROLLER_TYPE);
    --  Set `controller` to the DEAD state
 
-   procedure Call
+   procedure Resume
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to `target` (for asymetric

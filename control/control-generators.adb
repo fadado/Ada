@@ -17,7 +17,7 @@ package body Control . Generators is
    begin
       pragma Assert(generator.runner'Callable);
 
-      generator.master.Call(CONTROLLER_TYPE(generator));
+      generator.master.Resume(CONTROLLER_TYPE(generator));
 
       if generator.state = DEAD then
          raise Stop_Iteration;
