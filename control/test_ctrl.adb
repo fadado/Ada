@@ -6,12 +6,11 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Control.CoRoutines;
-use Control;
+with Control; use Control;
 
 with Gotcha;
 
-procedure test_hello
+procedure test_ctrl
 is
    Environment_Controller : CONTROLLER_TYPE;
 begin
@@ -22,8 +21,6 @@ begin
    ---------------------------------------------------------------------------
    Test_1:
    declare
-      pragma Warnings (Off, "unreachable code");
-
       task type HELLO_RUN (controller: not null CONTROLLER_ACCESS);
       task body HELLO_RUN is
       begin
@@ -148,51 +145,13 @@ begin
       Environment_Controller.Resume(CONTROLLER_TYPE(hello));
    end Test_4;
 
-   ---------------------------------------------------------------------------
-   --  Test 5 - CoRoutines example
-   ---------------------------------------------------------------------------
-
-   Test_5:
-   declare
-      pragma Warnings (Off, "unreachable code");
-
-      package R is new CoRoutines (Context_Type => VOID);
-      use R;
-
-      procedure subgen(routine: not null COROUTINE_ACCESS) is
-      begin
-         Put("He");
-         routine.Yield;
-         Put("llo");
-         raise Stop_Iteration;
-      end subgen;
-
-      procedure hello_world(routine: not null COROUTINE_ACCESS) is
-      begin
-         Put("Test 5-");
-         routine.Yield;
-         begin subgen(routine);
-         exception when Stop_Iteration => null; end;
-         Put(", world");
-         routine.Yield;
-         Put_Line("!");
-      end;
-
-      hello : COROUTINE_TYPE (hello_world'Access, NULL);
-
-   begin
-      loop hello.Resume; end loop;
-   exception
-      when Stop_Iteration => null;
-   end Test_5;
-
    New_Line;
 
 exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 
-end test_hello;
+end test_ctrl;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

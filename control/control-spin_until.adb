@@ -11,7 +11,7 @@ procedure Control . Spin_Until
   (done : access function return BOOLEAN)
 is
    msec : constant := 100; -- are 100ms enough?
-   stop : TIME := Clock + Milliseconds(msec);
+   stop : constant TIME := Clock + Milliseconds(msec);
 begin
    if not done.all then
       loop

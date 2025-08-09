@@ -17,7 +17,8 @@ GENLIB := \
 	control-generators.ad[sb]
 
 all: $(LIB) \
-     $(LIB)/test_hello \
+     $(LIB)/test_ctrl \
+     $(LIB)/test_coro \
      $(LIB)/test_pingpong \
      $(LIB)/test_fibonacci
 	@echo Done!
@@ -25,8 +26,12 @@ all: $(LIB) \
 $(LIB):
 	@test -d $(LIB) || mkdir $(LIB)
 
-# Test using the package Controllers and CoRoutines
-$(LIB)/test_hello: test_hello.adb ${CTRLIB} ${RUTLIB}
+# Test using the package Controllers
+$(LIB)/test_ctrl: test_ctrl.adb ${CTRLIB} ${RUTLIB}
+	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+
+# Test using the package CoRoutines
+$(LIB)/test_coro: test_coro.adb ${coroIB} ${RUTLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using symmetric Controllers
@@ -37,7 +42,8 @@ $(LIB)/test_pingpong: test_pingpong.adb ${CTRLIB}
 $(LIB)/test_fibonacci: test_fibonacci.adb ${CTRLIB} ${GENLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
-hello:     $(LIB)/test_hello;     $<
+ctrl:      $(LIB)/test_ctrl;      $<
+coro:      $(LIB)/test_coro;      $<
 pingpong:  $(LIB)/test_pingpong;  $<
 fibonacci: $(LIB)/test_fibonacci; $<
 
