@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Control . Routines implementation (generic)
+--  Control . CoRoutines implementation (generic)
 ------------------------------------------------------------------------------
 
 with Control.Spin_Until;
@@ -14,12 +14,14 @@ package body Control . CoRoutines is
    ------------
 
    procedure Resume
-     (routine : in out COROUTINE_TYPE)
+     (routine : in out COROUTINE_TYPE;
+      target  : in out COROUTINE_TYPE)
    is
+      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
       pragma Assert(routine.runner'Callable);
 
-      routine.master.Resume(CONTROLLER_TYPE(routine));
+      parent.Resume(CONTROLLER_TYPE(target));
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -55,6 +57,24 @@ package body Control . CoRoutines is
 
       Spin_Until(runner_terminated'Access);
    end Close;
+
+   ----------
+   -- Call --
+   ----------
+
+   procedure Call
+     (routine    : in out COROUTINE_TYPE;
+      controller : in out CONTROLLER_TYPE)
+   is
+   begin
+      pragma Assert(routine.runner'Callable);
+
+      controller.Resume(CONTROLLER_TYPE(routine));
+
+      if routine.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+   end Call;
 
    --------------------
    -- CoRoutine_Runner --

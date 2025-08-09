@@ -27,8 +27,9 @@ package Control . CoRoutines is
    --  Coroutine type with *only* transfer of control
 
    procedure Resume
-     (routine : in out COROUTINE_TYPE);
-   --  Resume `routine` and raises `Stop_Iteration` when dead
+     (routine : in out COROUTINE_TYPE;
+      target  : in out COROUTINE_TYPE);
+   --  Resume `target` and raises `Stop_Iteration` when dead
 
    procedure Yield
      (routine : in out COROUTINE_TYPE);
@@ -38,6 +39,11 @@ package Control . CoRoutines is
      (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
 
+   procedure Call
+     (routine    : in out COROUTINE_TYPE;
+      controller : in out CONTROLLER_TYPE);
+   -- Used to start the first coroutine
+
 private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
 
@@ -46,7 +52,6 @@ private
          context : CONTEXT_ACCESS
    ) is limited new CONTROLLER_TYPE with
       record
-         master  : CONTROLLER_TYPE;
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
       end record;
 
