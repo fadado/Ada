@@ -26,9 +26,13 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   procedure Resume
+   function Call
+     (routine : in out COROUTINE_TYPE) return BOOLEAN;
+   -- Starts the first coroutine
+
+   function Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE);
+      target  : in out COROUTINE_TYPE) return BOOLEAN;
    --  Resume `target` and raises `Stop_Iteration` when dead
 
    procedure Yield
@@ -38,10 +42,6 @@ package Control . CoRoutines is
    procedure Close
      (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
-
-   function Call
-     (routine : in out COROUTINE_TYPE) return BOOLEAN;
-   -- Used to start the first coroutine
 
 private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);

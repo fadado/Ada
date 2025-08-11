@@ -9,23 +9,38 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
+   ----------
+   -- Call --
+   ----------
+
+   Environment_Controller : CONTROLLER_TYPE;
+
+   function Call
+     (routine : in out COROUTINE_TYPE) return BOOLEAN
+   is
+   begin
+      if routine.runner'Callable then
+         Environment_Controller.Resume(CONTROLLER_TYPE(routine));
+      end if;
+
+      return routine.state /= DEAD;
+   end Call;
+
    ------------
    -- Resume --
    ------------
 
-   procedure Resume
+   function Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE)
+      target  : in out COROUTINE_TYPE) return BOOLEAN
    is
       parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      pragma Assert(routine.runner'Callable);
-
-      parent.Resume(CONTROLLER_TYPE(target));
-
-      if routine.state = DEAD then
-         raise Stop_Iteration;
+      if routine.runner'Callable then
+         parent.Resume(CONTROLLER_TYPE(target));
       end if;
+
+      return routine.state /= DEAD;
    end Resume;
 
    -----------
@@ -57,23 +72,6 @@ package body Control . CoRoutines is
 
       Spin_Until(runner_terminated'Access);
    end Close;
-
-   ----------
-   -- Call --
-   ----------
-
-   Environment_Controller : CONTROLLER_TYPE;
-
-   function Call
-     (routine : in out COROUTINE_TYPE) return BOOLEAN
-   is
-   begin
-      if routine.runner'Callable then
-         Environment_Controller.Resume(CONTROLLER_TYPE(routine));
-      end if;
-
-      return routine.state /= DEAD;
-   end Call;
 
    --------------------
    -- CoRoutine_Runner --
