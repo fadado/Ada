@@ -62,18 +62,17 @@ package body Control . CoRoutines is
    -- Call --
    ----------
 
-   procedure Call
-     (routine    : in out COROUTINE_TYPE;
-      controller : in out CONTROLLER_TYPE)
+   Environment_Controller : CONTROLLER_TYPE;
+
+   function Call
+     (routine : in out COROUTINE_TYPE) return BOOLEAN
    is
    begin
-      pragma Assert(routine.runner'Callable);
-
-      controller.Resume(CONTROLLER_TYPE(routine));
-
-      if routine.state = DEAD then
-         raise Stop_Iteration;
+      if routine.runner'Callable then
+         Environment_Controller.Resume(CONTROLLER_TYPE(routine));
       end if;
+
+      return routine.state /= DEAD;
    end Call;
 
    --------------------

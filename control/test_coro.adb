@@ -13,7 +13,6 @@ with Gotcha;
 
 procedure test_coro
 is
-   Environment_Controller : CONTROLLER_TYPE;
 begin
    Gotcha.Set_Handlers;
 
@@ -51,13 +50,8 @@ begin
       hello : COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
-      loop
-         hello.Call(Environment_Controller);
-       --Environment_Controller.Resume(hello.Controller))
-      end loop;
-   exception
-      when Stop_Iteration => null;
-      when others => Put_Line("Test_1 exception");
+      while hello.Call loop null; end loop;
+      pragma Assert(not hello.Call);
    end Test_1;
 
    New_Line;

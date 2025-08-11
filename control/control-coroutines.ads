@@ -39,9 +39,8 @@ package Control . CoRoutines is
      (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
 
-   procedure Call
-     (routine    : in out COROUTINE_TYPE;
-      controller : in out CONTROLLER_TYPE);
+   function Call
+     (routine : in out COROUTINE_TYPE) return BOOLEAN;
    -- Used to start the first coroutine
 
 private
