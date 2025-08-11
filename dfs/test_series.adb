@@ -101,7 +101,7 @@ begin
            NODE_VALUE      => PITCH_CLASS,
            VECTOR_INDEX    => TUPLE_INDEX,
            VECTOR_SOLUTION => TONE_ROW,
-           Found           => Printer.Output,
+           Goal            => Printer.Output,
            Rejected        => Rejected,
            Enter           => Enter,
            Leave           => Leave

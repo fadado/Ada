@@ -12,7 +12,7 @@ generic
    type VECTOR_SOLUTION is array (VECTOR_INDEX) of NODE_VALUE;
    -- Vector of choices
 
-   with procedure Found
+   with procedure Goal
      (solution : VECTOR_SOLUTION)
    is <>;
    -- Called for each solution found

@@ -27,7 +27,7 @@ package body Backtracker is
                traverse(VECTOR_INDEX'Succ(index));
                Leave(solution, index, value);
             else
-               Found(solution);
+               Goal(solution);
             end if;
          end if;
       end loop;

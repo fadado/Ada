@@ -92,7 +92,7 @@ begin
            NODE_VALUE      => COLUMN_INDEX,
            VECTOR_INDEX    => ROW_INDEX,
            VECTOR_SOLUTION => CHESS_BOARD,
-           Found           => Output,
+           Goal            => Output,
            Rejected        => Rejected,
            Enter           => Enter,
            Leave           => Leave

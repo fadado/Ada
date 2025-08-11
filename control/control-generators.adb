@@ -2,6 +2,8 @@
 --  Control . Generators implementation (generic)
 ------------------------------------------------------------------------------
 
+with Ada.Dispatching;
+
 with Control.Spin_Until;
 
 package body Control . Generators is
@@ -89,7 +91,7 @@ package body Control . Generators is
    is
    begin
       if generator.state = EXPECTANT then
-         delay 0.01; -- give some time to initiate
+         Ada.Dispatching.Yield; -- give chance to initiate
          if generator.state = EXPECTANT then
             raise Constraint_Error
                with "Generator must be elaborated in a outer frame";
