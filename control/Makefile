@@ -27,11 +27,11 @@ $(LIB):
 	@test -d $(LIB) || mkdir $(LIB)
 
 # Test using the package Controllers
-$(LIB)/test_ctrl: test_ctrl.adb ${CTRLIB} ${RUTLIB}
+$(LIB)/test_ctrl: test_ctrl.adb ${CTRLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using the package CoRoutines
-$(LIB)/test_coro: test_coro.adb ${coroIB} ${RUTLIB}
+$(LIB)/test_coro: test_coro.adb ${CTRLIB} ${RUTLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using symmetric Controllers

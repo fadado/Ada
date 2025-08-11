@@ -90,6 +90,7 @@ package body Control is
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
+      pragma Assert(not is_master(controller));
 
       controller.Die;
       Signal.Notify(back.run);
@@ -103,10 +104,7 @@ package body Control is
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.state = RUNNING);
-
-      if is_master(controller) then
-         raise Program_Error with "nowhere to resume";
-      end if;
+      pragma Assert(not is_master(controller));
 
       back.migrant := Save_Occurrence(X);
 
@@ -288,7 +286,7 @@ package body Control is
             Spin_Until(target_suspended'Access);
             goto again;
          when DYING =>
-            raise Program_Error;
+            raise Program_Error; -- cannot happen, but just in case...
       end case;
    end Request_To_Exit;
 

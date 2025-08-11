@@ -110,12 +110,13 @@ private
 
    use Ada.Task_Identification;
 
-   type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING);
+   type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING)
+      with Default_Value => EXPECTANT;
 
    type CONTROLLER_TYPE is tagged limited
       record
          id      : TASK_ID;
-         state   : STATUS_TYPE := EXPECTANT;
+         state   : STATUS_TYPE;
          link    : CONTROLLER_ACCESS;
          run     : Signal.T;
          migrant : EXCEPTION_ACCESS;
