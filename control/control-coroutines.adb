@@ -9,22 +9,24 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   ----------
-   -- Call --
-   ----------
+   ------------
+   -- Resume --
+   ------------
 
    Environment_Controller : CONTROLLER_TYPE;
 
-   function Call
+   function Resume
      (routine : in out COROUTINE_TYPE) return BOOLEAN
    is
    begin
+      -- TODO: is master controller ???
+
       if routine.runner'Callable then
          Environment_Controller.Resume(CONTROLLER_TYPE(routine));
       end if;
 
       return routine.state /= DEAD;
-   end Call;
+   end Resume;
 
    ------------
    -- Resume --

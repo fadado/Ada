@@ -47,5 +47,8 @@ coro:      $(LIB)/test_coro;      $<
 pingpong:  $(LIB)/test_pingpong;  $<
 fibonacci: $(LIB)/test_fibonacci; $<
 
+tests: ctrl coro pingpong fibonacci
+	@echo Done!
+
 clean:
 	rm -rf $(LIB)

@@ -22,12 +22,7 @@ is
 
       for i in 1..10 loop
          Put("PING!  ");
-         --raise Program_Error;
-         if i < 10 then
-            Ping.Transfer(Pong);
-         else
-            Ping.Jump(Pong);
-         end if;
+         Ping.Transfer(Pong, suspend => (i < 10));
       end loop;
 
    exception

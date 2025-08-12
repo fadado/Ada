@@ -50,8 +50,8 @@ begin
       hello : COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
-      while hello.Call loop null; end loop;
-      pragma Assert(not hello.Call);
+      while hello.Resume loop null; end loop;
+      pragma Assert(not hello.Resume);
    end Test_1;
 
    New_Line;

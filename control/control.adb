@@ -15,23 +15,23 @@ package body Control is
    -- Local subprograms
    ---------------------------------------------------------------------------
 
-   ---------------
-   -- is_master --
-   ---------------
+   --------------------------
+   -- is_master_controller --
+   --------------------------
 
-   function is_master
+   function is_master_controller
      (controller : in out CONTROLLER_TYPE) return BOOLEAN
    with Inline
    is
    begin
       return controller.link = controller'Unchecked_Access;
-   end is_master;
+   end is_master_controller;
 
-   -------------
-   -- migrate --
-   -------------
+   -----------------------
+   -- migrate_exception --
+   -----------------------
 
-   procedure migrate
+   procedure migrate_exception
      (controller : in out CONTROLLER_TYPE)
    is
       use Ada.Exceptions;
@@ -49,7 +49,7 @@ package body Control is
       dealloc(controller.migrant);
       controller.migrant := NULL;
       Raise_Exception(id, ms);
-   end migrate;
+   end migrate_exception;
 
    ---------------------------------------------------------------------------
    --  Base controller
@@ -90,21 +90,22 @@ package body Control is
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master(controller));
+      pragma Assert(not is_master_controller(controller));
 
       controller.Die;
       Signal.Notify(back.run);
    end Quit;
 
    procedure Quit
-     (controller : in out CONTROLLER_TYPE; X: EXCEPTION_TYPE)
+     (controller : in out CONTROLLER_TYPE;
+      X          : EXCEPTION_TYPE)
    is
       use Ada.Exceptions;
 
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master(controller));
+      pragma Assert(not is_master_controller(controller));
 
       back.migrant := Save_Occurrence(X);
 
@@ -149,7 +150,7 @@ package body Control is
          controller.link  := controller'Unchecked_Access;
          -- circular link identifies master controllers
 
-         pragma Assert(is_master(controller));
+         pragma Assert(is_master_controller(controller));
       end if;
 
       pragma Assert(controller.id = Current_Task);
@@ -173,9 +174,54 @@ package body Control is
       if controller.migrant /= NULL then
          --  `target` had an exception
          pragma Assert(target.state = DEAD);
-         migrate(controller);
+         migrate_exception(controller);
       end if;
    end Resume;
+
+   --------------
+   -- Transfer --
+   --------------
+
+   procedure Transfer
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE;
+      suspend    : in BOOLEAN := TRUE)
+   is
+      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+      function target_initiated return BOOLEAN
+         is (target.state /= EXPECTANT);
+   begin
+      pragma Assert(controller.id = Current_Task);
+      pragma Assert(controller.state = RUNNING);
+      pragma Assert(not is_master_controller(controller));
+
+      target.link := controller.link;
+
+      if not suspend then
+         Signal.Notify(target.run);
+         raise Exit_Controller;
+      end if;
+
+      Spin_Until(target_initiated'Access);
+
+      -- SUSPENDING
+      controller.state := SUSPENDED;
+      Signal.Notify(target.run);
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
+
+      if controller.migrant /= NULL then
+         --  `target` had an exception
+         pragma Assert(target.state = DEAD);
+         migrate_exception(controller);
+      end if;
+   end Transfer;
 
    -----------
    -- Yield --
@@ -201,62 +247,6 @@ package body Control is
       controller.state := RUNNING;
    end Yield;
 
-   --------------
-   -- Transfer --
-   --------------
-
-   procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
-   is
-      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-
-      function target_initiated return BOOLEAN
-         is (target.state /= EXPECTANT);
-   begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master(controller));
-
-      target.link := controller.link;
-
-      Spin_Until(target_initiated'Access);
-
-      -- SUSPENDING
-      controller.state := SUSPENDED;
-      Signal.Notify(target.run);
-      Signal.Wait(controller.run);
-
-      -- RESUMING
-      if controller.state = DYING then
-         raise Exit_Controller;
-      end if;
-      controller.state := RUNNING;
-
-      if controller.migrant /= NULL then
-         --  `target` had an exception
-         pragma Assert(target.state = DEAD);
-         migrate(controller);
-      end if;
-   end Transfer;
-
-   ----------
-   -- Jump --
-   ----------
-
-   procedure Jump
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
-   is
-   begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-
-      Signal.Notify(target.run);
-
-      raise Exit_Controller;
-   end Jump;
-
    ---------------------
    -- Request_To_Exit --
    ---------------------
@@ -273,8 +263,6 @@ package body Control is
 
    <<again>>
       case target.state is
-         when DEAD =>
-            null;
          when SUSPENDED =>
             target.state := DYING;
             Signal.Notify(target.run);
@@ -285,6 +273,8 @@ package body Control is
          when RUNNING =>
             Spin_Until(target_suspended'Access);
             goto again;
+         when DEAD =>
+            null;
          when DYING =>
             raise Program_Error; -- cannot happen, but just in case...
       end case;

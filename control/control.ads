@@ -59,23 +59,19 @@ package Control is
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to `target` (for asymetric
+   --  Suspend `controller` and transfers control to `target` (for asymmetric
+   --  coroutines)
+
+   procedure Transfer
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE;
+      suspend    : in BOOLEAN := TRUE);
+   --  Suspend `controller` and transfers control to `target` (for symmetric
    --  coroutines)
 
    procedure Yield
      (controller : in out CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to a suspended controller
-
-   procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to `target` (for symmetric
-   --  coroutines)
-
-   procedure Jump
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE);
-   --  Transfers control to `target`
 
    procedure Request_To_Exit
      (target : in out CONTROLLER_TYPE);

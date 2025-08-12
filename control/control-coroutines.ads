@@ -26,9 +26,10 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   function Call
+   function Resume
      (routine : in out COROUTINE_TYPE) return BOOLEAN;
    -- Starts the first coroutine
+   -- Beware: perhaps `Resume` is no reentrant
 
    function Resume
      (routine : in out COROUTINE_TYPE;
