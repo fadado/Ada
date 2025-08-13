@@ -19,7 +19,7 @@ GENLIB := \
 all: $(LIB) \
      $(LIB)/test_ctrl \
      $(LIB)/test_coro \
-     $(LIB)/test_pingpong \
+     $(LIB)/test_ctrl_pingpong \
      $(LIB)/test_fibonacci
 	@echo Done!
 
@@ -35,16 +35,16 @@ $(LIB)/test_coro: test_coro.adb ${CTRLIB} ${RUTLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using symmetric Controllers
-$(LIB)/test_pingpong: test_pingpong.adb ${CTRLIB}
+$(LIB)/test_ctrl_pingpong: test_ctrl_pingpong.adb ${CTRLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 # Test using the package Generators
 $(LIB)/test_fibonacci: test_fibonacci.adb ${CTRLIB} ${GENLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
-ctrl:      $(LIB)/test_ctrl;      $<
-coro:      $(LIB)/test_coro;      $<
-pingpong:  $(LIB)/test_pingpong;  $<
+ctrl:      $(LIB)/test_ctrl; $<
+coro:      $(LIB)/test_coro; $<
+pingpong:  $(LIB)/test_ctrl_pingpong; $<
 fibonacci: $(LIB)/test_fibonacci; $<
 
 tests: ctrl coro pingpong fibonacci

@@ -5,6 +5,7 @@
 pragma Restrictions (
    No_Abort_Statements,
    No_Select_Statements,
+   No_Delay,
    No_Requeue_Statements,
    No_Task_Allocators,
    No_Protected_Type_Allocators,

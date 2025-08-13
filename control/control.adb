@@ -128,6 +128,41 @@ package body Control is
     --Signal.Clear(controller.run);
    end Die;
 
+   --------------------
+   -- suspend_resume --
+   --------------------
+
+   procedure suspend_resume
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
+   with Inline
+   is
+      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+      function target_initiated return BOOLEAN
+         is (target.state /= EXPECTANT);
+   begin
+      Spin_Until(target_initiated'Access);
+
+      -- SUSPENDING
+      controller.state := SUSPENDED;
+      Signal.Notify(target.run);
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
+
+      if controller.migrant /= NULL then
+         --  `target` had an exception
+         pragma Assert(target.state = DEAD);
+
+         migrate_exception(controller);
+      end if;
+   end suspend_resume;
+
    ------------
    -- Resume --
    ------------
@@ -136,10 +171,6 @@ package body Control is
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE)
    is
-      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-
-      function target_initiated return BOOLEAN
-         is (target.state /= EXPECTANT);
    begin
       if controller.id = Null_Task_Id then
          --  `controller` is an uninitialized master controller
@@ -158,24 +189,7 @@ package body Control is
 
       target.link := controller'Unchecked_Access;
 
-      Spin_Until(target_initiated'Access);
-
-      -- SUSPENDING
-      controller.state := SUSPENDED;
-      Signal.Notify(target.run);
-      Signal.Wait(controller.run);
-
-      -- RESUMING
-      if controller.state = DYING then
-         raise Exit_Controller;
-      end if;
-      controller.state := RUNNING;
-
-      if controller.migrant /= NULL then
-         --  `target` had an exception
-         pragma Assert(target.state = DEAD);
-         migrate_exception(controller);
-      end if;
+      suspend_resume(controller, target);
    end Resume;
 
    --------------
@@ -187,10 +201,6 @@ package body Control is
       target     : in out CONTROLLER_TYPE;
       suspend    : in BOOLEAN := TRUE)
    is
-      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-
-      function target_initiated return BOOLEAN
-         is (target.state /= EXPECTANT);
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
@@ -198,28 +208,11 @@ package body Control is
 
       target.link := controller.link;
 
-      if not suspend then
+      if suspend then
+         suspend_resume(controller, target);
+      else
          Signal.Notify(target.run);
          raise Exit_Controller;
-      end if;
-
-      Spin_Until(target_initiated'Access);
-
-      -- SUSPENDING
-      controller.state := SUSPENDED;
-      Signal.Notify(target.run);
-      Signal.Wait(controller.run);
-
-      -- RESUMING
-      if controller.state = DYING then
-         raise Exit_Controller;
-      end if;
-      controller.state := RUNNING;
-
-      if controller.migrant /= NULL then
-         --  `target` had an exception
-         pragma Assert(target.state = DEAD);
-         migrate_exception(controller);
       end if;
    end Transfer;
 

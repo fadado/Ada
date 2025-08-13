@@ -9,7 +9,7 @@ with Control; use Control;
 
 with Gotcha;
 
-procedure test_pingpong
+procedure test_ctrl_pingpong
 is
    task type PING_RUN(This, That: not null CONTROLLER_ACCESS);
    task type PONG_RUN(This, That: not null CONTROLLER_ACCESS);
@@ -74,7 +74,7 @@ begin
          Gotcha.Report_Exception(X, "Oops at MASTER TASK!!");
    end Test;
 
-end test_pingpong;
+end test_ctrl_pingpong;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
