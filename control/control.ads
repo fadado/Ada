@@ -2,6 +2,8 @@
 --  Control specification
 ------------------------------------------------------------------------------
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 pragma Restrictions (
    No_Abort_Statements,
    No_Select_Statements,

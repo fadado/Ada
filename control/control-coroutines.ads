@@ -2,6 +2,8 @@
 --  Control . CoRoutines specification (generic)
 ------------------------------------------------------------------------------
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 generic
    type CONTEXT_TYPE is private;
    --  Data to provide an environment for the program

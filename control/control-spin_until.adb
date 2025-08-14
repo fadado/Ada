@@ -2,6 +2,8 @@
 --  Control . Spin_Until implementation
 ------------------------------------------------------------------------------
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 with Ada.Dispatching;
 with Ada.Real_Time;     
 
@@ -10,7 +12,7 @@ use Ada.Real_Time;
 procedure Control . Spin_Until
   (done : access function return BOOLEAN)
 is
-   msec : constant := 100; -- are 100ms enough?
+   msec : constant := 100;
    stop : constant TIME := Clock + Milliseconds(msec);
 begin
    if not done.all then

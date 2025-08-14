@@ -2,6 +2,8 @@
 --  Control . Generators specification (generic)
 ------------------------------------------------------------------------------
 
+pragma Assertion_Policy(Check); -- Check / Ignore
+
 with Ada.Iterator_Interfaces;
 
 generic

@@ -2,7 +2,7 @@
 --  Control . Generators implementation (generic)
 ------------------------------------------------------------------------------
 
-with Ada.Dispatching;
+pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Control.Spin_Until;
 
@@ -89,13 +89,11 @@ package body Control . Generators is
    function First
      (generator : in out GENERATOR_TYPE) return CURSOR_TYPE
    is
+      function generator_initiated return BOOLEAN
+         is (generator.state /= EXPECTANT);
    begin
       if generator.state = EXPECTANT then
-         Ada.Dispatching.Yield; -- give chance to initiate
-         if generator.state = EXPECTANT then
-            raise Constraint_Error
-               with "Generator must be elaborated in a outer frame";
-         end if;
+         Spin_Until(generator_initiated'Access);
       end if;
       generator.output := generator.Resume;
       return (source => generator'Unchecked_Access);
