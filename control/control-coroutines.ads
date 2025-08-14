@@ -34,7 +34,7 @@ package Control . CoRoutines is
    function Resume
      (routine : in out COROUTINE_TYPE;
       target  : in out COROUTINE_TYPE) return BOOLEAN;
-   --  Resume `target` and raises `Stop_Iteration` when dead
+   --  Resume `target` and returns FALSE when `target` is DEAD
 
    procedure Yield
      (routine : in out COROUTINE_TYPE);

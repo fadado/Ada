@@ -72,6 +72,9 @@ package body Control is
       controller.state := SUSPENDED;
       Signal.Wait(controller.run);
 
+      pragma Assert(controller.link /= NULL);
+      pragma Assert(not is_master_controller(controller));
+
       -- RESUMING
       if controller.state = DYING then
          raise Exit_Controller;
@@ -121,6 +124,8 @@ package body Control is
      (controller : in out CONTROLLER_TYPE)
    is
    begin
+      pragma Assert(not is_master_controller(controller));
+
       controller.id      := Null_Task_Id;
       controller.state   := DEAD;
       controller.link    := NULL;
@@ -143,6 +148,8 @@ package body Control is
          is (target.state /= EXPECTANT);
    begin
       Spin_Until(target_initiated'Access);
+
+      pragma Assert(not is_master_controller(target));
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -227,6 +234,7 @@ package body Control is
    begin
       pragma Assert(controller.id = Current_Task);
       pragma Assert(controller.state = RUNNING);
+      pragma Assert(not is_master_controller(controller));
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -253,6 +261,7 @@ package body Control is
          is (target.state = SUSPENDED);
    begin
       pragma Assert(target.id /= Current_Task);
+      pragma Assert(not is_master_controller(target));
 
    <<again>>
       case target.state is
