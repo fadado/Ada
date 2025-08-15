@@ -19,8 +19,6 @@ package body Control . Generators is
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    is
    begin
-      pragma Assert(generator.runner'Callable);
-
       generator.master.Resume(CONTROLLER_TYPE(generator));
 
       if generator.state = DEAD then
@@ -40,8 +38,6 @@ package body Control . Generators is
    is
       parent : GENERATOR_TYPE renames GENERATOR_TYPE(generator);
    begin
-      pragma Assert(generator.runner'Callable);
-
       generator.output := value;
       parent.Yield;
    end Yield;
@@ -57,9 +53,6 @@ package body Control . Generators is
          is (generator.runner'Terminated);
    begin
       generator.Request_To_Exit;
-
-      pragma Assert(generator.state = DEAD);
-
       Spin_Until(runner_terminated'Access);
    end Close;
 

@@ -72,14 +72,14 @@ package body Control is
       controller.state := SUSPENDED;
       Signal.Wait(controller.run);
 
-      pragma Assert(controller.link /= NULL);
-      pragma Assert(not is_master_controller(controller));
-
       -- RESUMING
       if controller.state = DYING then
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;
+
+      pragma Assert(controller.link /= NULL);
+      pragma Assert(not is_master_controller(controller));
    end Initiate;
 
    ----------
