@@ -21,12 +21,9 @@ package body Control . CoRoutines is
      (routine : in out COROUTINE_TYPE) return BOOLEAN
    is
    begin
-      -- TODO: is master controller ???
-
-      if routine.runner'Callable then
+      if routine.state /= DEAD then
          Environment_Controller.Resume(CONTROLLER_TYPE(routine));
       end if;
-
       return routine.state /= DEAD;
    end Resume;
 
@@ -40,11 +37,10 @@ package body Control . CoRoutines is
    is
       parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      if routine.runner'Callable then
+      if target.state /= DEAD then
          parent.Resume(CONTROLLER_TYPE(target));
       end if;
-
-      return routine.state /= DEAD;
+      return target.state /= DEAD;
    end Resume;
 
    -----------
@@ -56,7 +52,6 @@ package body Control . CoRoutines is
    is
       parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      pragma Assert(routine.runner'Callable);
       parent.Yield;
    end Yield;
 
@@ -71,15 +66,12 @@ package body Control . CoRoutines is
          is (routine.runner'Terminated);
    begin
       routine.Request_To_Exit;
-
-      pragma Assert(routine.state = DEAD);
-
       Spin_Until(runner_terminated'Access);
    end Close;
 
-   --------------------
+   ----------------------
    -- CoRoutine_Runner --
-   --------------------
+   ----------------------
 
    task body CoRoutine_Runner
    is

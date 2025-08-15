@@ -50,9 +50,14 @@ begin
       hello : COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
-      loop exit when not hello.Resume; end loop;
-      -- BUG: waiting task to end???
-    --pragma Assert(not hello.Resume);
+      loop
+         exit when not hello.Resume;
+      end loop;
+      pragma Assert(not hello.Resume);
+   exception
+      when others =>
+         hello.Close;
+         raise;
    end Test_1;
 
    New_Line;

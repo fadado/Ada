@@ -39,7 +39,8 @@ package Control . CoRoutines is
    --  Resume `target` and returns FALSE when `target` is DEAD
 
    procedure Yield
-     (routine : in out COROUTINE_TYPE);
+     (routine : in out COROUTINE_TYPE)
+   with Inline;
    --  Yields control only
 
    procedure Close
