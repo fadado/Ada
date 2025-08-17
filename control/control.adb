@@ -219,7 +219,7 @@ package body Control is
          suspend_resume(controller, target);
       else
          Signal.Notify(target.run);
-         raise Exit_Controller;
+         -- the caller must Quit or raise Exit_Controller
       end if;
    end Transfer;
 

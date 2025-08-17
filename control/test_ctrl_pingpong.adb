@@ -19,17 +19,19 @@ is
    task body PING_RUN is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
+      suspend : BOOLEAN;
    begin
       Ping.Initiate;
 
       for i in 1..10 loop
          Put("PING!  ");
-         Ping.Transfer(Pong, suspend => (i < 10));
+         suspend := i < 10;
+         Ping.Transfer(Pong, suspend);
       end loop;
 
+      Ping.Quit;
    exception
-      when Exit_Controller => Ping.Die;
-      when X: others       => Ping.Quit(X); raise;
+      when X: others => Ping.Quit(X); raise;
    end PING_RUN;
 
    task body PONG_RUN is
@@ -42,22 +44,21 @@ is
          Put_Line("PONG!");
          if i < 10 then
             Pong.Transfer(Ping);
-         else
-            Pong.Quit;
          end if;
       end loop;
 
+      Pong.Quit;
    exception
       when X: others => Pong.Quit(X); raise;
    end PONG_RUN;
-
-   Environment_Controller : CONTROLLER_TYPE;
 
 begin
    Gotcha.Set_Handlers;
 
    Test:
    declare
+      Environment_Controller : CONTROLLER_TYPE;
+
       ping_control : aliased CONTROLLER_TYPE;
       pong_control : aliased CONTROLLER_TYPE;
       ping_runner  : PING_RUN (ping_control'Unchecked_Access,
