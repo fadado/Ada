@@ -2,7 +2,7 @@
 --  Control . Generators implementation (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Control.Spin_Until;
 
@@ -134,7 +134,7 @@ package body Control . Generators is
       generator : GENERATOR_TYPE renames cursor.source.all;
    begin
       if cursor = No_Element then
-         raise Constraint_Error with "Cursor has no element";
+         raise Control_Error with "Cursor has no element";
       end if;
       return generator.output;
    end Element;
@@ -185,7 +185,7 @@ package body Control . Generators is
       generator : GENERATOR_TYPE renames iterator.source.all;
    begin
       return cursor : constant CURSOR_TYPE := generator.First do
-         pragma Assert(iterator.source = cursor.source);
+         pragma Assert (iterator.source = cursor.source);
       end return;
    end First;
 
@@ -198,7 +198,7 @@ package body Control . Generators is
       cursor   : in CURSOR_TYPE) return CURSOR_TYPE
    is
    begin
-      pragma Assert(iterator.source = cursor.source);
+      pragma Assert (iterator.source = cursor.source);
       return Next(cursor);
    end Next;
 
@@ -222,7 +222,7 @@ package body Control . Generators is
       c : in CURSOR_TYPE) return OUTPUT_TYPE
    is
    begin
-      pragma Assert(GENERATOR_TYPE(g)'Unchecked_Access = c.source);
+      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = c.source);
       return Element(c);
    end Generator_C_I;
 

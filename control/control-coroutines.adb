@@ -2,7 +2,7 @@
 --  Control . CoRoutines implementation (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Control.Spin_Until;
 

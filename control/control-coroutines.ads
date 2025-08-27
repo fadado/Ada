@@ -2,7 +2,7 @@
 --  Control . CoRoutines specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 generic
    type CONTEXT_TYPE is private;
@@ -18,12 +18,12 @@ package Control . CoRoutines is
    type COROUTINE_TYPE;
    type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
-   type COROUTINE_FUNCTION is
+   type COROUTINE_PROCEDURE is
       not null access procedure (routine: in not null COROUTINE_ACCESS);
    --  Procedure access type for the main program
 
    type COROUTINE_TYPE (
-      main    : COROUTINE_FUNCTION;
+      main    : COROUTINE_PROCEDURE;
       context : CONTEXT_ACCESS
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
@@ -51,7 +51,7 @@ private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
 
    type COROUTINE_TYPE (
-         main    : COROUTINE_FUNCTION;
+         main    : COROUTINE_PROCEDURE;
          context : CONTEXT_ACCESS
    ) is limited new CONTROLLER_TYPE with
       record

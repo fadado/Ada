@@ -2,7 +2,7 @@
 --  Examples using Coroutines
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -53,7 +53,7 @@ begin
       loop
          exit when not hello.Resume;
       end loop;
-      pragma Assert(not hello.Resume);
+      pragma Assert (not hello.Resume);
    exception
       when others =>
          hello.Close;

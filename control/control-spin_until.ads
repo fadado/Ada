@@ -2,7 +2,7 @@
 --  Control . Spin_Until interface
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 procedure Control . Spin_Until
   (done : access function return BOOLEAN);

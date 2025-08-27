@@ -2,7 +2,7 @@
 --  Control implementation
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Unchecked_Deallocation;
 with Ada.Dispatching;
@@ -63,8 +63,8 @@ package body Control is
      (controller : in out CONTROLLER_TYPE)
    is
    begin
-      pragma Assert(controller.state = EXPECTANT);
-      pragma Assert(controller.id = Null_Task_Id);
+      pragma Assert (controller.state = EXPECTANT);
+      pragma Assert (controller.id = Null_Task_Id);
 
       controller.id := Current_Task;
 
@@ -78,8 +78,8 @@ package body Control is
       end if;
       controller.state := RUNNING;
 
-      pragma Assert(controller.link /= NULL);
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (controller.link /= NULL);
+      pragma Assert (not is_master_controller(controller));
    end Initiate;
 
    ----------
@@ -91,9 +91,9 @@ package body Control is
    is
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
+      pragma Assert (not is_master_controller(controller));
 
       controller.Die;
       Signal.Notify(back.run);
@@ -107,8 +107,8 @@ package body Control is
 
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
-      pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (controller.state = RUNNING);
+      pragma Assert (not is_master_controller(controller));
 
       back.migrant := Save_Occurrence(X);
 
@@ -124,7 +124,7 @@ package body Control is
      (controller : in out CONTROLLER_TYPE)
    is
    begin
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (not is_master_controller(controller));
 
       controller.id      := Null_Task_Id;
       controller.state   := DEAD;
@@ -149,7 +149,7 @@ package body Control is
    begin
       Spin_Until(target_initiated'Access);
 
-      pragma Assert(not is_master_controller(target));
+      pragma Assert (not is_master_controller(target));
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -164,7 +164,7 @@ package body Control is
 
       if controller.migrant /= NULL then
          --  `target` had an exception
-         pragma Assert(target.state = DEAD);
+         pragma Assert (target.state = DEAD);
 
          migrate_exception(controller);
       end if;
@@ -181,18 +181,18 @@ package body Control is
    begin
       if controller.id = Null_Task_Id then
          --  `controller` is an uninitialized master controller
-         pragma Assert(controller.link = NULL);
+         pragma Assert (controller.link = NULL);
 
          controller.id    := Current_Task;
          controller.state := RUNNING;
          controller.link  := controller'Unchecked_Access;
          -- circular link identifies master controllers
 
-         pragma Assert(is_master_controller(controller));
+         pragma Assert (is_master_controller(controller));
       end if;
 
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
 
       target.link := controller'Unchecked_Access;
 
@@ -209,9 +209,9 @@ package body Control is
       suspend    : in BOOLEAN := TRUE)
    is
    begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
+      pragma Assert (not is_master_controller(controller));
 
       target.link := controller.link;
 
@@ -232,9 +232,9 @@ package body Control is
    is
       invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
-      pragma Assert(controller.id = Current_Task);
-      pragma Assert(controller.state = RUNNING);
-      pragma Assert(not is_master_controller(controller));
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
+      pragma Assert (not is_master_controller(controller));
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -260,8 +260,8 @@ package body Control is
       function target_suspended return BOOLEAN
          is (target.state = SUSPENDED);
    begin
-      pragma Assert(target.id /= Current_Task);
-      pragma Assert(not is_master_controller(target));
+      pragma Assert (target.id /= Current_Task);
+      pragma Assert (not is_master_controller(target));
 
    <<again>>
       case target.state is
@@ -278,7 +278,7 @@ package body Control is
          when DEAD =>
             null;
          when DYING =>
-            raise Program_Error; -- cannot happen, but just in case...
+            raise Control_Error; -- cannot happen, but just in case...
       end case;
    end Request_To_Exit;
 

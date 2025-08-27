@@ -2,7 +2,7 @@
 --  Control . Generators specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Iterator_Interfaces;
 
@@ -23,12 +23,12 @@ package Control . Generators is
    type GENERATOR_TYPE;
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
-   type GENERATOR_FUNCTION is
+   type GENERATOR_PROCEDURE is
       not null access procedure (generator: in not null GENERATOR_ACCESS);
    --  Procedure type for the main program
 
    type GENERATOR_TYPE (
-      main    : GENERATOR_FUNCTION;
+      main    : GENERATOR_PROCEDURE;
       context : CONTEXT_ACCESS
    ) is tagged limited private
    with
@@ -77,7 +77,7 @@ package Control . Generators is
 
    function Element
      (cursor : CURSOR_TYPE) return OUTPUT_TYPE;
-   --  If `cursor` equals `No_Element`, then `Constraint_Error` is
+   --  If `cursor` equals `No_Element`, then `Control_Error` is
    --  propagated;  otherwise, `Element` returns the element designated by
    --  `cursor`
 
@@ -113,7 +113,7 @@ private
    task type Generator_Runner (generator: not null GENERATOR_ACCESS);
 
    type GENERATOR_TYPE (
-         main    : GENERATOR_FUNCTION;
+         main    : GENERATOR_PROCEDURE;
          context : CONTEXT_ACCESS
    ) is limited new CONTROLLER_TYPE with 
       record

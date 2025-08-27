@@ -2,7 +2,7 @@
 --  Hello world examples using Controllers
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Text_IO; use Ada.Text_IO;
 

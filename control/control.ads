@@ -2,7 +2,7 @@
 --  Control specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 pragma Restrictions (
    No_Abort_Statements,
@@ -20,6 +20,9 @@ private with Ada.Synchronous_Task_Control;
 private with Ada.Task_Identification;
 
 package Control is
+
+   Control_Error : exception;
+   --  Generic subsystem exception
 
    Exit_Controller : exception;
    --  Visible, but to be handled *only* on task body handlers

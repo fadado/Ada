@@ -1,6 +1,6 @@
 -- gotcha.ads
 
-pragma Assertion_Policy(Check); -- Check / Ignore
+pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Task_Identification;
 with Ada.Task_Termination;
