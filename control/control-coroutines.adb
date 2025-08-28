@@ -11,21 +11,31 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   ------------
-   -- Resume --
-   ------------
+   ----------
+   -- Call --
+   ----------
+
+   function Call
+     (routine : in out COROUTINE_TYPE;
+      master  : in out CONTROLLER_TYPE) return BOOLEAN
+   is
+   begin
+      if routine.state = DEAD then
+         raise Control_Error with "cannot call dead coroutine";
+      end if;
+
+      master.Resume(CONTROLLER_TYPE(routine));
+      return routine.state /= DEAD;
+   end Call;
 
    Environment_Controller : CONTROLLER_TYPE;
 
-   function Resume
+   function Call
      (routine : in out COROUTINE_TYPE) return BOOLEAN
    is
    begin
-      if routine.state /= DEAD then
-         Environment_Controller.Resume(CONTROLLER_TYPE(routine));
-      end if;
-      return routine.state /= DEAD;
-   end Resume;
+      return Call(routine, Environment_Controller);
+   end Call;
 
    ------------
    -- Resume --
@@ -37,9 +47,11 @@ package body Control . CoRoutines is
    is
       parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      if target.state /= DEAD then
-         parent.Resume(CONTROLLER_TYPE(target));
+      if target.state = DEAD then
+         raise Control_Error with "cannot resume dead coroutine";
       end if;
+
+      parent.Resume(CONTROLLER_TYPE(target));
       return target.state /= DEAD;
    end Resume;
 

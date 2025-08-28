@@ -51,9 +51,18 @@ begin
 
    begin
       loop
-         exit when not hello.Resume;
+         exit when not hello.Call;
       end loop;
-      pragma Assert (not hello.Resume);
+      declare
+         catched : BOOLEAN := FALSE;
+      begin
+         begin
+            catched := hello.Call;
+         exception
+            when Control_Error => catched := TRUE;
+         end;
+         pragma Assert (catched);
+      end;
    exception
       when others =>
          hello.Close;
