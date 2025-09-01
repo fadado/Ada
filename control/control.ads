@@ -83,6 +83,19 @@ package Control is
      (target : in out CONTROLLER_TYPE);
    --  Force to exit a suspended `target`
 
+   ---------------------------------------------------------------------------
+   --  DISPATCHER_TYPE
+   ---------------------------------------------------------------------------
+
+   type DISPATCHER_TYPE is tagged limited private;
+   type DISPATCHER_ACCESS is access all CONTROLLER_TYPE;
+   --  Base parent for asymmetric and symmetric derived controlers
+
+   procedure Dispatch
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class);
+   --  Start controller
+
 private
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
@@ -107,7 +120,7 @@ private
    end Signal;
 
    ---------------------------------------------------------------------------
-   --  Full view for CONTROLLER_TYPE
+   --  Full view for DISPATCHER_TYPE and CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
    use Ada.Task_Identification;
@@ -115,13 +128,17 @@ private
    type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING)
       with Default_Value => EXPECTANT;
 
-   type CONTROLLER_TYPE is tagged limited
+   type DISPATCHER_TYPE is tagged limited
       record
          id      : TASK_ID;
          state   : STATUS_TYPE;
-         link    : CONTROLLER_ACCESS;
          run     : Signal.T;
          migrant : EXCEPTION_ACCESS;
+      end record;
+
+   type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with
+      record
+         link    : CONTROLLER_ACCESS;
       end record;
 
 end Control;

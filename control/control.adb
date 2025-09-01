@@ -12,47 +12,7 @@ with Control.Spin_Until;
 package body Control is
 
    ---------------------------------------------------------------------------
-   -- Local subprograms
-   ---------------------------------------------------------------------------
-
-   --------------------------
-   -- is_master_controller --
-   --------------------------
-
-   function is_master_controller
-     (controller : in out CONTROLLER_TYPE) return BOOLEAN
-   with Inline
-   is
-   begin
-      return controller.link = controller'Unchecked_Access;
-   end is_master_controller;
-
-   -----------------------
-   -- migrate_exception --
-   -----------------------
-
-   procedure migrate_exception
-     (controller : in out CONTROLLER_TYPE)
-   is
-      use Ada.Exceptions;
-
-      procedure dealloc is new Ada.Unchecked_Deallocation (
-         EXCEPTION_TYPE,
-         EXCEPTION_ACCESS
-      );
-
-      migrant : EXCEPTION_TYPE renames controller.migrant.all;
-
-      id : constant EXCEPTION_ID := Exception_Identity(migrant);
-      ms : constant STRING       := Exception_Message(migrant);
-   begin
-      dealloc(controller.migrant);
-      controller.migrant := NULL;
-      Raise_Exception(id, ms);
-   end migrate_exception;
-
-   ---------------------------------------------------------------------------
-   --  Base controller
+   --  CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
    --------------
@@ -79,7 +39,6 @@ package body Control is
       controller.state := RUNNING;
 
       pragma Assert (controller.link /= NULL);
-      pragma Assert (not is_master_controller(controller));
    end Initiate;
 
    ----------
@@ -93,7 +52,6 @@ package body Control is
    begin
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
-      pragma Assert (not is_master_controller(controller));
 
       controller.Die;
       Signal.Notify(back.run);
@@ -108,7 +66,6 @@ package body Control is
       back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
    begin
       pragma Assert (controller.state = RUNNING);
-      pragma Assert (not is_master_controller(controller));
 
       back.migrant := Save_Occurrence(X);
 
@@ -124,8 +81,6 @@ package body Control is
      (controller : in out CONTROLLER_TYPE)
    is
    begin
-      pragma Assert (not is_master_controller(controller));
-
       controller.id      := Null_Task_Id;
       controller.state   := DEAD;
       controller.link    := NULL;
@@ -144,29 +99,48 @@ package body Control is
    is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+
+      procedure migrate_exception
+      is
+         use Ada.Exceptions;
+
+         procedure dealloc is new Ada.Unchecked_Deallocation (
+            EXCEPTION_TYPE,
+            EXCEPTION_ACCESS
+         );
+
+         migrant : EXCEPTION_TYPE renames dispatcher.migrant.all;
+
+         id : constant EXCEPTION_ID := Exception_Identity(migrant);
+         ms : constant STRING       := Exception_Message(migrant);
+      begin
+         dealloc(dispatcher.migrant);
+         dispatcher.migrant := NULL;
+         Raise_Exception(id, ms);
+      end migrate_exception;
+
       function target_initiated return BOOLEAN
          is (target.state /= EXPECTANT);
    begin
       Spin_Until(target_initiated'Access);
 
-      pragma Assert (not is_master_controller(target));
-
       -- SUSPENDING
-      controller.state := SUSPENDED;
+      dispatcher.state := SUSPENDED;
       Signal.Notify(target.run);
-      Signal.Wait(controller.run);
+      Signal.Wait(dispatcher.run);
 
       -- RESUMING
-      if controller.state = DYING then
+      if dispatcher.state = DYING then
          raise Exit_Controller;
       end if;
-      controller.state := RUNNING;
+      dispatcher.state := RUNNING;
 
-      if controller.migrant /= NULL then
+      if dispatcher.migrant /= NULL then
          --  `target` had an exception
          pragma Assert (target.state = DEAD);
 
-         migrate_exception(controller);
+         migrate_exception;
       end if;
    end suspend_resume;
 
@@ -187,8 +161,6 @@ package body Control is
          controller.state := RUNNING;
          controller.link  := controller'Unchecked_Access;
          -- circular link identifies master controllers
-
-         pragma Assert (is_master_controller(controller));
       end if;
 
       pragma Assert (controller.id = Current_Task);
@@ -211,7 +183,6 @@ package body Control is
    begin
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
-      pragma Assert (not is_master_controller(controller));
 
       target.link := controller.link;
 
@@ -234,7 +205,6 @@ package body Control is
    begin
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
-      pragma Assert (not is_master_controller(controller));
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -261,7 +231,6 @@ package body Control is
          is (target.state = SUSPENDED);
    begin
       pragma Assert (target.id /= Current_Task);
-      pragma Assert (not is_master_controller(target));
 
    <<again>>
       case target.state is
@@ -281,6 +250,18 @@ package body Control is
             raise Control_Error; -- cannot happen, but just in case...
       end case;
    end Request_To_Exit;
+
+   ---------------------------------------------------------------------------
+   --  DISPATCHER_TYPE
+   ---------------------------------------------------------------------------
+
+   procedure Dispatch
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class) 
+   is
+   begin
+      null;
+   end Dispatch;
 
 end Control;
 
