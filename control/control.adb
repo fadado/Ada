@@ -93,13 +93,11 @@ package body Control is
    --------------------
 
    procedure suspend_resume
-     (controller : in out CONTROLLER_TYPE;
+     (dispatcher : in out DISPATCHER_TYPE;
       target     : in out CONTROLLER_TYPE)
    with Inline
    is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
 
       procedure migrate_exception
       is
@@ -168,7 +166,7 @@ package body Control is
 
       target.link := DISPATCHER_TYPE(controller)'Unchecked_Access;
 
-      suspend_resume(controller, target);
+      suspend_resume(DISPATCHER_TYPE(controller), target);
    end Resume;
 
    --------------
@@ -187,7 +185,7 @@ package body Control is
       target.link := controller.link;
 
       if suspend then
-         suspend_resume(controller, target);
+         suspend_resume(DISPATCHER_TYPE(controller), target);
       else
          Signal.Notify(target.run);
          -- the caller must Quit or raise Exit_Controller
@@ -260,18 +258,17 @@ package body Control is
       controller : in out CONTROLLER_TYPE'Class) 
    is
    begin
-      null;
-    --if dispatcher.id = Null_Task_Id then
-    --   dispatcher.id    := Current_Task;
-    --   dispatcher.state := RUNNING;
-    --end if;
+      if dispatcher.id = Null_Task_Id then
+         dispatcher.id    := Current_Task;
+         dispatcher.state := RUNNING;
+      end if;
 
-    --pragma Assert (dispatcher.id = Current_Task);
-    --pragma Assert (dispatcher.state = RUNNING);
+      pragma Assert (dispatcher.id = Current_Task);
+      pragma Assert (dispatcher.state = RUNNING);
 
-    --controller.link := dispatcher'Unchecked_Access;
+      controller.link := dispatcher'Unchecked_Access;
 
-    --suspend_resume(dispatcher, CONTROLLER_TYPE(controller));
+      suspend_resume(dispatcher, CONTROLLER_TYPE(controller));
    end Dispatch;
 
 end Control;
