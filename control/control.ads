@@ -88,7 +88,7 @@ package Control is
    ---------------------------------------------------------------------------
 
    type DISPATCHER_TYPE is tagged limited private;
-   type DISPATCHER_ACCESS is access all CONTROLLER_TYPE;
+   type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
    --  Base parent for asymmetric and symmetric derived controlers
 
    procedure Dispatch
@@ -138,7 +138,7 @@ private
 
    type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with
       record
-         link    : CONTROLLER_ACCESS;
+         link    : DISPATCHER_ACCESS;
       end record;
 
 end Control;

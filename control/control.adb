@@ -48,7 +48,7 @@ package body Control is
    procedure Quit
      (controller : in out CONTROLLER_TYPE)
    is
-      back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
+      back : DISPATCHER_TYPE renames controller.link.all;
    begin
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
@@ -63,7 +63,7 @@ package body Control is
    is
       use Ada.Exceptions;
 
-      back : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
+      back : DISPATCHER_TYPE renames controller.link.all;
    begin
       pragma Assert (controller.state = RUNNING);
 
@@ -159,14 +159,14 @@ package body Control is
 
          controller.id    := Current_Task;
          controller.state := RUNNING;
-         controller.link  := controller'Unchecked_Access;
+         controller.link  := DISPATCHER_TYPE(controller)'Unchecked_Access;
          -- circular link identifies master controllers
       end if;
 
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
 
-      target.link := controller'Unchecked_Access;
+      target.link := DISPATCHER_TYPE(controller)'Unchecked_Access;
 
       suspend_resume(controller, target);
    end Resume;
@@ -201,7 +201,7 @@ package body Control is
    procedure Yield
      (controller : in out CONTROLLER_TYPE)
    is
-      invoker : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller.link.all);
+      invoker : DISPATCHER_TYPE renames controller.link.all;
    begin
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
@@ -261,6 +261,17 @@ package body Control is
    is
    begin
       null;
+    --if dispatcher.id = Null_Task_Id then
+    --   dispatcher.id    := Current_Task;
+    --   dispatcher.state := RUNNING;
+    --end if;
+
+    --pragma Assert (dispatcher.id = Current_Task);
+    --pragma Assert (dispatcher.state = RUNNING);
+
+    --controller.link := dispatcher'Unchecked_Access;
+
+    --suspend_resume(dispatcher, CONTROLLER_TYPE(controller));
    end Dispatch;
 
 end Control;
