@@ -67,7 +67,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(hello);
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(hello);
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(hello);
    end Test_4;
 
    New_Line;

@@ -113,13 +113,13 @@ private
    task type Generator_Runner (generator: not null GENERATOR_ACCESS);
 
    type GENERATOR_TYPE (
-         main    : GENERATOR_PROCEDURE;
-         context : CONTEXT_ACCESS
+         main       : GENERATOR_PROCEDURE;
+         context    : CONTEXT_ACCESS
    ) is limited new CONTROLLER_TYPE with 
       record
-         master  : CONTROLLER_TYPE;
-         runner  : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
-         output  : OUTPUT_TYPE;
+         dispatcher : DISPATCHER_TYPE;
+         runner     : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
+         output     : OUTPUT_TYPE;
       end record;
 
    type CURSOR_TYPE is

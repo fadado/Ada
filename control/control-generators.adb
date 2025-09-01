@@ -18,8 +18,9 @@ package body Control . Generators is
    function Resume
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    is
+      dispatcher : DISPATCHER_TYPE renames generator.dispatcher;
    begin
-      generator.master.Resume(CONTROLLER_TYPE(generator));
+      dispatcher.Dispatch(generator);
 
       if generator.state = DEAD then
          raise Stop_Iteration;

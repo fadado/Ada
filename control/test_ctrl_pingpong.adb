@@ -69,6 +69,7 @@ begin
       Put_Line("The players are ready...");
 
       dispatcher.Dispatch(ping_control);
+      --TODO: bug: wait end of players
 
       Put_Line("Game Over");
       New_Line;

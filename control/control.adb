@@ -151,16 +151,6 @@ package body Control is
       target     : in out CONTROLLER_TYPE)
    is
    begin
-      if controller.id = Null_Task_Id then
-         --  `controller` is an uninitialized master controller
-         pragma Assert (controller.link = NULL);
-
-         controller.id    := Current_Task;
-         controller.state := RUNNING;
-         controller.link  := DISPATCHER_TYPE(controller)'Unchecked_Access;
-         -- circular link identifies master controllers
-      end if;
-
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
 

@@ -24,7 +24,7 @@ package body Control . CoRoutines is
          raise Control_Error with "cannot call dead coroutine";
       end if;
 
-      dispatcher.Dispatch(CONTROLLER_TYPE(routine));
+      dispatcher.Dispatch(routine);
       return routine.state /= DEAD;
    end Call;
 
