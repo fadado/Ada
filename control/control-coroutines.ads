@@ -29,8 +29,8 @@ package Control . CoRoutines is
    --  Coroutine type with *only* transfer of control
 
    function Call
-     (routine : in out COROUTINE_TYPE;
-      master  : in out CONTROLLER_TYPE) return BOOLEAN;
+     (routine    : in out COROUTINE_TYPE;
+      dispatcher : in out DISPATCHER_TYPE) return BOOLEAN;
    -- Starts the first coroutine with `master` as environment
 
    function Call

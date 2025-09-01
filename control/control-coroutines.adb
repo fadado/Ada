@@ -16,25 +16,25 @@ package body Control . CoRoutines is
    ----------
 
    function Call
-     (routine : in out COROUTINE_TYPE;
-      master  : in out CONTROLLER_TYPE) return BOOLEAN
+     (routine    : in out COROUTINE_TYPE;
+      dispatcher : in out DISPATCHER_TYPE) return BOOLEAN
    is
    begin
       if routine.state = DEAD then
          raise Control_Error with "cannot call dead coroutine";
       end if;
 
-      master.Resume(CONTROLLER_TYPE(routine));
+      dispatcher.Dispatch(CONTROLLER_TYPE(routine));
       return routine.state /= DEAD;
    end Call;
 
-   Environment_Controller : CONTROLLER_TYPE;
+   Environment_Dispatcher : DISPATCHER_TYPE;
 
    function Call
      (routine : in out COROUTINE_TYPE) return BOOLEAN
    is
    begin
-      return Call(routine, Environment_Controller);
+      return Call(routine, Environment_Dispatcher);
    end Call;
 
    ------------

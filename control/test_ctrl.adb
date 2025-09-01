@@ -12,7 +12,7 @@ with Gotcha;
 
 procedure test_ctrl
 is
-   Environment_Controller : CONTROLLER_TYPE;
+   dispatcher : DISPATCHER_TYPE;
 begin
    Gotcha.Set_Handlers;
 
@@ -40,7 +40,7 @@ begin
       hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      Environment_Controller.Resume(hello_control);
+      dispatcher.Dispatch(hello_control);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -67,7 +67,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      Environment_Controller.Resume(CONTROLLER_TYPE(hello));
+      dispatcher.Dispatch(CONTROLLER_TYPE(hello));
    end Test_4;
 
    New_Line;

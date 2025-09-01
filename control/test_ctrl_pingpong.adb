@@ -57,7 +57,7 @@ begin
 
    Test:
    declare
-      Environment_Controller : CONTROLLER_TYPE;
+      dispatcher : DISPATCHER_TYPE;
 
       ping_control : aliased CONTROLLER_TYPE;
       pong_control : aliased CONTROLLER_TYPE;
@@ -68,7 +68,7 @@ begin
    begin
       Put_Line("The players are ready...");
 
-      Environment_Controller.Resume(ping_control);
+      dispatcher.Dispatch(ping_control);
 
       Put_Line("Game Over");
       New_Line;
