@@ -28,10 +28,10 @@ package Control is
    --  Visible, but to be handled *only* on task body handlers
 
    Stop_Iteration : exception;
-   --  Shared definition to be used by child packages
+   --  Raised when a controller task has finished
 
    type VOID is null record;
-   --  Common type for child packages and clients using empty contexts
+   --  Common type for child packages and clients using void contexts
 
    subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;
    subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
@@ -43,7 +43,7 @@ package Control is
 
    type CONTROLLER_TYPE is tagged limited private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
-   --  Base parent for asymmetric and symmetric derived controlers
+   --  Asymmetric and symmetric controlers
 
    procedure Initiate
      (controller : in out CONTROLLER_TYPE);
@@ -73,7 +73,7 @@ package Control is
       target     : in out CONTROLLER_TYPE;
       suspend    : in BOOLEAN := TRUE);
    --  Suspend `controller` and transfers control to `target` (for symmetric
-   --  coroutines)
+   --  coroutines); wait to be resumed only if `suspend`
 
    procedure Yield
      (controller : in out CONTROLLER_TYPE);
@@ -89,9 +89,9 @@ package Control is
 
    type DISPATCHER_TYPE is tagged limited private;
    type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
-   --  Base parent for asymmetric and symmetric derived controlers
+   --  Base parent for CONTROLLER_TYPE
 
-   procedure Dispatch
+   procedure Resume
      (dispatcher : in out DISPATCHER_TYPE;
       controller : in out CONTROLLER_TYPE'Class);
    --  Start controller

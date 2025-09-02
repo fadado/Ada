@@ -28,21 +28,16 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   function Call
+   procedure Dispatch
      (routine    : in out COROUTINE_TYPE;
-      dispatcher : in out DISPATCHER_TYPE) return BOOLEAN;
-   -- Starts the first coroutine with `master` as environment
-
-   function Call
-     (routine : in out COROUTINE_TYPE) return BOOLEAN
+      dispatcher : in out DISPATCHER_TYPE)
    with Inline;
-   -- Starts the first coroutine
-   -- Beware: perhaps `Call` is no reentrant
+   --  Equivalent to dispatcher.Resume(routine)
 
-   function Resume
+   procedure Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE) return BOOLEAN;
-   --  Resume `target` and returns FALSE when `target` is DEAD
+      target  : in out COROUTINE_TYPE);
+   --  Resume `target` and raises Stop_Iteration when `target` is DEAD
 
    procedure Yield
      (routine : in out COROUTINE_TYPE)

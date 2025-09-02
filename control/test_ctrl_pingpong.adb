@@ -31,6 +31,7 @@ is
 
       Ping.Quit;
    exception
+      when Stop_Iteration => null; -- ignore
       when X: others => Ping.Quit(X); raise;
    end PING_RUN;
 
@@ -49,6 +50,7 @@ is
 
       Pong.Quit;
    exception
+      when Stop_Iteration => null; -- ignore
       when X: others => Pong.Quit(X); raise;
    end PONG_RUN;
 
@@ -68,8 +70,15 @@ begin
    begin
       Put_Line("The players are ready...");
 
-      dispatcher.Dispatch(ping_control);
+      begin
+         dispatcher.Resume(ping_control);
+      exception
+         when Stop_Iteration => null; -- ignore
+      end;
+
       --TODO: bug: wait end of players
+    --while not ping_runner'Terminated loop null; end loop;
+    --while not pong_runner'Terminated loop null; end loop;
 
       Put_Line("Game Over");
       New_Line;

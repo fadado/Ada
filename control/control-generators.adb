@@ -18,14 +18,8 @@ package body Control . Generators is
    function Resume
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    is
-      dispatcher : DISPATCHER_TYPE renames generator.dispatcher;
    begin
-      dispatcher.Dispatch(generator);
-
-      if generator.state = DEAD then
-         raise Stop_Iteration;
-      end if;
-
+      generator.dispatcher.Resume(generator);
       return generator.output;
    end Resume;
 
@@ -37,10 +31,10 @@ package body Control . Generators is
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    is
-      parent : GENERATOR_TYPE renames GENERATOR_TYPE(generator);
+      controller : CONTROLLER_TYPE renames CONTROLLER_TYPE(generator);
    begin
       generator.output := value;
-      parent.Yield;
+      controller.Yield;
    end Yield;
 
    -----------
@@ -53,8 +47,10 @@ package body Control . Generators is
       function runner_terminated return BOOLEAN
          is (generator.runner'Terminated);
    begin
-      generator.Request_To_Exit;
-      Spin_Until(runner_terminated'Access);
+      if generator.state /= DEAD then
+         generator.Request_To_Exit;
+         Spin_Until(runner_terminated'Access);
+      end if;
    end Close;
 
    ----------------------

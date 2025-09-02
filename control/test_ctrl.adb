@@ -40,7 +40,7 @@ begin
       hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      dispatcher.Dispatch(hello_control);
+      dispatcher.Resume(hello_control);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -67,7 +67,9 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(hello);
+      dispatcher.Resume(hello);
+   exception
+      when Stop_Iteration => null; -- ignore
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -95,7 +97,9 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(hello);
+      dispatcher.Resume(hello);
+   exception
+      when Stop_Iteration => null; -- ignore
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -142,12 +146,15 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      dispatcher.Dispatch(hello);
+      dispatcher.Resume(hello);
+   exception
+      when Stop_Iteration => null; -- ignore
    end Test_4;
 
    New_Line;
 
 exception
+   when Stop_Iteration => null; -- ignore
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 

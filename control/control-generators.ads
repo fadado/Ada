@@ -38,12 +38,14 @@ package Control . Generators is
    --  Coroutine type with iterable capabilities
 
    function Resume
-     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE;
+     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
+   with Inline;
    --  Resume `generator` and raises `Stop_Iteration` when dead
 
    procedure Yield
      (generator : in out GENERATOR_TYPE;
-      value     : in OUTPUT_TYPE);
+      value     : in OUTPUT_TYPE)
+   with Inline;
    --  Yields control and a value
 
    procedure Close

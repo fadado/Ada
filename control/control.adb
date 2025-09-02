@@ -53,7 +53,7 @@ package body Control is
       pragma Assert (controller.id = Current_Task);
       pragma Assert (controller.state = RUNNING);
 
-      controller.Die;
+      controller.Die; -- .state := DEAD
       Signal.Notify(back.run);
    end Quit;
 
@@ -69,7 +69,7 @@ package body Control is
 
       back.migrant := Save_Occurrence(X);
 
-      controller.Die;
+      controller.Die; -- .state := DEAD
       Signal.Notify(back.run);
    end Quit;
 
@@ -85,7 +85,8 @@ package body Control is
       controller.state   := DEAD;
       controller.link    := NULL;
       controller.migrant := NULL;
-    --Signal.Clear(controller.run);
+
+      pragma Assert (Signal.Is_Cleared(controller.run));
    end Die;
 
    --------------------
@@ -94,8 +95,7 @@ package body Control is
 
    procedure suspend_resume
      (dispatcher : in out DISPATCHER_TYPE;
-      target     : in out CONTROLLER_TYPE)
-   with Inline
+      controller : in out CONTROLLER_TYPE)
    is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
@@ -119,13 +119,13 @@ package body Control is
       end migrate_exception;
 
       function target_initiated return BOOLEAN
-         is (target.state /= EXPECTANT);
+         is (controller.state /= EXPECTANT);
    begin
       Spin_Until(target_initiated'Access);
 
       -- SUSPENDING
       dispatcher.state := SUSPENDED;
-      Signal.Notify(target.run);
+      Signal.Notify(controller.run);
       Signal.Wait(dispatcher.run);
 
       -- RESUMING
@@ -135,8 +135,8 @@ package body Control is
       dispatcher.state := RUNNING;
 
       if dispatcher.migrant /= NULL then
-         --  `target` had an exception
-         pragma Assert (target.state = DEAD);
+         --  `controller` had an exception
+         pragma Assert (controller.state = DEAD);
 
          migrate_exception;
       end if;
@@ -157,6 +157,10 @@ package body Control is
       target.link := DISPATCHER_TYPE(controller)'Unchecked_Access;
 
       suspend_resume(DISPATCHER_TYPE(controller), target);
+
+      if target.state = DEAD then
+         raise Stop_Iteration;
+      end if;
    end Resume;
 
    --------------
@@ -234,8 +238,8 @@ package body Control is
             goto again;
          when DEAD =>
             null;
-         when DYING =>
-            raise Control_Error; -- cannot happen, but just in case...
+         when DYING => -- cannot happen
+            raise Control_Error;
       end case;
    end Request_To_Exit;
 
@@ -243,10 +247,15 @@ package body Control is
    --  DISPATCHER_TYPE
    ---------------------------------------------------------------------------
 
-   procedure Dispatch
+   ------------
+   -- Resume --
+   ------------
+
+   procedure Resume
      (dispatcher : in out DISPATCHER_TYPE;
       controller : in out CONTROLLER_TYPE'Class) 
    is
+      target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);
    begin
       if dispatcher.id = Null_Task_Id then
          dispatcher.id    := Current_Task;
@@ -256,10 +265,18 @@ package body Control is
       pragma Assert (dispatcher.id = Current_Task);
       pragma Assert (dispatcher.state = RUNNING);
 
-      controller.link := dispatcher'Unchecked_Access;
+      if target.state = DEAD then
+         raise Control_Error with "cannot resume dead controller";
+      end if;
 
-      suspend_resume(dispatcher, CONTROLLER_TYPE(controller));
-   end Dispatch;
+      target.link := dispatcher'Unchecked_Access;
+
+      suspend_resume(dispatcher, target);
+
+      if target.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+   end Resume;
 
 end Control;
 

@@ -47,26 +47,16 @@ begin
          Put_Line("!");
       end;
 
-      hello : COROUTINE_TYPE (hello_world'Access, NULL);
+      dispatcher : DISPATCHER_TYPE;
+      hello      : COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
       loop
-         exit when not hello.Call;
+         hello.Dispatch(dispatcher);
       end loop;
-      declare
-         catched : BOOLEAN := FALSE;
-      begin
-         begin
-            catched := hello.Call;
-         exception
-            when Control_Error => catched := TRUE;
-         end;
-         pragma Assert (catched);
-      end;
    exception
-      when others =>
-         hello.Close;
-         raise;
+      when Stop_Iteration => null; -- ignore
+      when others => hello.Close; raise;
    end Test_1;
 
    New_Line;

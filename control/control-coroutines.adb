@@ -11,48 +11,28 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   ----------
-   -- Call --
-   ----------
-
-   function Call
+   procedure Dispatch
      (routine    : in out COROUTINE_TYPE;
-      dispatcher : in out DISPATCHER_TYPE) return BOOLEAN
+      dispatcher : in out DISPATCHER_TYPE)
    is
    begin
-      if routine.state = DEAD then
-         raise Control_Error with "cannot call dead coroutine";
-      end if;
-
-      dispatcher.Dispatch(routine);
-      return routine.state /= DEAD;
-   end Call;
-
-   Environment_Dispatcher : DISPATCHER_TYPE;
-
-   function Call
-     (routine : in out COROUTINE_TYPE) return BOOLEAN
-   is
-   begin
-      return Call(routine, Environment_Dispatcher);
-   end Call;
+      dispatcher.Resume(routine);
+   end Dispatch;
 
    ------------
    -- Resume --
    ------------
 
-   function Resume
+   procedure Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE) return BOOLEAN
+      target  : in out COROUTINE_TYPE)
    is
-      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
       if target.state = DEAD then
          raise Control_Error with "cannot resume dead coroutine";
       end if;
 
-      parent.Resume(CONTROLLER_TYPE(target));
-      return target.state /= DEAD;
+      routine.Resume(CONTROLLER_TYPE(target));
    end Resume;
 
    -----------
@@ -62,9 +42,9 @@ package body Control . CoRoutines is
    procedure Yield
      (routine : in out COROUTINE_TYPE)
    is
-      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
+      controller : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      parent.Yield;
+      controller.Yield;
    end Yield;
 
    -----------
@@ -77,8 +57,10 @@ package body Control . CoRoutines is
       function runner_terminated return BOOLEAN
          is (routine.runner'Terminated);
    begin
-      routine.Request_To_Exit;
-      Spin_Until(runner_terminated'Access);
+      if routine.state /= DEAD then
+         routine.Request_To_Exit;
+         Spin_Until(runner_terminated'Access);
+      end if;
    end Close;
 
    ----------------------
