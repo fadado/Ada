@@ -4,12 +4,22 @@
 
 pragma Assertion_Policy (Check); -- Check / Ignore
 
+with Ada.Tags;
 with Ada.Unchecked_Deallocation;
 with Ada.Dispatching;
 
 with Control.Spin_Until;
 
 package body Control is
+
+   function is_master_controller
+     (dispatcher : DISPATCHER_TYPE'Class) return BOOLEAN
+   with Inline
+   is
+      use type Ada.Tags.Tag;
+   begin
+      return DISPATCHER_TYPE'Tag = dispatcher'Tag;
+   end is_master_controller;
 
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE
@@ -118,10 +128,10 @@ package body Control is
          Raise_Exception(id, ms);
       end migrate_exception;
 
-      function target_initiated return BOOLEAN
+      function controller_initiated return BOOLEAN
          is (controller.state /= EXPECTANT);
    begin
-      Spin_Until(target_initiated'Access);
+      Spin_Until(controller_initiated'Access);
 
       -- SUSPENDING
       dispatcher.state := SUSPENDED;
@@ -130,6 +140,7 @@ package body Control is
 
       -- RESUMING
       if dispatcher.state = DYING then
+         pragma Assert(not is_master_controller(dispatcher));
          raise Exit_Controller;
       end if;
       dispatcher.state := RUNNING;
