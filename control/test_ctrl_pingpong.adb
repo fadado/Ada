@@ -13,29 +13,38 @@ with Gotcha;
 
 procedure test_ctrl_pingpong
 is
-   task type PING_RUN(This, That: not null CONTROLLER_ACCESS);
-   task type PONG_RUN(This, That: not null CONTROLLER_ACCESS);
+   task type Ping_Run(This, That: not null CONTROLLER_ACCESS);
+   task type Pong_Run(This, That: not null CONTROLLER_ACCESS);
 
-   task body PING_RUN is
+   --------------
+   -- Ping_Run --
+   --------------
+
+   task body Ping_Run is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
-      suspend : BOOLEAN;
    begin
       Ping.Initiate;
 
       for i in 1..10 loop
          Put("PING!  ");
-         suspend := i < 10;
-         Ping.Transfer(Pong, suspend);
+         if i < 10 then
+            Ping.Transfer(Pong);
+         end if;
       end loop;
+      Ping.Transfer(Pong, FALSE);
 
       Ping.Quit;
    exception
-      when Stop_Iteration => null; -- ignore
+      when Exit_Controller => Ping.Quit;
       when X: others => Ping.Quit(X); raise;
-   end PING_RUN;
+   end Ping_Run;
 
-   task body PONG_RUN is
+   --------------
+   -- Pong_Run --
+   --------------
+
+   task body Pong_Run is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
    begin
@@ -50,22 +59,22 @@ is
 
       Pong.Quit;
    exception
-      when Stop_Iteration => null; -- ignore
       when X: others => Pong.Quit(X); raise;
-   end PONG_RUN;
+   end Pong_Run;
 
 begin
+   -- MAIN
+
    Gotcha.Set_Handlers;
 
-   Test:
    declare
       dispatcher : DISPATCHER_TYPE;
 
       ping_control : aliased CONTROLLER_TYPE;
       pong_control : aliased CONTROLLER_TYPE;
-      ping_runner  : PING_RUN (ping_control'Unchecked_Access,
+      ping_runner  : Ping_Run (ping_control'Unchecked_Access,
                                pong_control'Unchecked_Access);
-      pong_runner  : PONG_RUN (ping_control'Unchecked_Access,
+      pong_runner  : Pong_Run (ping_control'Unchecked_Access,
                                pong_control'Unchecked_Access);
    begin
       Put_Line("The players are ready...");
@@ -73,19 +82,19 @@ begin
       begin
          dispatcher.Resume(ping_control);
       exception
-         when Stop_Iteration => null; -- ignore
+         when Stop_Iteration => null;
       end;
 
       --TODO: bug: wait end of players
-    --while not ping_runner'Terminated loop null; end loop;
-    --while not pong_runner'Terminated loop null; end loop;
+      while not ping_runner'Terminated loop null; end loop;
+      while not pong_runner'Terminated loop null; end loop;
 
       Put_Line("Game Over");
       New_Line;
    exception
       when X: others =>
          Gotcha.Report_Exception(X, "Oops at MASTER TASK!!");
-   end Test;
+   end;
 
 end test_ctrl_pingpong;
 

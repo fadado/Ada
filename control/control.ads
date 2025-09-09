@@ -38,8 +38,12 @@ package Control is
    --  Simple renaming to simplify naming and avoid `use`
 
    ---------------------------------------------------------------------------
-   --  CONTROLLER_TYPE
+   --  Basic controller types
    ---------------------------------------------------------------------------
+
+   type DISPATCHER_TYPE is tagged limited private;
+   type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
+   --  A simple controller to attatch to the curretn task
 
    type CONTROLLER_TYPE is tagged limited private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
@@ -56,11 +60,24 @@ package Control is
    procedure Quit
      (controller : in out CONTROLLER_TYPE;
       X          : in EXCEPTION_TYPE);
-   --  Quit and migrate exceptions to a suspended controller
+   --  Quit `controller` and migrate exceptions to a suspended invoker
 
    procedure Die
      (controller : in out CONTROLLER_TYPE);
    --  Set `controller` to the DEAD state
+
+   procedure Request_To_Exit
+     (controller : in out CONTROLLER_TYPE);
+   --  Force to exit a suspended `controller`
+
+   procedure Yield
+     (controller : in out CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to a suspended invoker
+
+   procedure Resume
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class);
+   --  Resume `controller` using a `dispatcher`
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
@@ -72,29 +89,8 @@ package Control is
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE;
       suspend    : in BOOLEAN := TRUE);
-   --  Suspend `controller` and transfers control to `target` (for symmetric
-   --  coroutines); wait to be resumed only if `suspend`
-
-   procedure Yield
-     (controller : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to a suspended controller
-
-   procedure Request_To_Exit
-     (target : in out CONTROLLER_TYPE);
-   --  Force to exit a suspended `target`
-
-   ---------------------------------------------------------------------------
-   --  DISPATCHER_TYPE
-   ---------------------------------------------------------------------------
-
-   type DISPATCHER_TYPE is tagged limited private;
-   type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
-   --  Base parent for CONTROLLER_TYPE
-
-   procedure Resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      controller : in out CONTROLLER_TYPE'Class);
-   --  Start controller
+   --  Transfers control to `target`, and then suspending `controller` if
+   --  `suspend` or else raising `Exit_Controller`
 
 private
    ---------------------------------------------------------------------------
