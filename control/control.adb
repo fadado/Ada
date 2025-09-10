@@ -72,24 +72,8 @@ package body Control is
    ----------
 
    procedure Quit
-     (controller : in out CONTROLLER_TYPE)
-   is
-      back : DISPATCHER_TYPE renames controller.link.all;
-   begin
-      pragma Assert (controller.id = Current_Task);
-      pragma Assert (controller.state = RUNNING);
-
-      controller.Die; -- .state := DEAD
-      Signal.Notify(back.run);
-   end Quit;
-
-   ----------
-   -- Quit --
-   ----------
-
-   procedure Quit
      (controller : in out CONTROLLER_TYPE;
-      X          : EXCEPTION_TYPE)
+      X          : in EXCEPTION_TYPE := Null_Exception)
    is
       use Ada.Exceptions;
 
@@ -97,7 +81,9 @@ package body Control is
    begin
       pragma Assert (controller.state = RUNNING);
 
-      back.migrant := Save_Occurrence(X);
+      if Exception_Identity(X) /= Null_Id then
+         back.migrant := Save_Occurrence(X);
+      end if;
 
       controller.Die; -- .state := DEAD
       Signal.Notify(back.run);

@@ -35,6 +35,8 @@ package Control is
 
    subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;
    subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+   Null_Exception : EXCEPTION_TYPE renames Ada.Exceptions.Null_Occurrence;
    --  Simple renaming to simplify naming and avoid `use`
 
    ---------------------------------------------------------------------------
@@ -54,13 +56,10 @@ package Control is
    --  Initiate `controller` in the current task
 
    procedure Quit
-     (controller : in out CONTROLLER_TYPE);
-   --  Quit `controller` returning control to a suspended invoker
-
-   procedure Quit
      (controller : in out CONTROLLER_TYPE;
-      X          : in EXCEPTION_TYPE);
-   --  Quit `controller` and migrate exceptions to a suspended invoker
+      X          : in EXCEPTION_TYPE := Null_Exception);
+   --  Quit `controller` and migrate exceptions to a suspended invoker if
+   --  necessary
 
    procedure Die
      (controller : in out CONTROLLER_TYPE);
