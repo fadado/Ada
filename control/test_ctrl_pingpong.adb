@@ -24,7 +24,7 @@ is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
    begin
-      Ping.Initiate;
+      Ping.Commence;
 
       for i in 1..10 loop
          Put("PING!  ");
@@ -48,7 +48,7 @@ is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
    begin
-      Pong.Initiate;
+      Pong.Commence;
 
       for i in 1..10 loop
          Put_Line("PONG!");

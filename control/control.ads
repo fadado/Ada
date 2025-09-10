@@ -51,9 +51,9 @@ package Control is
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
    --  Asymmetric and symmetric controlers
 
-   procedure Initiate
+   procedure Commence
      (controller : in out CONTROLLER_TYPE);
-   --  Initiate `controller` in the current task
+   --  Commence `controller` in the current task
 
    procedure Quit
      (controller : in out CONTROLLER_TYPE;

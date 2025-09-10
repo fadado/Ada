@@ -60,7 +60,7 @@ package body Control . Generators is
    task body Generator_Runner
    is
    begin
-      generator.Initiate;
+      generator.Commence;
       generator.main(generator);
       generator.Quit;
    exception

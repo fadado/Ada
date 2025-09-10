@@ -24,7 +24,7 @@ begin
       task type HELLO_RUN (controller: not null CONTROLLER_ACCESS);
       task body HELLO_RUN is
       begin
-         controller.Initiate;
+         controller.Commence;
          Put_Line("Test 1-Hello, world!");
          controller.Yield;
          -- closed here
@@ -50,7 +50,7 @@ begin
          controller : not null access CONTROLLER_TYPE'Class);
       task body HELLO_RUN is
       begin
-         controller.Initiate;
+         controller.Commence;
          Put_Line("Test 2-Hello, world!");
          controller.Quit;
       exception
@@ -85,7 +85,7 @@ begin
 
       task body HELLO_RUN is
       begin
-         controller.Initiate;
+         controller.Commence;
          Put_Line("Test 3-Hello, world!");
          controller.Quit;
       exception
@@ -133,7 +133,7 @@ begin
 
          task body HELLO_RUN is
          begin
-            controller.Initiate;
+            controller.Commence;
             Put_Line("Test 4-Hello, world!");
             controller.Quit;
          exception

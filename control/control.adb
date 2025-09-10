@@ -33,7 +33,7 @@ package body Control is
    --    task body T_Runner
    --    is
    --    begin
-   --       self.Initiate;
+   --       self.Commence;
    --       self.main(self);
    --       self.Quit;
    --    exception
@@ -42,10 +42,10 @@ package body Control is
    --    end T_Runner;
 
    --------------
-   -- Initiate --
+   -- Commence --
    --------------
 
-   procedure Initiate
+   procedure Commence
      (controller : in out CONTROLLER_TYPE)
    is
    begin
@@ -66,7 +66,7 @@ package body Control is
       controller.state := RUNNING;
 
       pragma Assert (controller.link /= NULL);
-   end Initiate;
+   end Commence;
 
    ----------
    -- Quit --

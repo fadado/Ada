@@ -70,7 +70,7 @@ package body Control . CoRoutines is
    task body CoRoutine_Runner
    is
    begin
-      routine.Initiate;
+      routine.Commence;
       routine.main(routine);
       routine.Quit;
    exception
