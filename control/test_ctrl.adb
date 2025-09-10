@@ -30,11 +30,8 @@ begin
          -- closed here
          controller.Quit;
       exception
-         when Exit_Controller =>
-            controller.Die;
-         when X: others =>
-            controller.Quit(X);
-            raise;
+         when Exit_Controller => null;
+         when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
       hello_control : aliased CONTROLLER_TYPE;

@@ -37,7 +37,7 @@ package body Control is
    --       self.main(self);
    --       self.Quit;
    --    exception
-   --       when Exit_Controller => self.Die;
+   --       when Exit_Controller => null;
    --       when X: others       => self.Quit(X);
    --    end T_Runner;
 
@@ -60,6 +60,7 @@ package body Control is
 
       -- RESUMING
       if controller.state = DYING then
+         controller.STATE := DEAD;
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;
@@ -85,25 +86,9 @@ package body Control is
          back.migrant := Save_Occurrence(X);
       end if;
 
-      controller.Die; -- .state := DEAD
+      controller.STATE := DEAD;
       Signal.Notify(back.run);
    end Quit;
-
-   ---------
-   -- Die --
-   ---------
-
-   procedure Die
-     (controller : in out CONTROLLER_TYPE)
-   is
-   begin
-      controller.id      := Null_Task_Id;
-      controller.state   := DEAD;
-      controller.link    := NULL;
-      controller.migrant := NULL;
-
-      pragma Assert (Signal.Is_Cleared(controller.run));
-   end Die;
 
    ---------------------------------------------------------------------------
    -- Public primitives
@@ -161,6 +146,7 @@ package body Control is
 
       -- RESUMING
       if controller.state = DYING then
+         controller.STATE := DEAD;
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;
@@ -208,6 +194,7 @@ package body Control is
       -- RESUMING
       if dispatcher.state = DYING then
          pragma Assert (not is_master_controller(dispatcher));
+         dispatcher.STATE := DEAD;
          raise Exit_Controller;
       end if;
       dispatcher.state := RUNNING;
@@ -293,6 +280,7 @@ package body Control is
          suspend_resume(dispatcher, target);
       else
          Signal.Notify(target.run);
+         controller.STATE := DEAD;
          raise Exit_Controller;
       end if;
    end Transfer;

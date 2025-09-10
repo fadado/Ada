@@ -61,10 +61,6 @@ package Control is
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
 
-   procedure Die
-     (controller : in out CONTROLLER_TYPE);
-   --  Set `controller` to the DEAD state
-
    procedure Request_To_Exit
      (controller : in out CONTROLLER_TYPE);
    --  Force to exit a suspended `controller`

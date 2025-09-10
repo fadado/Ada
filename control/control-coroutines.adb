@@ -74,7 +74,7 @@ package body Control . CoRoutines is
       routine.main(routine);
       routine.Quit;
    exception
-      when Exit_Controller => routine.Die;
+      when Exit_Controller => null;
       when X: others       => routine.Quit(X);
    end CoRoutine_Runner;
 

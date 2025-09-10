@@ -36,7 +36,7 @@ is
 
       Ping.Quit;
    exception
-      when Exit_Controller => Ping.Quit;
+      when Exit_Controller => null;
       when X: others => Ping.Quit(X); raise;
    end Ping_Run;
 
@@ -59,6 +59,7 @@ is
 
       Pong.Quit;
    exception
+      when Exit_Controller => null;
       when X: others => Pong.Quit(X); raise;
    end Pong_Run;
 
