@@ -62,7 +62,7 @@ begin
             Put(fib.Resume'Image);
          end loop;
          New_Line;
-         fib.Close; -- TODO: why is necessary?
+         fib.Close; -- TODO: necessary to stop infinite!
       end;
    end Test_1;
 
