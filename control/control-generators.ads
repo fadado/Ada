@@ -124,6 +124,9 @@ private
          output     : OUTPUT_TYPE;
       end record;
 
+   overriding procedure Finalize
+     (generator : in out GENERATOR_TYPE) renames Close;
+
    type CURSOR_TYPE is
       record
          source : GENERATOR_ACCESS;

@@ -62,9 +62,7 @@ begin
             Put(fib.Resume'Image);
          end loop;
          New_Line;
-         fib.Close;
-      exception
-         when others => fib.Close; raise;
+         fib.Close; -- TODO: why is necessary?
       end;
    end Test_1;
 
@@ -84,7 +82,6 @@ begin
          end loop;
       exception
          when Stop_Iteration => New_Line;
-         when others => fib.Close; raise;
       end;
    end Test_2;
 
@@ -107,8 +104,6 @@ begin
             ptr := Next(ptr);
          end loop;
          New_Line;
-      exception
-         when others => fib.Close; raise;
       end;
    end Test_3;
 
@@ -129,8 +124,6 @@ begin
       begin
          For_Each(fib, show'Access);
          New_Line;
-      exception
-         when others => fib.Close; raise;
       end;
    end Test_4;
 
@@ -149,8 +142,6 @@ begin
             Put(Element(p)'Image);
          end loop;
          New_Line;
-      exception
-         when others => fib.Close; raise;
       end;
    end Test_5;
 
@@ -169,8 +160,6 @@ begin
             Put(k'Image);
          end loop;
          New_Line;
-      exception
-         when others => fib.Close; raise;
       end;
    end Test_6;
 

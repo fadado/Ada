@@ -12,6 +12,13 @@ with Control.Spin_Until;
 
 package body Control is
 
+   procedure Finalize
+     (controller : in out CONTROLLER_TYPE)
+   is
+   begin
+      pragma Assert (controller.state = DEAD);
+   end Finalize;
+
    function is_master_controller
      (dispatcher : DISPATCHER_TYPE'Class) return BOOLEAN
    with Inline
