@@ -18,7 +18,6 @@ pragma Restrictions (
         with Ada.Exceptions;
 private with Ada.Synchronous_Task_Control;
 private with Ada.Task_Identification;
-private with Ada.Finalization;
 
 package Control is
 
@@ -116,12 +115,11 @@ private
    ---------------------------------------------------------------------------
 
    use Ada.Task_Identification;
-   use Ada.Finalization;
 
    type STATUS_TYPE is (EXPECTANT, SUSPENDED, RUNNING, DEAD, DYING)
       with Default_Value => EXPECTANT;
 
-   type DISPATCHER_TYPE is limited new LIMITED_CONTROLLED with
+   type DISPATCHER_TYPE is tagged limited
       record
          id      : TASK_ID;
          state   : STATUS_TYPE;
@@ -133,10 +131,6 @@ private
       record
          link    : DISPATCHER_ACCESS;
       end record;
-
-   overriding
-   procedure Finalize
-     (controller : in out CONTROLLER_TYPE);
 
 end Control;
 
