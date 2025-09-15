@@ -26,17 +26,15 @@ is
    begin
       Ping.Commence;
 
-      for i in 1..10 loop
+      for i in 1..9 loop
          Put("PING!  ");
-         if i < 10 then
-            Ping.Transfer(Pong);
-         end if;
+         Ping.Resume(Pong);
       end loop;
-      Ping.Transfer(Pong, FALSE);
+      Put("PING!  ");
+      Ping.Transfer(Pong);
 
       Ping.Quit;
    exception
-      when Exit_Controller => null;
       when X: others => Ping.Quit(X); raise;
    end Ping_Run;
 
@@ -50,16 +48,15 @@ is
    begin
       Pong.Commence;
 
-      for i in 1..10 loop
+      for i in 1..9 loop
          Put_Line("PONG!");
-         if i < 10 then
-            Pong.Transfer(Ping);
-         end if;
+         Pong.Yield;
       end loop;
+      Put_Line("PONG!");
 
       Pong.Quit;
    exception
-      when Exit_Controller => null;
+      when Stop_Iteration => Pong.Quit;
       when X: others => Pong.Quit(X); raise;
    end Pong_Run;
 

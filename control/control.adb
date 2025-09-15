@@ -266,8 +266,7 @@ package body Control is
 
    procedure Transfer
      (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE;
-      suspend    : in BOOLEAN := TRUE)
+      target     : in out CONTROLLER_TYPE)
    is
       dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
@@ -276,13 +275,7 @@ package body Control is
 
       target.link := controller.link;
 
-      if suspend then
-         suspend_resume(dispatcher, target);
-      else
-         Signal.Notify(target.run);
-         controller.STATE := DEAD;
-         raise Exit_Controller;
-      end if;
+      Signal.Notify(target.run);
    end Transfer;
 
 end Control;

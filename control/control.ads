@@ -82,10 +82,8 @@ package Control is
 
    procedure Transfer
      (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE;
-      suspend    : in BOOLEAN := TRUE);
-   --  Transfers control to `target`, and then suspending `controller` if
-   --  `suspend` or else raising `Exit_Controller`
+      target     : in out CONTROLLER_TYPE);
+   --  Transfers control to `target` and continue
 
 private
    ---------------------------------------------------------------------------
