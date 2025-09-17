@@ -16,7 +16,15 @@ package body Control . CoRoutines is
       dispatcher : in out DISPATCHER_TYPE)
    is
    begin
+      if routine.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+
       dispatcher.Resume(routine);
+
+      if routine.state = DEAD then
+         raise Stop_Iteration;
+      end if;
    end Dispatch;
 
    ------------
@@ -29,10 +37,14 @@ package body Control . CoRoutines is
    is
    begin
       if target.state = DEAD then
-         raise Control_Error with "cannot resume dead coroutine";
+         raise Stop_Iteration;
       end if;
 
       routine.Resume(CONTROLLER_TYPE(target));
+
+      if target.state = DEAD then
+         raise Stop_Iteration;
+      end if;
    end Resume;
 
    -----------

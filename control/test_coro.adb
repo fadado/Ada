@@ -37,10 +37,10 @@ begin
       begin
          Put("Test 1-");
          routine.Yield;
-         begin subgen(routine);
+         begin
+            subgen(routine);
          exception
             when Stop_Iteration => null;
-            when others => raise;
          end;
          Put(", world");
          routine.Yield;

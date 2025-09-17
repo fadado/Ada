@@ -184,6 +184,10 @@ package body Control is
       function controller_initiated return BOOLEAN
          is (controller.state /= EXPECTANT);
    begin
+      if controller.state = DEAD then
+         raise Control_Error with "cannot resume dead controller";
+      end if;
+
       Spin_Until(controller_initiated'Access);
 
       -- SUSPENDING
@@ -225,17 +229,9 @@ package body Control is
       pragma Assert (dispatcher.id = Current_Task);
       pragma Assert (dispatcher.state = RUNNING);
 
-      if target.state = DEAD then
-         raise Control_Error with "cannot resume dead controller";
-      end if;
-
       target.link := dispatcher'Unchecked_Access;
 
       suspend_resume(dispatcher, target);
-
-      if target.state = DEAD then
-         raise Stop_Iteration;
-      end if;
    end Resume;
 
    ------------
@@ -254,10 +250,6 @@ package body Control is
       target.link := dispatcher'Unchecked_Access;
 
       suspend_resume(dispatcher, target);
-
-      if target.state = DEAD then
-         raise Stop_Iteration;
-      end if;
    end Resume;
 
 end Control;

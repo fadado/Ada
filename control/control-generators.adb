@@ -19,7 +19,16 @@ package body Control . Generators is
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    is
    begin
+      if generator.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+
       generator.dispatcher.Resume(generator);
+
+      if generator.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+
       return generator.output;
    end Resume;
 

@@ -65,8 +65,6 @@ begin
       hello : HELLO_COROUTINE;
    begin
       dispatcher.Resume(hello);
-   exception
-      when Stop_Iteration => null; -- ignore
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -95,8 +93,6 @@ begin
       hello : HELLO_COROUTINE;
    begin
       dispatcher.Resume(hello);
-   exception
-      when Stop_Iteration => null; -- ignore
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -144,14 +140,11 @@ begin
       hello : Hello_Package.HELLO_COROUTINE;
    begin
       dispatcher.Resume(hello);
-   exception
-      when Stop_Iteration => null; -- ignore
    end Test_4;
 
    New_Line;
 
 exception
-   when Stop_Iteration => null; -- ignore
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 
