@@ -13,6 +13,9 @@ with Gotcha;
 
 procedure test_ctrl_pingpong
 is
+   Game_Over : BOOLEAN := FALSE;
+   Turns : constant := 10;
+
    task type Ping_Run(This, That: not null CONTROLLER_ACCESS);
    task type Pong_Run(This, That: not null CONTROLLER_ACCESS);
 
@@ -20,21 +23,23 @@ is
    -- Ping_Run --
    --------------
 
-   task body Ping_Run is
+   task body Ping_Run
+   is
       Ping : CONTROLLER_TYPE renames This.all;
       Pong : CONTROLLER_TYPE renames That.all;
+
+      procedure strike is begin Put("PING!  "); end;
    begin
       Ping.Commence;
 
-      for i in 1..9 loop
-         Put("PING!  ");
+      while not Game_Over loop
+         strike;
          Ping.Resume(Pong);
       end loop;
-      Put("PING!  ");
-      Ping.Transfer(Pong);
 
       Ping.Quit;
    exception
+      when Stop_Iteration => Ping.Quit;
       when X: others => Ping.Quit(X); raise;
    end Ping_Run;
 
@@ -42,21 +47,26 @@ is
    -- Pong_Run --
    --------------
 
-   task body Pong_Run is
-      Ping : CONTROLLER_TYPE renames This.all;
+   task body Pong_Run
+   is
+      Ping : CONTROLLER_TYPE renames This.all; -- not used
       Pong : CONTROLLER_TYPE renames That.all;
+
+      procedure strike is begin Put_Line("PONG!"); end;
    begin
       Pong.Commence;
 
-      for i in 1..9 loop
-         Put_Line("PONG!");
-         Pong.Yield;
+      for i in 1..Turns-1 loop
+         strike;
+         Pong.Yield; -- yield to Ping
       end loop;
-      Put_Line("PONG!");
+      strike;
 
-      Pong.Quit;
+      Game_Over := TRUE;
+
+      Pong.Quit; -- yield to Ping
    exception
-      when Stop_Iteration => Pong.Quit;
+    --when Stop_Iteration => Pong.Quit;
       when X: others => Pong.Quit(X); raise;
    end Pong_Run;
 

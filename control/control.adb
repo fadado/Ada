@@ -260,24 +260,6 @@ package body Control is
       end if;
    end Resume;
 
-   --------------
-   -- Transfer --
-   --------------
-
-   procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
-   is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
-   begin
-      pragma Assert (controller.id = Current_Task);
-      pragma Assert (controller.state = RUNNING);
-
-      target.link := controller.link;
-
-      Signal.Notify(target.run);
-   end Transfer;
-
 end Control;
 
 -- ¡ISO-8859-1!

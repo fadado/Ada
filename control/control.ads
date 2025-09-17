@@ -80,11 +80,6 @@ package Control is
    --  Suspend `controller` and transfers control to `target` (for asymmetric
    --  coroutines)
 
-   procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE);
-   --  Transfers control to `target` and continue
-
 private
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
