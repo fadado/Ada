@@ -20,7 +20,7 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
 
-      dispatcher.Resume(routine);
+      CONTROLLER_TYPE'Class(routine).Dispatch(dispatcher);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -40,7 +40,7 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
 
-      routine.Resume(CONTROLLER_TYPE(target));
+      routine.Resume(target);
 
       if target.state = DEAD then
          raise Stop_Iteration;

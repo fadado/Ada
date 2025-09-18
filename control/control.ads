@@ -51,9 +51,14 @@ package Control is
      (dispatcher : in out DISPATCHER_TYPE);
    --  Force to exit a suspended `controller`
 
+   procedure Transfer
+     (dispatcher : in out DISPATCHER_TYPE;
+      target     : in out DISPATCHER_TYPE);
+   -- TODO...
+
    type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
-   --  Asymmetric and symmetric controlers
+   --  Asymmetric controler
 
    procedure Commence
      (controller : in out CONTROLLER_TYPE);
@@ -65,20 +70,19 @@ package Control is
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
 
-   procedure Yield
-     (controller : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to a suspended invoker
-
-   procedure Resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      controller : in out CONTROLLER_TYPE'Class);
+   procedure Dispatch
+     (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.
+      dispatcher : in out DISPATCHER_TYPE);
    --  Resume `controller` using a `dispatcher`
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
       target     : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to `target` (for asymmetric
-   --  coroutines)
+   --  Suspend `controller` and resume `target`
+
+   procedure Yield
+     (controller : in out CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to a suspended invoker
 
 private
    ---------------------------------------------------------------------------
