@@ -32,7 +32,7 @@ package Control . CoRoutines is
      (routine    : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    with Inline;
-   --  Equivalent to dispatcher.Resume(routine)
+   --  Resume `routine` using a `dispatcher`
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;

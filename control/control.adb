@@ -12,6 +12,14 @@ with Control.Spin_Until;
 
 package body Control is
 
+   ---------------------------------------------------------------------------
+   -- DISPATCHER_TYPE local subprograms and public primitives
+   ---------------------------------------------------------------------------
+
+   --------------------------
+   -- is_master_controller --
+   --------------------------
+
    function is_master_controller
      (dispatcher : DISPATCHER_TYPE'Class) return BOOLEAN
    with Inline
@@ -21,12 +29,101 @@ package body Control is
       return DISPATCHER_TYPE'Tag = dispatcher'Tag;
    end is_master_controller;
 
+   --------------------
+   -- suspend_resume --
+   --------------------
+
+   procedure suspend_resume
+     (dispatcher : in out DISPATCHER_TYPE;
+      target     : in out DISPATCHER_TYPE)
+   is
+      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
+
+      procedure migrate_exception
+      is
+         use Ada.Exceptions;
+
+         procedure dealloc is new Ada.Unchecked_Deallocation (
+            EXCEPTION_TYPE,
+            EXCEPTION_ACCESS
+         );
+
+         migrant : EXCEPTION_TYPE renames dispatcher.migrant.all;
+
+         id : constant EXCEPTION_ID := Exception_Identity(migrant);
+         ms : constant STRING       := Exception_Message(migrant);
+      begin
+         dealloc(dispatcher.migrant);
+         dispatcher.migrant := NULL;
+         Raise_Exception(id, ms);
+      end migrate_exception;
+
+      function controller_initiated return BOOLEAN
+         is (target.state /= EXPECTANT);
+   begin
+      if target.state = DEAD then
+         raise Control_Error with "cannot resume dead dispatcher";
+      end if;
+
+      Spin_Until(controller_initiated'Access);
+
+      -- SUSPENDING
+      dispatcher.state := SUSPENDED;
+      Signal.Notify(target.run);
+      Signal.Wait(dispatcher.run);
+
+      -- RESUMING
+      if dispatcher.state = DYING then
+         pragma Assert (not is_master_controller(dispatcher));
+         dispatcher.STATE := DEAD;
+         raise Exit_Controller;
+      end if;
+      dispatcher.state := RUNNING;
+
+      if dispatcher.migrant /= NULL then
+         --  `target` had an exception
+         pragma Assert (target.state = DEAD);
+
+         migrate_exception;
+      end if;
+   end suspend_resume;
+
+   ---------------------
+   -- Request_To_Exit --
+   ---------------------
+
+   procedure Request_To_Exit
+     (dispatcher : in out DISPATCHER_TYPE)
+   is
+      function dispatcher_died return BOOLEAN
+         is (dispatcher.state = DEAD);
+   begin
+      pragma Assert (dispatcher.id /= Current_Task);
+      pragma Assert (not is_master_controller(dispatcher));
+
+   <<again>>
+      case dispatcher.state is
+         when SUSPENDED =>
+            dispatcher.state := DYING;
+            Signal.Notify(dispatcher.run);
+            Spin_Until(dispatcher_died'Access);
+         when EXPECTANT =>
+            Ada.Dispatching.Yield;
+            goto again;
+         when DEAD =>
+            null;
+         when RUNNING | DYING =>
+            raise Control_Error with "unexpected dispatcher state";
+      end case;
+   end Request_To_Exit;
+
    ---------------------------------------------------------------------------
-   -- Low level primitives
+   -- CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   -- Check tests or coroutines and generators implementation to see how those
-   -- low level primitives are used:
+   -- To see how those low level primitives are used check tests or coroutines
+   -- and generators implementation.
+   --
    --
    --    task type T_Runner (self: not null T_ACCESS);
    --
@@ -61,7 +158,7 @@ package body Control is
 
       -- RESUMING
       if controller.state = DYING then
-         controller.STATE := DEAD;
+         controller.state := DEAD;
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;
@@ -92,43 +189,50 @@ package body Control is
       Signal.Notify(invoker.run);
    end Quit;
 
-   ---------------------------------------------------------------------------
-   -- Public primitives
-   ---------------------------------------------------------------------------
+   --------------
+   -- Dispatch --
+   --------------
 
-   ---------------------
-   -- Request_To_Exit --
-   ---------------------
-
-   procedure Request_To_Exit
-     (dispatcher : in out DISPATCHER_TYPE)
+   procedure Dispatch
+     (controller : in out CONTROLLER_TYPE'Class;
+      dispatcher : in out DISPATCHER_TYPE)
    is
-      function dispatcher_died return BOOLEAN
-         is (dispatcher.state = DEAD);
-    --function dispatcher_suspended return BOOLEAN
-    --   is (dispatcher.state = SUSPENDED);
+      target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);
    begin
-      pragma Assert (dispatcher.id /= Current_Task);
+      if dispatcher.id = Null_Task_Id then
+         dispatcher.id    := Current_Task;
+         dispatcher.state := RUNNING;
+      end if;
 
-   <<again>>
-      case dispatcher.state is
-         when SUSPENDED =>
-            dispatcher.state := DYING;
-            Signal.Notify(dispatcher.run);
-            Spin_Until(dispatcher_died'Access);
-         when EXPECTANT =>
-            Ada.Dispatching.Yield;
-            goto again;
-         when RUNNING =>   -- cannot happen?
-            raise Control_Error;
-          --Spin_Until(dispatcher_suspended'Access);
-          --goto again;
-         when DYING =>     -- cannot happen!
-            raise Control_Error;
-         when DEAD =>
-            null;
-      end case;
-   end Request_To_Exit;
+      pragma Assert (dispatcher.id = Current_Task);
+      pragma Assert (dispatcher.state = RUNNING);
+
+      target.link := dispatcher'Unchecked_Access;
+
+      suspend_resume(dispatcher, DISPATCHER_TYPE(target));
+   end Dispatch;
+
+   ---------------------------------------------------------------------------
+   --  SEMI_
+   ---------------------------------------------------------------------------
+
+   ------------
+   -- Resume --
+   ------------
+
+   procedure Resume
+     (controller : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
+   is
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+   begin
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
+
+      target.link := dispatcher'Unchecked_Access;
+
+      suspend_resume(dispatcher, DISPATCHER_TYPE(target));
+   end Resume;
 
    -----------
    -- Yield --
@@ -155,105 +259,27 @@ package body Control is
       controller.state := RUNNING;
    end Yield;
 
-   --------------------
-   -- suspend_resume --
-   --------------------
+   ---------------------------------------------------------------------------
+   --  FULL_
+   ---------------------------------------------------------------------------
 
-   procedure suspend_resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      controller : in out CONTROLLER_TYPE)
+   --------------
+   -- Transfer --
+   --------------
+
+   procedure Transfer
+     (dispatcher : in out CONTROLLER_TYPE;
+      target     : in out CONTROLLER_TYPE)
    is
-      use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
-
-      procedure migrate_exception
-      is
-         use Ada.Exceptions;
-
-         procedure dealloc is new Ada.Unchecked_Deallocation (
-            EXCEPTION_TYPE,
-            EXCEPTION_ACCESS
-         );
-
-         migrant : EXCEPTION_TYPE renames dispatcher.migrant.all;
-
-         id : constant EXCEPTION_ID := Exception_Identity(migrant);
-         ms : constant STRING       := Exception_Message(migrant);
-      begin
-         dealloc(dispatcher.migrant);
-         dispatcher.migrant := NULL;
-         Raise_Exception(id, ms);
-      end migrate_exception;
-
-      function controller_initiated return BOOLEAN
-         is (controller.state /= EXPECTANT);
    begin
-      if controller.state = DEAD then
-         raise Control_Error with "cannot resume dead controller";
-      end if;
-
-      Spin_Until(controller_initiated'Access);
-
-      -- SUSPENDING
-      dispatcher.state := SUSPENDED;
-      Signal.Notify(controller.run);
-      Signal.Wait(dispatcher.run);
-
-      -- RESUMING
-      if dispatcher.state = DYING then
-         pragma Assert (not is_master_controller(dispatcher));
-         dispatcher.STATE := DEAD;
-         raise Exit_Controller;
-      end if;
-      dispatcher.state := RUNNING;
-
-      if dispatcher.migrant /= NULL then
-         --  `controller` had an exception
-         pragma Assert (controller.state = DEAD);
-
-         migrate_exception;
-      end if;
-   end suspend_resume;
-
-   ------------
-   -- Resume --
-   ------------
-
-   procedure Resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      controller : in out CONTROLLER_TYPE'Class) 
-   is
-      target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);
-   begin
-      if dispatcher.id = Null_Task_Id then
-         dispatcher.id    := Current_Task;
-         dispatcher.state := RUNNING;
-      end if;
-
       pragma Assert (dispatcher.id = Current_Task);
       pragma Assert (dispatcher.state = RUNNING);
 
-      target.link := dispatcher'Unchecked_Access;
+      target.link := dispatcher.link;
 
-      suspend_resume(dispatcher, target);
-   end Resume;
-
-   ------------
-   -- Resume --
-   ------------
-
-   procedure Resume
-     (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
-   is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
-   begin
-      pragma Assert (controller.id = Current_Task);
-      pragma Assert (controller.state = RUNNING);
-
-      target.link := dispatcher'Unchecked_Access;
-
-      suspend_resume(dispatcher, target);
-   end Resume;
+      suspend_resume(DISPATCHER_TYPE(dispatcher),
+                     DISPATCHER_TYPE(target));
+   end Transfer;
 
 end Control;
 
