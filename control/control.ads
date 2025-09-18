@@ -47,7 +47,11 @@ package Control is
    type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
    --  A simple controller to attatch to the curretn task
 
-   type CONTROLLER_TYPE is tagged limited private;
+   procedure Request_To_Exit
+     (dispatcher : in out DISPATCHER_TYPE);
+   --  Force to exit a suspended `controller`
+
+   type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
    --  Asymmetric and symmetric controlers
 
@@ -60,10 +64,6 @@ package Control is
       X          : in EXCEPTION_TYPE := Null_Exception);
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
-
-   procedure Request_To_Exit
-     (controller : in out CONTROLLER_TYPE);
-   --  Force to exit a suspended `controller`
 
    procedure Yield
      (controller : in out CONTROLLER_TYPE);

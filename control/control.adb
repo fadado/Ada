@@ -34,7 +34,8 @@ package body Control is
    --    is
    --    begin
    --       self.Commence;
-   --       self.main(self);
+   --       ...
+   --       ...
    --       self.Quit;
    --    exception
    --       when Exit_Controller => null;
@@ -65,6 +66,7 @@ package body Control is
       end if;
       controller.state := RUNNING;
 
+      -- we have been resumed!
       pragma Assert (controller.link /= NULL);
    end Commence;
 
@@ -78,16 +80,16 @@ package body Control is
    is
       use Ada.Exceptions;
 
-      back : DISPATCHER_TYPE renames controller.link.all;
+      invoker : DISPATCHER_TYPE renames controller.link.all;
    begin
       pragma Assert (controller.state = RUNNING);
 
       if Exception_Identity(X) /= Null_Id then
-         back.migrant := Save_Occurrence(X);
+         invoker.migrant := Save_Occurrence(X);
       end if;
 
       controller.STATE := DEAD;
-      Signal.Notify(back.run);
+      Signal.Notify(invoker.run);
    end Quit;
 
    ---------------------------------------------------------------------------
@@ -99,31 +101,32 @@ package body Control is
    ---------------------
 
    procedure Request_To_Exit
-     (controller : in out CONTROLLER_TYPE)
+     (dispatcher : in out DISPATCHER_TYPE)
    is
-      function controller_died return BOOLEAN
-         is (controller.state = DEAD);
-      function controller_suspended return BOOLEAN
-         is (controller.state = SUSPENDED);
+      function dispatcher_died return BOOLEAN
+         is (dispatcher.state = DEAD);
+    --function dispatcher_suspended return BOOLEAN
+    --   is (dispatcher.state = SUSPENDED);
    begin
-      pragma Assert (controller.id /= Current_Task);
+      pragma Assert (dispatcher.id /= Current_Task);
 
    <<again>>
-      case controller.state is
+      case dispatcher.state is
          when SUSPENDED =>
-            controller.state := DYING;
-            Signal.Notify(controller.run);
-            Spin_Until(controller_died'Access);
+            dispatcher.state := DYING;
+            Signal.Notify(dispatcher.run);
+            Spin_Until(dispatcher_died'Access);
          when EXPECTANT =>
             Ada.Dispatching.Yield;
             goto again;
-         when RUNNING =>
-            Spin_Until(controller_suspended'Access);
-            goto again;
+         when RUNNING =>   -- cannot happen?
+            raise Control_Error;
+          --Spin_Until(dispatcher_suspended'Access);
+          --goto again;
+         when DYING =>     -- cannot happen!
+            raise Control_Error;
          when DEAD =>
             null;
-         when DYING => -- cannot happen
-            raise Control_Error;
       end case;
    end Request_To_Exit;
 
