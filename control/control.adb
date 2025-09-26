@@ -75,7 +75,7 @@ package body Control is
       -- RESUMING
       if dispatcher.state = DYING then
          pragma Assert (not is_master_controller(dispatcher));
-         dispatcher.STATE := DEAD;
+         dispatcher.state := DEAD;
          raise Exit_Controller;
       end if;
       dispatcher.state := RUNNING;
@@ -185,15 +185,15 @@ package body Control is
          invoker.migrant := Save_Occurrence(X);
       end if;
 
-      controller.STATE := DEAD;
+      controller.state := DEAD;
       Signal.Notify(invoker.run);
    end Quit;
 
-   --------------
-   -- Dispatch --
-   --------------
+   -----------
+   -- Spawn --
+   -----------
 
-   procedure Dispatch
+   procedure Spawn
      (controller : in out CONTROLLER_TYPE'Class;
       dispatcher : in out DISPATCHER_TYPE)
    is
@@ -210,7 +210,7 @@ package body Control is
       target.link := dispatcher'Unchecked_Access;
 
       suspend_resume(dispatcher, DISPATCHER_TYPE(target));
-   end Dispatch;
+   end Spawn;
 
    ---------------------------------------------------------------------------
    --  SEMI_
@@ -253,7 +253,7 @@ package body Control is
 
       -- RESUMING
       if controller.state = DYING then
-         controller.STATE := DEAD;
+         controller.state := DEAD;
          raise Exit_Controller;
       end if;
       controller.state := RUNNING;

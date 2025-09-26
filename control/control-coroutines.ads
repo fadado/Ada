@@ -28,7 +28,7 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   procedure Dispatch
+   procedure Spawn
      (routine    : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    with Inline;

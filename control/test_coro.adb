@@ -52,7 +52,7 @@ begin
 
    begin
       loop
-         hello.Dispatch(dispatcher);
+         hello.Spawn(dispatcher);
       end loop;
    exception
       when Stop_Iteration => null; -- ignore

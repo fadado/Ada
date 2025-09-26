@@ -73,7 +73,7 @@ package Control is
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
 
-   procedure Dispatch
+   procedure Spawn
      (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
       dispatcher : in out DISPATCHER_TYPE);
    --  Resume `controller` using a `dispatcher`

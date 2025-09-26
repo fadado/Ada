@@ -11,7 +11,7 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   procedure Dispatch
+   procedure Spawn
      (routine    : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    is
@@ -20,12 +20,12 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
 
-      CONTROLLER_TYPE'Class(routine).Dispatch(dispatcher);
+      CONTROLLER_TYPE'Class(routine).Spawn(dispatcher);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
-   end Dispatch;
+   end Spawn;
 
    ------------
    -- Resume --
