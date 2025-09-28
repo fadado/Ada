@@ -189,11 +189,11 @@ package body Control is
       Signal.Notify(invoker.run);
    end Quit;
 
-   -----------
-   -- Spawn --
-   -----------
+   ------------
+   -- Resume --
+   ------------
 
-   procedure Spawn
+   procedure Resume
      (controller : in out CONTROLLER_TYPE'Class;
       dispatcher : in out DISPATCHER_TYPE)
    is
@@ -210,7 +210,7 @@ package body Control is
       target.link := dispatcher'Unchecked_Access;
 
       suspend_resume(dispatcher, DISPATCHER_TYPE(target));
-   end Spawn;
+   end Resume;
 
    ---------------------------------------------------------------------------
    --  SEMI_
@@ -222,16 +222,12 @@ package body Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
+      source     : in out CONTROLLER_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
    begin
-      pragma Assert (controller.id = Current_Task);
-      pragma Assert (controller.state = RUNNING);
-
-      target.link := dispatcher'Unchecked_Access;
-
-      suspend_resume(dispatcher, DISPATCHER_TYPE(target));
+      controller.Resume(dispatcher);
+    --CONTROLLER_TYPE'Class(controller).Resume(dispatcher);
    end Resume;
 
    -----------
@@ -268,17 +264,18 @@ package body Control is
    --------------
 
    procedure Transfer
-     (dispatcher : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE)
+     (controller : in out CONTROLLER_TYPE;
+      source     : in out CONTROLLER_TYPE)
    is
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
+      target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
-      pragma Assert (dispatcher.id = Current_Task);
-      pragma Assert (dispatcher.state = RUNNING);
+      pragma Assert (source.id = Current_Task);
+      pragma Assert (source.state = RUNNING);
 
-      target.link := dispatcher.link;
+      controller.link := source.link;
 
-      suspend_resume(DISPATCHER_TYPE(dispatcher),
-                     DISPATCHER_TYPE(target));
+      suspend_resume(dispatcher, target);
    end Transfer;
 
 end Control;

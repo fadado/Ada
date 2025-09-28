@@ -37,7 +37,7 @@ begin
       hello_control : aliased CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      hello_control.Spawn(dispatcher);
+      hello_control.Resume(dispatcher);
       hello_control.Request_To_Exit;
    end Test_1;
 
@@ -64,7 +64,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      hello.Spawn(dispatcher);
+      hello.Resume(dispatcher);
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      hello.Spawn(dispatcher);
+      hello.Resume(dispatcher);
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      hello.Spawn(dispatcher);
+      hello.Resume(dispatcher);
    end Test_4;
 
    New_Line;

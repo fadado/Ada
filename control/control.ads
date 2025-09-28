@@ -73,7 +73,7 @@ package Control is
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
 
-   procedure Spawn
+   procedure Resume
      (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
       dispatcher : in out DISPATCHER_TYPE);
    --  Resume `controller` using a `dispatcher`
@@ -84,8 +84,9 @@ package Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE);
-   --  Suspend `controller` and resume `target`
+      source     : in out CONTROLLER_TYPE)
+   with Inline;
+   --  Resume `controller` using `source` as dispatcher
 
    procedure Yield
      (controller : in out CONTROLLER_TYPE);
@@ -96,8 +97,8 @@ package Control is
    ---------------------------------------------------------------------------
 
    procedure Transfer
-     (dispatcher : in out CONTROLLER_TYPE;
-      target     : in out CONTROLLER_TYPE);
+     (controller : in out CONTROLLER_TYPE;
+      source     : in out CONTROLLER_TYPE);
    -- TODO...
 
 private

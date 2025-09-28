@@ -28,7 +28,7 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
-   procedure Spawn
+   procedure Resume
      (routine    : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    with Inline;
@@ -36,8 +36,8 @@ package Control . CoRoutines is
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE);
-   --  Resume `target` and raises Stop_Iteration when `target` is DEAD
+      source  : in out COROUTINE_TYPE);
+   --  Resume `routine` using `source` as a dispatcher
 
    procedure Yield
      (routine : in out COROUTINE_TYPE)

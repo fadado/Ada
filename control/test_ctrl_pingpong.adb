@@ -34,7 +34,7 @@ is
 
       while not Game_Over loop
          strike;
-         Ping.Resume(Pong);
+         Pong.Resume(Ping); -- resume Pong from Ping
       end loop;
 
       Ping.Quit;
@@ -85,7 +85,7 @@ begin
    begin
       Put_Line("The players are ready...");
 
-      ping_control.Spawn(dispatcher);
+      ping_control.Resume(dispatcher);
 
       --TODO: bug: wait end of players
       while not ping_runner'Terminated loop null; end loop;

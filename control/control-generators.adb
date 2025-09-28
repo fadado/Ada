@@ -23,7 +23,7 @@ package body Control . Generators is
          raise Stop_Iteration;
       end if;
 
-      CONTROLLER_TYPE'Class(generator).Spawn(generator.dispatcher);
+      CONTROLLER_TYPE'Class(generator).Resume(generator.dispatcher);
 
       if generator.state = DEAD then
          raise Stop_Iteration;

@@ -11,7 +11,7 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   procedure Spawn
+   procedure Resume
      (routine    : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    is
@@ -20,12 +20,12 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
 
-      CONTROLLER_TYPE'Class(routine).Spawn(dispatcher);
+      CONTROLLER_TYPE'Class(routine).Resume(dispatcher);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
-   end Spawn;
+   end Resume;
 
    ------------
    -- Resume --
@@ -33,16 +33,21 @@ package body Control . CoRoutines is
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;
-      target  : in out COROUTINE_TYPE)
+      source  : in out COROUTINE_TYPE)
    is
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
    begin
-      if target.state = DEAD then
+    --routine.Resume(dispatcher);
+      --TODO ???
+      --control-coroutines.adb:40:14: invalid procedure or entry call
+
+      if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      routine.Resume(target);
+      CONTROLLER_TYPE'Class(routine).Resume(dispatcher);
 
-      if target.state = DEAD then
+      if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
    end Resume;
