@@ -30,12 +30,13 @@ package Control . CoRoutines is
 
    procedure Resume
      (routine    : in out COROUTINE_TYPE;
-      dispatcher : in out DISPATCHER_TYPE);
-   --  Resume `routine` using a `dispatcher`
+      invoker    : in out DISPATCHER_TYPE);
+   --  Resume `routine` using `invoker` as a dispatcher
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;
-      invoker : in out COROUTINE_TYPE);
+      invoker : in out COROUTINE_TYPE)
+   with Inline;
    --  Resume `routine` using `invoker` as a dispatcher
 
    procedure Yield

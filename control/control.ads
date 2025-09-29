@@ -76,7 +76,7 @@ package Control is
    procedure Resume
      (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
       invoker    : in out DISPATCHER_TYPE);
-   --  Resume `controller` using a `dispatcher`
+   --  Resume `controller` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------
    --  SEMI_

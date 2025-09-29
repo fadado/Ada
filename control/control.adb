@@ -225,9 +225,10 @@ package body Control is
      (controller : in out CONTROLLER_TYPE;
       invoker    : in out CONTROLLER_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
    begin
-      controller.Resume(dispatcher);
+      Resume(CONTROLLER_TYPE'Class(controller), DISPATCHER_TYPE(invoker));
+      -- explicit *non* dispatch call, equivalent to
+      --    Resume(controller, DISPATCHER_TYPE(invoker));
    end Resume;
 
    -----------
