@@ -195,21 +195,22 @@ package body Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE'Class;
-      dispatcher : in out DISPATCHER_TYPE)
+      invoker    : in out DISPATCHER_TYPE)
    is
       target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);
    begin
-      if dispatcher.id = Null_Task_Id then
-         dispatcher.id    := Current_Task;
-         dispatcher.state := RUNNING;
+      if invoker.id = Null_Task_Id then
+         pragma Assert (is_master_controller(invoker));
+         invoker.id    := Current_Task;
+         invoker.state := RUNNING;
       end if;
 
-      pragma Assert (dispatcher.id = Current_Task);
-      pragma Assert (dispatcher.state = RUNNING);
+      pragma Assert (invoker.id = Current_Task);
+      pragma Assert (invoker.state = RUNNING);
 
-      target.link := dispatcher'Unchecked_Access;
+      target.link := invoker'Unchecked_Access;
 
-      suspend_resume(dispatcher, DISPATCHER_TYPE(target));
+      suspend_resume(invoker, DISPATCHER_TYPE(target));
    end Resume;
 
    ---------------------------------------------------------------------------
@@ -222,12 +223,11 @@ package body Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
-      source     : in out CONTROLLER_TYPE)
+      invoker    : in out CONTROLLER_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
    begin
       controller.Resume(dispatcher);
-    --CONTROLLER_TYPE'Class(controller).Resume(dispatcher);
    end Resume;
 
    -----------
@@ -265,15 +265,15 @@ package body Control is
 
    procedure Transfer
      (controller : in out CONTROLLER_TYPE;
-      source     : in out CONTROLLER_TYPE)
+      invoker    : in out CONTROLLER_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
       target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
-      pragma Assert (source.id = Current_Task);
-      pragma Assert (source.state = RUNNING);
+      pragma Assert (invoker.id = Current_Task);
+      pragma Assert (invoker.state = RUNNING);
 
-      controller.link := source.link;
+      controller.link := invoker.link;
 
       suspend_resume(dispatcher, target);
    end Transfer;

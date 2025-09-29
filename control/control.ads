@@ -75,7 +75,7 @@ package Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
-      dispatcher : in out DISPATCHER_TYPE);
+      invoker    : in out DISPATCHER_TYPE);
    --  Resume `controller` using a `dispatcher`
 
    ---------------------------------------------------------------------------
@@ -84,9 +84,9 @@ package Control is
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
-      source     : in out CONTROLLER_TYPE)
+      invoker    : in out CONTROLLER_TYPE)
    with Inline;
-   --  Resume `controller` using `source` as dispatcher
+   --  Resume `controller` using `invoker` as dispatcher
 
    procedure Yield
      (controller : in out CONTROLLER_TYPE);
@@ -98,7 +98,7 @@ package Control is
 
    procedure Transfer
      (controller : in out CONTROLLER_TYPE;
-      source     : in out CONTROLLER_TYPE);
+      invoker    : in out CONTROLLER_TYPE);
    -- TODO...
 
 private

@@ -23,7 +23,7 @@ package body Control . Generators is
          raise Stop_Iteration;
       end if;
 
-      CONTROLLER_TYPE'Class(generator).Resume(generator.dispatcher);
+      generator.Resume(generator.dispatcher);
 
       if generator.state = DEAD then
          raise Stop_Iteration;
@@ -40,10 +40,10 @@ package body Control . Generators is
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    is
-      controller : CONTROLLER_TYPE renames CONTROLLER_TYPE(generator);
+      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(generator);
    begin
       generator.output := value;
-      controller.Yield;
+      parent.Yield;
    end Yield;
 
    -----------

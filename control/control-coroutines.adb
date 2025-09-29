@@ -33,17 +33,21 @@ package body Control . CoRoutines is
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;
-      source  : in out COROUTINE_TYPE)
+      invoker : in out COROUTINE_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(source);
+      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
    begin
-    --routine.Resume(dispatcher);
-      --TODO ???
-      --control-coroutines.adb:40:14: invalid procedure or entry call
-
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
+
+    --routine.Resume(dispatcher);
+      -- invalid procedure or entry call
+
+    --Resume(routine, dispatcher);
+      -- ambiguous expression (cannot resolve "Resume")
+      -- possible interpretation at control-coroutines.ads:31
+      -- possible interpretation at control.ads:76
 
       CONTROLLER_TYPE'Class(routine).Resume(dispatcher);
 
