@@ -47,7 +47,7 @@ begin
    Test_2:
    declare
       task type HELLO_RUN (
-         controller : not null access CONTROLLER_TYPE'Class);
+         controller : not null access CONTROLLER_CLASS);
       task body HELLO_RUN is
       begin
          controller.Commence;
@@ -108,7 +108,7 @@ begin
          procedure Quit(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE);
 
          task type HELLO_RUN (
-            controller: not null access CONTROLLER_TYPE'Class);
+            controller: not null access CONTROLLER_CLASS);
 
       private
          type HELLO_COROUTINE is limited new CONTROLLER_TYPE with

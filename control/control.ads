@@ -49,6 +49,7 @@ package Control is
 
    type DISPATCHER_TYPE is tagged limited private;
    type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
+   subtype DISPATCHER_CLASS is DISPATCHER_TYPE'Class;
    --  A simple controller to attatch to the current task
 
    procedure Request_To_Exit
@@ -61,6 +62,7 @@ package Control is
 
    type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with private;
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
+   subtype CONTROLLER_CLASS is CONTROLLER_TYPE'Class;
    --  Asymmetric controler
 
    procedure Commence
@@ -74,9 +76,9 @@ package Control is
    --  necessary
 
    procedure Resume
-     (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
+     (controller : in out CONTROLLER_CLASS; -- not a primitive op.!
       invoker    : in out DISPATCHER_TYPE);
-   --  Resume `controller` using a `dispatcher`
+   --  Resume `controller` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------
    --  SEMI_

@@ -22,6 +22,7 @@ package Control . Generators is
 
    type GENERATOR_TYPE;
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
+   subtype GENERATOR_CLASS is GENERATOR_TYPE'Class;
 
    type GENERATOR_PROCEDURE is
       not null access procedure (generator: in not null GENERATOR_ACCESS);

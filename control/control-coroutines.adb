@@ -11,16 +11,18 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   procedure Resume
+   not overriding procedure Resume
      (routine    : in out COROUTINE_TYPE;
-      dispatcher : in out DISPATCHER_TYPE)
+      invoker    : in out DISPATCHER_TYPE)
    is
    begin
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      CONTROLLER_TYPE'Class(routine).Resume(dispatcher);
+      Resume(CONTROLLER_CLASS(routine), invoker);
+      -- explicit *non* dispatch call, equivalent to
+      --    Resume(CONTROLLER_TYPE(routine), invoker);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -31,48 +33,33 @@ package body Control . CoRoutines is
    -- Resume --
    ------------
 
-   procedure Resume
+   overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
    begin
-      if routine.state = DEAD then
-         raise Stop_Iteration;
-      end if;
-
-    --routine.Resume(dispatcher);
-      -- invalid procedure or entry call
-
-    --Resume(routine, dispatcher);
-      -- ambiguous expression (cannot resolve "Resume")
-      -- possible interpretation at control-coroutines.ads:31
-      -- possible interpretation at control.ads:76
-
-      CONTROLLER_TYPE'Class(routine).Resume(dispatcher);
-
-      if routine.state = DEAD then
-         raise Stop_Iteration;
-      end if;
+      Resume(CONTROLLER_CLASS(routine), DISPATCHER_TYPE(invoker));
+      -- dispatch call to Resume(COROUTINE_TYPE; DISPATCHER_TYPE)
+      -- *not* a call to Resume(COROUTINE_CLASS; DISPATCHER_TYPE)
    end Resume;
 
    -----------
    -- Yield --
    -----------
 
-   procedure Yield
+   overriding procedure Yield
      (routine : in out COROUTINE_TYPE)
    is
-      controller : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
+      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
    begin
-      controller.Yield;
+      parent.Yield;
    end Yield;
 
    -----------
    -- Close --
    -----------
 
-   procedure Close
+   not overriding procedure Close
      (routine : in out COROUTINE_TYPE)
    is
       function runner_terminated return BOOLEAN

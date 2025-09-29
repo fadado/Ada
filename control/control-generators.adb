@@ -15,7 +15,7 @@ package body Control . Generators is
    -- Resume --
    ------------
 
-   function Resume
+   not overriding function Resume
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    is
    begin
@@ -23,7 +23,9 @@ package body Control . Generators is
          raise Stop_Iteration;
       end if;
 
-      generator.Resume(generator.dispatcher);
+      Resume(CONTROLLER_CLASS(generator), generator.dispatcher);
+      -- explicit *non* dispatch call, equivalent to
+      --    Resume(generator, generator.dispatcher);
 
       if generator.state = DEAD then
          raise Stop_Iteration;
@@ -36,7 +38,7 @@ package body Control . Generators is
    -- Yield --
    -----------
 
-   procedure Yield
+   not overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    is
@@ -50,7 +52,7 @@ package body Control . Generators is
    -- Close --
    -----------
 
-   procedure Close
+   not overriding procedure Close
      (generator : in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN
@@ -224,7 +226,7 @@ package body Control . Generators is
    -------------------
 
    function Generator_C_I
-     (g : in out GENERATOR_TYPE'Class;
+     (g : in out GENERATOR_CLASS;
       c : in CURSOR_TYPE) return OUTPUT_TYPE
    is
    begin
