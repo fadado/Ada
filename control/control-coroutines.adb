@@ -20,9 +20,7 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
 
-      Resume(CONTROLLER_CLASS(routine), invoker);
-      -- explicit *non* dispatch call, equivalent to
-      --    Resume(CONTROLLER_TYPE(routine), invoker);
+      Control.Resume(routine, invoker);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -38,9 +36,7 @@ package body Control . CoRoutines is
       invoker : in out COROUTINE_TYPE)
    is
    begin
-      Resume(CONTROLLER_CLASS(routine), DISPATCHER_TYPE(invoker));
-      -- dispatch call to Resume(COROUTINE_TYPE; DISPATCHER_TYPE)
-      -- *not* a call to Resume(COROUTINE_CLASS; DISPATCHER_TYPE)
+      CoRoutines.Resume(routine, DISPATCHER_TYPE(invoker));
    end Resume;
 
    -----------

@@ -23,9 +23,7 @@ package body Control . Generators is
          raise Stop_Iteration;
       end if;
 
-      Resume(CONTROLLER_CLASS(generator), generator.dispatcher);
-      -- explicit *non* dispatch call, equivalent to
-      --    Resume(generator, generator.dispatcher);
+      Resume(generator, generator.dispatcher);
 
       if generator.state = DEAD then
          raise Stop_Iteration;

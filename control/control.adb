@@ -226,9 +226,7 @@ package body Control is
       invoker    : in out CONTROLLER_TYPE)
    is
    begin
-      Resume(CONTROLLER_CLASS(controller), DISPATCHER_TYPE(invoker));
-      -- explicit *non* dispatch call, equivalent to
-      --    Resume(controller, DISPATCHER_TYPE(invoker));
+      Resume(controller, DISPATCHER_TYPE(invoker));
    end Resume;
 
    -----------
