@@ -10,7 +10,7 @@ with Control; use Control;
 
 with Gotcha;
 
-procedure test_ctrl
+procedure test_semi
 is
    dispatcher : DISPATCHER_TYPE;
 begin
@@ -21,7 +21,7 @@ begin
    ---------------------------------------------------------------------------
    Test_1:
    declare
-      task type HELLO_RUN (controller: not null CONTROLLER_ACCESS);
+      task type HELLO_RUN (controller: not null SEMI_CONTROLLER_ACCESS);
       task body HELLO_RUN is
       begin
          controller.Commence;
@@ -34,7 +34,7 @@ begin
          when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
-      hello_control : aliased CONTROLLER_TYPE;
+      hello_control : aliased SEMI_CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       hello_control.Resume(dispatcher);
@@ -47,7 +47,7 @@ begin
    Test_2:
    declare
       task type HELLO_RUN (
-         controller : not null access CONTROLLER_CLASS);
+         controller : not null access SEMI_CONTROLLER_CLASS);
       task body HELLO_RUN is
       begin
          controller.Commence;
@@ -57,7 +57,7 @@ begin
          when X: others => controller.Quit(X); raise;
       end HELLO_RUN;
 
-      type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
+      type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
          record
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
@@ -76,7 +76,7 @@ begin
 
       task type HELLO_RUN (controller: not null access HELLO_COROUTINE);
 
-      type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
+      type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
          record
             run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
          end record;
@@ -102,16 +102,16 @@ begin
    declare
       package Hello_Package is
          type HELLO_COROUTINE is
-            limited new CONTROLLER_TYPE with private;
+            limited new SEMI_CONTROLLER_TYPE with private;
 
          overriding
          procedure Quit(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE);
 
          task type HELLO_RUN (
-            controller: not null access CONTROLLER_CLASS);
+            controller: not null access SEMI_CONTROLLER_CLASS);
 
       private
-         type HELLO_COROUTINE is limited new CONTROLLER_TYPE with
+         type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
             record
                run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
             end record;
@@ -121,8 +121,8 @@ begin
          overriding
          procedure Quit(controller: in out HELLO_COROUTINE; X: EXCEPTION_TYPE)
          is
-            super : CONTROLLER_TYPE
-               renames CONTROLLER_TYPE(controller);
+            super : SEMI_CONTROLLER_TYPE
+               renames SEMI_CONTROLLER_TYPE(controller);
          begin
             super.Quit(X);
          end Quit;
@@ -148,7 +148,7 @@ exception
    when X : others =>
       Gotcha.Report_Exception(X, "Handled exception at top level");
 
-end test_ctrl;
+end test_semi;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

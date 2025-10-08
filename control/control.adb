@@ -214,7 +214,7 @@ package body Control is
    end Resume;
 
    ---------------------------------------------------------------------------
-   --  SEMI_
+   --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
    ------------
@@ -222,8 +222,8 @@ package body Control is
    ------------
 
    procedure Resume
-     (controller : in out CONTROLLER_TYPE;
-      invoker    : in out CONTROLLER_TYPE)
+     (controller : in out SEMI_CONTROLLER_TYPE;
+      invoker    : in out SEMI_CONTROLLER_TYPE)
    is
    begin
       Resume(controller, DISPATCHER_TYPE(invoker));
@@ -234,7 +234,7 @@ package body Control is
    -----------
 
    procedure Yield
-     (controller : in out CONTROLLER_TYPE)
+     (controller : in out SEMI_CONTROLLER_TYPE)
    is
       invoker : DISPATCHER_TYPE renames controller.link.all;
    begin
@@ -255,7 +255,7 @@ package body Control is
    end Yield;
 
    ---------------------------------------------------------------------------
-   --  FULL_
+   --  FULL_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
    --------------
@@ -263,8 +263,8 @@ package body Control is
    --------------
 
    procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      invoker    : in out CONTROLLER_TYPE)
+     (controller : in out FULL_CONTROLLER_TYPE;
+      invoker    : in out FULL_CONTROLLER_TYPE)
    is
       dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
       target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);

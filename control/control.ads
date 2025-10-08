@@ -47,9 +47,9 @@ package Control is
    --  DISPATCHER_TYPE
    ---------------------------------------------------------------------------
 
-   type DISPATCHER_TYPE is tagged limited private;
-   type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
-   subtype DISPATCHER_CLASS is DISPATCHER_TYPE'Class;
+   type DISPATCHER_TYPE       is tagged limited private;
+   type DISPATCHER_ACCESS     is access all DISPATCHER_TYPE;
+   subtype DISPATCHER_CLASS   is DISPATCHER_TYPE'Class;
    --  A simple controller to attatch to the current task
 
    procedure Request_To_Exit
@@ -60,10 +60,10 @@ package Control is
    --  CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with private;
-   type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
-   subtype CONTROLLER_CLASS is CONTROLLER_TYPE'Class;
-   --  Asymmetric controler
+   type CONTROLLER_TYPE       is abstract limited new DISPATCHER_TYPE with private;
+   type CONTROLLER_ACCESS     is access all CONTROLLER_TYPE;
+   subtype CONTROLLER_CLASS   is CONTROLLER_TYPE'Class;
+   --  Base controler
 
    procedure Commence
      (controller : in out CONTROLLER_TYPE);
@@ -81,26 +81,34 @@ package Control is
    --  Resume `controller` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------
-   --  SEMI_
+   --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
+   type SEMI_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
+   type SEMI_CONTROLLER_ACCESS   is access all SEMI_CONTROLLER_TYPE;
+   subtype SEMI_CONTROLLER_CLASS is SEMI_CONTROLLER_TYPE'Class;
+
    procedure Resume
-     (controller : in out CONTROLLER_TYPE;
-      invoker    : in out CONTROLLER_TYPE)
+     (controller : in out SEMI_CONTROLLER_TYPE;
+      invoker    : in out SEMI_CONTROLLER_TYPE)
    with Inline;
    --  Resume `controller` using `invoker` as dispatcher
 
    procedure Yield
-     (controller : in out CONTROLLER_TYPE);
+     (controller : in out SEMI_CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to a suspended invoker
 
    ---------------------------------------------------------------------------
-   --  FULL_
+   --  FULL_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
+   type FULL_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
+   type FULL_CONTROLLER_ACCESS   is access all FULL_CONTROLLER_TYPE;
+   subtype FULL_CONTROLLER_CLASS is FULL_CONTROLLER_TYPE'Class;
+
    procedure Transfer
-     (controller : in out CONTROLLER_TYPE;
-      invoker    : in out CONTROLLER_TYPE);
+     (controller : in out FULL_CONTROLLER_TYPE;
+      invoker    : in out FULL_CONTROLLER_TYPE);
    -- TODO...
 
 private
@@ -143,9 +151,19 @@ private
          migrant : EXCEPTION_ACCESS;
       end record;
 
-   type CONTROLLER_TYPE is limited new DISPATCHER_TYPE with
+   type CONTROLLER_TYPE is abstract limited new DISPATCHER_TYPE with
       record
          link    : DISPATCHER_ACCESS;
+      end record;
+
+   type SEMI_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with
+      record
+         null;
+      end record;
+
+   type FULL_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with
+      record
+         null;
       end record;
 
 end Control;

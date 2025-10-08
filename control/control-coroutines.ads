@@ -54,7 +54,7 @@ private
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;
          context : CONTEXT_ACCESS
-   ) is limited new CONTROLLER_TYPE with
+   ) is limited new SEMI_CONTROLLER_TYPE with
       record
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
       end record;

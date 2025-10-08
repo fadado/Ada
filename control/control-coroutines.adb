@@ -46,7 +46,7 @@ package body Control . CoRoutines is
    overriding procedure Yield
      (routine : in out COROUTINE_TYPE)
    is
-      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(routine);
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
    begin
       parent.Yield;
    end Yield;

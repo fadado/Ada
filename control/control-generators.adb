@@ -40,7 +40,7 @@ package body Control . Generators is
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    is
-      parent : CONTROLLER_TYPE renames CONTROLLER_TYPE(generator);
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
    begin
       generator.output := value;
       parent.Yield;

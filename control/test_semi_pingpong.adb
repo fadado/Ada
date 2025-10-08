@@ -11,13 +11,13 @@ with Control; use Control;
 
 with Gotcha;
 
-procedure test_ctrl_pingpong
+procedure test_semi_pingpong
 is
    Game_Over : BOOLEAN := FALSE;
    Turns : constant := 10;
 
-   task type Ping_Run(This, That: not null CONTROLLER_ACCESS);
-   task type Pong_Run(This, That: not null CONTROLLER_ACCESS);
+   task type Ping_Run(This, That: not null SEMI_CONTROLLER_ACCESS);
+   task type Pong_Run(This, That: not null SEMI_CONTROLLER_ACCESS);
 
    --------------
    -- Ping_Run --
@@ -25,8 +25,8 @@ is
 
    task body Ping_Run
    is
-      Ping : CONTROLLER_TYPE renames This.all;
-      Pong : CONTROLLER_TYPE renames That.all;
+      Ping : SEMI_CONTROLLER_TYPE renames This.all;
+      Pong : SEMI_CONTROLLER_TYPE renames That.all;
 
       procedure strike is begin Put("PING!  "); end;
    begin
@@ -48,8 +48,8 @@ is
 
    task body Pong_Run
    is
-      Ping : CONTROLLER_TYPE renames This.all; -- not used
-      Pong : CONTROLLER_TYPE renames That.all;
+      Ping : SEMI_CONTROLLER_TYPE renames This.all; -- not used
+      Pong : SEMI_CONTROLLER_TYPE renames That.all;
 
       procedure strike is begin Put_Line("PONG!"); end;
    begin
@@ -76,8 +76,8 @@ begin
    declare
       dispatcher : DISPATCHER_TYPE;
 
-      ping_control : aliased CONTROLLER_TYPE;
-      pong_control : aliased CONTROLLER_TYPE;
+      ping_control : aliased SEMI_CONTROLLER_TYPE;
+      pong_control : aliased SEMI_CONTROLLER_TYPE;
       ping_runner  : Ping_Run (ping_control'Unchecked_Access,
                                pong_control'Unchecked_Access);
       pong_runner  : Pong_Run (ping_control'Unchecked_Access,
@@ -98,7 +98,7 @@ begin
          Gotcha.Report_Exception(X, "Oops at MASTER TASK!!");
    end;
 
-end test_ctrl_pingpong;
+end test_semi_pingpong;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -118,7 +118,7 @@ private
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;
          context    : CONTEXT_ACCESS
-   ) is limited new CONTROLLER_TYPE with 
+   ) is limited new SEMI_CONTROLLER_TYPE with 
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
