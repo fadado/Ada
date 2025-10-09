@@ -38,7 +38,7 @@ begin
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
       hello_control.Resume(dispatcher);
-      hello_control.Request_To_Exit;
+      hello_control.Close;
    end Test_1;
 
    ---------------------------------------------------------------------------

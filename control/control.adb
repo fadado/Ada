@@ -88,11 +88,11 @@ package body Control is
       end if;
    end suspend_resume;
 
-   ---------------------
-   -- Request_To_Exit --
-   ---------------------
+   -----------
+   -- Close --
+   -----------
 
-   procedure Request_To_Exit
+   procedure Close
      (dispatcher : in out DISPATCHER_TYPE)
    is
       function dispatcher_died return BOOLEAN
@@ -115,7 +115,7 @@ package body Control is
          when RUNNING | DYING =>
             raise Control_Error with "unexpected dispatcher state";
       end case;
-   end Request_To_Exit;
+   end Close;
 
    ---------------------------------------------------------------------------
    -- CONTROLLER_TYPE

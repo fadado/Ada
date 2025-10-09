@@ -50,14 +50,16 @@ package body Control . Generators is
    -- Close --
    -----------
 
-   not overriding procedure Close
+   overriding procedure Close
      (generator : in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN
          is (generator.runner'Terminated);
+
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
    begin
       if generator.state /= DEAD then
-         generator.Request_To_Exit;
+         parent.Close;
          Spin_Until(runner_terminated'Access);
       end if;
    end Close;

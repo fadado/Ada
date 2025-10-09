@@ -52,7 +52,7 @@ package Control is
    subtype DISPATCHER_CLASS   is DISPATCHER_TYPE'Class;
    --  A simple controller to attatch to the current task
 
-   procedure Request_To_Exit
+   procedure Close
      (dispatcher : in out DISPATCHER_TYPE);
    --  Force the exit for a suspended `dispatcher`
 

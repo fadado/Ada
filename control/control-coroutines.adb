@@ -11,6 +11,28 @@ package body Control . CoRoutines is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
+   -----------
+   -- Close --
+   -----------
+
+   overriding procedure Close
+     (routine : in out COROUTINE_TYPE)
+   is
+      function runner_terminated return BOOLEAN
+         is (routine.runner'Terminated);
+
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
+   begin
+      if routine.state /= DEAD then
+         parent.Close;
+         Spin_Until(runner_terminated'Access);
+      end if;
+   end Close;
+
+   ------------
+   -- Resume --
+   ------------
+
    not overriding procedure Resume
      (routine    : in out COROUTINE_TYPE;
       invoker    : in out DISPATCHER_TYPE)
@@ -26,10 +48,6 @@ package body Control . CoRoutines is
          raise Stop_Iteration;
       end if;
    end Resume;
-
-   ------------
-   -- Resume --
-   ------------
 
    overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
@@ -50,22 +68,6 @@ package body Control . CoRoutines is
    begin
       parent.Yield;
    end Yield;
-
-   -----------
-   -- Close --
-   -----------
-
-   not overriding procedure Close
-     (routine : in out COROUTINE_TYPE)
-   is
-      function runner_terminated return BOOLEAN
-         is (routine.runner'Terminated);
-   begin
-      if routine.state /= DEAD then
-         routine.Request_To_Exit;
-         Spin_Until(runner_terminated'Access);
-      end if;
-   end Close;
 
    ----------------------
    -- CoRoutine_Runner --

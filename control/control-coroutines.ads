@@ -28,6 +28,10 @@ package Control . CoRoutines is
    ) is tagged limited private;
    --  Coroutine type with *only* transfer of control
 
+   procedure Close
+     (routine : in out COROUTINE_TYPE);
+   --  Force `routine` to exit
+
    procedure Resume
      (routine    : in out COROUTINE_TYPE;
       invoker    : in out DISPATCHER_TYPE);
@@ -43,10 +47,6 @@ package Control . CoRoutines is
      (routine : in out COROUTINE_TYPE)
    with Inline;
    --  Yields control only
-
-   procedure Close
-     (routine : in out COROUTINE_TYPE);
-   --  Force `routine` to exit
 
 private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
