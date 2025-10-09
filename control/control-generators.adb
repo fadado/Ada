@@ -226,7 +226,7 @@ package body Control . Generators is
    -------------------
 
    function Generator_C_I
-     (g : in out GENERATOR_CLASS;
+     (g : in out GENERATOR_TYPE'Class;
       c : in CURSOR_TYPE) return OUTPUT_TYPE
    is
    begin

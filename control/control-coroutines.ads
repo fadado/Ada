@@ -13,10 +13,11 @@ package Control . CoRoutines is
    --  COROUTINE_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
 
-   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
+   type CONTEXT_ACCESS      is access all CONTEXT_TYPE;
 
    type COROUTINE_TYPE;
-   type COROUTINE_ACCESS is access all COROUTINE_TYPE;
+   type COROUTINE_ACCESS    is access all COROUTINE_TYPE;
+ --subtype COROUTINE_CLASS  is COROUTINE_TYPE'Class;
 
    type COROUTINE_PROCEDURE is
       not null access procedure (routine: in not null COROUTINE_ACCESS);

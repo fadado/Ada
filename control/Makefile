@@ -53,7 +53,7 @@ spingpong: $(LIB)/test_semi_pingpong; $<
 fpingpong: $(LIB)/test_full_pingpong; $<
 fibonacci: $(LIB)/test_fibonacci; $<
 
-tests: semi coro spingpong fibonacci
+tests: semi coro spingpong fpingpong fibonacci
 	@echo Done!
 
 clean:
