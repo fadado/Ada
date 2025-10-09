@@ -25,7 +25,8 @@ begin
       package R is new CoRoutines (Context_Type => VOID);
       use R;
 
-      procedure subgen(routine: not null COROUTINE_ACCESS) is
+      procedure subgen
+        (routine : in not null COROUTINE_ACCESS) is
       begin
          Put("He");
          routine.Yield;
@@ -33,7 +34,9 @@ begin
          raise Stop_Iteration;
       end subgen;
 
-      procedure hello_world(routine: not null COROUTINE_ACCESS) is
+      procedure hello_world
+        (routine : not null COROUTINE_ACCESS;
+         context : in CONTEXT_ACCESS) is
       begin
          Put("Test 1-");
          routine.Yield;

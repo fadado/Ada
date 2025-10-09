@@ -23,9 +23,10 @@ package Control . Generators is
    type GENERATOR_TYPE;
    type GENERATOR_ACCESS    is access all GENERATOR_TYPE;
 
-   type GENERATOR_PROCEDURE is
-      not null access procedure (generator: in not null GENERATOR_ACCESS);
-   --  Procedure type for the main program
+   type GENERATOR_PROCEDURE is not null access procedure
+      (generator : in not null GENERATOR_ACCESS;
+       context   : in CONTEXT_ACCESS);
+--  Procedure type for the main program
 
    type GENERATOR_TYPE (
       main    : GENERATOR_PROCEDURE;

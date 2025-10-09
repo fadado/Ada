@@ -17,10 +17,10 @@ package Control . CoRoutines is
 
    type COROUTINE_TYPE;
    type COROUTINE_ACCESS    is access all COROUTINE_TYPE;
- --subtype COROUTINE_CLASS  is COROUTINE_TYPE'Class;
 
-   type COROUTINE_PROCEDURE is
-      not null access procedure (routine: in not null COROUTINE_ACCESS);
+   type COROUTINE_PROCEDURE is not null access procedure
+      (routine : in not null COROUTINE_ACCESS;
+       context : in CONTEXT_ACCESS);
    --  Procedure access type for the main program
 
    type COROUTINE_TYPE (
@@ -34,8 +34,8 @@ package Control . CoRoutines is
    --  Force `routine` to exit
 
    procedure Resume
-     (routine    : in out COROUTINE_TYPE;
-      invoker    : in out DISPATCHER_TYPE);
+     (routine : in out COROUTINE_TYPE;
+      invoker : in out DISPATCHER_TYPE);
    --  Resume `routine` using `invoker` as a dispatcher
 
    procedure Resume

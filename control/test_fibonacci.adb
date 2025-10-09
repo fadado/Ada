@@ -21,7 +21,10 @@ is
 
    use fibonacci_types;
 
-   procedure infinite(generator: not null GENERATOR_ACCESS) is
+   procedure infinite
+     (generator : in not null GENERATOR_ACCESS;
+      context   : in CONTEXT_ACCESS)
+   is
       m, n : POSITIVE := 1;
       t : POSITIVE;
    begin
@@ -32,8 +35,11 @@ is
       end loop;
    end infinite;
 
-   procedure finite(generator: not null GENERATOR_ACCESS) is
-      max : INTEGER renames generator.context.all;
+   procedure finite
+     (generator : in not null GENERATOR_ACCESS;
+      context   : in CONTEXT_ACCESS)
+   is
+      max : INTEGER renames context.all;
       m, n : POSITIVE := 1;
       t : POSITIVE;
    begin

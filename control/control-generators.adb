@@ -72,7 +72,7 @@ package body Control . Generators is
    is
    begin
       generator.Commence;
-      generator.main(generator);
+      generator.main(generator, generator.context);
       generator.Quit;
    exception
       when Exit_Controller => null;
