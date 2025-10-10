@@ -36,7 +36,7 @@ package body Control . Generators is
    -- Yield --
    -----------
 
-   not overriding procedure Yield
+   overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    is
@@ -72,7 +72,7 @@ package body Control . Generators is
    is
    begin
       generator.Commence;
-      generator.main(generator, generator.context);
+      generator.main(generator.all, generator.context);
       generator.Quit;
    exception
       when Exit_Controller => null;

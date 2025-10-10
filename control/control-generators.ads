@@ -11,39 +11,45 @@ generic
    --  Type for `Yield` generated values
 
    type CONTEXT_TYPE is private;
-   --  Data to provide an environment for the program
+   --  Data to provide an environment for the generator procedure
 
 package Control . Generators is
    ---------------------------------------------------------------------------
-   --  GENERATOR_TYPE coroutine methods and auxiliar types
+   --  GENERATOR_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
 
-   type CONTEXT_ACCESS      is access all CONTEXT_TYPE;
+   type GENERATOR_INTERFACE is limited interface;
 
-   type GENERATOR_TYPE;
-   type GENERATOR_ACCESS    is access all GENERATOR_TYPE;
+   procedure Yield
+     (generator : in out GENERATOR_INTERFACE;
+      output    : in OUTPUT_TYPE) is abstract;
+   -- To allow the generator procedure only to call `Yield`
+
+   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
 
    type GENERATOR_PROCEDURE is not null access procedure
-      (generator : in not null GENERATOR_ACCESS;
+      (generator : in out GENERATOR_INTERFACE'Class;
        context   : in CONTEXT_ACCESS);
---  Procedure type for the main program
+   --  Procedure type for the generator procedure
 
    type GENERATOR_TYPE (
       main    : GENERATOR_PROCEDURE;
       context : CONTEXT_ACCESS
-   ) is tagged limited private
+   ) is limited new GENERATOR_INTERFACE with private
    with
       Constant_Indexing => Generator_C_I,
       Default_Iterator  => Iterate,
       Iterator_Element  => OUTPUT_TYPE;
    --  Coroutine type with iterable capabilities
 
+   type GENERATOR_ACCESS is access all GENERATOR_TYPE;
+
    function Resume
      (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
    with Inline;
    --  Resume `generator` and raises `Stop_Iteration` when dead
 
-   procedure Yield
+   overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    with Inline;
@@ -69,17 +75,17 @@ package Control . Generators is
    --  cursor that designates the first element in `generator`
 
    function Next
-     (cursor : CURSOR_TYPE) return CURSOR_TYPE;
+     (cursor : in CURSOR_TYPE) return CURSOR_TYPE;
    --  If `cursor` equals `No_Element` or the generator is exhaust returns
    --  the value `No_Element`;  otherwise advances `cursor` one element
 
    function Has_Element
-     (cursor : CURSOR_TYPE) return BOOLEAN with Inline;
+     (cursor : in CURSOR_TYPE) return BOOLEAN with Inline;
    --  Returns `TRUE` if `cursor` designates an element, and returns `FALSE`
    --  otherwise
 
    function Element
-     (cursor : CURSOR_TYPE) return OUTPUT_TYPE;
+     (cursor : in CURSOR_TYPE) return OUTPUT_TYPE;
    --  If `cursor` equals `No_Element`, then `Control_Error` is
    --  propagated;  otherwise, `Element` returns the element designated by
    --  `cursor`
@@ -99,7 +105,7 @@ package Control . Generators is
 
    function Generator_C_I
      (g : in out GENERATOR_TYPE'Class;
-      c : CURSOR_TYPE) return OUTPUT_TYPE
+      c : in CURSOR_TYPE) return OUTPUT_TYPE
    with Inline;
    --  Ignore: used only in the `Constant_Indexing` aspect
 
@@ -118,7 +124,7 @@ private
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;
          context    : CONTEXT_ACCESS
-   ) is limited new SEMI_CONTROLLER_TYPE with 
+   ) is limited new SEMI_CONTROLLER_TYPE and GENERATOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);

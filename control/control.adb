@@ -21,7 +21,7 @@ package body Control is
    --------------------------
 
    function is_master_controller
-     (dispatcher : DISPATCHER_CLASS) return BOOLEAN
+     (dispatcher : DISPATCHER_TYPE'Class) return BOOLEAN
    with Inline
    is
       use type Ada.Tags.Tag;
@@ -194,7 +194,7 @@ package body Control is
    ------------
 
    procedure Resume
-     (controller : in out CONTROLLER_CLASS;
+     (controller : in out CONTROLLER_TYPE'Class;
       invoker    : in out DISPATCHER_TYPE)
    is
       target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);

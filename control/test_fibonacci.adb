@@ -22,7 +22,7 @@ is
    use fibonacci_types;
 
    procedure infinite
-     (generator : in not null GENERATOR_ACCESS;
+     (generator : in out GENERATOR_INTERFACE'Class;
       context   : in CONTEXT_ACCESS)
    is
       m, n : POSITIVE := 1;
@@ -36,7 +36,7 @@ is
    end infinite;
 
    procedure finite
-     (generator : in not null GENERATOR_ACCESS;
+     (generator : in out GENERATOR_INTERFACE'Class;
       context   : in CONTEXT_ACCESS)
    is
       max : INTEGER renames context.all;

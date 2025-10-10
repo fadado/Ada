@@ -49,7 +49,6 @@ package Control is
 
    type DISPATCHER_TYPE       is tagged limited private;
    type DISPATCHER_ACCESS     is access all DISPATCHER_TYPE;
-   subtype DISPATCHER_CLASS   is DISPATCHER_TYPE'Class;
    --  A simple controller to attatch to the current task
 
    procedure Close
@@ -62,7 +61,6 @@ package Control is
 
    type CONTROLLER_TYPE       is abstract limited new DISPATCHER_TYPE with private;
    type CONTROLLER_ACCESS     is access all CONTROLLER_TYPE;
-   subtype CONTROLLER_CLASS   is CONTROLLER_TYPE'Class;
    --  Base controler
 
    procedure Commence
@@ -76,7 +74,7 @@ package Control is
    --  necessary
 
    procedure Resume
-     (controller : in out CONTROLLER_CLASS; -- not a primitive op.!
+     (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
       invoker    : in out DISPATCHER_TYPE);
    --  Resume `controller` using `invoker` as dispatcher
 
@@ -86,7 +84,6 @@ package Control is
 
    type SEMI_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
    type SEMI_CONTROLLER_ACCESS   is access all SEMI_CONTROLLER_TYPE;
-   subtype SEMI_CONTROLLER_CLASS is SEMI_CONTROLLER_TYPE'Class;
 
    procedure Resume
      (controller : in out SEMI_CONTROLLER_TYPE;
@@ -104,7 +101,6 @@ package Control is
 
    type FULL_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
    type FULL_CONTROLLER_ACCESS   is access all FULL_CONTROLLER_TYPE;
-   subtype FULL_CONTROLLER_CLASS is FULL_CONTROLLER_TYPE'Class;
 
    procedure Transfer
      (controller : in out FULL_CONTROLLER_TYPE;
