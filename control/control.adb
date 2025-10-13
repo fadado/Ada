@@ -258,11 +258,11 @@ package body Control is
    --  FULL_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   --------------
-   -- Transfer --
-   --------------
+   ------------
+   -- Resume --
+   ------------
 
-   procedure Transfer
+   procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
       invoker    : in out FULL_CONTROLLER_TYPE)
    is
@@ -275,7 +275,18 @@ package body Control is
       controller.link := invoker.link;
 
       suspend_resume(dispatcher, target);
-   end Transfer;
+   end Resume;
+
+   -----------
+   -- Yield --
+   -----------
+
+   procedure Yield
+     (controller : in out FULL_CONTROLLER_TYPE)
+   is
+   begin
+      raise Program_Error with "method not implemented";
+   end Yield;
 
 end Control;
 

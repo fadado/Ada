@@ -26,7 +26,7 @@ begin
       use R;
 
       procedure subgen
-        (routine : in not null COROUTINE_ACCESS) is
+        (routine : in out COROUTINE_INTERFACE'Class) is
       begin
          Put("He");
          routine.Yield;
@@ -35,7 +35,7 @@ begin
       end subgen;
 
       procedure hello_world
-        (routine : not null COROUTINE_ACCESS;
+        (routine : in out COROUTINE_INTERFACE'Class;
          context : in CONTEXT_ACCESS) is
       begin
          Put("Test 1-");
