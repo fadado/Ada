@@ -12,6 +12,18 @@ package body Control . CoRoutines is
    ---------------------------------------------------------------------------
 
    -----------
+   -- Yield --
+   -----------
+
+   overriding procedure Yield
+     (routine : in out COROUTINE_TYPE)
+   is
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
+   begin
+      parent.Yield;
+   end Yield;
+
+   -----------
    -- Close --
    -----------
 
@@ -49,6 +61,10 @@ package body Control . CoRoutines is
       end if;
    end Resume;
 
+   ------------
+   -- Resume --
+   ------------
+
    overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
@@ -56,18 +72,6 @@ package body Control . CoRoutines is
    begin
       CoRoutines.Resume(routine, DISPATCHER_TYPE(invoker));
    end Resume;
-
-   -----------
-   -- Yield --
-   -----------
-
-   overriding procedure Yield
-     (routine : in out COROUTINE_TYPE)
-   is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
-   begin
-      parent.Yield;
-   end Yield;
 
    ----------------------
    -- CoRoutine_Runner --
@@ -77,7 +81,7 @@ package body Control . CoRoutines is
    is
    begin
       routine.Commence;
-      routine.main(routine, routine.context);
+      routine.main(routine.all, routine.context);
       routine.Quit;
    exception
       when Exit_Controller => null;

@@ -13,21 +13,27 @@ package Control . CoRoutines is
    --  COROUTINE_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
 
-   type CONTEXT_ACCESS      is access all CONTEXT_TYPE;
+   type COROUTINE_INTERFACE is limited interface;
 
-   type COROUTINE_TYPE;
-   type COROUTINE_ACCESS    is access all COROUTINE_TYPE;
+   procedure Yield  (routine : in out COROUTINE_INTERFACE) is null;
+   procedure Resume (routine, invoker : in out COROUTINE_INTERFACE) is abstract;
+   procedure Close  (routine : in out COROUTINE_INTERFACE) is abstract;
+   -- To allow the coroutine procedure only to call subprograms
+
+   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
 
    type COROUTINE_PROCEDURE is not null access procedure
-      (routine : in not null COROUTINE_ACCESS;
+      (routine : in out COROUTINE_INTERFACE'Class;
        context : in CONTEXT_ACCESS);
-   --  Procedure access type for the main program
+   --  Procedure type for the coroutine procedure
 
    type COROUTINE_TYPE (
       main    : COROUTINE_PROCEDURE;
       context : CONTEXT_ACCESS
-   ) is tagged limited private;
+   ) is limited new COROUTINE_INTERFACE with private;
    --  Coroutine type with *only* transfer of control
+
+   type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
    procedure Close
      (routine : in out COROUTINE_TYPE);
@@ -55,7 +61,7 @@ private
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;
          context : CONTEXT_ACCESS
-   ) is limited new SEMI_CONTROLLER_TYPE with
+   ) is limited new SEMI_CONTROLLER_TYPE and COROUTINE_INTERFACE with 
       record
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
       end record;
