@@ -102,10 +102,14 @@ package Control is
    type FULL_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
    type FULL_CONTROLLER_ACCESS   is access all FULL_CONTROLLER_TYPE;
 
-   procedure Transfer
+   procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
       invoker    : in out FULL_CONTROLLER_TYPE);
    -- TODO...
+
+   procedure Yield
+     (controller : in out FULL_CONTROLLER_TYPE);
+   -- Disabled: raises Program_Error
 
 private
    ---------------------------------------------------------------------------

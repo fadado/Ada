@@ -15,9 +15,13 @@ package Control . CoRoutines is
 
    type COROUTINE_INTERFACE is limited interface;
 
-   procedure Yield  (routine : in out COROUTINE_INTERFACE) is null;
-   procedure Resume (routine, invoker : in out COROUTINE_INTERFACE) is abstract;
-   procedure Close  (routine : in out COROUTINE_INTERFACE) is abstract;
+   procedure Yield
+     (routine  : in out COROUTINE_INTERFACE) is abstract;
+   procedure Resume
+     (routiner : in out COROUTINE_INTERFACE;
+      invoker  : in out COROUTINE_INTERFACE) is abstract;
+   procedure Close
+     (routine  : in out COROUTINE_INTERFACE) is abstract;
    -- To allow the coroutine procedure only to call subprograms
 
    type CONTEXT_ACCESS is access all CONTEXT_TYPE;

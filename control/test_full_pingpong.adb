@@ -33,7 +33,7 @@ is
 
       for i in 1..Turns loop
          strike;
-         Pong.Transfer(Ping); -- resume Pong from Ping
+         Pong.Resume(Ping); -- resume Pong from Ping
       end loop;
       Pong.Close;
 
@@ -57,7 +57,7 @@ is
 
       loop
          strike;
-         Ping.Transfer(Pong); -- resume Ping from Pong
+         Ping.Resume(Pong); -- resume Ping from Pong
       end loop;
 
    exception
