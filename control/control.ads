@@ -78,6 +78,15 @@ package Control is
       invoker    : in out DISPATCHER_TYPE);
    --  Resume `controller` using `invoker` as dispatcher
 
+   procedure Yield
+     (controller : in out CONTROLLER_TYPE) is abstract;
+   --  Suspend `controller` and transfers control to a suspended invoker
+
+   procedure Resume
+     (controller : in out CONTROLLER_TYPE;
+      invoker    : in out CONTROLLER_TYPE) is abstract;
+   --  Resume `controller` using `invoker` as dispatcher
+
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
@@ -85,15 +94,15 @@ package Control is
    type SEMI_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
    type SEMI_CONTROLLER_ACCESS   is access all SEMI_CONTROLLER_TYPE;
 
-   procedure Resume
+   overriding procedure Yield
+     (controller : in out SEMI_CONTROLLER_TYPE);
+   --  Suspend `controller` and transfers control to a suspended invoker
+
+   overriding procedure Resume
      (controller : in out SEMI_CONTROLLER_TYPE;
       invoker    : in out SEMI_CONTROLLER_TYPE)
    with Inline;
    --  Resume `controller` using `invoker` as dispatcher
-
-   procedure Yield
-     (controller : in out SEMI_CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to a suspended invoker
 
    ---------------------------------------------------------------------------
    --  FULL_CONTROLLER_TYPE
@@ -102,14 +111,14 @@ package Control is
    type FULL_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
    type FULL_CONTROLLER_ACCESS   is access all FULL_CONTROLLER_TYPE;
 
-   procedure Resume
+   overriding procedure Yield
+     (controller : in out FULL_CONTROLLER_TYPE);
+   -- Disabled: raises Program_Error
+
+   overriding procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
       invoker    : in out FULL_CONTROLLER_TYPE);
    -- TODO...
-
-   procedure Yield
-     (controller : in out FULL_CONTROLLER_TYPE);
-   -- Disabled: raises Program_Error
 
 private
    ---------------------------------------------------------------------------

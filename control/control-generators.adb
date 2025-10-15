@@ -11,6 +11,20 @@ package body Control . Generators is
    --  GENERATOR_TYPE coroutine methods
    ---------------------------------------------------------------------------
 
+   -----------
+   -- Yield --
+   -----------
+
+   overriding procedure Yield
+     (generator : in out GENERATOR_TYPE;
+      value     : in OUTPUT_TYPE)
+   is
+      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
+   begin
+      generator.output := value;
+      parent.Yield;
+   end Yield;
+
    ------------
    -- Resume --
    ------------
@@ -31,20 +45,6 @@ package body Control . Generators is
 
       return generator.output;
    end Resume;
-
-   -----------
-   -- Yield --
-   -----------
-
-   overriding procedure Yield
-     (generator : in out GENERATOR_TYPE;
-      value     : in OUTPUT_TYPE)
-   is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
-   begin
-      generator.output := value;
-      parent.Yield;
-   end Yield;
 
    -----------
    -- Close --

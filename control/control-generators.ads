@@ -44,16 +44,16 @@ package Control . Generators is
 
    type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
-   function Resume
-     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
-   with Inline;
-   --  Resume `generator` and raises `Stop_Iteration` when dead
-
    overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
       value     : in OUTPUT_TYPE)
    with Inline;
    --  Yields control and a value
+
+   function Resume
+     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
+   with Inline;
+   --  Resume `generator` and raises `Stop_Iteration` when dead
 
    procedure Close
      (generator : in out GENERATOR_TYPE);

@@ -217,23 +217,11 @@ package body Control is
    --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   ------------
-   -- Resume --
-   ------------
-
-   procedure Resume
-     (controller : in out SEMI_CONTROLLER_TYPE;
-      invoker    : in out SEMI_CONTROLLER_TYPE)
-   is
-   begin
-      Resume(controller, DISPATCHER_TYPE(invoker));
-   end Resume;
-
    -----------
    -- Yield --
    -----------
 
-   procedure Yield
+   overriding procedure Yield
      (controller : in out SEMI_CONTROLLER_TYPE)
    is
       invoker : DISPATCHER_TYPE renames controller.link.all;
@@ -254,15 +242,38 @@ package body Control is
       controller.state := RUNNING;
    end Yield;
 
+   ------------
+   -- Resume --
+   ------------
+
+   overriding procedure Resume
+     (controller : in out SEMI_CONTROLLER_TYPE;
+      invoker    : in out SEMI_CONTROLLER_TYPE)
+   is
+   begin
+      Resume(controller, DISPATCHER_TYPE(invoker));
+   end Resume;
+
    ---------------------------------------------------------------------------
    --  FULL_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
+
+   -----------
+   -- Yield --
+   -----------
+
+   overriding procedure Yield
+     (controller : in out FULL_CONTROLLER_TYPE)
+   is
+   begin
+      raise Program_Error with "method not implemented";
+   end Yield;
 
    ------------
    -- Resume --
    ------------
 
-   procedure Resume
+   overriding procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
       invoker    : in out FULL_CONTROLLER_TYPE)
    is
@@ -276,17 +287,6 @@ package body Control is
 
       suspend_resume(dispatcher, target);
    end Resume;
-
-   -----------
-   -- Yield --
-   -----------
-
-   procedure Yield
-     (controller : in out FULL_CONTROLLER_TYPE)
-   is
-   begin
-      raise Program_Error with "method not implemented";
-   end Yield;
 
 end Control;
 

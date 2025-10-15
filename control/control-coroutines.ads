@@ -39,9 +39,10 @@ package Control . CoRoutines is
 
    type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
-   procedure Close
-     (routine : in out COROUTINE_TYPE);
-   --  Force `routine` to exit
+   procedure Yield
+     (routine : in out COROUTINE_TYPE)
+   with Inline;
+   --  Yields control only
 
    procedure Resume
      (routine : in out COROUTINE_TYPE;
@@ -54,10 +55,9 @@ package Control . CoRoutines is
    with Inline;
    --  Resume `routine` using `invoker` as a dispatcher
 
-   procedure Yield
-     (routine : in out COROUTINE_TYPE)
-   with Inline;
-   --  Yields control only
+   procedure Close
+     (routine : in out COROUTINE_TYPE);
+   --  Force `routine` to exit
 
 private
    task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
