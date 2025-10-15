@@ -23,7 +23,7 @@ package Control . Generators is
    procedure Yield
      (generator : in out GENERATOR_INTERFACE;
       output    : in OUTPUT_TYPE) is abstract;
-   -- To allow the generator procedure only to call `Yield`
+   -- To restrict the generator procedure to call only `Yield`
 
    type CONTEXT_ACCESS is access all CONTEXT_TYPE;
 

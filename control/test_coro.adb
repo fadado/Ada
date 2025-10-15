@@ -22,11 +22,23 @@ begin
 
    Test_1:
    declare
-      package R is new CoRoutines (Context_Type => VOID);
-      use R;
+      generic
+         type CONTEXT_TYPE is private;
+      package Semi_CoRoutine is
+         package Inner is new CoRoutines
+           (Base_Controller => SEMI_CONTROLLER_TYPE,
+            Context_Type    => CONTEXT_TYPE);
+
+         subtype COROUTINE_INTERFACE is Inner.COROUTINE_INTERFACE;
+         subtype COROUTINE_TYPE      is Inner.COROUTINE_TYPE;
+         subtype CONTEXT_ACCESS      is Inner.CONTEXT_ACCESS;
+      end Semi_CoRoutine;
+
+      package Semi is new Semi_CoRoutine
+        (Context_Type => VOID);
 
       procedure subgen
-        (routine : in out COROUTINE_INTERFACE'Class) is
+        (routine : in out Semi.COROUTINE_INTERFACE'Class) is
       begin
          Put("He");
          routine.Yield;
@@ -35,8 +47,8 @@ begin
       end subgen;
 
       procedure hello_world
-        (routine : in out COROUTINE_INTERFACE'Class;
-         context : in CONTEXT_ACCESS) is
+        (routine : in out Semi.COROUTINE_INTERFACE'Class;
+         context : in Semi.CONTEXT_ACCESS) is
       begin
          Put("Test 1-");
          routine.Yield;
@@ -50,8 +62,8 @@ begin
          Put_Line("!");
       end;
 
-      dispatcher : DISPATCHER_TYPE;
-      hello      : COROUTINE_TYPE (hello_world'Access, NULL);
+      dispatcher : Control.DISPATCHER_TYPE;
+      hello      : Semi.COROUTINE_TYPE (hello_world'Access, NULL);
 
    begin
       loop

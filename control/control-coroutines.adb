@@ -15,25 +15,13 @@ package body Control . CoRoutines is
    -- Yield --
    -----------
 
-   overriding procedure Yield
-     (routine : in out COROUTINE_TYPE)
-   is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
-   begin
-      parent.Yield;
-   end Yield;
-
-   ------------
-   -- Resume --
-   ------------
-
-   overriding procedure Resume
-     (routine : in out COROUTINE_TYPE;
-      invoker : in out COROUTINE_TYPE)
-   is
-   begin
-      CoRoutines.Resume(routine, DISPATCHER_TYPE(invoker));
-   end Resume;
+ --overriding procedure Yield
+ --  (routine : in out COROUTINE_TYPE)
+ --is
+ --   parent : BASE_CONTROLLER renames BASE_CONTROLLER(routine);
+ --begin
+ --   parent.Yield;
+ --end Yield;
 
    ------------
    -- Resume --
@@ -55,6 +43,18 @@ package body Control . CoRoutines is
       end if;
    end Resume;
 
+   ------------
+   -- Resume --
+   ------------
+
+   overriding procedure Resume
+     (routine : in out COROUTINE_TYPE;
+      invoker : in out COROUTINE_TYPE)
+   is
+   begin
+      CoRoutines.Resume(routine, DISPATCHER_TYPE(invoker));
+   end Resume;
+
    -----------
    -- Close --
    -----------
@@ -65,7 +65,7 @@ package body Control . CoRoutines is
       function runner_terminated return BOOLEAN
          is (routine.runner'Terminated);
 
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(routine);
+      parent : BASE_CONTROLLER renames BASE_CONTROLLER(routine);
    begin
       if routine.state /= DEAD then
          parent.Close;

@@ -5,8 +5,11 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 generic
+   type BASE_CONTROLLER is new CONTROLLER_TYPE with private;
+   --  Semi or full controller to derive from
+
    type CONTEXT_TYPE is private;
-   --  Data to provide an environment for the program
+   --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines is
    ---------------------------------------------------------------------------
@@ -17,12 +20,14 @@ package Control . CoRoutines is
 
    procedure Yield
      (routine  : in out COROUTINE_INTERFACE) is abstract;
+
    procedure Resume
      (routiner : in out COROUTINE_INTERFACE;
       invoker  : in out COROUTINE_INTERFACE) is abstract;
+
    procedure Close
      (routine  : in out COROUTINE_INTERFACE) is abstract;
-   -- To allow the coroutine procedure only to call subprograms
+   -- To restrict the coroutine procedure to call only this API
 
    type CONTEXT_ACCESS is access all CONTEXT_TYPE;
 
@@ -39,23 +44,23 @@ package Control . CoRoutines is
 
    type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
-   procedure Yield
-     (routine : in out COROUTINE_TYPE)
-   with Inline;
-   --  Yields control only
+ --overriding procedure Yield
+ --  (routine : in out COROUTINE_TYPE)
+ --with Inline;
+ ----  Yields control only
 
-   procedure Resume
+   not overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out DISPATCHER_TYPE);
    --  Resume `routine` using `invoker` as a dispatcher
 
-   procedure Resume
+   overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    with Inline;
    --  Resume `routine` using `invoker` as a dispatcher
 
-   procedure Close
+   overriding procedure Close
      (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
 
@@ -65,7 +70,7 @@ private
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;
          context : CONTEXT_ACCESS
-   ) is limited new SEMI_CONTROLLER_TYPE and COROUTINE_INTERFACE with 
+   ) is limited new BASE_CONTROLLER and COROUTINE_INTERFACE with 
       record
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
       end record;
