@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------------
---  Control . CoRoutines implementation (generic)
+--  Control . CoRoutines . Implement body (generic)
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Control.Spin_Until;
 
-package body Control . CoRoutines is
+package body Control . CoRoutines . Implement is
    ---------------------------------------------------------------------------
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ package body Control . CoRoutines is
       invoker : in out COROUTINE_TYPE)
    is
    begin
-      CoRoutines.Resume(routine, DISPATCHER_TYPE(invoker));
+      CoRoutines.Implement.Resume(routine, DISPATCHER_TYPE(invoker));
    end Resume;
 
    -----------
@@ -88,7 +88,7 @@ package body Control . CoRoutines is
       when X: others       => routine.Quit(X);
    end CoRoutine_Runner;
 
-end Control . CoRoutines;
+end Control . CoRoutines . Implement;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

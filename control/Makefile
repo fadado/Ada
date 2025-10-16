@@ -11,7 +11,10 @@ SEMIIB := \
 	gotcha.ad[sb]
 
 RUTLIB := \
-	control-coroutines.ad[sb]
+	control-coroutines.ad[s] \
+	control-coroutines-implement.ad[sb] \
+	control-coroutines-semi.ad[s] \
+	control-coroutines-full.ad[s]
 
 GENLIB := \
 	control-generators.ad[sb]

@@ -10,7 +10,7 @@ generic
    type OUTPUT_TYPE is private;
    --  Type for `Yield` generated values
 
-   type CONTEXT_TYPE is private;
+   type CONTEXT_TYPE (<>) is private;
    --  Data to provide an environment for the generator procedure
 
 package Control . Generators is
