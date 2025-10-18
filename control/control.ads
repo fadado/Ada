@@ -158,7 +158,12 @@ private
          state   : STATUS_TYPE;
          run     : Signal.T;
          migrant : EXCEPTION_ACCESS;
-      end record;
+      end record
+   with Type_Invariant =>
+     (DISPATCHER_TYPE.state /= EXPECTANT or else DISPATCHER_TYPE.id = Null_Task_Id)
+   and then
+     (DISPATCHER_TYPE.state /= RUNNING   or else DISPATCHER_TYPE.id = Current_Task)
+   ;
 
    type CONTROLLER_TYPE is abstract limited new DISPATCHER_TYPE with
       record

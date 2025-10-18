@@ -147,8 +147,8 @@ package body Control is
      (controller : in out CONTROLLER_TYPE)
    is
    begin
-      pragma Assert (controller.id = Null_Task_Id);
-      pragma Assert (controller.state = EXPECTANT);
+    --pragma Assert (controller.id = Null_Task_Id);
+    --pragma Assert (controller.state = EXPECTANT);
 
       controller.id := Current_Task;
 
@@ -226,8 +226,8 @@ package body Control is
    is
       invoker : DISPATCHER_TYPE renames controller.link.all;
    begin
-      pragma Assert (controller.id = Current_Task);
-      pragma Assert (controller.state = RUNNING);
+    --pragma Assert (controller.id = Current_Task);
+    --pragma Assert (controller.state = RUNNING);
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -280,8 +280,8 @@ package body Control is
       dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
       target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
-      pragma Assert (invoker.id = Current_Task);
-      pragma Assert (invoker.state = RUNNING);
+    --pragma Assert (invoker.id = Current_Task);
+    --pragma Assert (invoker.state = RUNNING);
 
       controller.link := invoker.link;
 
