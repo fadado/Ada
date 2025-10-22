@@ -47,7 +47,7 @@ package Control . CoRoutines . Implement is
    with Inline;
    --  Resume `routine` using `invoker` as a dispatcher
 
-   overriding procedure Close
+   procedure Close
      (routine : in out COROUTINE_TYPE);
    --  Force `routine` to exit
 

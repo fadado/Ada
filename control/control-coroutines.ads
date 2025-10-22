@@ -14,10 +14,10 @@ package Control . CoRoutines is
    procedure Resume
      (routiner : in out COROUTINE_INTERFACE;
       invoker  : in out COROUTINE_INTERFACE) is abstract;
-
-   procedure Close
-     (routine  : in out COROUTINE_INTERFACE) is abstract;
    -- To restrict the coroutine procedure to call only this API
+
+ --procedure Close
+ --  (routine  : in out COROUTINE_INTERFACE) is abstract;
 
 end Control . CoRoutines;
 
