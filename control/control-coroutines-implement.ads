@@ -8,7 +8,7 @@ generic
    type BASE_CONTROLLER is new CONTROLLER_TYPE with private;
    --  Semi or full controller to derive from
 
-   type CONTEXT_TYPE (<>) is private;
+   type CONTEXT_TYPE (<>) is limited private;
    --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines . Implement is

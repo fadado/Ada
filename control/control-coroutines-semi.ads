@@ -7,7 +7,7 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 with Control.CoRoutines.Implement;
 
 generic
-   type CONTEXT_TYPE (<>) is private;
+   type CONTEXT_TYPE (<>) is limited private;
    --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines . Semi is
