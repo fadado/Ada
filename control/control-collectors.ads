@@ -22,11 +22,9 @@ package Control . Collectors is
      (collector : in out COLLECTOR_INTERFACE) return INPUT_TYPE is abstract;
    -- To restrict the collector procedure to call only `Yield`
 
-   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
-
    type COLLECTOR_PROCEDURE is not null access procedure
       (collector : in out COLLECTOR_INTERFACE'Class;
-       context   : in CONTEXT_ACCESS);
+       context   : access CONTEXT_TYPE);
    --  Procedure type for the collector procedure
 
    type COLLECTOR_TYPE (
@@ -34,8 +32,6 @@ package Control . Collectors is
       context : access CONTEXT_TYPE
    ) is limited new COLLECTOR_INTERFACE with private;
    --  Coroutine type with collector capabilities
-
-   type COLLECTOR_ACCESS is access all COLLECTOR_TYPE;
 
    overriding function Yield
      (collector : in out COLLECTOR_TYPE) return INPUT_TYPE;
@@ -55,7 +51,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Collector_Runner (collector: not null COLLECTOR_ACCESS);
+   task type Collector_Runner (collector: not null access COLLECTOR_TYPE);
 
    type COLLECTOR_TYPE (
          main       : COLLECTOR_PROCEDURE;

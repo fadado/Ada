@@ -16,11 +16,9 @@ package Control . CoRoutines . Implement is
    --  COROUTINE_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
 
-   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
-
    type COROUTINE_PROCEDURE is not null access procedure
       (routine : in out COROUTINE_INTERFACE'Class;
-       context : in CONTEXT_ACCESS);
+       context : access CONTEXT_TYPE);
    --  Procedure type for the coroutine procedure
 
    type COROUTINE_TYPE (
@@ -28,8 +26,6 @@ package Control . CoRoutines . Implement is
       context : access CONTEXT_TYPE
    ) is limited new COROUTINE_INTERFACE with private;
    --  Coroutine type with *only* transfer of control
-
-   type COROUTINE_ACCESS is access all COROUTINE_TYPE;
 
  --overriding procedure Yield
  --  (routine : in out COROUTINE_TYPE)
@@ -52,7 +48,7 @@ package Control . CoRoutines . Implement is
    --  Force `routine` to exit
 
 private
-   task type CoRoutine_Runner (routine: not null COROUTINE_ACCESS);
+   task type CoRoutine_Runner (routine: not null access COROUTINE_TYPE);
 
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;

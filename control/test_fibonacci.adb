@@ -23,7 +23,7 @@ is
 
    procedure infinite
      (generator : in out GENERATOR_INTERFACE'Class;
-      context   : in CONTEXT_ACCESS)
+      context   : access INTEGER)
    is
       m, n : POSITIVE := 1;
       t : POSITIVE;
@@ -37,7 +37,7 @@ is
 
    procedure finite
      (generator : in out GENERATOR_INTERFACE'Class;
-      context   : in CONTEXT_ACCESS)
+      context   : access INTEGER)
    is
       max : INTEGER renames context.all;
       m, n : POSITIVE := 1;

@@ -36,7 +36,7 @@ begin
 
       procedure hello_world
         (routine : in out CoRoutines.COROUTINE_INTERFACE'Class;
-         context : in Semi.CONTEXT_ACCESS) is
+         context : access VOID) is
       begin
          Put("Test 1-");
          routine.Yield;

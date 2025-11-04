@@ -25,11 +25,9 @@ package Control . Generators is
       output    : in OUTPUT_TYPE) is abstract;
    -- To restrict the generator procedure to call only `Yield`
 
-   type CONTEXT_ACCESS is access all CONTEXT_TYPE;
-
    type GENERATOR_PROCEDURE is not null access procedure
       (generator : in out GENERATOR_INTERFACE'Class;
-       context   : in CONTEXT_ACCESS);
+       context   : access CONTEXT_TYPE);
    --  Procedure type for the generator procedure
 
    type GENERATOR_TYPE (
@@ -41,8 +39,6 @@ package Control . Generators is
       Default_Iterator  => Iterate,
       Iterator_Element  => OUTPUT_TYPE;
    --  Coroutine type with iterable capabilities
-
-   type GENERATOR_ACCESS is access all GENERATOR_TYPE;
 
    overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
@@ -119,7 +115,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Generator_Runner (generator: not null GENERATOR_ACCESS);
+   task type Generator_Runner (generator: not null access GENERATOR_TYPE);
 
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;
@@ -133,7 +129,7 @@ private
 
    type CURSOR_TYPE is
       record
-         source : GENERATOR_ACCESS;
+         source : access GENERATOR_TYPE;
       end record;
 
    No_Element : constant CURSOR_TYPE := (source => NULL);

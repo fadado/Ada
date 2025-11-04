@@ -17,7 +17,6 @@ package Control . CoRoutines . Full is
       Context_Type    => CONTEXT_TYPE);
 
    subtype COROUTINE_TYPE is FullCoroImpl.COROUTINE_TYPE;
-   subtype CONTEXT_ACCESS is FullCoroImpl.CONTEXT_ACCESS;
 
 end Control . CoRoutines . Full;
 

@@ -171,7 +171,7 @@ package body Control . Generators is
 
    type ITERATOR_TYPE is limited new GII.Forward_Iterator with
       record
-         source : not null GENERATOR_ACCESS;
+         source : not null access GENERATOR_TYPE;
       end record;
 
    overriding function First
@@ -229,8 +229,9 @@ package body Control . Generators is
      (g : in out GENERATOR_TYPE'Class;
       c : in CURSOR_TYPE) return OUTPUT_TYPE
    is
+      type A is not null access all GENERATOR_TYPE;
    begin
-      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = c.source);
+      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = A(c.source));
       return Element(c);
    end Generator_C_I;
 

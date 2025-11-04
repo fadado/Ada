@@ -17,7 +17,6 @@ package Control . CoRoutines . Semi is
       Context_Type    => CONTEXT_TYPE);
 
    subtype COROUTINE_TYPE is SemiCoroImpl.COROUTINE_TYPE;
-   subtype CONTEXT_ACCESS is SemiCoroImpl.CONTEXT_ACCESS;
 
 end Control . CoRoutines . Semi;
 

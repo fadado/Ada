@@ -31,7 +31,7 @@ is
 
    procedure input_lines
      (generator : in out GENERATOR_INTERFACE'Class;
-      bufptr    : in IO_G.CONTEXT_ACCESS)
+      bufptr    : access BUFFER_TYPE)
    is
       use Ada.Text_IO;
 
@@ -46,7 +46,7 @@ is
 
    procedure output_lines
      (collector : in out COLLECTOR_INTERFACE'Class;
-      bufptr    : in IO_C.CONTEXT_ACCESS)
+      bufptr    : access BUFFER_TYPE)
    is
       use Ada.Text_IO;
 
