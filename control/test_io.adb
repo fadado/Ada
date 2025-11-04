@@ -8,23 +8,30 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 
 with Control.Generators; use Control;
+with Control.Collectors;
+
 with Gotcha;
 
 procedure test_io
 is
    subtype BUFFER_TYPE is STRING(1..1024);
-   type BUFFER_ACCESS is access all BUFFER_TYPE;
 
-   package IO_types is new Generators (
+   package IO_G is new Generators (
       Output_Type  => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
-   use IO_types;
+   package IO_C is new Collectors (
+      Input_Type   => NATURAL,
+      Context_Type => BUFFER_TYPE
+   );
 
-   procedure read_input
+   use IO_G;
+   use IO_C;
+
+   procedure input_lines
      (generator : in out GENERATOR_INTERFACE'Class;
-      bufptr    : in CONTEXT_ACCESS)
+      bufptr    : in IO_G.CONTEXT_ACCESS)
    is
       use Ada.Text_IO;
 
@@ -35,14 +42,22 @@ is
          Get_Line(buffer, n);
          generator.Yield(n);
       end loop;
- --begin
- --   loop
- --      Get_Line(buffer, n);
- --      generator.Yield(n);
- --   end loop;
- --exception
- --   when End_Error => null;
-   end read_input;
+   end input_lines;
+
+   procedure output_lines
+     (collector : in out COLLECTOR_INTERFACE'Class;
+      bufptr    : in IO_C.CONTEXT_ACCESS)
+   is
+      use Ada.Text_IO;
+
+      buffer : BUFFER_TYPE renames bufptr.all;
+      n : NATURAL;
+   begin
+      loop
+         n := collector.Yield;
+         Put_Line(buffer(1..n));
+      end loop;
+   end output_lines;
 
 begin
    Gotcha.Set_Handlers;
@@ -51,12 +66,38 @@ begin
       use Ada.Text_IO;
    begin
       declare
+       --generic
+       --   with package G_Pack is new Generators (<>);
+       --   with package C_Pack is new Collectors (<>);
+       --procedure Junction
+       --  (generator : G_Pack.GENERATOR_TYPE;
+       --   collector : C_Pack.COLLECTOR_TYPE);
+
+       --procedure Junction
+       --  (generator : G_Pack.GENERATOR_TYPE;
+       --   collector : C_Pack.COLLECTOR_TYPE)
+       --is
+       --begin
+       --   for x of generator loop
+       --      collector.Resume(x);
+       --   end loop;
+       --end Junction;
+
+------------------------------------------------------------------------
          buffer : aliased BUFFER_TYPE;
-         stdin  : GENERATOR_TYPE (read_input'Access, buffer'Unchecked_Access);
+
+         stdin  : GENERATOR_TYPE (input_lines'Access,  buffer'Unchecked_Access);
+         stdout : COLLECTOR_TYPE (output_lines'Access, buffer'Unchecked_Access);
+
+       --procedure each(x: NATURAL) is
+       --begin
+       --   stdout.Resume(x);
+       --end each;
       begin
-         for n of stdin loop
-            Put_Line(buffer(1..n));
-         end loop;
+       --stdin.For_Each(each'Access);
+
+         for n of stdin loop stdout.Resume(n); end loop;
+         stdout.Close;
       end;
    end;
 

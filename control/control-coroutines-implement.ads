@@ -25,7 +25,7 @@ package Control . CoRoutines . Implement is
 
    type COROUTINE_TYPE (
       main    : COROUTINE_PROCEDURE;
-      context : CONTEXT_ACCESS
+      context : access CONTEXT_TYPE
    ) is limited new COROUTINE_INTERFACE with private;
    --  Coroutine type with *only* transfer of control
 
@@ -56,7 +56,7 @@ private
 
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;
-         context : CONTEXT_ACCESS
+         context : access CONTEXT_TYPE
    ) is limited new BASE_CONTROLLER and COROUTINE_INTERFACE with 
       record
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);

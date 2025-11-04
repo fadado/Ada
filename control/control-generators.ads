@@ -34,7 +34,7 @@ package Control . Generators is
 
    type GENERATOR_TYPE (
       main    : GENERATOR_PROCEDURE;
-      context : CONTEXT_ACCESS
+      context : access CONTEXT_TYPE
    ) is limited new GENERATOR_INTERFACE with private
    with
       Constant_Indexing => Generator_C_I,
@@ -94,7 +94,7 @@ package Control . Generators is
       generator : in out GENERATOR_TYPE;
       callback  : not null access procedure (value: in OUTPUT_TYPE));
    --  Invokes `callback.all` with a `value` for each element in `generator`,
-   --  consuming `generator`until exhaustion
+   --  consuming `generator` until exhaustion
 
    ---------------------------------------------------------------------------
    --  Ada 2012 generalized iterator infrastructure
@@ -123,7 +123,7 @@ private
 
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;
-         context    : CONTEXT_ACCESS
+         context    : access CONTEXT_TYPE
    ) is limited new SEMI_CONTROLLER_TYPE and GENERATOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
