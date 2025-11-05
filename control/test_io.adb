@@ -7,8 +7,10 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 with Ada.Exceptions;
 with Ada.Text_IO;
 
-with Control.Generators; use Control;
+with Control; use Control;
+with Control.Generators;
 with Control.Collectors;
+with Control.Junctions;
 
 with Gotcha;
 
@@ -16,18 +18,26 @@ procedure test_io
 is
    subtype BUFFER_TYPE is STRING(1..1024);
 
-   package IO_G is new Generators (
+   package Line_Generator is new Generators (
       Output_Type  => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
-   package IO_C is new Collectors (
+   package Line_Collector is new Collectors (
       Input_Type   => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
-   use IO_G;
-   use IO_C;
+   procedure Join is new Junctions.Junction (
+      IO_Type           => NATURAL,
+      Generator_Package => Line_Generator,
+      Generator_Context => BUFFER_TYPE,
+      Collector_Package => Line_Collector,
+      Collector_Context => BUFFER_TYPE
+   );
+
+   use Line_Generator;
+   use Line_Collector;
 
    procedure input_lines
      (generator : in out GENERATOR_INTERFACE'Class;
@@ -66,38 +76,12 @@ begin
       use Ada.Text_IO;
    begin
       declare
-       --generic
-       --   with package G_Pack is new Generators (<>);
-       --   with package C_Pack is new Collectors (<>);
-       --procedure Junction
-       --  (generator : G_Pack.GENERATOR_TYPE;
-       --   collector : C_Pack.COLLECTOR_TYPE);
-
-       --procedure Junction
-       --  (generator : G_Pack.GENERATOR_TYPE;
-       --   collector : C_Pack.COLLECTOR_TYPE)
-       --is
-       --begin
-       --   for x of generator loop
-       --      collector.Resume(x);
-       --   end loop;
-       --end Junction;
-
-------------------------------------------------------------------------
          buffer : aliased BUFFER_TYPE;
 
          stdin  : GENERATOR_TYPE (input_lines'Access,  buffer'Unchecked_Access);
          stdout : COLLECTOR_TYPE (output_lines'Access, buffer'Unchecked_Access);
-
-       --procedure each(x: NATURAL) is
-       --begin
-       --   stdout.Resume(x);
-       --end each;
       begin
-       --stdin.For_Each(each'Access);
-
-         for n of stdin loop stdout.Resume(n); end loop;
-         stdout.Close;
+         Join(stdin, stdout);
       end;
    end;
 
