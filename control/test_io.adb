@@ -16,7 +16,19 @@ with Gotcha;
 
 procedure test_io
 is
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+
+   use Junctions;
+
    subtype BUFFER_TYPE is STRING(1..1024);
+
+   package Joint is new Joint_Signature (
+      IO_Type        => NATURAL,
+      Input_Context  => BUFFER_TYPE,
+      Output_Context => BUFFER_TYPE
+   );
 
    package Line_Generator is new Generators (
       Output_Type  => NATURAL,
@@ -28,16 +40,15 @@ is
       Context_Type => BUFFER_TYPE
    );
 
-   procedure Join is new Junctions.Junction (
-      IO_Type           => NATURAL,
-      Generator_Package => Line_Generator,
-      Generator_Context => BUFFER_TYPE,
-      Collector_Package => Line_Collector,
-      Collector_Context => BUFFER_TYPE
-   );
+   procedure Join is
+      new Junction (Joint, Line_Generator, Line_Collector);
 
    use Line_Generator;
    use Line_Collector;
+
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
 
    procedure input_lines
      (generator : in out GENERATOR_INTERFACE'Class;
@@ -70,6 +81,10 @@ is
    end output_lines;
 
 begin
+   ---------------------------------------------------------------------
+   --
+   ---------------------------------------------------------------------
+
    Gotcha.Set_Handlers;
 
    declare
@@ -78,10 +93,10 @@ begin
       declare
          buffer : aliased BUFFER_TYPE;
 
-         stdin  : GENERATOR_TYPE (input_lines'Access,  buffer'Unchecked_Access);
-         stdout : COLLECTOR_TYPE (output_lines'Access, buffer'Unchecked_Access);
+         input  : GENERATOR_TYPE (input_lines'Access,  buffer'Access);
+         output : COLLECTOR_TYPE (output_lines'Access, buffer'Access);
       begin
-         Join(stdin, stdout);
+         Join(input, output);
       end;
    end;
 
