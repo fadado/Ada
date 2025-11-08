@@ -35,7 +35,7 @@ package Control . Generators is
       context : access CONTEXT_TYPE
    ) is limited new GENERATOR_INTERFACE with private
    with
-      Constant_Indexing => Generator_C_I,
+      Constant_Indexing => Element_Value,
       Default_Iterator  => Iterate,
       Iterator_Element  => OUTPUT_TYPE;
    --  Coroutine type with iterable capabilities
@@ -92,21 +92,27 @@ package Control . Generators is
    --  Invokes `callback.all` with a `value` for each element in `generator`,
    --  consuming `generator` until exhaustion
 
-   ---------------------------------------------------------------------------
-   --  Ada 2012 generalized iterator infrastructure
-   ---------------------------------------------------------------------------
-
-   package GII is
-      new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
-
-   function Generator_C_I
-     (g : in out GENERATOR_TYPE'Class;
+   function Element_Value
+     (g : in out GENERATOR_TYPE;
       c : in CURSOR_TYPE) return OUTPUT_TYPE
    with Inline;
    --  Ignore: used only in the `Constant_Indexing` aspect
 
+   ---------------------------------------------------------------------------
+   --  ITERATOR_TYPE methods and constants
+   --  Ada 2012 generalized iterator infrastructure
+   ---------------------------------------------------------------------------
+
+   package Generator_IIP is  -- Generator Iterator Interfaces Package
+      new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
+
+   subtype ITERATOR_INTERFACE is Generator_IIP.Forward_Iterator;
+
+ --type    ITERATOR_TYPE      is limited new ITERATOR_INTERFACE with private;
+   -- TODO: publish?
+
    function Iterate
-     (generator : in out GENERATOR_TYPE) return GII.Forward_Iterator'Class
+     (generator : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    with Inline;
    --  For use in the construct `for cursor in G.Iterate loop...`
 
@@ -133,6 +139,21 @@ private
       end record;
 
    No_Element : constant CURSOR_TYPE := (source => NULL);
+
+   -- TODO: move here from body?
+ --type ITERATOR_TYPE is limited new ITERATOR_INTERFACE with
+ --   record
+ --      source : not null access GENERATOR_TYPE;
+ --   end record;
+
+ --overriding function First
+ --  (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
+ --with Inline;
+
+ --overriding function Next
+ --  (iterator : in ITERATOR_TYPE;
+ --   cursor   : in CURSOR_TYPE) return CURSOR_TYPE
+ --with Inline;
 
 end Control . Generators;
 

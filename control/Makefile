@@ -22,6 +22,9 @@ GENLIB := \
 COLLIB := \
 	control-collectors.ad[sb]
 
+FUNLIB := \
+	control-functors.ad[sb]
+
 JUNLIB := \
 	control-junctions.ad[sb]
 
@@ -57,7 +60,7 @@ $(LIB)/test_full_pingpong: test_full_pingpong.adb ${SEMILIB}
 $(LIB)/test_fibonacci: test_fibonacci.adb ${SEMILIB} ${GENLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
-$(LIB)/test_io: test_io.adb ${SEMILIB} ${GENLIB} ${COLLIB} ${JUNLIB}
+$(LIB)/test_io: test_io.adb ${SEMILIB} ${GENLIB} ${COLLIB} ${JUNLIB} ${FUNLIB}
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 semi:      $(LIB)/test_semi; $<

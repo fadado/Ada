@@ -5,7 +5,7 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 procedure Control . Spin_Until
-  (done : access function return BOOLEAN);
+  (done : not null access function return BOOLEAN);
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

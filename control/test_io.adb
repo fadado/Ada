@@ -10,6 +10,7 @@ with Ada.Text_IO;
 with Control; use Control;
 with Control.Generators;
 with Control.Collectors;
+with Control.Functors;
 with Control.Junctions;
 
 with Gotcha;
@@ -39,9 +40,6 @@ is
       Input_Type   => NATURAL,
       Context_Type => BUFFER_TYPE
    );
-
-   procedure Join is
-      new Junction (Joint, Line_Generator, Line_Collector);
 
    use Line_Generator;
    use Line_Collector;
@@ -95,6 +93,17 @@ begin
 
          input  : GENERATOR_TYPE (input_lines'Access,  buffer'Access);
          output : COLLECTOR_TYPE (output_lines'Access, buffer'Access);
+
+         procedure Join is
+            new Junction (Joint, Line_Generator, Line_Collector);
+
+       --procedure Join(g: in out GENERATOR_TYPE; c: in out COLLECTOR_TYPE)
+       --   with Inline is
+       --begin
+       --   for x of g loop c.Resume(x); end loop;
+       --   c.Close;
+       --end;
+
       begin
          Join(input, output);
       end;

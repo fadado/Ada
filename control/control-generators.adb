@@ -165,11 +165,25 @@ package body Control . Generators is
       end loop;
    end For_Each;
 
+   -------------------
+   -- Element_Value --
+   -------------------
+
+   function Element_Value
+     (g : in out GENERATOR_TYPE;
+      c : in CURSOR_TYPE) return OUTPUT_TYPE
+   is
+      type A is not null access all GENERATOR_TYPE;
+   begin
+      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = A(c.source));
+      return Element(c);
+   end Element_Value;
+
    ---------------------------------------------------------------------------
    --  ITERATOR_TYPE
    ---------------------------------------------------------------------------
 
-   type ITERATOR_TYPE is limited new GII.Forward_Iterator with
+   type ITERATOR_TYPE is limited new ITERATOR_INTERFACE with
       record
          source : not null access GENERATOR_TYPE;
       end record;
@@ -215,25 +229,11 @@ package body Control . Generators is
    -------------
 
    function Iterate
-     (generator : in out GENERATOR_TYPE) return GII.Forward_Iterator'Class
+     (generator : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    is
    begin
       return ITERATOR_TYPE'(source => generator'Unchecked_Access);
    end Iterate;
-
-   -------------------
-   -- Generator_C_I --
-   -------------------
-
-   function Generator_C_I
-     (g : in out GENERATOR_TYPE'Class;
-      c : in CURSOR_TYPE) return OUTPUT_TYPE
-   is
-      type A is not null access all GENERATOR_TYPE;
-   begin
-      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = A(c.source));
-      return Element(c);
-   end Generator_C_I;
 
 end Control . Generators;
 

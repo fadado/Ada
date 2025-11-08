@@ -10,7 +10,7 @@ with Ada.Real_Time;
 use Ada.Real_Time;
 
 procedure Control . Spin_Until
-  (done : access function return BOOLEAN)
+  (done : not null access function return BOOLEAN)
 is
    msec : constant := 100;
    stop : constant TIME := Clock + Milliseconds(msec);
