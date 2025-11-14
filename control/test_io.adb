@@ -106,6 +106,28 @@ begin
 
       begin
          Join(input, output);
+
+         declare
+            N : NATURAL := 0;
+
+            function counter return NATURAL
+            is
+            begin
+               N := N + 1;
+               return N;
+            end counter;
+
+            package Counter_Pakage is new Closure_Wrapper (NATURAL);
+
+            count : Counter_Pakage.CLOSURE_TYPE (counter'Access); 
+
+         begin
+            for i of count loop
+               Put(i'Image);
+               exit when i = 10;
+            end loop;
+            New_Line;
+         end;
       end;
    end;
 

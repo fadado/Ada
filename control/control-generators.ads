@@ -93,10 +93,10 @@ package Control . Generators is
    --  consuming `generator` until exhaustion
 
    function Element_Value
-     (g : in out GENERATOR_TYPE;
-      c : in CURSOR_TYPE) return OUTPUT_TYPE
+     (generator : in out GENERATOR_TYPE;
+      cursor    : in CURSOR_TYPE) return OUTPUT_TYPE
    with Inline;
-   --  Ignore: used only in the `Constant_Indexing` aspect
+   --  Used only in the `Constant_Indexing` aspect
 
    ---------------------------------------------------------------------------
    --  ITERATOR_TYPE methods and constants

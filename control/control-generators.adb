@@ -170,13 +170,13 @@ package body Control . Generators is
    -------------------
 
    function Element_Value
-     (g : in out GENERATOR_TYPE;
-      c : in CURSOR_TYPE) return OUTPUT_TYPE
+     (generator : in out GENERATOR_TYPE;
+      cursor    : in CURSOR_TYPE) return OUTPUT_TYPE
    is
       type A is not null access all GENERATOR_TYPE;
    begin
-      pragma Assert (GENERATOR_TYPE(g)'Unchecked_Access = A(c.source));
-      return Element(c);
+      pragma Assert (GENERATOR_TYPE(generator)'Access = A(cursor.source));
+      return Element(cursor);
    end Element_Value;
 
    ---------------------------------------------------------------------------

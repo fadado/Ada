@@ -59,7 +59,7 @@ private
    ) is limited new SEMI_CONTROLLER_TYPE and COLLECTOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
-         runner     : Collector_Runner (COLLECTOR_TYPE'Unchecked_Access);
+         runner     : Collector_Runner (COLLECTOR_TYPE'Access);
          input      : INPUT_TYPE;
          inaugural  : BOOLEAN := TRUE;
       end record;
