@@ -109,20 +109,29 @@ package Control . Junctions is
 
       type CLOSURE_TYPE (
          source : CLOSURE_FUNCTION
-      ) is tagged limited null record
+      ) is limited new ITERATOR_INTERFACE with null record
       with
-         Constant_Indexing => Element_Value,
-         Default_Iterator  => Iterate,
+         Constant_Indexing => Call_Closure,
+         Default_Iterator  => Cast_Iterator,
          Iterator_Element  => OUTPUT_TYPE;
 
-      function Element_Value
-        (closure : in out CLOSURE_TYPE;
+      overriding function First
+        (closure : in CLOSURE_TYPE) return CURSOR_TYPE
+      is (source => closure.source) with Inline;
+
+      overriding function Next
+        (closure : in CLOSURE_TYPE;
+         cursor  : in CURSOR_TYPE) return CURSOR_TYPE
+      is (cursor) with Inline;
+
+      function Call_Closure
+        (closure : in CLOSURE_TYPE;
          cursor  : in CURSOR_TYPE) return OUTPUT_TYPE
       is (closure.source.all) with Inline;
 
-      function Iterate
-        (closure : in out CLOSURE_TYPE) return ITERATOR_INTERFACE'Class
-      with Inline;
+      function Cast_Iterator
+        (closure : in CLOSURE_TYPE) return ITERATOR_INTERFACE'Class
+      is (closure) with Inline;
 
    end Closure_Wrapper;
 

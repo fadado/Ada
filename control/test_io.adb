@@ -118,13 +118,14 @@ begin
             end counter;
 
             package Counter_Pakage is new Closure_Wrapper (NATURAL);
+            use Counter_Pakage;
 
             count : Counter_Pakage.CLOSURE_TYPE (counter'Access); 
 
          begin
-            for i of count loop
-               Put(i'Image);
-               exit when i = 10;
+            for e of count loop
+               Put(e'Image);
+               exit when e = 20;
             end loop;
             New_Line;
          end;
