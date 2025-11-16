@@ -94,44 +94,35 @@ package Control . Junctions is
       type CLOSURE_FUNCTION is
          not null access function return OUTPUT_TYPE;
 
-      type CLOSURE_TYPE (
+      type CURSOR_TYPE (
          source : CLOSURE_FUNCTION
-      ) is tagged limited private
-      with
-         Constant_Indexing => Element_Value,
-         Default_Iterator  => Iterate,
-         Iterator_Element  => OUTPUT_TYPE;
-
-      type CURSOR_TYPE is private;
+      ) is null record;
 
       function Has_Element
         (cursor : in CURSOR_TYPE) return BOOLEAN
       is (TRUE) with Inline;
-
-      function Element_Value
-        (closure : in out CLOSURE_TYPE;
-         cursor  : in CURSOR_TYPE) return OUTPUT_TYPE
-      with Inline;
 
       package Closure_IIP is  -- Closure Iterator Interfaces Package
          new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
 
       subtype ITERATOR_INTERFACE is Closure_IIP.Forward_Iterator;
 
+      type CLOSURE_TYPE (
+         source : CLOSURE_FUNCTION
+      ) is tagged limited null record
+      with
+         Constant_Indexing => Element_Value,
+         Default_Iterator  => Iterate,
+         Iterator_Element  => OUTPUT_TYPE;
+
+      function Element_Value
+        (closure : in out CLOSURE_TYPE;
+         cursor  : in CURSOR_TYPE) return OUTPUT_TYPE
+      is (closure.source.all) with Inline;
+
       function Iterate
         (closure : in out CLOSURE_TYPE) return ITERATOR_INTERFACE'Class
       with Inline;
-
-   private
-
-      type CLOSURE_TYPE (
-            source : CLOSURE_FUNCTION
-      ) is tagged limited null record;
-
-      type CURSOR_TYPE is
-         record
-            source : CLOSURE_FUNCTION;
-         end record;
 
    end Closure_Wrapper;
 

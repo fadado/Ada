@@ -48,56 +48,26 @@ package body Control . Junctions is
       --  ITERATOR_TYPE
       ------------------------------------------------------------------
 
-      type ITERATOR_TYPE is limited new ITERATOR_INTERFACE with 
-         record
-            source : CLOSURE_FUNCTION;
-         end record;
-
-      overriding function First
-        (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
-      with Inline;
-
-      overriding function Next
-        (iterator : in ITERATOR_TYPE;
-         cursor   : in CURSOR_TYPE) return CURSOR_TYPE
-      with Inline;
+      type ITERATOR_TYPE (
+         source : CLOSURE_FUNCTION
+      ) is limited new ITERATOR_INTERFACE with null record;
 
       -----------
       -- First --
       -----------
 
-      function First
+      overriding function First
         (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
-      is
-      begin
-         return (source => iterator.source);
-      end First;
+      is (source => iterator.source) with Inline;
 
       ----------
       -- Next --
       ----------
 
-      function Next
+      overriding function Next
         (iterator : in ITERATOR_TYPE;
          cursor   : in CURSOR_TYPE) return CURSOR_TYPE
-      is
-      begin
-         pragma Assert (iterator.source = cursor.source);
-         return cursor;
-      end Next;
-
-      -------------------
-      -- Element_Value --
-      -------------------
-
-      function Element_Value
-        (closure : in out CLOSURE_TYPE;
-         cursor  : in CURSOR_TYPE) return OUTPUT_TYPE
-      is
-      begin
-         pragma Assert (closure.source = cursor.source);
-         return closure.source.all;
-      end Element_Value;
+      is (cursor) with Inline;
 
       -------------
       -- Iterate --
@@ -105,10 +75,7 @@ package body Control . Junctions is
 
       function Iterate
         (closure : in out CLOSURE_TYPE) return ITERATOR_INTERFACE'Class
-      is
-      begin
-         return ITERATOR_TYPE'(source => closure.source);
-      end Iterate;
+      is (ITERATOR_TYPE'(source => closure.source));
 
    end Closure_Wrapper;
 
