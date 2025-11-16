@@ -87,16 +87,14 @@ package Control . Junctions is
    ---------------------------------------------------------------------
 
    generic
-      type OUTPUT_TYPE is private;
+      type ELEMENT_TYPE is private;
 
    package Closure_Wrapper is
 
-      type CLOSURE_FUNCTION is
-         not null access function return OUTPUT_TYPE;
+      type ITERABLE_FUNCTION is
+         not null access function return ELEMENT_TYPE;
 
-      type CURSOR_TYPE (
-         source : CLOSURE_FUNCTION
-      ) is null record;
+      type CURSOR_TYPE is null record;
 
       function Has_Element
         (cursor : in CURSOR_TYPE) return BOOLEAN
@@ -107,30 +105,30 @@ package Control . Junctions is
 
       subtype ITERATOR_INTERFACE is Closure_IIP.Forward_Iterator;
 
-      type CLOSURE_TYPE (
-         source : CLOSURE_FUNCTION
+      type ITERABLE_TYPE (
+         flux : ITERABLE_FUNCTION
       ) is limited new ITERATOR_INTERFACE with null record
       with
          Constant_Indexing => Call_Closure,
          Default_Iterator  => Cast_Iterator,
-         Iterator_Element  => OUTPUT_TYPE;
+         Iterator_Element  => ELEMENT_TYPE;
 
       overriding function First
-        (closure : in CLOSURE_TYPE) return CURSOR_TYPE
-      is (source => closure.source) with Inline;
+        (closure : in ITERABLE_TYPE) return CURSOR_TYPE
+      is ((null record)) with Inline;
 
       overriding function Next
-        (closure : in CLOSURE_TYPE;
+        (closure : in ITERABLE_TYPE;
          cursor  : in CURSOR_TYPE) return CURSOR_TYPE
       is (cursor) with Inline;
 
       function Call_Closure
-        (closure : in CLOSURE_TYPE;
-         cursor  : in CURSOR_TYPE) return OUTPUT_TYPE
-      is (closure.source.all) with Inline;
+        (closure : in ITERABLE_TYPE;
+         cursor  : in CURSOR_TYPE) return ELEMENT_TYPE
+      is (closure.flux.all) with Inline;
 
       function Cast_Iterator
-        (closure : in CLOSURE_TYPE) return ITERATOR_INTERFACE'Class
+        (closure : in ITERABLE_TYPE) return ITERATOR_INTERFACE'Class
       is (closure) with Inline;
 
    end Closure_Wrapper;

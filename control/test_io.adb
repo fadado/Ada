@@ -117,10 +117,9 @@ begin
                return N;
             end counter;
 
-            package Counter_Pakage is new Closure_Wrapper (NATURAL);
-            use Counter_Pakage;
+            package Natural_Flux is new Closure_Wrapper (NATURAL);
 
-            count : Counter_Pakage.CLOSURE_TYPE (counter'Access); 
+            count : Natural_Flux.ITERABLE_TYPE (counter'Access); 
 
          begin
             for e of count loop
