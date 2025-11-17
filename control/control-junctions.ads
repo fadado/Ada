@@ -113,12 +113,14 @@ package Control . Junctions is
          Default_Iterator  => Cast_Iterator,
          Iterator_Element  => ELEMENT_TYPE;
 
+      subtype ITERATOR_TYPE is ITERABLE_TYPE;
+
       overriding function First
-        (closure : in ITERABLE_TYPE) return CURSOR_TYPE
+        (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
       is ((null record)) with Inline;
 
       overriding function Next
-        (closure : in ITERABLE_TYPE;
+        (iterator : in ITERATOR_TYPE;
          cursor  : in CURSOR_TYPE) return CURSOR_TYPE
       is (cursor) with Inline;
 
