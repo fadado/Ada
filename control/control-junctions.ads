@@ -121,7 +121,7 @@ package Control . Junctions is
 
       overriding function Next
         (iterator : in ITERATOR_TYPE;
-         cursor  : in CURSOR_TYPE) return CURSOR_TYPE
+         cursor   : in CURSOR_TYPE) return CURSOR_TYPE
       is (cursor) with Inline;
 
       function Call_Closure
@@ -131,7 +131,7 @@ package Control . Junctions is
 
       function Cast_Iterator
         (closure : in ITERABLE_TYPE) return ITERATOR_INTERFACE'Class
-      is (closure) with Inline;
+      is (ITERATOR_TYPE'(closure)) with Inline;
 
    end Closure_Wrapper;
 
