@@ -25,7 +25,7 @@ is
 
    subtype BUFFER_TYPE is STRING(1..1024);
 
-   package Joint is new Joint_Signature (
+   package Natural_Joint is new Joint_Signature (
       IO_Type        => NATURAL,
       Input_Context  => BUFFER_TYPE,
       Output_Context => BUFFER_TYPE
@@ -89,24 +89,22 @@ begin
       use Ada.Text_IO;
    begin
       declare
+         procedure Copy is new Joint (
+            Natural_Joint,
+            Line_Generator,
+            Line_Collector
+         );
+
          buffer : aliased BUFFER_TYPE;
 
          input  : GENERATOR_TYPE (input_lines'Access,  buffer'Access);
          output : COLLECTOR_TYPE (output_lines'Access, buffer'Access);
 
-         procedure Join is
-            new Junction (Joint, Line_Generator, Line_Collector);
-
-       --procedure Join(g: in out GENERATOR_TYPE; c: in out COLLECTOR_TYPE)
-       --   with Inline is
-       --begin
-       --   for x of g loop c.Resume(x); end loop;
-       --   c.Close;
-       --end;
-
       begin
-         Join(input, output);
+         -- test simple joint
+         Copy(input, output);
 
+         -- test closure wrapper
          declare
             N : NATURAL := 0;
 

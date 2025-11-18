@@ -6,13 +6,13 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 
 package body Control . Junctions is
 
-   --------------
-   -- Junction --
-   --------------
+   ------------
+   -- Joint --
+   ------------
 
-   procedure Junction
-      (generator : in out GENERATOR_TYPE;
-       collector : in out COLLECTOR_TYPE)
+   procedure Joint
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE)
    is
    begin
       for x of generator loop
@@ -20,23 +20,43 @@ package body Control . Junctions is
       end loop;
 
       collector.Close;
-   end Junction;
+   end Joint;
 
-   ------------
-   -- Filter --
-   ------------
+   ------------------
+   -- Joint_Filter --
+   ------------------
 
-   procedure Filter
-      (generator : in out GENERATOR_TYPE;
-       collector : in out COLLECTOR_TYPE)
+   procedure Joint_Filter
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE;
+      filter    : access function (x: IO_TYPE) return BOOLEAN)
    is
    begin
       for x of generator loop
-         collector.Resume(Map(x));
+         if not filter(x) then
+            collector.Resume(x);
+         end if;
       end loop;
 
       collector.Close;
-   end Filter;
+   end Joint_Filter;
+
+   ---------------
+   -- Joint_Map --
+   ---------------
+
+   procedure Joint_Map
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE;
+      map       : access function (x: INPUT_TYPE) return OUTPUT_TYPE)
+   is
+   begin
+      for x of generator loop
+         collector.Resume(map(x));
+      end loop;
+
+      collector.Close;
+   end Joint_Map;
 
 end Control . Junctions;
 

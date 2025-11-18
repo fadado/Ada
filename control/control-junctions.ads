@@ -10,6 +10,10 @@ with Control.Generators;
 with Control.Collectors;
 
 package Control . Junctions is
+   ---------------------------------------------------------------------------
+   --  Signatures
+   ---------------------------------------------------------------------------
+
    ---------------------
    -- Joint_Signature --
    ---------------------
@@ -20,71 +24,114 @@ package Control . Junctions is
       type OUTPUT_CONTEXT (<>) is limited private;
    package Joint_Signature is private end;
 
-   ----------------------
-   -- Filter_Signature --
-   ----------------------
+   -------------------------
+   -- Joint_Map_Signature --
+   -------------------------
 
    generic
       type INPUT_TYPE  is private;
       type OUTPUT_TYPE is private;
       type INPUT_CONTEXT  (<>) is limited private;
       type OUTPUT_CONTEXT (<>) is limited private;
-      with function Map(x: in INPUT_TYPE) return OUTPUT_TYPE;
-   package Filter_Signature is private end;
+   package Joint_Map_Signature is private end;
+
+   --------------------------
+   -- Joint_Pipe_Signature --
+   --------------------------
+
+   generic
+      type INPUT_TYPE  is private;
+      type OUTPUT_TYPE is private;
+      type HEAD_CONTEXT (<>) is limited private;
+      type BODY_CONTEXT (<>) is limited private;
+      type TAIL_CONTEXT (<>) is limited private;
+   package Joint_Pipe_Signature is private end;
+
+   ---------------------------------------------------------------------------
+   --  Junctions
+   ---------------------------------------------------------------------------
 
    --------------
-   -- Junction --
+   -- Joint --
    --------------
 
    generic
       with package Joint_Package is new Joint_Signature (<>);
-
       use Joint_Package;
 
       with package Input_Package is new Generators (
          Output_Type  => IO_TYPE,
          Context_Type => INPUT_CONTEXT
       );
+      use Input_Package;
 
       with package Ouput_Package is new Collectors (
          Input_Type   => IO_TYPE,
          Context_Type => OUTPUT_CONTEXT
       );
-
-      use Input_Package;
       use Ouput_Package;
-   procedure Junction
-      (generator : in out GENERATOR_TYPE;
-       collector : in out COLLECTOR_TYPE);
 
-   ------------
-   -- Filter --
-   ------------
+   procedure Joint
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE);
+
+   ------------------
+   -- Joint_Filter --
+   ------------------
 
    generic
-      with package Filter_Package is new Filter_Signature (<>);
+      with package Joint_Filter_Package is new Joint_Signature (<>);
+      use Joint_Filter_Package;
 
-      use Filter_Package;
+      with package Input_Package is new Generators (
+         Output_Type  => IO_TYPE,
+         Context_Type => INPUT_CONTEXT
+      );
+      use Input_Package;
+
+      with package Ouput_Package is new Collectors (
+         Input_Type   => IO_TYPE,
+         Context_Type => OUTPUT_CONTEXT
+      );
+      use Ouput_Package;
+
+   procedure Joint_Filter
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE;
+      filter    : access function (x: IO_TYPE) return BOOLEAN);
+
+   ---------------
+   -- Joint_Map --
+   ---------------
+
+   generic
+      with package Joint_Map_Package is new Joint_Map_Signature (<>);
+      use Joint_Map_Package;
 
       with package Input_Package is new Generators (
          Output_Type  => INPUT_TYPE,
          Context_Type => INPUT_CONTEXT
       );
+      use Input_Package;
 
       with package Ouput_Package is new Collectors (
          Input_Type   => OUTPUT_TYPE,
          Context_Type => OUTPUT_CONTEXT
       );
-
-      use Input_Package;
       use Ouput_Package;
-   procedure Filter
-      (generator : in out GENERATOR_TYPE;
-       collector : in out COLLECTOR_TYPE);
 
-   ---------------------------------------------------------------------
-   -- Closure Wrapper
-   ---------------------------------------------------------------------
+   procedure Joint_Map
+     (generator : in out GENERATOR_TYPE;
+      collector : in out COLLECTOR_TYPE;
+      map       : access function (x: INPUT_TYPE) return OUTPUT_TYPE);
+
+   ---------------------------------------------------------------------------
+   --  Wrappers
+   ---------------------------------------------------------------------------
+
+   ---------------------
+   -- Closure Wrapper --
+   ---------------------
 
    generic
       type ELEMENT_TYPE is private;
@@ -121,7 +168,7 @@ package Control . Junctions is
 
       overriding function Next
         (iterator : in ITERATOR_TYPE;
-         cursor  : in CURSOR_TYPE) return CURSOR_TYPE
+         cursor   : in CURSOR_TYPE) return CURSOR_TYPE
       is (cursor) with Inline;
 
       function Call_Closure
@@ -131,7 +178,7 @@ package Control . Junctions is
 
       function Cast_Iterator
         (closure : in ITERABLE_TYPE) return ITERATOR_INTERFACE'Class
-      is (closure) with Inline;
+      is (ITERATOR_TYPE'(closure)) with Inline;
 
    end Closure_Wrapper;
 

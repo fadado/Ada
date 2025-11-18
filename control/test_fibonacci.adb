@@ -5,175 +5,261 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Exceptions;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Iterator_Interfaces;
+with Ada.Text_IO;
 
-with Control.Generators; use Control;
+with Control.Generators;
 with Gotcha;
 
 procedure test_fibonacci
 is
-   Limit : constant := 10;
+   use Ada.Text_IO;
+   use Control;
 
-   package fibonacci_types is new Generators (
-      Output_Type  => POSITIVE,
-      Context_Type => INTEGER
-   );
-
-   use fibonacci_types;
-
-   procedure infinite
-     (generator : in out GENERATOR_INTERFACE'Class;
-      context   : access INTEGER)
-   is
-      m, n : POSITIVE := 1;
-      t : POSITIVE;
-   begin
-      generator.Yield(n);
-      loop
-         generator.Yield(n);
-         t := n; n := m+n; m := t;
-      end loop;
-   end infinite;
-
-   procedure finite
-     (generator : in out GENERATOR_INTERFACE'Class;
-      context   : access INTEGER)
-   is
-      max : INTEGER renames context.all;
-      m, n : POSITIVE := 1;
-      t : POSITIVE;
-   begin
-      generator.Yield(n);
-      for i in 2..max loop
-         generator.Yield(n);
-         t := n; n := m+n; m := t;
-      end loop;
-   end finite;
-
+   Maximum : constant := 10;
+   Limit   : constant := 55;
 begin
    Gotcha.Set_Handlers;
 
    ---------------------------------------------------------------------------
-   --  Test 1
+   --  Generators tests
    ---------------------------------------------------------------------------
 
-   Test_1:
    declare
-   begin
-      declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (infinite'Access, NULL);
-      begin
-         for i in 1..max loop
-            Put(fib.Resume'Image);
-         end loop;
-         New_Line;
-         fib.Close; -- necessary to stop infinite!
-      end;
-   end Test_1;
+      package fibonacci_types is new Generators (
+         Output_Type  => POSITIVE,
+         Context_Type => INTEGER
+      );
 
-   ---------------------------------------------------------------------------
-   --  Test 2
-   ---------------------------------------------------------------------------
+      use fibonacci_types;
 
-   Test_2:
-   declare
-   begin
-      declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+      procedure infinite
+        (generator : in out GENERATOR_INTERFACE'Class;
+         context   : access INTEGER)
+      is
+         n, m : POSITIVE := 1;
+         t : POSITIVE;
       begin
+         generator.Yield(n);
          loop
-            Put(fib.Resume'Image);
+            generator.Yield(n);
+            t := n; n := m+n; m := t;
          end loop;
-      exception
-         when Stop_Iteration => New_Line;
-      end;
-   end Test_2;
+      end infinite;
 
-   ---------------------------------------------------------------------------
-   --  Test 3
-   ---------------------------------------------------------------------------
-
-   Test_3:
-   declare
-   begin
-      declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
-         ptr : CURSOR_TYPE; --  := First(fib) raises Constraint_Error
+      procedure finite
+        (generator : in out GENERATOR_INTERFACE'Class;
+         context   : access INTEGER)
+      is
+         max : INTEGER renames context.all;
+         n, m : POSITIVE := 1;
+         t : POSITIVE;
       begin
-         ptr := First(fib);
-         loop
-            exit when not Has_Element(ptr);
-            Put(Element(ptr)'Image);
-            ptr := Next(ptr);
+         generator.Yield(n);
+         for i in 2..max loop
+            generator.Yield(n);
+            t := n; n := m+n; m := t;
          end loop;
-         New_Line;
-      end;
-   end Test_3;
+      end finite;
 
-   ---------------------------------------------------------------------------
-   --  Test 4
-   ---------------------------------------------------------------------------
-
-   Test_4:
-   declare
    begin
+      ---------------------------------------------------------------------------
+      --  Test 1
+      ---------------------------------------------------------------------------
+
+      Test_1:
       declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
-         procedure show(k: POSITIVE) is
+      begin
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (infinite'Access, NULL);
          begin
-            Put(k'Image);
-         end show;
-      begin
-         For_Each(fib, show'Access);
-         New_Line;
-      end;
-   end Test_4;
+            for i in 1..max loop
+               Put(fib.Resume'Image);
+            end loop;
+            New_Line;
+            fib.Close; -- necessary to stop infinite!
+         end;
+      end Test_1;
 
-   ---------------------------------------------------------------------------
-   --  Test 5
-   ---------------------------------------------------------------------------
+      ---------------------------------------------------------------------------
+      --  Test 2
+      ---------------------------------------------------------------------------
 
-   Test_5:
-   declare
-   begin
+      Test_2:
       declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
       begin
-         for p in Iterate(fib) loop
-            Put(Element(p)'Image);
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+         begin
+            loop
+               Put(fib.Resume'Image);
+            end loop;
+         exception
+            when Stop_Iteration => New_Line;
+         end;
+      end Test_2;
+
+      ---------------------------------------------------------------------------
+      --  Test 3
+      ---------------------------------------------------------------------------
+
+      Test_3:
+      declare
+      begin
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            ptr : CURSOR_TYPE; --  := First(fib) raises Constraint_Error
+         begin
+            ptr := First(fib);
+            loop
+               exit when not Has_Element(ptr);
+               Put(Element(ptr)'Image);
+               ptr := Next(ptr);
+            end loop;
+            New_Line;
+         end;
+      end Test_3;
+
+      ---------------------------------------------------------------------------
+      --  Test 4
+      ---------------------------------------------------------------------------
+
+      Test_4:
+      declare
+      begin
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            procedure show(k: POSITIVE) is
+            begin
+               Put(k'Image);
+            end show;
+         begin
+            For_Each(fib, show'Access);
+            New_Line;
+         end;
+      end Test_4;
+
+      ---------------------------------------------------------------------------
+      --  Test 5
+      ---------------------------------------------------------------------------
+
+      Test_5:
+      declare
+      begin
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+         begin
+            for p in Iterate(fib) loop
+               Put(Element(p)'Image);
+            end loop;
+            New_Line;
+         end;
+      end Test_5;
+
+      ---------------------------------------------------------------------------
+      --  Test 6
+      ---------------------------------------------------------------------------
+
+      Test_6:
+      declare
+      begin
+         declare
+            max : aliased INTEGER := Maximum;
+            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+         begin
+            for k:POSITIVE of fib loop
+               Put(k'Image);
+            end loop;
+            New_Line;
+         end;
+      end Test_6;
+
+   exception
+      when X : others =>
+         Gotcha.Report_Exception(X, "Handled exception at top level");
+   end;
+
+   ---------------------------------------------------------------------------
+   --  Iterator test
+   ---------------------------------------------------------------------------
+   
+   declare
+      package Fibonacci is
+         type CURSOR_TYPE is
+            record
+               n, m : POSITIVE;
+            end record;
+
+         function Has_Element
+           (cursor : in CURSOR_TYPE) return BOOLEAN
+         is (TRUE) with Inline;
+
+         package Fibonacci_IIP is
+            new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);
+
+         type ITERATOR_TYPE is new Fibonacci_IIP.Forward_Iterator
+            with null record
+         with
+            -- also as *iterable* type
+            Constant_Indexing => Cursor_Value,
+            Default_Iterator  => Identity,
+            Iterator_Element  => POSITIVE;
+
+         overriding function First
+           (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
+         is ((1, 1)) with Inline;
+
+         overriding function Next
+           (iterator : in ITERATOR_TYPE;
+            cursor   : in CURSOR_TYPE) return CURSOR_TYPE
+         is ((cursor.m, cursor.n+cursor.m)) with Inline;
+
+         function Cursor_Value
+           (iterator : in ITERATOR_TYPE;
+            cursor   : CURSOR_TYPE) return POSITIVE
+         is (cursor.n) with Inline;
+
+         function Identity
+           (iterator : in ITERATOR_TYPE) return ITERATOR_TYPE
+         is (iterator) with Inline;
+      end Fibonacci;
+
+
+   begin
+      ---------------------------------------------------------------------------
+      --  Test 7
+      ---------------------------------------------------------------------------
+
+      declare
+         fib : Fibonacci.ITERATOR_TYPE;
+      begin
+         for element of fib loop
+            exit when element > Limit;
+            Put(element'Image);
          end loop;
          New_Line;
       end;
-   end Test_5;
 
-   ---------------------------------------------------------------------------
-   --  Test 6
-   ---------------------------------------------------------------------------
+      ---------------------------------------------------------------------------
+      --  Test 8
+      ---------------------------------------------------------------------------
 
-   Test_6:
-   declare
-   begin
       declare
-         max : aliased INTEGER := Limit;
-         fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+         use Fibonacci;
+         fib : ITERATOR_TYPE;
       begin
-         for k:POSITIVE of fib loop
-            Put(k'Image);
+         for cursor in fib loop
+            exit when Cursor_Value(fib, cursor) > Limit;
+            Put(Cursor_Value(fib, cursor)'Image);
          end loop;
          New_Line;
       end;
-   end Test_6;
-
-   New_Line;
-
-exception
-   when X : others =>
-      Gotcha.Report_Exception(X, "Handled exception at top level");
+   end;
 
 end test_fibonacci;
 
