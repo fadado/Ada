@@ -7,6 +7,7 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 with Ada.Iterator_Interfaces;
 
 with Control.Generators;
+with Control.Functors;
 with Control.Collectors;
 
 package Control . Junctions is
@@ -19,9 +20,9 @@ package Control . Junctions is
    ---------------------
 
    generic
-      type IO_TYPE is private;
-      type INPUT_CONTEXT  (<>) is limited private;
-      type OUTPUT_CONTEXT (<>) is limited private;
+      type ELEMENT_TYPE is private;
+      type SOURCE_CONTEXT (<>) is limited private;
+      type TARGET_CONTEXT (<>) is limited private;
    package Joint_Signature is private end;
 
    -------------------------
@@ -29,10 +30,10 @@ package Control . Junctions is
    -------------------------
 
    generic
-      type INPUT_TYPE  is private;
-      type OUTPUT_TYPE is private;
-      type INPUT_CONTEXT  (<>) is limited private;
-      type OUTPUT_CONTEXT (<>) is limited private;
+      type SOURCE_TYPE is private;
+      type TARGET_TYPE is private;
+      type SOURCE_CONTEXT (<>) is limited private;
+      type TARGET_CONTEXT (<>) is limited private;
    package Joint_Map_Signature is private end;
 
    --------------------------
@@ -40,36 +41,36 @@ package Control . Junctions is
    --------------------------
 
    generic
-      type INPUT_TYPE  is private;
-      type OUTPUT_TYPE is private;
-      type HEAD_CONTEXT (<>) is limited private;
-      type BODY_CONTEXT (<>) is limited private;
-      type TAIL_CONTEXT (<>) is limited private;
+      type SOURCE_TYPE is private;
+      type TARGET_TYPE is private;
+      type SOURCE_CONTEXT (<>) is limited private;
+      type MIDDLE_CONTEXT (<>) is limited private;
+      type TARGET_CONTEXT (<>) is limited private;
    package Joint_Pipe_Signature is private end;
 
    ---------------------------------------------------------------------------
    --  Junctions
    ---------------------------------------------------------------------------
 
-   --------------
+   -----------
    -- Joint --
-   --------------
+   -----------
 
    generic
-      with package Joint_Package is new Joint_Signature (<>);
-      use Joint_Package;
+      with package J_Package is new Joint_Signature (<>);
+      use J_Package;
 
-      with package Input_Package is new Generators (
-         Output_Type  => IO_TYPE,
-         Context_Type => INPUT_CONTEXT
+      with package G_Package is new Generators (
+         Element_Type => ELEMENT_TYPE,
+         Context_Type => SOURCE_CONTEXT
       );
-      use Input_Package;
+      use G_Package;
 
-      with package Ouput_Package is new Collectors (
-         Input_Type   => IO_TYPE,
-         Context_Type => OUTPUT_CONTEXT
+      with package C_Package is new Collectors (
+         Element_Type => ELEMENT_TYPE,
+         Context_Type => TARGET_CONTEXT
       );
-      use Ouput_Package;
+      use C_Package;
 
    procedure Joint
      (generator : in out GENERATOR_TYPE;
@@ -80,50 +81,82 @@ package Control . Junctions is
    ------------------
 
    generic
-      with package Joint_Filter_Package is new Joint_Signature (<>);
-      use Joint_Filter_Package;
+      with package J_Package is new Joint_Signature (<>);
+      use J_Package;
 
-      with package Input_Package is new Generators (
-         Output_Type  => IO_TYPE,
-         Context_Type => INPUT_CONTEXT
+      with package G_Package is new Generators (
+         Element_Type => ELEMENT_TYPE,
+         Context_Type => SOURCE_CONTEXT
       );
-      use Input_Package;
+      use G_Package;
 
-      with package Ouput_Package is new Collectors (
-         Input_Type   => IO_TYPE,
-         Context_Type => OUTPUT_CONTEXT
+      with package C_Package is new Collectors (
+         Element_Type => ELEMENT_TYPE,
+         Context_Type => TARGET_CONTEXT
       );
-      use Ouput_Package;
+      use C_Package;
 
    procedure Joint_Filter
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE;
-      filter    : access function (x: IO_TYPE) return BOOLEAN);
+      filter    : access function (element: ELEMENT_TYPE) return BOOLEAN);
 
    ---------------
    -- Joint_Map --
    ---------------
 
    generic
-      with package Joint_Map_Package is new Joint_Map_Signature (<>);
-      use Joint_Map_Package;
+      with package M_Package is new Joint_Map_Signature (<>);
+      use M_Package;
 
-      with package Input_Package is new Generators (
-         Output_Type  => INPUT_TYPE,
-         Context_Type => INPUT_CONTEXT
+      with package G_Package is new Generators (
+         Element_Type => SOURCE_TYPE,
+         Context_Type => SOURCE_CONTEXT
       );
-      use Input_Package;
+      use G_Package;
 
-      with package Ouput_Package is new Collectors (
-         Input_Type   => OUTPUT_TYPE,
-         Context_Type => OUTPUT_CONTEXT
+      with package C_Package is new Collectors (
+         Element_Type => TARGET_TYPE,
+         Context_Type => TARGET_CONTEXT
       );
-      use Ouput_Package;
+      use C_Package;
 
    procedure Joint_Map
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE;
-      map       : access function (x: INPUT_TYPE) return OUTPUT_TYPE);
+      map       : access function (element: SOURCE_TYPE) return TARGET_TYPE);
+
+   ----------------
+   -- Joint_Pipe --
+   ----------------
+
+   generic
+      with package P_Package is new Joint_Pipe_Signature (<>);
+      use P_Package;
+
+      with package G_Package is new Generators (
+         Element_Type => SOURCE_TYPE,
+         Context_Type => SOURCE_CONTEXT
+      );
+      use G_Package;
+
+      with package F_Package is new Functors (
+         Input_Type   => SOURCE_TYPE,
+         Output_Type  => TARGET_TYPE,
+         Context_Type => MIDDLE_CONTEXT
+      );
+      use F_Package;
+
+      with package C_Package is new Collectors (
+         Element_Type => TARGET_TYPE,
+         Context_Type => TARGET_CONTEXT
+      );
+      use C_Package;
+
+   procedure Joint_Pipe
+     (generator : in out GENERATOR_TYPE;
+      functor   : in out FUNCTOR_TYPE;
+      collector : in out COLLECTOR_TYPE);
 
    ---------------------------------------------------------------------------
    --  Wrappers

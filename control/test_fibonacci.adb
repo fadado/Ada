@@ -27,7 +27,7 @@ begin
 
    declare
       package fibonacci_types is new Generators (
-         Output_Type  => POSITIVE,
+         Element_Type => POSITIVE,
          Context_Type => INTEGER
       );
 
@@ -91,7 +91,7 @@ begin
       begin
          declare
             max : aliased INTEGER := Maximum;
-            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            fib : GENERATOR_TYPE (finite'Access, max'Access);
          begin
             loop
                Put(fib.Resume'Image);
@@ -110,7 +110,7 @@ begin
       begin
          declare
             max : aliased INTEGER := Maximum;
-            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            fib : GENERATOR_TYPE (finite'Access, max'Access);
             ptr : CURSOR_TYPE; --  := First(fib) raises Constraint_Error
          begin
             ptr := First(fib);
@@ -132,7 +132,7 @@ begin
       begin
          declare
             max : aliased INTEGER := Maximum;
-            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            fib : GENERATOR_TYPE (finite'Access, max'Access);
             procedure show(k: POSITIVE) is
             begin
                Put(k'Image);
@@ -152,7 +152,7 @@ begin
       begin
          declare
             max : aliased INTEGER := Maximum;
-            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            fib : GENERATOR_TYPE (finite'Access, max'Access);
          begin
             for p in Iterate(fib) loop
                Put(Element(p)'Image);
@@ -170,7 +170,7 @@ begin
       begin
          declare
             max : aliased INTEGER := Maximum;
-            fib : GENERATOR_TYPE (finite'Access, max'Unchecked_Access);
+            fib : GENERATOR_TYPE (finite'Access, max'Access);
          begin
             for k:POSITIVE of fib loop
                Put(k'Image);

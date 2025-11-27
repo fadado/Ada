@@ -17,7 +17,7 @@ package body Control . Generators is
 
    overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
-      value     : in OUTPUT_TYPE)
+      value     : in ELEMENT_TYPE)
    is
       parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
    begin
@@ -30,7 +30,7 @@ package body Control . Generators is
    ------------
 
    not overriding function Resume
-     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
+     (generator : in out GENERATOR_TYPE) return ELEMENT_TYPE
    is
    begin
       if generator.state = DEAD then
@@ -137,7 +137,7 @@ package body Control . Generators is
    -------------
 
    function Element
-     (cursor : in CURSOR_TYPE) return OUTPUT_TYPE
+     (cursor : in CURSOR_TYPE) return ELEMENT_TYPE
    is
       generator : GENERATOR_TYPE renames cursor.source.all;
    begin
@@ -153,7 +153,7 @@ package body Control . Generators is
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure (value: OUTPUT_TYPE))
+      callback  : not null access procedure (value: ELEMENT_TYPE))
    is
       cursor : CURSOR_TYPE;
    begin
@@ -171,7 +171,7 @@ package body Control . Generators is
 
    function Element_Value
      (generator : in out GENERATOR_TYPE;
-      cursor    : in CURSOR_TYPE) return OUTPUT_TYPE
+      cursor    : in CURSOR_TYPE) return ELEMENT_TYPE
    is
       type A is not null access all GENERATOR_TYPE;
    begin

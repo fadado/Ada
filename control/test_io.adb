@@ -26,18 +26,18 @@ is
    subtype BUFFER_TYPE is STRING(1..1024);
 
    package Natural_Joint is new Joint_Signature (
-      IO_Type        => NATURAL,
-      Input_Context  => BUFFER_TYPE,
-      Output_Context => BUFFER_TYPE
+      Element_Type   => NATURAL,
+      Source_Context => BUFFER_TYPE,
+      Target_Context => BUFFER_TYPE
    );
 
    package Line_Generator is new Generators (
-      Output_Type  => NATURAL,
+      Element_Type  => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
    package Line_Collector is new Collectors (
-      Input_Type   => NATURAL,
+      Element_Type => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
@@ -48,7 +48,7 @@ is
    --
    ---------------------------------------------------------------------
 
-   procedure input_lines
+   procedure source_lines
      (generator : in out GENERATOR_INTERFACE'Class;
       bufptr    : access BUFFER_TYPE)
    is
@@ -61,7 +61,7 @@ is
          Get_Line(buffer, n);
          generator.Yield(n);
       end loop;
-   end input_lines;
+   end source_lines;
 
    procedure output_lines
      (collector : in out COLLECTOR_INTERFACE'Class;
@@ -97,7 +97,7 @@ begin
 
          buffer : aliased BUFFER_TYPE;
 
-         input  : GENERATOR_TYPE (input_lines'Access,  buffer'Access);
+         input  : GENERATOR_TYPE (source_lines'Access, buffer'Access);
          output : COLLECTOR_TYPE (output_lines'Access, buffer'Access);
 
       begin

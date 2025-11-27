@@ -16,7 +16,7 @@ package body Control . Collectors is
    -----------
 
    overriding function Yield
-     (collector : in out COLLECTOR_TYPE) return INPUT_TYPE
+     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE
    is
       parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(collector);
    begin
@@ -35,7 +35,7 @@ package body Control . Collectors is
 
    not overriding procedure Resume
      (collector : in out COLLECTOR_TYPE;
-      input     : in INPUT_TYPE)
+      input     : in ELEMENT_TYPE)
    is
    begin
       if collector.state = DEAD then

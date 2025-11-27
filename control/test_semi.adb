@@ -59,7 +59,7 @@ begin
 
       type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
          record
-            run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
+            run : HELLO_RUN (HELLO_COROUTINE'Access);
          end record;
 
       hello : HELLO_COROUTINE;
@@ -78,7 +78,7 @@ begin
 
       type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
          record
-            run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
+            run : HELLO_RUN (HELLO_COROUTINE'Access);
          end record;
 
       task body HELLO_RUN is
@@ -113,7 +113,7 @@ begin
       private
          type HELLO_COROUTINE is limited new SEMI_CONTROLLER_TYPE with
             record
-               run : HELLO_RUN (HELLO_COROUTINE'Unchecked_Access);
+               run : HELLO_RUN (HELLO_COROUTINE'Access);
             end record;
       end Hello_Package;
 

@@ -15,8 +15,8 @@ package body Control . Junctions is
       collector : in out COLLECTOR_TYPE)
    is
    begin
-      for x of generator loop
-         collector.Resume(x);
+      for element of generator loop
+         collector.Resume(element);
       end loop;
 
       collector.Close;
@@ -29,12 +29,12 @@ package body Control . Junctions is
    procedure Joint_Filter
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE;
-      filter    : access function (x: IO_TYPE) return BOOLEAN)
+      filter    : access function (element: ELEMENT_TYPE) return BOOLEAN)
    is
    begin
-      for x of generator loop
-         if not filter(x) then
-            collector.Resume(x);
+      for element of generator loop
+         if not filter(element) then
+            collector.Resume(element);
          end if;
       end loop;
 
@@ -48,15 +48,33 @@ package body Control . Junctions is
    procedure Joint_Map
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE;
-      map       : access function (x: INPUT_TYPE) return OUTPUT_TYPE)
+      map       : access function (element: SOURCE_TYPE) return TARGET_TYPE)
    is
    begin
-      for x of generator loop
-         collector.Resume(map(x));
+      for element of generator loop
+         collector.Resume(map(element));
       end loop;
 
       collector.Close;
    end Joint_Map;
+
+   ----------------
+   -- Joint_Pipe --
+   ----------------
+
+   procedure Joint_Pipe
+     (generator : in out GENERATOR_TYPE;
+      functor   : in out FUNCTOR_TYPE;
+      collector : in out COLLECTOR_TYPE)
+   is
+   begin
+      for element of generator loop
+         collector.Resume(functor.Resume(element));
+      end loop;
+
+      functor.Close;
+      collector.Close;
+   end Joint_Pipe;
 
 end Control . Junctions;
 

@@ -63,7 +63,7 @@ private
    ) is limited new SEMI_CONTROLLER_TYPE and FUNCTOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
-         runner     : FUNCTOR_Runner (FUNCTOR_TYPE'Unchecked_Access);
+         runner     : FUNCTOR_Runner (FUNCTOR_TYPE'Access);
          input      : INPUT_TYPE;
          output     : OUTPUT_TYPE;
          inaugural  : BOOLEAN := TRUE;

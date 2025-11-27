@@ -55,7 +55,7 @@ private
          context : access CONTEXT_TYPE
    ) is limited new BASE_CONTROLLER and COROUTINE_INTERFACE with 
       record
-         runner  : CoRoutine_Runner (COROUTINE_TYPE'Unchecked_Access);
+         runner  : CoRoutine_Runner (COROUTINE_TYPE'Access);
       end record;
 
 end Control . CoRoutines . Implement;

@@ -7,7 +7,7 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 with Ada.Iterator_Interfaces;
 
 generic
-   type OUTPUT_TYPE is private;
+   type ELEMENT_TYPE is private;
    --  Type for `Yield` generated values
 
    type CONTEXT_TYPE (<>) is limited private;
@@ -22,7 +22,7 @@ package Control . Generators is
 
    procedure Yield
      (generator : in out GENERATOR_INTERFACE;
-      output    : in OUTPUT_TYPE) is abstract;
+      output    : in ELEMENT_TYPE) is abstract;
    -- To restrict the generator procedure to call only `Yield`
 
    type GENERATOR_PROCEDURE is not null access procedure
@@ -37,17 +37,17 @@ package Control . Generators is
    with
       Constant_Indexing => Element_Value,
       Default_Iterator  => Iterate,
-      Iterator_Element  => OUTPUT_TYPE;
+      Iterator_Element  => ELEMENT_TYPE;
    --  Coroutine type with iterable capabilities
 
    overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
-      value     : in OUTPUT_TYPE)
+      value     : in ELEMENT_TYPE)
    with Inline;
    --  Yields control and a value
 
    function Resume
-     (generator : in out GENERATOR_TYPE) return OUTPUT_TYPE
+     (generator : in out GENERATOR_TYPE) return ELEMENT_TYPE
    with Inline;
    --  Resume `generator` and raises `Stop_Iteration` when dead
 
@@ -81,20 +81,20 @@ package Control . Generators is
    --  otherwise
 
    function Element
-     (cursor : in CURSOR_TYPE) return OUTPUT_TYPE;
+     (cursor : in CURSOR_TYPE) return ELEMENT_TYPE;
    --  If `cursor` equals `No_Element`, then `Control_Error` is
    --  propagated;  otherwise, `Element` returns the element designated by
    --  `cursor`
 
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure (value: in OUTPUT_TYPE));
+      callback  : not null access procedure (value: in ELEMENT_TYPE));
    --  Invokes `callback.all` with a `value` for each element in `generator`,
    --  consuming `generator` until exhaustion
 
    function Element_Value
      (generator : in out GENERATOR_TYPE;
-      cursor    : in CURSOR_TYPE) return OUTPUT_TYPE
+      cursor    : in CURSOR_TYPE) return ELEMENT_TYPE
    with Inline;
    --  Used only in the `Constant_Indexing` aspect
 
@@ -129,8 +129,8 @@ private
    ) is limited new SEMI_CONTROLLER_TYPE and GENERATOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
-         runner     : Generator_Runner (GENERATOR_TYPE'Unchecked_Access);
-         output     : OUTPUT_TYPE;
+         runner     : Generator_Runner (GENERATOR_TYPE'Access);
+         output     : ELEMENT_TYPE;
       end record;
 
    type CURSOR_TYPE is

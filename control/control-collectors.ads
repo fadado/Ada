@@ -5,7 +5,7 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 generic
-   type INPUT_TYPE is private;
+   type ELEMENT_TYPE is private;
    --  Type for `Yield` generated values
 
    type CONTEXT_TYPE (<>) is limited private;
@@ -19,7 +19,7 @@ package Control . Collectors is
    type COLLECTOR_INTERFACE is limited interface;
 
    function Yield
-     (collector : in out COLLECTOR_INTERFACE) return INPUT_TYPE is abstract;
+     (collector : in out COLLECTOR_INTERFACE) return ELEMENT_TYPE is abstract;
    -- To restrict the collector procedure to call only `Yield`
 
    type COLLECTOR_PROCEDURE is not null access procedure
@@ -34,12 +34,12 @@ package Control . Collectors is
    --  Coroutine type with collector capabilities
 
    overriding function Yield
-     (collector : in out COLLECTOR_TYPE) return INPUT_TYPE;
+     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE;
    --  Yields control after returning a value
 
    procedure Resume
      (collector : in out COLLECTOR_TYPE;
-      input     : in INPUT_TYPE);
+      input     : in ELEMENT_TYPE);
    --  Resume `collector` with a new `input` value
 
    procedure Close
@@ -60,7 +60,7 @@ private
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Collector_Runner (COLLECTOR_TYPE'Access);
-         input      : INPUT_TYPE;
+         input      : ELEMENT_TYPE;
          inaugural  : BOOLEAN := TRUE;
       end record;
 
