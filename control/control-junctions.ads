@@ -15,15 +15,15 @@ package Control . Junctions is
    --  Signatures
    ---------------------------------------------------------------------------
 
-   ---------------------
-   -- Joint_Signature --
-   ---------------------
+   --------------------------
+   -- Joint_Pass_Signature --
+   --------------------------
 
    generic
       type ELEMENT_TYPE is private;
       type SOURCE_CONTEXT (<>) is limited private;
       type TARGET_CONTEXT (<>) is limited private;
-   package Joint_Signature is private end;
+   package Joint_Pass_Signature is private end;
 
    -------------------------
    -- Joint_Map_Signature --
@@ -52,27 +52,27 @@ package Control . Junctions is
    --  Junctions
    ---------------------------------------------------------------------------
 
-   -----------
-   -- Joint --
-   -----------
+   ----------------
+   -- Joint_Pass --
+   ----------------
 
    generic
-      with package J_Package is new Joint_Signature (<>);
-      use J_Package;
+      with package Joiner_Instance is new Joint_Pass_Signature (<>);
+      use Joiner_Instance;
 
-      with package G_Package is new Generators (
+      with package Generator_Instance is new Generators (
          Element_Type => ELEMENT_TYPE,
          Context_Type => SOURCE_CONTEXT
       );
-      use G_Package;
+      use Generator_Instance;
 
-      with package C_Package is new Collectors (
+      with package Collector_Instance is new Collectors (
          Element_Type => ELEMENT_TYPE,
          Context_Type => TARGET_CONTEXT
       );
-      use C_Package;
+      use Collector_Instance;
 
-   procedure Joint
+   procedure Joint_Pass
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE);
 
@@ -81,20 +81,20 @@ package Control . Junctions is
    ------------------
 
    generic
-      with package J_Package is new Joint_Signature (<>);
-      use J_Package;
+      with package Joiner_Instance is new Joint_Pass_Signature (<>);
+      use Joiner_Instance;
 
-      with package G_Package is new Generators (
+      with package Generator_Instance is new Generators (
          Element_Type => ELEMENT_TYPE,
          Context_Type => SOURCE_CONTEXT
       );
-      use G_Package;
+      use Generator_Instance;
 
-      with package C_Package is new Collectors (
+      with package Collector_Instance is new Collectors (
          Element_Type => ELEMENT_TYPE,
          Context_Type => TARGET_CONTEXT
       );
-      use C_Package;
+      use Collector_Instance;
 
    procedure Joint_Filter
      (generator : in out GENERATOR_TYPE;
@@ -106,20 +106,20 @@ package Control . Junctions is
    ---------------
 
    generic
-      with package M_Package is new Joint_Map_Signature (<>);
-      use M_Package;
+      with package Joiner_Instance is new Joint_Map_Signature (<>);
+      use Joiner_Instance;
 
-      with package G_Package is new Generators (
+      with package Generator_Instance is new Generators (
          Element_Type => SOURCE_TYPE,
          Context_Type => SOURCE_CONTEXT
       );
-      use G_Package;
+      use Generator_Instance;
 
-      with package C_Package is new Collectors (
+      with package Collector_Instance is new Collectors (
          Element_Type => TARGET_TYPE,
          Context_Type => TARGET_CONTEXT
       );
-      use C_Package;
+      use Collector_Instance;
 
    procedure Joint_Map
      (generator : in out GENERATOR_TYPE;
@@ -131,27 +131,27 @@ package Control . Junctions is
    ----------------
 
    generic
-      with package P_Package is new Joint_Pipe_Signature (<>);
-      use P_Package;
+      with package Joiner_Instance is new Joint_Pipe_Signature (<>);
+      use Joiner_Instance;
 
-      with package G_Package is new Generators (
+      with package Generator_Instance is new Generators (
          Element_Type => SOURCE_TYPE,
          Context_Type => SOURCE_CONTEXT
       );
-      use G_Package;
+      use Generator_Instance;
 
-      with package F_Package is new Functors (
-         Input_Type   => SOURCE_TYPE,
-         Output_Type  => TARGET_TYPE,
+      with package Functor_Instance is new Functors (
+         Source_Type  => SOURCE_TYPE,
+         Target_Type  => TARGET_TYPE,
          Context_Type => MIDDLE_CONTEXT
       );
-      use F_Package;
+      use Functor_Instance;
 
-      with package C_Package is new Collectors (
+      with package Collector_Instance is new Collectors (
          Element_Type => TARGET_TYPE,
          Context_Type => TARGET_CONTEXT
       );
-      use C_Package;
+      use Collector_Instance;
 
    procedure Joint_Pipe
      (generator : in out GENERATOR_TYPE;

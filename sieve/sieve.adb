@@ -44,7 +44,7 @@ procedure Sieve is
    package Bounded_Synchronized_Queue is
       new Containers.Bounded_Synchronized_Queues (
          Queue_Interfaces => Synchronized_Queue_Interface,
-         Default_Capacity => 2   -- > 2 is not faster
+         Default_Capacity => 2   -- greater than 2 is not faster
       );
 
    subtype NUMERIC_CHANNEL is Bounded_Synchronized_Queue.QUEUE;

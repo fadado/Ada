@@ -25,14 +25,14 @@ is
 
    subtype BUFFER_TYPE is STRING(1..1024);
 
-   package Natural_Joint is new Joint_Signature (
+   package Natural_Joiner is new Joint_Pass_Signature (
       Element_Type   => NATURAL,
       Source_Context => BUFFER_TYPE,
       Target_Context => BUFFER_TYPE
    );
 
    package Line_Generator is new Generators (
-      Element_Type  => NATURAL,
+      Element_Type => NATURAL,
       Context_Type => BUFFER_TYPE
    );
 
@@ -41,14 +41,20 @@ is
       Context_Type => BUFFER_TYPE
    );
 
-   use Line_Generator;
-   use Line_Collector;
+   procedure Copy is new Joint_Pass (
+      Joiner_Instance    => Natural_Joiner,
+      Generator_Instance => Line_Generator,
+      Collector_Instance => Line_Collector
+   );
 
    ---------------------------------------------------------------------
    --
    ---------------------------------------------------------------------
 
-   procedure source_lines
+   use Line_Generator;
+   use Line_Collector;
+
+   procedure input_lines
      (generator : in out GENERATOR_INTERFACE'Class;
       bufptr    : access BUFFER_TYPE)
    is
@@ -61,7 +67,7 @@ is
          Get_Line(buffer, n);
          generator.Yield(n);
       end loop;
-   end source_lines;
+   end input_lines;
 
    procedure output_lines
      (collector : in out COLLECTOR_INTERFACE'Class;
@@ -88,44 +94,33 @@ begin
    declare
       use Ada.Text_IO;
    begin
+      -- test Joint_Pass
       declare
-         procedure Copy is new Joint (
-            Natural_Joint,
-            Line_Generator,
-            Line_Collector
-         );
-
          buffer : aliased BUFFER_TYPE;
-
-         input  : GENERATOR_TYPE (source_lines'Access, buffer'Access);
+         input  : GENERATOR_TYPE (input_lines'Access,  buffer'Access);
          output : COLLECTOR_TYPE (output_lines'Access, buffer'Access);
-
       begin
-         -- test simple joint
          Copy(input, output);
+      end;
 
-         -- test closure wrapper
-         declare
-            N : NATURAL := 0;
-
-            function counter return NATURAL
-            is
-            begin
-               N := N + 1;
-               return N;
-            end counter;
-
-            package Natural_Flux is new Closure_Wrapper (NATURAL);
-
-            count : Natural_Flux.ITERABLE_TYPE (counter'Access); 
-
+      -- test Closure_Wrapper
+      declare
+         N : NATURAL := 0;
+         function counter return NATURAL
+         is
          begin
-            for e of count loop
-               Put(e'Image);
-               exit when e = 20;
-            end loop;
-            New_Line;
-         end;
+            N := N + 1;
+            return N;
+         end counter;
+
+         package Natural_Flux is new Closure_Wrapper (NATURAL);
+         count : Natural_Flux.ITERABLE_TYPE (counter'Access); 
+      begin
+         for element of count loop
+            Put(element'Image);
+            exit when element = 20;
+         end loop;
+         New_Line;
       end;
    end;
 

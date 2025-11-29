@@ -6,11 +6,11 @@ pragma Assertion_Policy (Check); -- Check / Ignore
 
 package body Control . Junctions is
 
-   ------------
-   -- Joint --
-   ------------
+   ----------------
+   -- Joint_Pass --
+   ----------------
 
-   procedure Joint
+   procedure Joint_Pass
      (generator : in out GENERATOR_TYPE;
       collector : in out COLLECTOR_TYPE)
    is
@@ -20,7 +20,7 @@ package body Control . Junctions is
       end loop;
 
       collector.Close;
-   end Joint;
+   end Joint_Pass;
 
    ------------------
    -- Joint_Filter --
