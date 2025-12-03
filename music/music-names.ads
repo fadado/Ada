@@ -1,4 +1,4 @@
-package Music.Names is
+package Music . Names is
 
    C  : constant PITCH_CLASS :=  0;
    Cs : constant PITCH_CLASS :=  1;
@@ -46,7 +46,7 @@ package Music.Names is
    subtype TONE_ROW     is DODECACHORD;
    subtype SERIES       is DODECACHORD;
 
-end Music.Names;
+end Music . Names;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

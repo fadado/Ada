@@ -1,7 +1,7 @@
 -- An example implementation for pitches encoded as in MIDI.
 -- Several other encodings are possible.
 
-package Music.MIDI is
+package Music . MIDI is
 
    type    PITCH is range 0..127;
    type    PITCH_INTERVAL is range -127..+127;
@@ -19,7 +19,7 @@ package Music.MIDI is
    -- "abs"(i: PITCH_INTERVAL): UNORDERED_INTERVAL
    --     abs Interval(x, y)
 
-end Music.MIDI;
+end Music . MIDI;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

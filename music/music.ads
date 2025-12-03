@@ -142,43 +142,39 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
-   package PC_Tuple_Signature is
+   package PC_Tuple_Instance is
       new Tuples.Signature (
-         Index_Type   => TUPLE_INDEX,
          Element_Type => PITCH_CLASS,
+         Index_Type   => TUPLE_INDEX,
          Array_Type   => PC_TUPLE
    );
 
    -- Packages
 
-   package PC_Tuple_Place is
-      new Tuples.Place (PC_Tuple_Signature);
+   package PC_Tuple_Arrayed is
+      new Tuples.Arrayed (PC_Tuple_Instance, "=");
 
-   package PC_Tuple_Applicative is
-      new Tuples.Applicative (PC_Tuple_Signature);
+   package PC_Tuple_Ordered is
+      new Tuples.Ordered (PC_Tuple_Instance, "<", ">");
 
-   package PC_Tuple_Equivalence is
-      new Tuples.Equivalence (PC_Tuple_Signature, "=");
-
-   package PC_Tuple_Order is
-      new Tuples.Order (PC_Tuple_Signature, "<", ">");
+   package PC_Tuple_Lifted is
+      new Tuples.Lifted (PC_Tuple_Instance);
 
    -- Subprograms
 
-   function Retrograde
+   function Retrograded
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Place.Reversed;
+   renames PC_Tuple_Arrayed.Reversed;
 
-   function Rotate
+   function Rotated
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   is (PC_Tuple_Place.Right_Rotated(NATURAL(n), s))
+   is (PC_Tuple_Arrayed.Right_Rotated(NATURAL(n), s))
    with Inline;
 
-   function Rotate is new Generics.Partial
-     (TUPLE_INDEX, PC_TUPLE, PC_TUPLE,
-      Rotate, 1);
-   -- Generated: function Rotate (s : PC_TUPLE) return PC_TUPLE;
+   function Rotated is new
+      Generics.Partial (TUPLE_INDEX, PC_TUPLE, PC_TUPLE, Rotated, 1);
+   -- Generated: function Rotated (s : PC_TUPLE) return PC_TUPLE;
 
    function Cardinality
      (s : PC_TUPLE) return SET_COUNT
@@ -192,23 +188,22 @@ package Music is
      (i : PC_INTERVAL;
       s : PC_TUPLE) return PC_TUPLE;
 
-   function Inversion is new Generics.Partial
-     (PC_INTERVAL, PC_TUPLE, PC_TUPLE,
-      Inversion, 0);
+   function Inversion is new
+      Generics.Partial (PC_INTERVAL, PC_TUPLE, PC_TUPLE, Inversion, 0);
    -- Generated: function Inversion (s : PC_TUPLE) return PC_TUPLE;
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Tuple_Order.Sort_It;
+   renames PC_Tuple_Ordered.Sort_It;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Order.Sorted;
+   renames PC_Tuple_Ordered.Sorted;
 
    function Search
      (x : PITCH_CLASS;
       t : PC_TUPLE) return TUPLE_INDEX
-   renames PC_Tuple_Order.Search;
+   renames PC_Tuple_Ordered.Search;
 
    -------------------
    -- Set <=> Tuple --
@@ -216,11 +211,11 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => not PC_Tuple_Equivalence.Contains_Duplicates(s);
+   with Pre => not PC_Tuple_Arrayed.Contains_Duplicates(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE
-   with Post => not PC_Tuple_Order.Contains_Duplicates(Tuple'Result);
+   with Post => not PC_Tuple_Ordered.Contains_Duplicates(Tuple'Result);
 
    ----------------------
    -- Interval pattern --

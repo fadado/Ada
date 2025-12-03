@@ -1,15 +1,15 @@
 ------------------------------------------------------------------------
-package body Generics.Tuples is
+package body Generics . Tuples is
 ------------------------------------------------------------------------
 
    generic
-      with package Source is new Signature (<>);
-      use Source;
+      with package Instance is new Signature (<>);
+      use Instance;
       with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
-   function squasher
+   function remdups
      (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
-   function squasher
+   function remdups
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
@@ -37,26 +37,27 @@ package body Generics.Tuples is
             return result(result'First .. INDEX_TYPE'Pred(i));
          end if;
       end;
-   end squasher;
+   end remdups;
 
- --generic
- --   with package Source is new Signature (<>);
- --   use Source;
- --   with procedure Do_It(t: in out ARRAY_TYPE);
-   function Fuctional
-     (t : in ARRAY_TYPE) return ARRAY_TYPE
-   is
-   begin
-      return result : ARRAY_TYPE := t do
-         Do_It(result);
-      end return;
-   end Fuctional;
+   --generic
+   --   with package Instance is new Signature (<>);
+   --   use Instance;
+   --   with procedure Do_It(t: in out ARRAY_TYPE);
+      function Functional
+      (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+      begin
+         return result : ARRAY_TYPE := t do
+            Do_It(result);
+         end return;
+      end Functional;
 
    ---------------------------------------------------------------------
  --generic
- --   with package Source is new Signature (<>);
- --   use Source;
-   package body Place is
+ --   with package Instance is new Signature (<>);
+ --   use Instance;
+ --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   package body Arrayed is
    ---------------------------------------------------------------------
 
       procedure Reverse_It
@@ -108,13 +109,12 @@ package body Generics.Tuples is
         (n : in NATURAL;
          t : in ARRAY_TYPE) return ARRAY_TYPE
       is  
-         procedure R (t: in out ARRAY_TYPE) with Inline is
-         begin
-            Left_Rotate_It(n, t);
-         end;
-         function F is new Fuctional (Source, R);
+         procedure sub (t: in out ARRAY_TYPE) with Inline
+         is begin Left_Rotate_It(n, t); end;
+
+         function fn is new Tuples.Functional (Instance, sub);
       begin
-         return F(t);
+         return fn(t);
       end Left_Rotated;
 
       procedure Right_Rotate_It
@@ -125,146 +125,6 @@ package body Generics.Tuples is
          Left_Rotate_It(t'Length - n, t);
       end Right_Rotate_It;
 
-   end Place;
-
-   ---------------------------------------------------------------------
- --generic
- --   with package Source is new Signature (<>);
- --   use Source;
-   package body Applicative is
-   ---------------------------------------------------------------------
-
-    --generic
-    --   with package Target is new Signature (<>);
-    --   with function Mapping (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
-      function Mapper
-        (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
-      is
-         subtype SI is Source.INDEX_TYPE;
-         subtype TI is Target.INDEX_TYPE;
-         subtype TA is Target.ARRAY_TYPE;
-
-         first : constant TI := TI'First;
-         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
-      begin
-         return result : TA (first .. last) do
-            pragma Assert(t'Length = result'Length);
-
-            declare
-               i : SI := t'First;
-            begin
-               for e of result loop
-                  e := Mapping(t(i));
-                  exit when i = t'Last;
-                  i := SI'Succ(i);
-               end loop;
-            end;
-         end return;
-      end Mapper;
-
-    --generic
-    --   with package Target is new Signature (<>);
-    --   with function Zipping (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
-      function Zipper
-        (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
-      is
-         subtype SI is Source.INDEX_TYPE;
-         subtype TI is Target.INDEX_TYPE;
-         subtype TA is Target.ARRAY_TYPE;
-
-         first : constant TI := TI'First;
-         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
-      begin
-         -- require: s'Length = t'Length and then s'First = t'First
-
-         return result : TA (first .. last) do
-            pragma Assert(t'Length = result'Length);
-
-            declare
-               i : SI := t'first;
-            begin
-               for e of result loop
-                  e := Zipping(s(i), t(i));
-                  exit when i = t'Last;
-                  i := SI'Succ(i);
-               end loop;
-            end;
-         end return;
-      end Zipper;
-
-    --generic
-    --   with function Test (X: in ELEMENT_TYPE) return BOOLEAN;
-      function Filter
-        (t : in ARRAY_TYPE) return ARRAY_TYPE
-      is
-         result : ARRAY_TYPE (t'Range);
-         i : INDEX_TYPE := result'First;
-      begin
-         for e of t loop
-            if Test(e) then
-               result(i) := e;
-               exit when i = result'Last;
-               i := INDEX_TYPE'Succ(i);
-            end if;
-         end loop;
-
-         if i = result'Last then -- all e accepted
-            return result;
-         else
-            return result(result'First .. INDEX_TYPE'Pred(i));
-         end if;
-      end Filter;
-
-    --generic
-    --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
-      function Reducer
-         (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         -- require: t'Length > 0
-
-         if t'Length = 1 then
-            return t(t'First);
-         end if;
-
-         return result : ELEMENT_TYPE := t(t'First) do
-            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
-               result := Operation(result, e);
-            end loop;
-         end return;
-      end Reducer;
- 
-    --generic
-    --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
-      function Chooser
-         (t : in ARRAY_TYPE) return ELEMENT_TYPE
-      is
-      begin 
-         -- require: t'Length > 0
-
-         if t'Length = 1 then
-            return t(t'First);
-         end if;
-
-         return result : ELEMENT_TYPE := t(t'First) do
-            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
-               if Better(e, result) then
-                  result := e;
-               end if;
-            end loop;
-         end return;
-      end Chooser;
-
-   end Applicative;
-
-   ---------------------------------------------------------------------
- --generic
- --   with package Source is new Signature (<>);
- --   use Source;
- --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package body Equivalence is
-   ---------------------------------------------------------------------
- 
       function Member
         (x : in ELEMENT_TYPE;
          t : in ARRAY_TYPE) return BOOLEAN
@@ -303,23 +163,23 @@ package body Generics.Tuples is
       function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
-         function squash is new squasher (Source, Member);
+         function fn is new remdups (Instance, Member);
       begin
-         return squash(t);
+         return fn(t);
 
          -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
       end Remove_Duplicates;
 
-   end Equivalence;
+   end Arrayed;
  
    ---------------------------------------------------------------------
  --generic
- --   with package Source is new Signature (<>);
- --   use Source;
+ --   with package Instance is new Signature (<>);
+ --   use Instance;
  --   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
  --   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
  --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   package body Order is
+   package body Ordered is
    ---------------------------------------------------------------------
  
       function Is_Sorted
@@ -429,18 +289,148 @@ package body Generics.Tuples is
       function Remove_Duplicates
         (t : in ARRAY_TYPE) return ARRAY_TYPE
       is
-         function squash is new squasher (Source, Member);
+         function fn is new remdups (Instance, Member);
       begin
          -- require: Is_Sorted(t);
 
-         return squash(t);
+         return fn(t);
 
          -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
       end Remove_Duplicates;
 
-   end Order;
+   end Ordered;
 
-end Generics.Tuples;
+   ---------------------------------------------------------------------
+ --generic
+ --   with package Instance is new Signature (<>);
+ --   use Instance;
+   package body Lifted is
+   ---------------------------------------------------------------------
+
+    --generic
+    --   with package Target is new Signature (<>);
+    --   with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+      function Mapper
+        (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
+      is
+         subtype SI is Instance.INDEX_TYPE;
+         subtype TI is Target.INDEX_TYPE;
+         subtype TA is Target.ARRAY_TYPE;
+
+         first : constant TI := TI'First;
+         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
+      begin
+         return result : TA (first .. last) do
+            pragma Assert(t'Length = result'Length);
+
+            declare
+               i : SI := t'First;
+            begin
+               for e of result loop
+                  e := Map(t(i));
+                  exit when i = t'Last;
+                  i := SI'Succ(i);
+               end loop;
+            end;
+         end return;
+      end Mapper;
+
+    --generic
+    --   with package Target is new Signature (<>);
+    --   with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
+      function Zipper
+        (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
+      is
+         subtype SI is Instance.INDEX_TYPE;
+         subtype TI is Target.INDEX_TYPE;
+         subtype TA is Target.ARRAY_TYPE;
+
+         first : constant TI := TI'First;
+         last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
+      begin
+         -- require: s'Length = t'Length and then s'First = t'First
+
+         return result : TA (first .. last) do
+            pragma Assert(t'Length = result'Length);
+
+            declare
+               i : SI := t'first;
+            begin
+               for e of result loop
+                  e := Zip(s(i), t(i));
+                  exit when i = t'Last;
+                  i := SI'Succ(i);
+               end loop;
+            end;
+         end return;
+      end Zipper;
+
+    --generic
+    --   with function Test (X: in ELEMENT_TYPE) return BOOLEAN;
+      function Filter
+        (t : in ARRAY_TYPE) return ARRAY_TYPE
+      is
+         result : ARRAY_TYPE (t'Range);
+         i : INDEX_TYPE := result'First;
+      begin
+         for e of t loop
+            if Test(e) then
+               result(i) := e;
+               exit when i = result'Last;
+               i := INDEX_TYPE'Succ(i);
+            end if;
+         end loop;
+
+         if i = result'Last then -- all e accepted
+            return result;
+         else
+            return result(result'First .. INDEX_TYPE'Pred(i));
+         end if;
+      end Filter;
+
+    --generic
+    --   with function Operation (L, R: in ELEMENT_TYPE) return ELEMENT_TYPE;
+      function Reducer
+         (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         -- require: t'Length > 0
+
+         if t'Length = 1 then
+            return t(t'First);
+         end if;
+
+         return result : ELEMENT_TYPE := t(t'First) do
+            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
+               result := Operation(result, e);
+            end loop;
+         end return;
+      end Reducer;
+ 
+    --generic
+    --   with function Better (L, R: in ELEMENT_TYPE) return BOOLEAN;
+      function Chooser
+         (t : in ARRAY_TYPE) return ELEMENT_TYPE
+      is
+      begin 
+         -- require: t'Length > 0
+
+         if t'Length = 1 then
+            return t(t'First);
+         end if;
+
+         return result : ELEMENT_TYPE := t(t'First) do
+            for e of t(INDEX_TYPE'Succ(t'First) .. t'Last) loop
+               if Better(e, result) then
+                  result := e;
+               end if;
+            end loop;
+         end return;
+      end Chooser;
+
+   end Lifted;
+
+end Generics . Tuples;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada

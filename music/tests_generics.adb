@@ -9,16 +9,13 @@ use Generics;
 procedure Tests_Generics is
 
    package Text_Signature is
-      new Tuples.Signature (POSITIVE, CHARACTER, STRING);
+      new Tuples.Signature (CHARACTER, POSITIVE,  STRING);
 
-   package Text_Place is
-      new Tuples.Place (Text_Signature);
+   package Text_Arrayed is
+      new Tuples.Arrayed (Text_Signature, "=");
 
-   package Text_Equiv is
-      new Tuples.Equivalence (Text_Signature, "=");
-
-   package Text_Order is
-      new Tuples.Order (Text_Signature, "<", ">");
+   package Text_Ordered is
+      new Tuples.Ordered (Text_Signature, "<", ">");
 
    raised : BOOLEAN;
 
@@ -78,11 +75,11 @@ begin
    end;
 
    ------------------------------------------------------------------
-   -- Tuples.Place
+   -- Tuples.Arrayed
    ------------------------------------------------------------------
 
    declare
-      use Text_Place;
+      use Text_Arrayed;
 
       Not_Found : exception renames Generics.Not_Found;
 
@@ -110,11 +107,11 @@ begin
    end;
 
    ------------------------------------------------------------------
-   -- Tuples.Equivalence
+   -- Tuples.Arrayed
    ------------------------------------------------------------------
 
    declare
-      use Text_Equiv;
+      use Text_Arrayed;
 
       Not_Found : exception renames Generics.Not_Found;
 

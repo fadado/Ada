@@ -41,20 +41,20 @@ package body Music is
      (i : PC_INTERVAL;
       s : PC_SET) return PC_SET
    is
-      function f (x: PITCH_CLASS) return PITCH_CLASS
+      function fn (x: PITCH_CLASS) return PITCH_CLASS
       is (Transposition(i, x));
    begin
-      return map_set(s, f'Access);
+      return map_set(s, fn'Access);
    end Transposition;
 
    function Inversion
      (i : PC_INTERVAL;
       s : PC_SET) return PC_SET
    is
-      function f (x: PITCH_CLASS) return PITCH_CLASS
+      function fn (x: PITCH_CLASS) return PITCH_CLASS
       is (Inversion(i, x));
    begin
-      return map_set(s, f'Access);
+      return map_set(s, fn'Access);
    end Inversion;
 
    function Transpositions
@@ -100,11 +100,11 @@ package body Music is
      (i : PC_INTERVAL;
       s : PC_TUPLE) return PC_TUPLE
    is
-      function f (x: PITCH_CLASS) return PITCH_CLASS
+      function fn (x: PITCH_CLASS) return PITCH_CLASS
       is (Transposition(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Applicative.Mapper (PC_Tuple_Signature, f);
+         new PC_Tuple_Lifted.Mapper (PC_Tuple_Instance, fn);
    begin
       return apply(s);
    end Transposition;
@@ -113,11 +113,11 @@ package body Music is
      (i : PC_INTERVAL;
       s : PC_TUPLE) return PC_TUPLE
    is
-      function f (x: PITCH_CLASS) return PITCH_CLASS
+      function fn (x: PITCH_CLASS) return PITCH_CLASS
       is (Inversion(i, x)) with Inline;
 
       function apply is
-         new PC_Tuple_Applicative.Mapper (PC_Tuple_Signature, f);
+         new PC_Tuple_Lifted.Mapper (PC_Tuple_Instance, fn);
    begin
       return apply(s);
    end Inversion;

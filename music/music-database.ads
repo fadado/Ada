@@ -3,7 +3,7 @@ use  Music;
 
 -- used to implement some tests
 
-package Music.DataBase is
+package Music . DataBase is
 
    type SCALE_NAME is (
       Acoustic,
@@ -49,7 +49,7 @@ package Music.DataBase is
    function Set_To_Name
      (s : PC_SET) return SCALE_NAME;
 
-end Music.DataBase;
+end Music . DataBase;
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=latin1:syntax=ada
