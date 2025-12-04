@@ -1,7 +1,10 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
+with Generics; use Generics;
 with Generics.Tuples;
-use  Generics;
+with Generics.Tuples.Arrayed;
+with Generics.Tuples.Ordered;
+with Generics.Tuples.Lifted;
 
 package Music is
 

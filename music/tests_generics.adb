@@ -2,6 +2,8 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
 with Generics.Tuples;
+with Generics.Tuples.Arrayed;
+with Generics.Tuples.Ordered;
 
 use Ada.Text_IO;
 use Generics;
