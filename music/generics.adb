@@ -2,14 +2,14 @@ package body Generics is
 
  --generic
  --   type T(<>) is private;
-   procedure Swap
+   procedure Swapper
      (x, y : in out T)
    is
       z : constant T := x;
    begin
       x := y;
       y := z;
-   end Swap;
+   end Swapper;
 
  --generic
  --   type A(<>) is limited private;
@@ -29,9 +29,9 @@ package body Generics is
  --   type B(<>) is limited private;
  --   type C(<>) is limited private;
  --   with function F(x: in A; y: in B) return C;
- --   X : A;
+ --   x : A;
    function Partial
-     (y : in b) return C
+     (y : in B) return C
    is
    begin
       return F(x, y);

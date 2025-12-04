@@ -8,7 +8,7 @@ package Generics is
 
    generic
       type T(<>) is private;
-   procedure Swap
+   procedure Swapper
      (x, y : in out T)
    with Inline;
 
@@ -27,7 +27,7 @@ package Generics is
       type B(<>) is limited private;
       type C(<>) is limited private;
       with function F(x: in A; y: in B) return C;
-      X : A;
+      x : A;
    function Partial
      (y : in B) return C
    with Inline;

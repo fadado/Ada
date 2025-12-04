@@ -1,13 +1,12 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-with Generics; use Generics;
-with Generics.Tuples;
 with Generics.Tuples.Arrayed;
 with Generics.Tuples.Ordered;
 with Generics.Tuples.Lifted;
 
-package Music is
+use Generics;
 
+package Music is
 
    Not_Found : exception renames Generics.Not_Found;
 
@@ -175,9 +174,10 @@ package Music is
    is (PC_Tuple_Arrayed.Right_Rotated(NATURAL(n), s))
    with Inline;
 
-   function Rotated is new
-      Generics.Partial (TUPLE_INDEX, PC_TUPLE, PC_TUPLE, Rotated, 1);
-   -- Generated: function Rotated (s : PC_TUPLE) return PC_TUPLE;
+   function Rotated is
+      new Partial (TUPLE_INDEX, PC_TUPLE, PC_TUPLE,
+                   Rotated, 1);
+   -- Instance: function Rotated (s : PC_TUPLE) return PC_TUPLE;
 
    function Cardinality
      (s : PC_TUPLE) return SET_COUNT
@@ -191,9 +191,10 @@ package Music is
      (i : PC_INTERVAL;
       s : PC_TUPLE) return PC_TUPLE;
 
-   function Inversion is new
-      Generics.Partial (PC_INTERVAL, PC_TUPLE, PC_TUPLE, Inversion, 0);
-   -- Generated: function Inversion (s : PC_TUPLE) return PC_TUPLE;
+   function Inversion is
+      new Partial (PC_INTERVAL, PC_TUPLE, PC_TUPLE,
+                   Inversion, 0);
+   -- Instance: function Inversion (s : PC_TUPLE) return PC_TUPLE;
 
    procedure Sort
      (s: in out PC_TUPLE)

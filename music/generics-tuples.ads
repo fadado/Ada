@@ -1,8 +1,6 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-------------------------------------------------------------------------
 package Generics . Tuples is
-------------------------------------------------------------------------
 
    generic
       type ELEMENT_TYPE is private;
@@ -24,7 +22,7 @@ private
       with package Instance is new Signature (<>);
       use Instance;
       with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
-   function remdups
+   function Squasher
      (t : in ARRAY_TYPE) return ARRAY_TYPE;
 
 end Generics . Tuples;

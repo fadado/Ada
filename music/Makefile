@@ -24,5 +24,8 @@ $(LIB)/tests_generics: $(GENLIB) tests_generics.adb
 music:    $(LIB)/tests_music;    $<
 generics: $(LIB)/tests_generics; $<
 
+tests: music generics
+	@echo Tests finished!
+
 clean:
 	rm -rf $(LIB)

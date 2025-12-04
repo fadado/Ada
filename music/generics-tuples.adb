@@ -1,11 +1,9 @@
-------------------------------------------------------------------------
 package body Generics . Tuples is
-------------------------------------------------------------------------
 
-   --generic
-   --   with package Instance is new Signature (<>);
-   --   use Instance;
-   --   with procedure Do_It(t: in out ARRAY_TYPE);
+ --generic
+ --   with package Instance is new Signature (<>);
+ --   use Instance;
+ --   with procedure Do_It(t: in out ARRAY_TYPE);
    function Functional
    (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
@@ -15,7 +13,11 @@ package body Generics . Tuples is
       end return;
    end Functional;
 
-   function remdups
+ --generic
+ --   with package Instance is new Signature (<>);
+ --   use Instance;
+ --   with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
+   function Squasher
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
@@ -43,7 +45,7 @@ package body Generics . Tuples is
             return result(result'First .. INDEX_TYPE'Pred(i));
          end if;
       end;
-   end remdups;
+   end Squasher;
 
 end Generics . Tuples;
 -- ¡ISO-8859-1!

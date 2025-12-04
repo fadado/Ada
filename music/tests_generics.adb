@@ -44,8 +44,8 @@ begin
    ---------------------------------------------------------------------
 
    declare
-      procedure swap is new Generics.Swap(INTEGER);
-      procedure swap is new Generics.Swap(STRING);
+      procedure swap is new Swapper(INTEGER);
+      procedure swap is new Swapper(STRING);
 
       a, b : INTEGER;
       v : array (1..2) of INTEGER := (1, 2);
@@ -83,8 +83,6 @@ begin
    declare
       use Text_Arrayed;
 
-      Not_Found : exception renames Generics.Not_Found;
-
       s : STRING := "mi mama me mima";
       t : STRING := s;
    begin
@@ -114,8 +112,6 @@ begin
 
    declare
       use Text_Arrayed;
-
-      Not_Found : exception renames Generics.Not_Found;
 
       s : STRING := "mi mama me mima";
       t : STRING := s;
