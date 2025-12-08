@@ -22,7 +22,7 @@ private with Ada.Task_Identification;
 package Control is
 
    ---------------------------------------------------------------------------
-   --  Subsystem common exceptions and types
+   --  Exceptions
    ---------------------------------------------------------------------------
 
    Control_Error : exception;
@@ -40,15 +40,12 @@ package Control is
    Null_Exception : EXCEPTION_TYPE renames Ada.Exceptions.Null_Occurrence;
    --  Simple renaming to simplify naming and avoid `use`
 
-   type VOID is null record;
-   --  Common type for child packages and clients using void contexts
-
    ---------------------------------------------------------------------------
    --  DISPATCHER_TYPE
    ---------------------------------------------------------------------------
 
-   type DISPATCHER_TYPE       is tagged limited private;
-   type DISPATCHER_ACCESS     is access all DISPATCHER_TYPE;
+   type DISPATCHER_TYPE   is tagged limited private;
+   type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
    --  A simple controller to attatch to the current task
 
    procedure Close
@@ -59,8 +56,8 @@ package Control is
    --  CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   type CONTROLLER_TYPE       is abstract limited new DISPATCHER_TYPE with private;
-   type CONTROLLER_ACCESS     is access all CONTROLLER_TYPE;
+   type CONTROLLER_TYPE   is abstract limited new DISPATCHER_TYPE with private;
+   type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
    --  Base controler
 
    procedure Commence
@@ -73,11 +70,6 @@ package Control is
    --  Quit `controller` and migrate exceptions to a suspended invoker if
    --  necessary
 
-   procedure Resume
-     (controller : in out CONTROLLER_TYPE'Class; -- not a primitive op.!
-      invoker    : in out DISPATCHER_TYPE);
-   --  Resume `controller` using `invoker` as dispatcher
-
    procedure Yield
      (controller : in out CONTROLLER_TYPE) is abstract;
    --  Suspend `controller` and transfers control to a suspended invoker
@@ -87,12 +79,18 @@ package Control is
       invoker    : in out CONTROLLER_TYPE) is abstract;
    --  Resume `controller` using `invoker` as dispatcher
 
+   -- not a primitive operation!
+   procedure Resume
+     (controller : in out CONTROLLER_TYPE'Class;
+      invoker    : in out DISPATCHER_TYPE);
+   --  Resume `controller` using `invoker` as dispatcher
+
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   type SEMI_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
-   type SEMI_CONTROLLER_ACCESS   is access all SEMI_CONTROLLER_TYPE;
+   type SEMI_CONTROLLER_TYPE   is limited new CONTROLLER_TYPE with private;
+   type SEMI_CONTROLLER_ACCESS is access all SEMI_CONTROLLER_TYPE;
 
    overriding procedure Yield
      (controller : in out SEMI_CONTROLLER_TYPE);
@@ -108,8 +106,8 @@ package Control is
    --  FULL_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   type FULL_CONTROLLER_TYPE     is limited new CONTROLLER_TYPE with private;
-   type FULL_CONTROLLER_ACCESS   is access all FULL_CONTROLLER_TYPE;
+   type FULL_CONTROLLER_TYPE   is limited new CONTROLLER_TYPE with private;
+   type FULL_CONTROLLER_ACCESS is access all FULL_CONTROLLER_TYPE;
 
    overriding procedure Yield
      (controller : in out FULL_CONTROLLER_TYPE);
@@ -118,7 +116,14 @@ package Control is
    overriding procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
       invoker    : in out FULL_CONTROLLER_TYPE);
-   -- TODO...
+   --  Resume `controller` using `invoker` as dispatcher
+
+   ---------------------------------------------------------------------------
+   --  Common stuff
+   ---------------------------------------------------------------------------
+
+   type VOID is null record;
+   --  Common type for child packages and clients using void contexts
 
 private
    ---------------------------------------------------------------------------
@@ -162,23 +167,15 @@ private
    with Type_Invariant =>
      (DISPATCHER_TYPE.state /= EXPECTANT or else DISPATCHER_TYPE.id = Null_Task_Id)
    and then
-     (DISPATCHER_TYPE.state /= RUNNING   or else DISPATCHER_TYPE.id = Current_Task)
-   ;
+     (DISPATCHER_TYPE.state /= RUNNING   or else DISPATCHER_TYPE.id = Current_Task);
 
    type CONTROLLER_TYPE is abstract limited new DISPATCHER_TYPE with
       record
          link    : DISPATCHER_ACCESS;
       end record;
 
-   type SEMI_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with
-      record
-         null;
-      end record;
-
-   type FULL_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with
-      record
-         null;
-      end record;
+   type SEMI_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with null record;
+   type FULL_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with null record;
 
 end Control;
 

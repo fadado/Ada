@@ -121,24 +121,6 @@ package body Control is
    -- CONTROLLER_TYPE
    ---------------------------------------------------------------------------
 
-   -- To see how those low level primitives are used check tests or coroutines
-   -- and generators implementation.
-   --
-   --
-   --    task type T_Runner (self: not null T_ACCESS);
-   --
-   --    task body T_Runner
-   --    is
-   --    begin
-   --       self.Commence;
-   --       ...
-   --       ...
-   --       self.Quit;
-   --    exception
-   --       when Exit_Controller => null;
-   --       when X: others       => self.Quit(X);
-   --    end T_Runner;
-
    --------------
    -- Commence --
    --------------
@@ -226,6 +208,7 @@ package body Control is
    is
       invoker : DISPATCHER_TYPE renames controller.link.all;
    begin
+      -- too paranoid
     --pragma Assert (controller.id = Current_Task);
     --pragma Assert (controller.state = RUNNING);
 
@@ -280,6 +263,7 @@ package body Control is
       dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
       target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
+      -- too paranoid
     --pragma Assert (invoker.id = Current_Task);
     --pragma Assert (invoker.state = RUNNING);
 

@@ -12,7 +12,7 @@ package Control . CoRoutines is
      (routine  : in out COROUTINE_INTERFACE) is abstract;
 
    procedure Resume
-     (routiner : in out COROUTINE_INTERFACE;
+     (routine  : in out COROUTINE_INTERFACE;
       invoker  : in out COROUTINE_INTERFACE) is abstract;
    -- To restrict the coroutine procedure to call only this API
 
