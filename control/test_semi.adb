@@ -37,7 +37,7 @@ begin
       hello_control : aliased SEMI_CONTROLLER_TYPE;
       hello_runner  : HELLO_RUN (hello_control'Unchecked_Access);
    begin
-      hello_control.Dispatch(dispatcher);
+      dispatcher.Dispatch(hello_control);
       hello_control.Close;
    end Test_1;
 
@@ -64,7 +64,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      hello.Dispatch(dispatcher);
+      dispatcher.Dispatch(hello);
    end Test_2;
 
    ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ begin
 
       hello : HELLO_COROUTINE;
    begin
-      hello.Dispatch(dispatcher);
+      dispatcher.Dispatch(hello);
    end Test_3;
 
    ---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ begin
 
       hello : Hello_Package.HELLO_COROUTINE;
    begin
-      hello.Dispatch(dispatcher);
+      dispatcher.Dispatch(hello);
    end Test_4;
 
    New_Line;

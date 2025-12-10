@@ -44,7 +44,7 @@ package body Control . Functors is
       end if;
 
       functor.input := input;
-      Dispatch(functor, functor.dispatcher);
+      functor.dispatcher.Dispatch(functor);
 
       if functor.state = DEAD then
          raise Stop_Iteration;

@@ -3,9 +3,11 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 generic
    with package Instance is new Signature (<>);
    use Instance;
-   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   with function "="  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   with function "<"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   with function ">"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   with function "<=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+   with function ">=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Ordered is
 

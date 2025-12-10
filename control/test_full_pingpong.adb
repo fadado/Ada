@@ -81,7 +81,7 @@ begin
    begin
       Put_Line("The players are ready...");
 
-      ping_control.Dispatch(dispatcher);
+      dispatcher.Dispatch(ping_control);
 
       --TODO: bug: wait end of players
       while not ping_runner'Terminated loop null; end loop;

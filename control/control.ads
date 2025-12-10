@@ -55,9 +55,9 @@ package Control is
    type CONTROLLER_TYPE;
 
    procedure Dispatch
-     (controller : in out CONTROLLER_TYPE'Class;
-      invoker    : in out DISPATCHER_TYPE);
-   --  Resume `controller` using `invoker` as dispatcher
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class);
+   --  Resume `controller` using `dispatcher`
 
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE
@@ -161,7 +161,7 @@ private
    type DISPATCHER_TYPE is tagged limited
       record
          id      : TASK_ID;
-         state   : STATUS_TYPE;
+         state   : STATUS_TYPE with Atomic;
          run     : Signal.T;
          migrant : EXCEPTION_ACCESS;
       end record

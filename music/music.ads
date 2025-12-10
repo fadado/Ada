@@ -144,34 +144,29 @@ package Music is
 
    type PC_TUPLE is array (TUPLE_INDEX range <>) of PITCH_CLASS;
 
-   package PC_Tuple_Instance is
+   -- Signature and internal packages (CamelCaseMeansVisibleButInternal)
+
+   package PCTupleInstance is
       new Tuples.Signature (
          Element_Type => PITCH_CLASS,
          Index_Type   => TUPLE_INDEX,
          Array_Type   => PC_TUPLE
    );
 
-   -- Packages
-
-   package PC_Tuple_Arrayed is
-      new Tuples.Arrayed (PC_Tuple_Instance, "=");
-
-   package PC_Tuple_Ordered is
-      new Tuples.Ordered (PC_Tuple_Instance, "<", ">");
-
-   package PC_Tuple_Lifted is
-      new Tuples.Lifted (PC_Tuple_Instance);
+   package PCTupleArrayed is new Tuples.Arrayed (PCTupleInstance);
+   package PCTupleOrdered is new Tuples.Ordered (PCTupleInstance);
+   package PCTupleLifted  is new Tuples.Lifted  (PCTupleInstance);
 
    -- Subprograms
 
    function Retrograded
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Arrayed.Reversed;
+   renames PCTupleArrayed.Reversed;
 
    function Rotated
      (n : TUPLE_INDEX;
       s : PC_TUPLE) return PC_TUPLE
-   is (PC_Tuple_Arrayed.Right_Rotated(NATURAL(n), s))
+   is (PCTupleArrayed.Right_Rotated(NATURAL(n), s))
    with Inline;
 
    function Rotated is
@@ -198,16 +193,16 @@ package Music is
 
    procedure Sort
      (s: in out PC_TUPLE)
-   renames PC_Tuple_Ordered.Sort_It;
+   renames PCTupleOrdered.Sort_It;
 
    function Sorted
      (s : PC_TUPLE) return PC_TUPLE
-   renames PC_Tuple_Ordered.Sorted;
+   renames PCTupleOrdered.Sorted;
 
    function Search
      (x : PITCH_CLASS;
       t : PC_TUPLE) return TUPLE_INDEX
-   renames PC_Tuple_Ordered.Search;
+   renames PCTupleOrdered.Search;
 
    -------------------
    -- Set <=> Tuple --
@@ -215,11 +210,11 @@ package Music is
 
    function Set
      (s : PC_TUPLE) return PC_SET
-   with Pre => not PC_Tuple_Arrayed.Contains_Duplicates(s);
+   with Pre => not PCTupleArrayed.Contains_Duplicates(s);
 
    function Tuple
      (s : PC_SET) return PC_TUPLE
-   with Post => not PC_Tuple_Ordered.Contains_Duplicates(Tuple'Result);
+   with Post => not PCTupleOrdered.Contains_Duplicates(Tuple'Result);
 
    ----------------------
    -- Interval pattern --
