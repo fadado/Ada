@@ -27,11 +27,6 @@ package Control . CoRoutines . Implement is
    ) is limited new COROUTINE_INTERFACE with private;
    --  Coroutine type with *only* transfer of control
 
- --overriding procedure Yield
- --  (routine : in out COROUTINE_TYPE)
- --with Inline;
- ----  Yields control only
-
    not overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out DISPATCHER_TYPE);

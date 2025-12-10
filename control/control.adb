@@ -171,11 +171,11 @@ package body Control is
       Signal.Notify(invoker.run);
    end Quit;
 
-   ------------
-   -- Resume --
-   ------------
+   --------------
+   -- Dispatch --
+   --------------
 
-   procedure Resume
+   procedure Dispatch
      (controller : in out CONTROLLER_TYPE'Class;
       invoker    : in out DISPATCHER_TYPE)
    is
@@ -193,7 +193,7 @@ package body Control is
       target.link := invoker'Unchecked_Access;
 
       suspend_resume(invoker, DISPATCHER_TYPE(target));
-   end Resume;
+   end Dispatch;
 
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
@@ -234,7 +234,7 @@ package body Control is
       invoker    : in out SEMI_CONTROLLER_TYPE)
    is
    begin
-      Resume(controller, DISPATCHER_TYPE(invoker));
+      Dispatch(controller, DISPATCHER_TYPE(invoker));
    end Resume;
 
    ---------------------------------------------------------------------------

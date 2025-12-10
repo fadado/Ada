@@ -52,6 +52,13 @@ package Control is
      (dispatcher : in out DISPATCHER_TYPE);
    --  Force the exit for a suspended `dispatcher`
 
+   type CONTROLLER_TYPE;
+
+   procedure Dispatch
+     (controller : in out CONTROLLER_TYPE'Class;
+      invoker    : in out DISPATCHER_TYPE);
+   --  Resume `controller` using `invoker` as dispatcher
+
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE
    ---------------------------------------------------------------------------
@@ -77,12 +84,6 @@ package Control is
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
       invoker    : in out CONTROLLER_TYPE) is abstract;
-   --  Resume `controller` using `invoker` as dispatcher
-
-   -- not a primitive operation!
-   procedure Resume
-     (controller : in out CONTROLLER_TYPE'Class;
-      invoker    : in out DISPATCHER_TYPE);
    --  Resume `controller` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------

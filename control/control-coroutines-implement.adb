@@ -11,32 +11,20 @@ package body Control . CoRoutines . Implement is
    --  COROUTINE_TYPE methods
    ---------------------------------------------------------------------------
 
-   -----------
-   -- Yield --
-   -----------
-
- --overriding procedure Yield
- --  (routine : in out COROUTINE_TYPE)
- --is
- --   parent : BASE_CONTROLLER renames BASE_CONTROLLER(routine);
- --begin
- --   parent.Yield;
- --end Yield;
-
    ------------
-   -- Resume --
+   -- Resume -- TODO... rename to Dispatch?
    ------------
 
    not overriding procedure Resume
-     (routine    : in out COROUTINE_TYPE;
-      invoker    : in out DISPATCHER_TYPE)
+     (routine : in out COROUTINE_TYPE;
+      invoker : in out DISPATCHER_TYPE)
    is
    begin
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      Control.Resume(routine, invoker);
+      Control.Dispatch(routine, invoker);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -52,7 +40,15 @@ package body Control . CoRoutines . Implement is
       invoker : in out COROUTINE_TYPE)
    is
    begin
-      CoRoutines.Implement.Resume(routine, DISPATCHER_TYPE(invoker));
+      if routine.state = DEAD then
+         raise Stop_Iteration;
+      end if;
+
+      Control.Dispatch(routine, DISPATCHER_TYPE(invoker));
+
+      if routine.state = DEAD then
+         raise Stop_Iteration;
+      end if;
    end Resume;
 
    -----------
