@@ -37,7 +37,7 @@ package Control . Junctions is
    package Joint_Map_Signature is private end;
 
    --------------------------
-   -- Joint_Pipe_Signature --
+   -- Joint_Tube_Signature --
    --------------------------
 
    generic
@@ -46,7 +46,7 @@ package Control . Junctions is
       type SOURCE_CONTEXT (<>) is limited private;
       type MIDDLE_CONTEXT (<>) is limited private;
       type TARGET_CONTEXT (<>) is limited private;
-   package Joint_Pipe_Signature is private end;
+   package Joint_Tube_Signature is private end;
 
    ---------------------------------------------------------------------------
    --  Junctions
@@ -127,11 +127,11 @@ package Control . Junctions is
       map       : access function (element: SOURCE_TYPE) return TARGET_TYPE);
 
    ----------------
-   -- Joint_Pipe --
+   -- Joint_Tube --
    ----------------
 
    generic
-      with package Joiner_Instance is new Joint_Pipe_Signature (<>);
+      with package Joiner_Instance is new Joint_Tube_Signature (<>);
       use Joiner_Instance;
 
       with package Generator_Instance is new Generators (
@@ -153,7 +153,7 @@ package Control . Junctions is
       );
       use Collector_Instance;
 
-   procedure Joint_Pipe
+   procedure Joint_Tube
      (generator : in out GENERATOR_TYPE;
       functor   : in out FUNCTOR_TYPE;
       collector : in out COLLECTOR_TYPE);

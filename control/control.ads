@@ -55,9 +55,9 @@ package Control is
    type CONTROLLER_TYPE;
 
    procedure Dispatch
-     (controller : in out CONTROLLER_TYPE'Class;
-      invoker    : in out DISPATCHER_TYPE);
-   --  Resume `controller` using `invoker` as dispatcher
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class);
+   --  Resume `controller` using `dispatcher`
 
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE

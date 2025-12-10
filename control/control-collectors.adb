@@ -43,7 +43,7 @@ package body Control . Collectors is
       end if;
 
       collector.input := input;
-      Dispatch(collector, collector.dispatcher);
+      collector.dispatcher.Dispatch(collector);
 
       if collector.state = DEAD then
          raise Stop_Iteration;

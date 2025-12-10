@@ -20,10 +20,10 @@ package body Generics . Tuples . Ordered is
    procedure Sort_It
      (t : in out ARRAY_TYPE)
    is
-      function add (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+      function plus (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
       is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) + n)) with Inline;
 
-      function sub (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
+      function minus (m: INDEX_TYPE; n: INTEGER) return INDEX_TYPE
       is (INDEX_TYPE'Val(INDEX_TYPE'Pos(m) - n)) with Inline;
 
       -- Shell Sort
@@ -32,14 +32,14 @@ package body Generics . Tuples . Ordered is
       tmp       : ELEMENT_TYPE;
    begin
       while increment > 0 loop
-         for i in add(t'First, increment) .. t'Last loop
+         for i in plus(t'First, increment) .. t'Last loop
             tmp := t(i);
             j   := i;
-            k   := sub(j, increment);
+            k   := minus(j, increment);
 
-            while j >= add(t'First, increment) and then
+            while j >= plus(t'First, increment) and then
                   tmp < t(k) loop
-               k    := sub(j, increment);
+               k    := minus(j, increment);
                t(j) := t(k);
                j    := k;
             end loop;

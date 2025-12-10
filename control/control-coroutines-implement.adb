@@ -12,19 +12,19 @@ package body Control . CoRoutines . Implement is
    ---------------------------------------------------------------------------
 
    ------------
-   -- Resume -- TODO... rename to Dispatch?
+   -- Resume -- TODO...
    ------------
 
    not overriding procedure Resume
-     (routine : in out COROUTINE_TYPE;
-      invoker : in out DISPATCHER_TYPE)
+     (routine    : in out COROUTINE_TYPE;
+      dispatcher : in out DISPATCHER_TYPE)
    is
    begin
       if routine.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      Control.Dispatch(routine, invoker);
+      dispatcher.Dispatch(routine);
 
       if routine.state = DEAD then
          raise Stop_Iteration;
@@ -40,15 +40,7 @@ package body Control . CoRoutines . Implement is
       invoker : in out COROUTINE_TYPE)
    is
    begin
-      if routine.state = DEAD then
-         raise Stop_Iteration;
-      end if;
-
-      Control.Dispatch(routine, DISPATCHER_TYPE(invoker));
-
-      if routine.state = DEAD then
-         raise Stop_Iteration;
-      end if;
+      routine.Resume(DISPATCHER_TYPE(invoker));
    end Resume;
 
    -----------

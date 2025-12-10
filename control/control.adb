@@ -117,6 +117,29 @@ package body Control is
       end case;
    end Close;
 
+   --------------
+   -- Dispatch --
+   --------------
+
+   procedure Dispatch
+     (dispatcher : in out DISPATCHER_TYPE;
+      controller : in out CONTROLLER_TYPE'Class)
+   is
+   begin
+      if dispatcher.id = Null_Task_Id then
+         pragma Assert (is_master_controller(dispatcher));
+         dispatcher.id    := Current_Task;
+         dispatcher.state := RUNNING;
+      end if;
+
+      pragma Assert (dispatcher.id = Current_Task);
+      pragma Assert (dispatcher.state = RUNNING);
+
+      controller.link := dispatcher'Unchecked_Access;
+
+      suspend_resume(dispatcher, DISPATCHER_TYPE(controller));
+   end Dispatch;
+
    ---------------------------------------------------------------------------
    -- CONTROLLER_TYPE
    ---------------------------------------------------------------------------
@@ -171,30 +194,6 @@ package body Control is
       Signal.Notify(invoker.run);
    end Quit;
 
-   --------------
-   -- Dispatch --
-   --------------
-
-   procedure Dispatch
-     (controller : in out CONTROLLER_TYPE'Class;
-      invoker    : in out DISPATCHER_TYPE)
-   is
-      target : CONTROLLER_TYPE renames CONTROLLER_TYPE(controller);
-   begin
-      if invoker.id = Null_Task_Id then
-         pragma Assert (is_master_controller(invoker));
-         invoker.id    := Current_Task;
-         invoker.state := RUNNING;
-      end if;
-
-      pragma Assert (invoker.id = Current_Task);
-      pragma Assert (invoker.state = RUNNING);
-
-      target.link := invoker'Unchecked_Access;
-
-      suspend_resume(invoker, DISPATCHER_TYPE(target));
-   end Dispatch;
-
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
    ---------------------------------------------------------------------------
@@ -234,7 +233,7 @@ package body Control is
       invoker    : in out SEMI_CONTROLLER_TYPE)
    is
    begin
-      Dispatch(controller, DISPATCHER_TYPE(invoker));
+      invoker.Dispatch(controller);
    end Resume;
 
    ---------------------------------------------------------------------------
@@ -242,14 +241,31 @@ package body Control is
    ---------------------------------------------------------------------------
 
    -----------
-   -- Yield --
+   -- Yield -- TODO...
    -----------
 
    overriding procedure Yield
      (controller : in out FULL_CONTROLLER_TYPE)
    is
+      master : DISPATCHER_TYPE renames controller.link.all;
    begin
-      raise Program_Error with "method not implemented";
+      -- too paranoid
+    --pragma Assert (controller.id = Current_Task);
+    --pragma Assert (controller.state = RUNNING);
+
+      pragma Assert (is_master_controller(master));
+
+      -- SUSPENDING
+      controller.state := SUSPENDED;
+      Signal.Notify(master.run);
+      Signal.Wait(controller.run);
+
+      -- RESUMING
+      if controller.state = DYING then
+         controller.state := DEAD;
+         raise Exit_Controller;
+      end if;
+      controller.state := RUNNING;
    end Yield;
 
    ------------

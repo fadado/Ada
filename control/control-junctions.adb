@@ -59,10 +59,10 @@ package body Control . Junctions is
    end Joint_Map;
 
    ----------------
-   -- Joint_Pipe --
+   -- Joint_Tube --
    ----------------
 
-   procedure Joint_Pipe
+   procedure Joint_Tube
      (generator : in out GENERATOR_TYPE;
       functor   : in out FUNCTOR_TYPE;
       collector : in out COLLECTOR_TYPE)
@@ -74,7 +74,7 @@ package body Control . Junctions is
 
       functor.Close;
       collector.Close;
-   end Joint_Pipe;
+   end Joint_Tube;
 
 end Control . Junctions;
 

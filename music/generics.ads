@@ -8,6 +8,12 @@ package Generics is
 
    generic
       type T(<>) is private;
+   function Identity
+     (x : in T) return T
+   with Inline;
+
+   generic
+      type T(<>) is private;
    procedure Swapper
      (x, y : in out T)
    with Inline;

@@ -37,7 +37,7 @@ package body Control . Generators is
          raise Stop_Iteration;
       end if;
 
-      Dispatch(generator, generator.dispatcher);
+      generator.dispatcher.Dispatch(generator);
 
       if generator.state = DEAD then
          raise Stop_Iteration;

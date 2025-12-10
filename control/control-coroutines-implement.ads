@@ -28,9 +28,9 @@ package Control . CoRoutines . Implement is
    --  Coroutine type with *only* transfer of control
 
    not overriding procedure Resume
-     (routine : in out COROUTINE_TYPE;
-      invoker : in out DISPATCHER_TYPE);
-   --  Resume `routine` using `invoker` as a dispatcher
+     (routine    : in out COROUTINE_TYPE;
+      dispatcher : in out DISPATCHER_TYPE);
+   --  Resume `routine` using `dispatcher`
 
    overriding procedure Resume
      (routine : in out COROUTINE_TYPE;

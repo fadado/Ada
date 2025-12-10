@@ -2,6 +2,15 @@ package body Generics is
 
  --generic
  --   type T(<>) is private;
+   function Identity
+     (x : in T) return T
+   is
+   begin
+      return x;
+   end Identity;
+
+ --generic
+ --   type T(<>) is private;
    procedure Swapper
      (x, y : in out T)
    is
