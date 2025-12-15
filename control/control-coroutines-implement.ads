@@ -32,17 +32,19 @@ package Control . CoRoutines . Implement is
       dispatcher : in out DISPATCHER_TYPE);
    --  Resume `routine` using `dispatcher`
 
+   procedure Close
+     (routine : in out COROUTINE_TYPE);
+   --  Force `routine` to exit
+
+private
    overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    with Inline;
    --  Resume `routine` using `invoker` as a dispatcher
 
-   procedure Close
-     (routine : in out COROUTINE_TYPE);
-   --  Force `routine` to exit
+   -- Note: Yield is inherited from BASE_CONTROLLER
 
-private
    task type CoRoutine_Runner (routine: not null access COROUTINE_TYPE);
 
    type COROUTINE_TYPE (

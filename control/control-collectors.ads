@@ -33,10 +33,6 @@ package Control . Collectors is
    ) is limited new COLLECTOR_INTERFACE with private;
    --  Coroutine type with collector capabilities
 
-   overriding function Yield
-     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE;
-   --  Yields control after returning a value
-
    procedure Resume
      (collector : in out COLLECTOR_TYPE;
       input     : in ELEMENT_TYPE);
@@ -47,6 +43,10 @@ package Control . Collectors is
    --  Force `collector` to exit
 
 private
+   overriding function Yield
+     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE;
+   --  Yields control after returning a value
+
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------

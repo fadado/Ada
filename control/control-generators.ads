@@ -40,12 +40,6 @@ package Control . Generators is
       Iterator_Element  => ELEMENT_TYPE;
    --  Coroutine type with iterable capabilities
 
-   overriding procedure Yield
-     (generator : in out GENERATOR_TYPE;
-      value     : in ELEMENT_TYPE)
-   with Inline;
-   --  Yields control and a value
-
    function Resume
      (generator : in out GENERATOR_TYPE) return ELEMENT_TYPE
    with Inline;
@@ -117,6 +111,12 @@ package Control . Generators is
    --  For use in the construct `for cursor in G.Iterate loop...`
 
 private
+   overriding procedure Yield
+     (generator : in out GENERATOR_TYPE;
+      value     : in ELEMENT_TYPE)
+   with Inline;
+   --  Yields control and a value
+
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------

@@ -36,11 +36,6 @@ package Control . Functors is
    ) is limited new FUNCTOR_INTERFACE with private;
    --  Coroutine type with functor capabilities
 
-   procedure Yield
-     (functor : in out FUNCTOR_TYPE;
-      map     : not null access function (x: SOURCE_TYPE) return TARGET_TYPE);
-   --  Yields control after returning a value
-
    function Resume
      (functor : in out FUNCTOR_TYPE;
       input   : in SOURCE_TYPE) return TARGET_TYPE;
@@ -51,6 +46,11 @@ package Control . Functors is
    --  Force `functor` to exit
 
 private
+   procedure Yield
+     (functor : in out FUNCTOR_TYPE;
+      map     : not null access function (x: SOURCE_TYPE) return TARGET_TYPE);
+   --  Yields control after returning a value
+
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------

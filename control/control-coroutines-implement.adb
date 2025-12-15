@@ -35,8 +35,7 @@ package body Control . CoRoutines . Implement is
    -- Resume --
    ------------
 
-   overriding
-   procedure Resume
+   overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    is
@@ -44,6 +43,8 @@ package body Control . CoRoutines . Implement is
    begin
       routine.Resume(dispatcher);
    end Resume;
+
+   -- Note: Yield is inherited from BASE_CONTROLLER
 
    -----------
    -- Close --

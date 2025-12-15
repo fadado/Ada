@@ -93,6 +93,21 @@ package Control is
    type SEMI_CONTROLLER_TYPE   is limited new CONTROLLER_TYPE with private;
    type SEMI_CONTROLLER_ACCESS is access all SEMI_CONTROLLER_TYPE;
 
+   ---------------------------------------------------------------------------
+   --  FULL_CONTROLLER_TYPE
+   ---------------------------------------------------------------------------
+
+   type FULL_CONTROLLER_TYPE   is limited new CONTROLLER_TYPE with private;
+   type FULL_CONTROLLER_ACCESS is access all FULL_CONTROLLER_TYPE;
+
+   ---------------------------------------------------------------------------
+   --  Common stuff
+   ---------------------------------------------------------------------------
+
+   type VOID is null record;
+   --  Common type for child packages and clients using void contexts
+
+private
    overriding procedure Yield
      (controller : in out SEMI_CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to a suspended invoker
@@ -103,13 +118,6 @@ package Control is
    with Inline;
    --  Resume `controller` using `invoker` as dispatcher
 
-   ---------------------------------------------------------------------------
-   --  FULL_CONTROLLER_TYPE
-   ---------------------------------------------------------------------------
-
-   type FULL_CONTROLLER_TYPE   is limited new CONTROLLER_TYPE with private;
-   type FULL_CONTROLLER_ACCESS is access all FULL_CONTROLLER_TYPE;
-
    overriding procedure Yield
      (controller : in out FULL_CONTROLLER_TYPE);
    -- Disabled: raises Program_Error
@@ -119,14 +127,6 @@ package Control is
       invoker    : in out FULL_CONTROLLER_TYPE);
    --  Resume `controller` using `invoker` as dispatcher
 
-   ---------------------------------------------------------------------------
-   --  Common stuff
-   ---------------------------------------------------------------------------
-
-   type VOID is null record;
-   --  Common type for child packages and clients using void contexts
-
-private
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
    ---------------------------------------------------------------------------
