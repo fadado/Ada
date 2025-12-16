@@ -9,15 +9,13 @@ package Control . CoRoutines is
    type COROUTINE_INTERFACE is limited interface;
 
    procedure Yield
-     (routine  : in out COROUTINE_INTERFACE) is abstract;
+     (controller : in out COROUTINE_INTERFACE)
+   is abstract;
 
    procedure Resume
-     (routine  : in out COROUTINE_INTERFACE;
-      invoker  : in out COROUTINE_INTERFACE) is abstract;
-   -- To restrict the coroutine procedure to call only this API
-
- --procedure Close
- --  (routine  : in out COROUTINE_INTERFACE) is abstract;
+     (controller : in out COROUTINE_INTERFACE;
+      dispatcher : in out COROUTINE_INTERFACE)
+   is abstract;
 
 end Control . CoRoutines;
 

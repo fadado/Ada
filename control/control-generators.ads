@@ -22,7 +22,8 @@ package Control . Generators is
 
    procedure Yield
      (generator : in out GENERATOR_INTERFACE;
-      output    : in ELEMENT_TYPE) is abstract;
+      output    : in ELEMENT_TYPE)
+   is abstract;
    -- To restrict the generator procedure to call only `Yield`
 
    type GENERATOR_PROCEDURE is not null access procedure
@@ -83,7 +84,7 @@ package Control . Generators is
    procedure For_Each (
       generator : in out GENERATOR_TYPE;
       callback  : not null access procedure (value: in ELEMENT_TYPE));
-   --  Invokes `callback.all` with a `value` for each element in `generator`,
+   --  Call `callback.all` with a `value` for each element in `generator`,
    --  consuming `generator` until exhaustion
 
    function Element_Value
@@ -102,15 +103,13 @@ package Control . Generators is
 
    subtype ITERATOR_INTERFACE is Generator_IIP.Forward_Iterator;
 
- --type    ITERATOR_TYPE      is limited new ITERATOR_INTERFACE with private;
-   -- TODO: publish?
-
    function Iterate
      (generator : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    with Inline;
    --  For use in the construct `for cursor in G.Iterate loop...`
 
 private
+
    overriding procedure Yield
      (generator : in out GENERATOR_TYPE;
       value     : in ELEMENT_TYPE)
@@ -139,21 +138,6 @@ private
       end record;
 
    No_Element : constant CURSOR_TYPE := (source => NULL);
-
-   -- TODO: move here from body?
- --type ITERATOR_TYPE is limited new ITERATOR_INTERFACE with
- --   record
- --      source : not null access GENERATOR_TYPE;
- --   end record;
-
- --overriding function First
- --  (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
- --with Inline;
-
- --overriding function Next
- --  (iterator : in ITERATOR_TYPE;
- --   cursor   : in CURSOR_TYPE) return CURSOR_TYPE
- --with Inline;
 
 end Control . Generators;
 

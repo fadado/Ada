@@ -5,8 +5,8 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 generic
-   type SOURCE_TYPE is private;
-   type TARGET_TYPE is private;
+   type INPUT_TYPE  is private;
+   type OUTPUT_TYPE is private;
    --  Type for `Yield` generated values
 
    type CONTEXT_TYPE (<>) is limited private;
@@ -21,7 +21,7 @@ package Control . Functors is
 
    procedure Yield
      (functor : in out FUNCTOR_INTERFACE;
-      map     : not null access function (x: SOURCE_TYPE) return TARGET_TYPE)
+      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
    is abstract;
    -- To restrict the functor procedure to call only `Yield`
 
@@ -38,7 +38,7 @@ package Control . Functors is
 
    function Resume
      (functor : in out FUNCTOR_TYPE;
-      input   : in SOURCE_TYPE) return TARGET_TYPE;
+      input   : in INPUT_TYPE) return OUTPUT_TYPE;
    --  Resume `functor` with a new `input` value
 
    procedure Close
@@ -46,9 +46,10 @@ package Control . Functors is
    --  Force `functor` to exit
 
 private
+
    procedure Yield
      (functor : in out FUNCTOR_TYPE;
-      map     : not null access function (x: SOURCE_TYPE) return TARGET_TYPE);
+      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE);
    --  Yields control after returning a value
 
    ---------------------------------------------------------------------------
@@ -63,9 +64,9 @@ private
    ) is limited new SEMI_CONTROLLER_TYPE and FUNCTOR_INTERFACE with 
       record
          dispatcher : DISPATCHER_TYPE;
-         runner     : FUNCTOR_Runner (FUNCTOR_TYPE'Access);
-         input      : SOURCE_TYPE;
-         output     : TARGET_TYPE;
+         runner     : Functor_Runner (FUNCTOR_TYPE'Access);
+         input      : INPUT_TYPE;
+         output     : OUTPUT_TYPE;
          inaugural  : BOOLEAN := TRUE;
       end record;
 

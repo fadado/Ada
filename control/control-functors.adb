@@ -17,7 +17,7 @@ package body Control . Functors is
 
    procedure Yield
      (functor : in out FUNCTOR_TYPE;
-      map     : not null access function (x: SOURCE_TYPE) return TARGET_TYPE)
+      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
    is
       parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(functor);
    begin
@@ -36,7 +36,7 @@ package body Control . Functors is
 
    function Resume
      (functor : in out FUNCTOR_TYPE;
-      input   : in SOURCE_TYPE) return TARGET_TYPE
+      input   : in INPUT_TYPE) return OUTPUT_TYPE
    is
    begin
       if functor.state = DEAD then

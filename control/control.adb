@@ -4,7 +4,6 @@
 
 pragma Assertion_Policy (Check); -- Check / Ignore
 
-with Ada.Tags;
 with Ada.Unchecked_Deallocation;
 with Ada.Dispatching;
 
@@ -20,19 +19,6 @@ package body Control is
      (dispatcher : in out DISPATCHER_TYPE;
       target     : in out DISPATCHER_TYPE);
 
-   --------------------------
-   -- is_master_controller --
-   --------------------------
-
-   function is_master_controller
-     (dispatcher : DISPATCHER_TYPE'Class) return BOOLEAN
-   with Inline
-   is
-      use type Ada.Tags.Tag;
-   begin
-      return DISPATCHER_TYPE'Tag = dispatcher'Tag;
-   end is_master_controller;
-
    -----------
    -- Close --
    -----------
@@ -44,7 +30,7 @@ package body Control is
          is (dispatcher.state = DEAD); -- .state is Atomic!
    begin
       pragma Assert (dispatcher.id /= Current_Task);
-      pragma Assert (not is_master_controller(dispatcher));
+      pragma Assert (dispatcher not in DISPATCHER_TYPE);
 
    <<again>>
       case dispatcher.state is
@@ -73,7 +59,7 @@ package body Control is
       target : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
       if dispatcher.id = Null_Task_Id then
-         pragma Assert (is_master_controller(dispatcher));
+         pragma Assert (dispatcher in DISPATCHER_TYPE);
          dispatcher.id    := Current_Task;
          dispatcher.state := RUNNING;
       end if;
@@ -81,7 +67,8 @@ package body Control is
       pragma Assert (dispatcher.id = Current_Task);
       pragma Assert (dispatcher.state = RUNNING);
 
-      controller.link := dispatcher'Unchecked_Access;
+      -- store link to invoker
+      controller.backward := dispatcher'Unchecked_Access;
 
       suspend_resume(dispatcher, target);
    end Dispatch;
@@ -114,8 +101,8 @@ package body Control is
       end if;
       controller.state := RUNNING;
 
-      -- we have been resumed!
-      pragma Assert (controller.link /= NULL);
+      -- we have been resumed by the invoker designated by `backward`
+      pragma Assert (controller.backward /= NULL);
    end Commence;
 
    ----------
@@ -128,7 +115,7 @@ package body Control is
    is
       use Ada.Exceptions;
 
-      invoker : DISPATCHER_TYPE renames controller.link.all;
+      invoker : DISPATCHER_TYPE renames controller.backward.all;
    begin
       pragma Assert (controller.state = RUNNING);
 
@@ -151,7 +138,7 @@ package body Control is
    overriding procedure Yield
      (controller : in out SEMI_CONTROLLER_TYPE)
    is
-      invoker : DISPATCHER_TYPE renames controller.link.all;
+      invoker : DISPATCHER_TYPE renames controller.backward.all;
    begin
       -- too paranoid
     --pragma Assert (controller.id = Current_Task);
@@ -176,10 +163,10 @@ package body Control is
 
    overriding procedure Resume
      (controller : in out SEMI_CONTROLLER_TYPE;
-      invoker    : in out SEMI_CONTROLLER_TYPE)
+      dispatcher : in out SEMI_CONTROLLER_TYPE)
    is
    begin
-      invoker.Dispatch(controller);
+      dispatcher.Dispatch(controller);
    end Resume;
 
    ---------------------------------------------------------------------------
@@ -193,13 +180,13 @@ package body Control is
    overriding procedure Yield
      (controller : in out FULL_CONTROLLER_TYPE)
    is
-      master : DISPATCHER_TYPE renames controller.link.all;
+      master : DISPATCHER_TYPE renames controller.backward.all;
    begin
       -- too paranoid
     --pragma Assert (controller.id = Current_Task);
     --pragma Assert (controller.state = RUNNING);
 
-      pragma Assert (is_master_controller(master));
+      pragma Assert (master in DISPATCHER_TYPE);
 
       -- SUSPENDING
       controller.state := SUSPENDED;
@@ -220,18 +207,19 @@ package body Control is
 
    overriding procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
-      invoker    : in out FULL_CONTROLLER_TYPE)
+      dispatcher : in out FULL_CONTROLLER_TYPE)
    is
-      dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
-      target     : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+      invoker : DISPATCHER_TYPE renames DISPATCHER_TYPE(dispatcher);
+      target  : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
       -- too paranoid
-    --pragma Assert (invoker.id = Current_Task);
-    --pragma Assert (invoker.state = RUNNING);
+    --pragma Assert (dispatcher.id = Current_Task);
+    --pragma Assert (dispatcher.state = RUNNING);
 
-      controller.link := invoker.link;
+      -- store link to master
+      controller.backward := dispatcher.backward;
 
-      suspend_resume(dispatcher, target);
+      suspend_resume(invoker, target);
    end Resume;
 
    --------------------
@@ -279,7 +267,7 @@ package body Control is
 
       -- RESUMING
       if dispatcher.state = DYING then
-         pragma Assert (not is_master_controller(dispatcher));
+         pragma Assert (dispatcher not in DISPATCHER_TYPE);
          dispatcher.state := DEAD;
          raise Exit_Controller;
       end if;

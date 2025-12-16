@@ -19,7 +19,8 @@ package Control . Collectors is
    type COLLECTOR_INTERFACE is limited interface;
 
    function Yield
-     (collector : in out COLLECTOR_INTERFACE) return ELEMENT_TYPE is abstract;
+     (collector : in out COLLECTOR_INTERFACE) return ELEMENT_TYPE
+   is abstract;
    -- To restrict the collector procedure to call only `Yield`
 
    type COLLECTOR_PROCEDURE is not null access procedure

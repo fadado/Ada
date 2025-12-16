@@ -37,6 +37,7 @@ package Control . CoRoutines . Implement is
    --  Force `routine` to exit
 
 private
+
    overriding procedure Resume
      (routine : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)

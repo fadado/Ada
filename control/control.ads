@@ -64,6 +64,7 @@ package Control is
    ---------------------------------------------------------------------------
 
    type CONTROLLER_TYPE   is abstract limited new DISPATCHER_TYPE with private;
+
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
    --  Base controler
 
@@ -78,12 +79,14 @@ package Control is
    --  necessary
 
    procedure Yield
-     (controller : in out CONTROLLER_TYPE) is abstract;
+     (controller : in out CONTROLLER_TYPE)
+   is abstract;
    --  Suspend `controller` and transfers control to a suspended invoker
 
    procedure Resume
      (controller : in out CONTROLLER_TYPE;
-      invoker    : in out CONTROLLER_TYPE) is abstract;
+      dispatcher : in out CONTROLLER_TYPE)
+   is abstract;
    --  Resume `controller` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------
@@ -108,24 +111,25 @@ package Control is
    --  Common type for child packages and clients using void contexts
 
 private
+
    overriding procedure Yield
      (controller : in out SEMI_CONTROLLER_TYPE);
    --  Suspend `controller` and transfers control to a suspended invoker
 
    overriding procedure Resume
      (controller : in out SEMI_CONTROLLER_TYPE;
-      invoker    : in out SEMI_CONTROLLER_TYPE)
+      dispatcher : in out SEMI_CONTROLLER_TYPE)
    with Inline;
-   --  Resume `controller` using `invoker` as dispatcher
+   --  Resume `controller` using `dispatcher`
 
    overriding procedure Yield
      (controller : in out FULL_CONTROLLER_TYPE);
-   -- Disabled: raises Program_Error
+   --  Suspend `controller` and transfers control to the suspended master
 
    overriding procedure Resume
      (controller : in out FULL_CONTROLLER_TYPE;
-      invoker    : in out FULL_CONTROLLER_TYPE);
-   --  Resume `controller` using `invoker` as dispatcher
+      dispatcher : in out FULL_CONTROLLER_TYPE);
+   --  Resume `controller` using `dispatcher`
 
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
@@ -172,7 +176,7 @@ private
 
    type CONTROLLER_TYPE is abstract limited new DISPATCHER_TYPE with
       record
-         link    : DISPATCHER_ACCESS;
+         backward : DISPATCHER_ACCESS;
       end record;
 
    type SEMI_CONTROLLER_TYPE is limited new CONTROLLER_TYPE with null record;
