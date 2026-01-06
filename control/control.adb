@@ -11,66 +11,37 @@ with Control.Spin_Until;
 
 package body Control is
 
+   procedure suspend_resume
+     (source : in out DISPATCHER_TYPE;
+      target : in out DISPATCHER_TYPE);
+
    ---------------------------------------------------------------------------
    -- DISPATCHER_TYPE local subprograms and public primitives
    ---------------------------------------------------------------------------
-
-   procedure suspend_resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      target     : in out DISPATCHER_TYPE);
-
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close
-     (dispatcher : in out DISPATCHER_TYPE)
-   is
-      function dispatcher_died return BOOLEAN
-         is (dispatcher.state = DEAD); -- .state is Atomic!
-   begin
-      pragma Assert (dispatcher.id /= Current_Task);
-      pragma Assert (dispatcher not in DISPATCHER_TYPE);
-
-   <<again>>
-      case dispatcher.state is
-         when SUSPENDED =>
-            dispatcher.state := DYING;
-            Signal.Notify(dispatcher.run);
-            Spin_Until(dispatcher_died'Access);
-         when EXPECTANT =>
-            Ada.Dispatching.Yield;
-            goto again;
-         when DEAD =>
-            null;
-         when RUNNING | DYING =>
-            raise Control_Error with "unexpected dispatcher state";
-      end case;
-   end Close;
 
    --------------
    -- Dispatch --
    --------------
 
    procedure Dispatch
-     (dispatcher : in out DISPATCHER_TYPE;
+     (self       : in out DISPATCHER_TYPE;
       controller : in out CONTROLLER_TYPE'Class)
    is
       target : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
    begin
-      if dispatcher.id = Null_Task_Id then
-         pragma Assert (dispatcher in DISPATCHER_TYPE);
-         dispatcher.id    := Current_Task;
-         dispatcher.state := RUNNING;
+      if self.id = Null_Task_Id then
+         pragma Assert (self in DISPATCHER_TYPE);
+         self.id    := Current_Task;
+         self.state := RUNNING;
       end if;
 
-      pragma Assert (dispatcher.id = Current_Task);
-      pragma Assert (dispatcher.state = RUNNING);
+      pragma Assert (self.id = Current_Task);
+      pragma Assert (self.state = RUNNING);
 
       -- store link to invoker
-      controller.backward := dispatcher'Unchecked_Access;
+      controller.backward := self'Unchecked_Access;
 
-      suspend_resume(dispatcher, target);
+      suspend_resume(self, target);
    end Dispatch;
 
    ---------------------------------------------------------------------------
@@ -82,27 +53,27 @@ package body Control is
    --------------
 
    procedure Commence
-     (controller : in out CONTROLLER_TYPE)
+     (self : in out CONTROLLER_TYPE)
    is
    begin
-    --pragma Assert (controller.id = Null_Task_Id);
-    --pragma Assert (controller.state = EXPECTANT);
+    --pragma Assert (self.id = Null_Task_Id);
+    --pragma Assert (self.state = EXPECTANT);
 
-      controller.id := Current_Task;
+      self.id := Current_Task;
 
       -- SUSPENDING
-      controller.state := SUSPENDED;
-      Signal.Wait(controller.run);
+      self.state := SUSPENDED;
+      Signal.Wait(self.run);
 
       -- RESUMING
-      if controller.state = DYING then
-         controller.state := DEAD;
+      if self.state = DYING then
+         self.state := DEAD;
          raise Exit_Controller;
       end if;
-      controller.state := RUNNING;
+      self.state := RUNNING;
 
       -- we have been resumed by the invoker designated by `backward`
-      pragma Assert (controller.backward /= NULL);
+      pragma Assert (self.backward /= NULL);
    end Commence;
 
    ----------
@@ -110,22 +81,50 @@ package body Control is
    ----------
 
    procedure Quit
-     (controller : in out CONTROLLER_TYPE;
-      X          : in EXCEPTION_TYPE := Null_Exception)
+     (self : in out CONTROLLER_TYPE;
+      X    : in EXCEPTION_TYPE := Null_Exception)
    is
       use Ada.Exceptions;
 
-      invoker : DISPATCHER_TYPE renames controller.backward.all;
+      invoker : DISPATCHER_TYPE renames self.backward.all;
    begin
-      pragma Assert (controller.state = RUNNING);
+      pragma Assert (self.state = RUNNING);
 
       if Exception_Identity(X) /= Null_Id then
          invoker.migrant := Save_Occurrence(X);
       end if;
 
-      controller.state := DEAD;
+      self.state := DEAD;
       Signal.Notify(invoker.run);
    end Quit;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close
+     (self : in out CONTROLLER_TYPE)
+   is
+      function dispatcher_died return BOOLEAN
+         is (self.state = DEAD); -- .state is Atomic!
+   begin
+      pragma Assert (self.id /= Current_Task);
+
+   <<again>>
+      case self.state is
+         when SUSPENDED =>
+            self.state := DYING;
+            Signal.Notify(self.run);
+            Spin_Until(dispatcher_died'Access);
+         when EXPECTANT =>
+            Ada.Dispatching.Yield;
+            goto again;
+         when DEAD =>
+            null;
+         when RUNNING | DYING =>
+            raise Control_Error with "unexpected dispatcher state";
+      end case;
+   end Close;
 
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
@@ -136,25 +135,25 @@ package body Control is
    -----------
 
    overriding procedure Yield
-     (controller : in out SEMI_CONTROLLER_TYPE)
+     (self : in out SEMI_CONTROLLER_TYPE)
    is
-      invoker : DISPATCHER_TYPE renames controller.backward.all;
+      invoker : DISPATCHER_TYPE renames self.backward.all;
    begin
       -- too paranoid
-    --pragma Assert (controller.id = Current_Task);
-    --pragma Assert (controller.state = RUNNING);
+    --pragma Assert (self.id = Current_Task);
+    --pragma Assert (self.state = RUNNING);
 
       -- SUSPENDING
-      controller.state := SUSPENDED;
+      self.state := SUSPENDED;
       Signal.Notify(invoker.run);
-      Signal.Wait(controller.run);
+      Signal.Wait(self.run);
 
       -- RESUMING
-      if controller.state = DYING then
-         controller.state := DEAD;
+      if self.state = DYING then
+         self.state := DEAD;
          raise Exit_Controller;
       end if;
-      controller.state := RUNNING;
+      self.state := RUNNING;
    end Yield;
 
    ------------
@@ -162,11 +161,11 @@ package body Control is
    ------------
 
    overriding procedure Resume
-     (controller : in out SEMI_CONTROLLER_TYPE;
-      dispatcher : in out SEMI_CONTROLLER_TYPE)
+     (self       : in out SEMI_CONTROLLER_TYPE;
+      controller : in out SEMI_CONTROLLER_TYPE)
    is
    begin
-      dispatcher.Dispatch(controller);
+      controller.Dispatch(self);
    end Resume;
 
    ---------------------------------------------------------------------------
@@ -178,27 +177,27 @@ package body Control is
    -----------
 
    overriding procedure Yield
-     (controller : in out FULL_CONTROLLER_TYPE)
+     (self : in out FULL_CONTROLLER_TYPE)
    is
-      master : DISPATCHER_TYPE renames controller.backward.all;
+      master : DISPATCHER_TYPE renames self.backward.all;
    begin
       -- too paranoid
-    --pragma Assert (controller.id = Current_Task);
-    --pragma Assert (controller.state = RUNNING);
+    --pragma Assert (self.id = Current_Task);
+    --pragma Assert (self.state = RUNNING);
 
       pragma Assert (master in DISPATCHER_TYPE);
 
       -- SUSPENDING
-      controller.state := SUSPENDED;
+      self.state := SUSPENDED;
       Signal.Notify(master.run);
-      Signal.Wait(controller.run);
+      Signal.Wait(self.run);
 
       -- RESUMING
-      if controller.state = DYING then
-         controller.state := DEAD;
+      if self.state = DYING then
+         self.state := DEAD;
          raise Exit_Controller;
       end if;
-      controller.state := RUNNING;
+      self.state := RUNNING;
    end Yield;
 
    ------------
@@ -206,18 +205,18 @@ package body Control is
    ------------
 
    overriding procedure Resume
-     (controller : in out FULL_CONTROLLER_TYPE;
-      dispatcher : in out FULL_CONTROLLER_TYPE)
+     (self       : in out FULL_CONTROLLER_TYPE;
+      controller : in out FULL_CONTROLLER_TYPE)
    is
-      invoker : DISPATCHER_TYPE renames DISPATCHER_TYPE(dispatcher);
-      target  : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+      invoker : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
+      target  : DISPATCHER_TYPE renames DISPATCHER_TYPE(self);
    begin
       -- too paranoid
-    --pragma Assert (dispatcher.id = Current_Task);
-    --pragma Assert (dispatcher.state = RUNNING);
+    --pragma Assert (controller.id = Current_Task);
+    --pragma Assert (controller.state = RUNNING);
 
       -- store link to master
-      controller.backward := dispatcher.backward;
+      self.backward := controller.backward;
 
       suspend_resume(invoker, target);
    end Resume;
@@ -227,8 +226,8 @@ package body Control is
    --------------------
 
    procedure suspend_resume
-     (dispatcher : in out DISPATCHER_TYPE;
-      target     : in out DISPATCHER_TYPE)
+     (source : in out DISPATCHER_TYPE;
+      target : in out DISPATCHER_TYPE)
    is
       use type Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
@@ -241,13 +240,13 @@ package body Control is
             EXCEPTION_ACCESS
          );
 
-         migrant : EXCEPTION_TYPE renames dispatcher.migrant.all;
+         migrant : EXCEPTION_TYPE renames source.migrant.all;
 
          id : constant EXCEPTION_ID := Exception_Identity(migrant);
          ms : constant STRING       := Exception_Message(migrant);
       begin
-         dealloc(dispatcher.migrant);
-         dispatcher.migrant := NULL;
+         dealloc(source.migrant);
+         source.migrant := NULL;
          Raise_Exception(id, ms);
       end migrate_exception;
 
@@ -261,19 +260,19 @@ package body Control is
       Spin_Until(controller_initiated'Access);
 
       -- SUSPENDING
-      dispatcher.state := SUSPENDED;
+      source.state := SUSPENDED;
       Signal.Notify(target.run);
-      Signal.Wait(dispatcher.run);
+      Signal.Wait(source.run);
 
       -- RESUMING
-      if dispatcher.state = DYING then
-         pragma Assert (dispatcher not in DISPATCHER_TYPE);
-         dispatcher.state := DEAD;
+      if source.state = DYING then
+         pragma Assert (source not in DISPATCHER_TYPE);
+         source.state := DEAD;
          raise Exit_Controller;
       end if;
-      dispatcher.state := RUNNING;
+      source.state := RUNNING;
 
-      if dispatcher.migrant /= NULL then
+      if source.migrant /= NULL then
          --  `target` had an exception
          pragma Assert (target.state = DEAD);
 

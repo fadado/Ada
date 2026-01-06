@@ -26,19 +26,19 @@ package Control is
    ---------------------------------------------------------------------------
 
    Control_Error : exception;
-   --  Generic subsystem exception
+   --  Subsystem general exception
 
    Exit_Controller : exception;
-   --  Visible, but to be handled *only* on task body handlers
+   --  Visible, but to be used *only* internally
 
    Stop_Iteration : exception;
-   --  Raised when a controller task has finished
+   --  Raised when a controller task becomes DEAD
 
    subtype EXCEPTION_TYPE   is Ada.Exceptions.EXCEPTION_OCCURRENCE;
    subtype EXCEPTION_ACCESS is Ada.Exceptions.EXCEPTION_OCCURRENCE_ACCESS;
 
    Null_Exception : EXCEPTION_TYPE renames Ada.Exceptions.Null_Occurrence;
-   --  Simple renaming to simplify naming and avoid `use`
+   --  Simplify naming
 
    ---------------------------------------------------------------------------
    --  DISPATCHER_TYPE
@@ -48,16 +48,12 @@ package Control is
    type DISPATCHER_ACCESS is access all DISPATCHER_TYPE;
    --  A simple controller to attatch to the current task
 
-   procedure Close
-     (dispatcher : in out DISPATCHER_TYPE);
-   --  Force the exit for a suspended `dispatcher`
-
    type CONTROLLER_TYPE;
 
    procedure Dispatch
-     (dispatcher : in out DISPATCHER_TYPE;
+     (self       : in out DISPATCHER_TYPE;
       controller : in out CONTROLLER_TYPE'Class);
-   --  Resume `controller` using `dispatcher`
+   --  Resume `controller`
 
    ---------------------------------------------------------------------------
    --  CONTROLLER_TYPE
@@ -66,28 +62,32 @@ package Control is
    type CONTROLLER_TYPE   is abstract limited new DISPATCHER_TYPE with private;
 
    type CONTROLLER_ACCESS is access all CONTROLLER_TYPE;
-   --  Base controler
+   --  Abstract controler
 
    procedure Commence
-     (controller : in out CONTROLLER_TYPE);
-   --  Commence `controller` in the current task
+     (self : in out CONTROLLER_TYPE);
+   --  Commence `self` in the current task
 
    procedure Quit
-     (controller : in out CONTROLLER_TYPE;
-      X          : in EXCEPTION_TYPE := Null_Exception);
-   --  Quit `controller` and migrate exceptions to a suspended invoker if
+     (self : in out CONTROLLER_TYPE;
+      X    : in EXCEPTION_TYPE := Null_Exception);
+   --  Quit `self` and migrate exceptions to a suspended invoker if
    --  necessary
 
+   procedure Close
+     (self : in out CONTROLLER_TYPE);
+   --  Force the exit for a suspended dispatcher
+
    procedure Yield
-     (controller : in out CONTROLLER_TYPE)
+     (self : in out CONTROLLER_TYPE)
    is abstract;
-   --  Suspend `controller` and transfers control to a suspended invoker
+   --  Suspend `self` and transfers control to a suspended invoker
 
    procedure Resume
-     (controller : in out CONTROLLER_TYPE;
-      dispatcher : in out CONTROLLER_TYPE)
+     (self       : in out CONTROLLER_TYPE;
+      controller : in out CONTROLLER_TYPE)
    is abstract;
-   --  Resume `controller` using `invoker` as dispatcher
+   --  Resume `self` using `controller` as dispatcher
 
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE
@@ -113,23 +113,23 @@ package Control is
 private
 
    overriding procedure Yield
-     (controller : in out SEMI_CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to a suspended invoker
+     (self : in out SEMI_CONTROLLER_TYPE);
+   --  Suspend `self` and transfers control to a suspended invoker
 
    overriding procedure Resume
-     (controller : in out SEMI_CONTROLLER_TYPE;
-      dispatcher : in out SEMI_CONTROLLER_TYPE)
+     (self       : in out SEMI_CONTROLLER_TYPE;
+      controller : in out SEMI_CONTROLLER_TYPE)
    with Inline;
-   --  Resume `controller` using `dispatcher`
+   --  Resume `self` using `dispatcher`
 
    overriding procedure Yield
-     (controller : in out FULL_CONTROLLER_TYPE);
-   --  Suspend `controller` and transfers control to the suspended master
+     (self : in out FULL_CONTROLLER_TYPE);
+   --  Suspend `self` and transfers control to the suspended master
 
    overriding procedure Resume
-     (controller : in out FULL_CONTROLLER_TYPE;
-      dispatcher : in out FULL_CONTROLLER_TYPE);
-   --  Resume `controller` using `dispatcher`
+     (self       : in out FULL_CONTROLLER_TYPE;
+      controller : in out FULL_CONTROLLER_TYPE);
+   --  Resume `self` using `dispatcher`
 
    ---------------------------------------------------------------------------
    --  A "renaming" layer on top of `Ada.Synchronous_Task_Control`
