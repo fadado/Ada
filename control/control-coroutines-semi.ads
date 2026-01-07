@@ -12,11 +12,11 @@ generic
 
 package Control . CoRoutines . Semi is
 
-   package SemiCoroImpl is new Implement
+   package SemiCoroImplementation is new Implement
      (Base_Controller => SEMI_CONTROLLER_TYPE,
       Context_Type    => CONTEXT_TYPE);
 
-   subtype COROUTINE_TYPE is SemiCoroImpl.COROUTINE_TYPE;
+   subtype COROUTINE_TYPE is SemiCoroImplementation.COROUTINE_TYPE;
 
 end Control . CoRoutines . Semi;
 

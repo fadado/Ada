@@ -27,26 +27,26 @@ package Control . CoRoutines . Implement is
    ) is limited new COROUTINE_INTERFACE with private;
    --  Coroutine type with *only* transfer of control
 
-   not overriding procedure Resume
-     (routine    : in out COROUTINE_TYPE;
+   procedure Resume
+     (self       : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE);
-   --  Resume `routine` using `dispatcher`
+   --  Resume `self` using `dispatcher`
 
    procedure Close
-     (routine : in out COROUTINE_TYPE);
-   --  Force `routine` to exit
+     (self : in out COROUTINE_TYPE);
+   --  Force `self` to exit
 
 private
 
    overriding procedure Resume
-     (routine : in out COROUTINE_TYPE;
+     (self    : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    with Inline;
-   --  Resume `routine` using `invoker` as a dispatcher
+   --  Resume `self` using `invoker` as a dispatcher
 
    -- Note: Yield is inherited from BASE_CONTROLLER
 
-   task type CoRoutine_Runner (routine: not null access COROUTINE_TYPE);
+   task type CoRoutine_Runner (self: not null access COROUTINE_TYPE);
 
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;

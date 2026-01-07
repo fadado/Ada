@@ -84,10 +84,10 @@ package Control is
    --  Suspend `self` and transfers control to a suspended invoker
 
    procedure Resume
-     (self       : in out CONTROLLER_TYPE;
-      controller : in out CONTROLLER_TYPE)
+     (self    : in out CONTROLLER_TYPE;
+      invoker : in out CONTROLLER_TYPE)
    is abstract;
-   --  Resume `self` using `controller` as dispatcher
+   --  Resume `self` using `invoker` as dispatcher
 
    ---------------------------------------------------------------------------
    --  SEMI_CONTROLLER_TYPE

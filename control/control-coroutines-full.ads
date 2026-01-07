@@ -12,11 +12,11 @@ generic
 
 package Control . CoRoutines . Full is
 
-   package FullCoroImpl is new Implement
+   package FullCoroImplementation is new Implement
      (Base_Controller => FULL_CONTROLLER_TYPE,
       Context_Type    => CONTEXT_TYPE);
 
-   subtype COROUTINE_TYPE is FullCoroImpl.COROUTINE_TYPE;
+   subtype COROUTINE_TYPE is FullCoroImplementation.COROUTINE_TYPE;
 
 end Control . CoRoutines . Full;
 

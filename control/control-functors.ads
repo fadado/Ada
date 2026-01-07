@@ -20,8 +20,8 @@ package Control . Functors is
    type FUNCTOR_INTERFACE is limited interface;
 
    procedure Yield
-     (functor : in out FUNCTOR_INTERFACE;
-      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
+     (self : in out FUNCTOR_INTERFACE;
+      map  : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
    is abstract;
    -- To restrict the functor procedure to call only `Yield`
 
@@ -37,26 +37,26 @@ package Control . Functors is
    --  Coroutine type with functor capabilities
 
    function Resume
-     (functor : in out FUNCTOR_TYPE;
+     (self    : in out FUNCTOR_TYPE;
       input   : in INPUT_TYPE) return OUTPUT_TYPE;
-   --  Resume `functor` with a new `input` value
+   --  Resume `self` with a new `input` value
 
    procedure Close
-     (functor : in out FUNCTOR_TYPE);
-   --  Force `functor` to exit
+     (self : in out FUNCTOR_TYPE);
+   --  Force `self` to exit
 
 private
 
    procedure Yield
-     (functor : in out FUNCTOR_TYPE;
-      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE);
+     (self : in out FUNCTOR_TYPE;
+      map  : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE);
    --  Yields control after returning a value
 
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Functor_Runner (functor: not null access FUNCTOR_TYPE);
+   task type Functor_Runner (self: not null access FUNCTOR_TYPE);
 
    type FUNCTOR_TYPE (
          main       : FUNCTOR_PROCEDURE;

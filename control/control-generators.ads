@@ -21,8 +21,8 @@ package Control . Generators is
    type GENERATOR_INTERFACE is limited interface;
 
    procedure Yield
-     (generator : in out GENERATOR_INTERFACE;
-      output    : in ELEMENT_TYPE)
+     (self   : in out GENERATOR_INTERFACE;
+      output : in ELEMENT_TYPE)
    is abstract;
    -- To restrict the generator procedure to call only `Yield`
 
@@ -42,13 +42,13 @@ package Control . Generators is
    --  Coroutine type with iterable capabilities
 
    function Resume
-     (generator : in out GENERATOR_TYPE) return ELEMENT_TYPE
+     (self : in out GENERATOR_TYPE) return ELEMENT_TYPE
    with Inline;
-   --  Resume `generator` and raises `Stop_Iteration` when dead
+   --  Resume `self` and raises `Stop_Iteration` when dead
 
    procedure Close
-     (generator : in out GENERATOR_TYPE);
-   --  Force `generator` to exit
+     (self : in out GENERATOR_TYPE);
+   --  Force `self` to exit
 
    ---------------------------------------------------------------------------
    --  CURSOR_TYPE methods and constants
@@ -61,9 +61,9 @@ package Control . Generators is
    --  Represents a cursor that designates no element
 
    function First
-     (generator : in out GENERATOR_TYPE) return CURSOR_TYPE;
-   --  If `generator` is empty returns `No_Element`; otherwise returns a
-   --  cursor that designates the first element in `generator`
+     (self : in out GENERATOR_TYPE) return CURSOR_TYPE;
+   --  If `self` is empty returns `No_Element`; otherwise returns a
+   --  cursor that designates the first element in `self`
 
    function Next
      (cursor : in CURSOR_TYPE) return CURSOR_TYPE;
@@ -82,14 +82,14 @@ package Control . Generators is
    --  `cursor`
 
    procedure For_Each (
-      generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure (value: in ELEMENT_TYPE));
-   --  Call `callback.all` with a `value` for each element in `generator`,
-   --  consuming `generator` until exhaustion
+      self     : in out GENERATOR_TYPE;
+      callback : not null access procedure (value: in ELEMENT_TYPE));
+   --  Call `callback.all` with a `value` for each element in `self`,
+   --  consuming `self` until exhaustion
 
    function Element_Value
-     (generator : in out GENERATOR_TYPE;
-      cursor    : in CURSOR_TYPE) return ELEMENT_TYPE
+     (self   : in out GENERATOR_TYPE;
+      cursor : in CURSOR_TYPE) return ELEMENT_TYPE
    with Inline;
    --  Used only in the `Constant_Indexing` aspect
 
@@ -104,15 +104,15 @@ package Control . Generators is
    subtype ITERATOR_INTERFACE is Generator_IIP.Forward_Iterator;
 
    function Iterate
-     (generator : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
+     (self : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    with Inline;
    --  For use in the construct `for cursor in G.Iterate loop...`
 
 private
 
    overriding procedure Yield
-     (generator : in out GENERATOR_TYPE;
-      value     : in ELEMENT_TYPE)
+     (self  : in out GENERATOR_TYPE;
+      value : in ELEMENT_TYPE)
    with Inline;
    --  Yields control and a value
 
@@ -120,7 +120,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Generator_Runner (generator: not null access GENERATOR_TYPE);
+   task type Generator_Runner (self: not null access GENERATOR_TYPE);
 
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;

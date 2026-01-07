@@ -16,13 +16,13 @@ package body Control . Generators is
    -----------
 
    overriding procedure Yield
-     (generator : in out GENERATOR_TYPE;
-      value     : in ELEMENT_TYPE)
+     (self  : in out GENERATOR_TYPE;
+      value : in ELEMENT_TYPE)
    is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      generator.output := value;
-      parent.Yield;
+      self.output := value;
+      super.Yield;
    end Yield;
 
    ------------
@@ -30,20 +30,20 @@ package body Control . Generators is
    ------------
 
    not overriding function Resume
-     (generator : in out GENERATOR_TYPE) return ELEMENT_TYPE
+     (self : in out GENERATOR_TYPE) return ELEMENT_TYPE
    is
    begin
-      if generator.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      generator.dispatcher.Dispatch(generator);
+      self.dispatcher.Dispatch(self);
 
-      if generator.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      return generator.output;
+      return self.output;
    end Resume;
 
    -----------
@@ -51,15 +51,15 @@ package body Control . Generators is
    -----------
 
    overriding procedure Close
-     (generator : in out GENERATOR_TYPE)
+     (self : in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN
-         is (generator.runner'Terminated);
+         is (self.runner'Terminated);
 
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(generator);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      if generator.state /= DEAD then
-         parent.Close;
+      if self.state /= DEAD then
+         super.Close;
          Spin_Until(runner_terminated'Access);
       end if;
    end Close;
@@ -71,12 +71,12 @@ package body Control . Generators is
    task body Generator_Runner
    is
    begin
-      generator.Commence;
-      generator.main(generator.all, generator.context);
-      generator.Quit;
+      self.Commence;
+      self.main(self.all, self.context);
+      self.Quit;
    exception
       when Exit_Controller => null;
-      when X: others       => generator.Quit(X);
+      when X: others       => self.Quit(X);
    end Generator_Runner;
 
    ---------------------------------------------------------------------------
@@ -88,16 +88,16 @@ package body Control . Generators is
    -----------
 
    function First
-     (generator : in out GENERATOR_TYPE) return CURSOR_TYPE
+     (self : in out GENERATOR_TYPE) return CURSOR_TYPE
    is
       function generator_initiated return BOOLEAN
-         is (generator.state /= EXPECTANT);
+         is (self.state /= EXPECTANT);
    begin
-      if generator.state = EXPECTANT then
+      if self.state = EXPECTANT then
          Spin_Until(generator_initiated'Access);
       end if;
-      generator.output := generator.Resume;
-      return (source => generator'Unchecked_Access);
+      self.output := self.Resume;
+      return (source => self'Unchecked_Access);
    exception
       when Stop_Iteration => return No_Element;
    end First;
@@ -152,15 +152,15 @@ package body Control . Generators is
    --------------
 
    procedure For_Each (
-      generator : in out GENERATOR_TYPE;
-      callback  : not null access procedure (value: ELEMENT_TYPE))
+      self     : in out GENERATOR_TYPE;
+      callback : not null access procedure (value: ELEMENT_TYPE))
    is
       cursor : CURSOR_TYPE;
    begin
-      cursor := First(generator);
+      cursor := First(self);
       loop
          exit when cursor = No_Element;
-         callback(generator.output); -- hack: bypass Element(cursor)
+         callback(self.output); -- hack: bypass Element(cursor)
          cursor := Next(cursor);
       end loop;
    end For_Each;
@@ -170,12 +170,12 @@ package body Control . Generators is
    -------------------
 
    function Element_Value
-     (generator : in out GENERATOR_TYPE;
-      cursor    : in CURSOR_TYPE) return ELEMENT_TYPE
+     (self   : in out GENERATOR_TYPE;
+      cursor : in CURSOR_TYPE) return ELEMENT_TYPE
    is
       type A is not null access all GENERATOR_TYPE;
    begin
-      pragma Assert (GENERATOR_TYPE(generator)'Access = A(cursor.source));
+      pragma Assert (GENERATOR_TYPE(self)'Access = A(cursor.source));
       return Element(cursor);
    end Element_Value;
 
@@ -229,10 +229,10 @@ package body Control . Generators is
    -------------
 
    function Iterate
-     (generator : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
+     (self : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    is
    begin
-      return ITERATOR_TYPE'(source => generator'Unchecked_Access);
+      return ITERATOR_TYPE'(source => self'Unchecked_Access);
    end Iterate;
 
 end Control . Generators;

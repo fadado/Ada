@@ -16,17 +16,17 @@ package body Control . Functors is
    -----------
 
    procedure Yield
-     (functor : in out FUNCTOR_TYPE;
-      map     : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
+     (self : in out FUNCTOR_TYPE;
+      map  : not null access function (x: INPUT_TYPE) return OUTPUT_TYPE)
    is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(functor);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      if functor.inaugural then
-         functor.inaugural := FALSE;
-         functor.output := map(functor.input);
+      if self.inaugural then
+         self.inaugural := FALSE;
+         self.output := map(self.input);
       else
-         parent.Yield;
-         functor.output := map(functor.input);
+         super.Yield;
+         self.output := map(self.input);
       end if;
    end Yield;
 
@@ -35,38 +35,38 @@ package body Control . Functors is
    ------------
 
    function Resume
-     (functor : in out FUNCTOR_TYPE;
+     (self : in out FUNCTOR_TYPE;
       input   : in INPUT_TYPE) return OUTPUT_TYPE
    is
    begin
-      if functor.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      functor.input := input;
-      functor.dispatcher.Dispatch(functor);
+      self.input := input;
+      self.dispatcher.Dispatch(self);
 
-      if functor.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      return functor.output;
+      return self.output;
    end Resume;
 
    -----------
    -- Close --
    -----------
 
-   overriding procedure Close
-     (functor : in out FUNCTOR_TYPE)
+   procedure Close
+     (self : in out FUNCTOR_TYPE)
    is
       function runner_terminated return BOOLEAN
-         is (functor.runner'Terminated);
+         is (self.runner'Terminated);
 
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(functor);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      if functor.state /= DEAD then
-         parent.Close;
+      if self.state /= DEAD then
+         super.Close;
          Spin_Until(runner_terminated'Access);
       end if;
    end Close;
@@ -78,12 +78,12 @@ package body Control . Functors is
    task body Functor_Runner
    is
    begin
-      functor.Commence;
-      functor.main(functor.all, functor.context);
-      functor.Quit;
+      self.Commence;
+      self.main(self.all, self.context);
+      self.Quit;
    exception
       when Exit_Controller => null;
-      when X: others       => functor.Quit(X);
+      when X: others       => self.Quit(X);
    end Functor_Runner;
 
 end Control . Functors;

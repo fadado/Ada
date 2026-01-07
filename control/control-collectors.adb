@@ -16,16 +16,16 @@ package body Control . Collectors is
    -----------
 
    overriding function Yield
-     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE
+     (self : in out COLLECTOR_TYPE) return ELEMENT_TYPE
    is
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(collector);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      if collector.inaugural then
-         collector.inaugural := FALSE;
-         return collector.input;
+      if self.inaugural then
+         self.inaugural := FALSE;
+         return self.input;
       else
-         parent.Yield;
-         return collector.input;
+         super.Yield;
+         return self.input;
       end if;
    end Yield;
 
@@ -34,18 +34,18 @@ package body Control . Collectors is
    ------------
 
    not overriding procedure Resume
-     (collector : in out COLLECTOR_TYPE;
-      input     : in ELEMENT_TYPE)
+     (self  : in out COLLECTOR_TYPE;
+      input : in ELEMENT_TYPE)
    is
    begin
-      if collector.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      collector.input := input;
-      collector.dispatcher.Dispatch(collector);
+      self.input := input;
+      self.dispatcher.Dispatch(self);
 
-      if collector.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
    end Resume;
@@ -55,15 +55,15 @@ package body Control . Collectors is
    -----------
 
    overriding procedure Close
-     (collector : in out COLLECTOR_TYPE)
+     (self : in out COLLECTOR_TYPE)
    is
       function runner_terminated return BOOLEAN
-         is (collector.runner'Terminated);
+         is (self.runner'Terminated);
 
-      parent : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(collector);
+      super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
    begin
-      if collector.state /= DEAD then
-         parent.Close;
+      if self.state /= DEAD then
+         super.Close;
          Spin_Until(runner_terminated'Access);
       end if;
    end Close;
@@ -75,12 +75,12 @@ package body Control . Collectors is
    task body Collector_Runner
    is
    begin
-      collector.Commence;
-      collector.main(collector.all, collector.context);
-      collector.Quit;
+      self.Commence;
+      self.main(self.all, self.context);
+      self.Quit;
    exception
       when Exit_Controller => null;
-      when X: others       => collector.Quit(X);
+      when X: others       => self.Quit(X);
    end Collector_Runner;
 
 end Control . Collectors;

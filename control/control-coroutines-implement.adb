@@ -15,18 +15,18 @@ package body Control . CoRoutines . Implement is
    -- Resume -- TODO...
    ------------
 
-   not overriding procedure Resume
-     (routine    : in out COROUTINE_TYPE;
+   procedure Resume
+     (self       : in out COROUTINE_TYPE;
       dispatcher : in out DISPATCHER_TYPE)
    is
    begin
-      if routine.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
 
-      dispatcher.Dispatch(routine);
+      dispatcher.Dispatch(self);
 
-      if routine.state = DEAD then
+      if self.state = DEAD then
          raise Stop_Iteration;
       end if;
    end Resume;
@@ -36,12 +36,12 @@ package body Control . CoRoutines . Implement is
    ------------
 
    overriding procedure Resume
-     (routine : in out COROUTINE_TYPE;
+     (self    : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    is
       dispatcher : DISPATCHER_TYPE renames DISPATCHER_TYPE(invoker);
    begin
-      routine.Resume(dispatcher);
+      self.Resume(dispatcher);
    end Resume;
 
    -- Note: Yield is inherited from BASE_CONTROLLER
@@ -51,15 +51,15 @@ package body Control . CoRoutines . Implement is
    -----------
 
    overriding procedure Close
-     (routine : in out COROUTINE_TYPE)
+     (self : in out COROUTINE_TYPE)
    is
       function runner_terminated return BOOLEAN
-         is (routine.runner'Terminated);
+         is (self.runner'Terminated);
 
-      parent : BASE_CONTROLLER renames BASE_CONTROLLER(routine);
+      super : BASE_CONTROLLER renames BASE_CONTROLLER(self);
    begin
-      if routine.state /= DEAD then
-         parent.Close;
+      if self.state /= DEAD then
+         super.Close;
          Spin_Until(runner_terminated'Access);
       end if;
    end Close;
@@ -71,12 +71,12 @@ package body Control . CoRoutines . Implement is
    task body CoRoutine_Runner
    is
    begin
-      routine.Commence;
-      routine.main(routine.all, routine.context);
-      routine.Quit;
+      self.Commence;
+      self.main(self.all, self.context);
+      self.Quit;
    exception
       when Exit_Controller => null;
-      when X: others       => routine.Quit(X);
+      when X: others       => self.Quit(X);
    end CoRoutine_Runner;
 
 end Control . CoRoutines . Implement;

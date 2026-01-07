@@ -9,12 +9,12 @@ package Control . CoRoutines is
    type COROUTINE_INTERFACE is limited interface;
 
    procedure Yield
-     (controller : in out COROUTINE_INTERFACE)
+     (self : in out COROUTINE_INTERFACE)
    is abstract;
 
    procedure Resume
-     (controller : in out COROUTINE_INTERFACE;
-      dispatcher : in out COROUTINE_INTERFACE)
+     (self    : in out COROUTINE_INTERFACE;
+      invoker : in out COROUTINE_INTERFACE)
    is abstract;
 
 end Control . CoRoutines;

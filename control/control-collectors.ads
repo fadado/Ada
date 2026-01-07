@@ -19,7 +19,7 @@ package Control . Collectors is
    type COLLECTOR_INTERFACE is limited interface;
 
    function Yield
-     (collector : in out COLLECTOR_INTERFACE) return ELEMENT_TYPE
+     (self : in out COLLECTOR_INTERFACE) return ELEMENT_TYPE
    is abstract;
    -- To restrict the collector procedure to call only `Yield`
 
@@ -35,24 +35,24 @@ package Control . Collectors is
    --  Coroutine type with collector capabilities
 
    procedure Resume
-     (collector : in out COLLECTOR_TYPE;
-      input     : in ELEMENT_TYPE);
-   --  Resume `collector` with a new `input` value
+     (self  : in out COLLECTOR_TYPE;
+      input : in ELEMENT_TYPE);
+   --  Resume `self` with a new `input` value
 
    procedure Close
-     (collector : in out COLLECTOR_TYPE);
-   --  Force `collector` to exit
+     (self : in out COLLECTOR_TYPE);
+   --  Force `self` to exit
 
 private
    overriding function Yield
-     (collector : in out COLLECTOR_TYPE) return ELEMENT_TYPE;
+     (self : in out COLLECTOR_TYPE) return ELEMENT_TYPE;
    --  Yields control after returning a value
 
    ---------------------------------------------------------------------------
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Collector_Runner (collector: not null access COLLECTOR_TYPE);
+   task type Collector_Runner (self: not null access COLLECTOR_TYPE);
 
    type COLLECTOR_TYPE (
          main       : COLLECTOR_PROCEDURE;
