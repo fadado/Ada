@@ -15,7 +15,7 @@ package body Control . Generators is
    -- Yield --
    -----------
 
-   overriding procedure Yield
+   procedure Yield
      (self  : in out GENERATOR_TYPE;
       value : in ELEMENT_TYPE)
    is
@@ -29,7 +29,7 @@ package body Control . Generators is
    -- Resume --
    ------------
 
-   not overriding function Resume
+   function Resume
      (self : in out GENERATOR_TYPE) return ELEMENT_TYPE
    is
    begin
@@ -50,7 +50,7 @@ package body Control . Generators is
    -- Close --
    -----------
 
-   overriding procedure Close
+   procedure Close
      (self : in out GENERATOR_TYPE)
    is
       function runner_terminated return BOOLEAN
@@ -70,9 +70,10 @@ package body Control . Generators is
 
    task body Generator_Runner
    is
+      self : GENERATOR_TYPE renames reference.all;
    begin
       self.Commence;
-      self.main(self.all, self.context);
+      self.main(self, self.context);
       self.Quit;
    exception
       when Exit_Controller => null;
@@ -157,7 +158,7 @@ package body Control . Generators is
    is
       cursor : CURSOR_TYPE;
    begin
-      cursor := First(self);
+      cursor := self.First;
       loop
          exit when cursor = No_Element;
          callback(self.output); -- hack: bypass Element(cursor)

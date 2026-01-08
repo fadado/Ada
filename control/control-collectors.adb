@@ -15,7 +15,7 @@ package body Control . Collectors is
    -- Yield --
    -----------
 
-   overriding function Yield
+   function Yield
      (self : in out COLLECTOR_TYPE) return ELEMENT_TYPE
    is
       super : SEMI_CONTROLLER_TYPE renames SEMI_CONTROLLER_TYPE(self);
@@ -33,7 +33,7 @@ package body Control . Collectors is
    -- Resume --
    ------------
 
-   not overriding procedure Resume
+   procedure Resume
      (self  : in out COLLECTOR_TYPE;
       input : in ELEMENT_TYPE)
    is
@@ -54,7 +54,7 @@ package body Control . Collectors is
    -- Close --
    -----------
 
-   overriding procedure Close
+   procedure Close
      (self : in out COLLECTOR_TYPE)
    is
       function runner_terminated return BOOLEAN
@@ -74,9 +74,10 @@ package body Control . Collectors is
 
    task body Collector_Runner
    is
+      self : COLLECTOR_TYPE renames reference.all;
    begin
       self.Commence;
-      self.main(self.all, self.context);
+      self.main(self, self.context);
       self.Quit;
    exception
       when Exit_Controller => null;

@@ -35,7 +35,7 @@ package body Control . CoRoutines . Implement is
    -- Resume --
    ------------
 
-   overriding procedure Resume
+   procedure Resume
      (self    : in out COROUTINE_TYPE;
       invoker : in out COROUTINE_TYPE)
    is
@@ -50,7 +50,7 @@ package body Control . CoRoutines . Implement is
    -- Close --
    -----------
 
-   overriding procedure Close
+   procedure Close
      (self : in out COROUTINE_TYPE)
    is
       function runner_terminated return BOOLEAN
@@ -70,9 +70,10 @@ package body Control . CoRoutines . Implement is
 
    task body CoRoutine_Runner
    is
+      self : COROUTINE_TYPE renames reference.all;
    begin
       self.Commence;
-      self.main(self.all, self.context);
+      self.main(self, self.context);
       self.Quit;
    exception
       when Exit_Controller => null;

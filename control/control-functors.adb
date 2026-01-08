@@ -77,9 +77,10 @@ package body Control . Functors is
 
    task body Functor_Runner
    is
+      self : FUNCTOR_TYPE renames reference.all;
    begin
       self.Commence;
-      self.main(self.all, self.context);
+      self.main(self, self.context);
       self.Quit;
    exception
       when Exit_Controller => null;

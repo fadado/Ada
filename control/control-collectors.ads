@@ -52,7 +52,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Collector_Runner (self: not null access COLLECTOR_TYPE);
+   task type Collector_Runner (reference: not null access COLLECTOR_TYPE);
 
    type COLLECTOR_TYPE (
          main       : COLLECTOR_PROCEDURE;

@@ -134,7 +134,7 @@ package body Control is
    -- Yield --
    -----------
 
-   overriding procedure Yield
+   procedure Yield
      (self : in out SEMI_CONTROLLER_TYPE)
    is
       invoker : DISPATCHER_TYPE renames self.backward.all;
@@ -160,7 +160,7 @@ package body Control is
    -- Resume --
    ------------
 
-   overriding procedure Resume
+   procedure Resume
      (self       : in out SEMI_CONTROLLER_TYPE;
       controller : in out SEMI_CONTROLLER_TYPE)
    is
@@ -176,7 +176,7 @@ package body Control is
    -- Yield -- TODO...
    -----------
 
-   overriding procedure Yield
+   procedure Yield
      (self : in out FULL_CONTROLLER_TYPE)
    is
       master : DISPATCHER_TYPE renames self.backward.all;
@@ -204,7 +204,7 @@ package body Control is
    -- Resume --
    ------------
 
-   overriding procedure Resume
+   procedure Resume
      (self       : in out FULL_CONTROLLER_TYPE;
       controller : in out FULL_CONTROLLER_TYPE)
    is

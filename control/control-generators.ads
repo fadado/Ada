@@ -55,7 +55,7 @@ package Control . Generators is
    ---------------------------------------------------------------------------
 
    type CURSOR_TYPE is private;
-   --  Cursor based iteration style
+   --  Cursor based iteration style (not tagged type!)
 
    No_Element : constant CURSOR_TYPE;
    --  Represents a cursor that designates no element
@@ -120,7 +120,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Generator_Runner (self: not null access GENERATOR_TYPE);
+   task type Generator_Runner (reference: not null access GENERATOR_TYPE);
 
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;

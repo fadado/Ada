@@ -17,8 +17,8 @@ package Control . CoRoutines . Implement is
    ---------------------------------------------------------------------------
 
    type COROUTINE_PROCEDURE is not null access procedure
-      (routine : in out COROUTINE_INTERFACE'Class;
-       context : access CONTEXT_TYPE);
+     (routine : in out COROUTINE_INTERFACE'Class;
+      context : access CONTEXT_TYPE);
    --  Procedure type for the coroutine procedure
 
    type COROUTINE_TYPE (
@@ -46,7 +46,7 @@ private
 
    -- Note: Yield is inherited from BASE_CONTROLLER
 
-   task type CoRoutine_Runner (self: not null access COROUTINE_TYPE);
+   task type CoRoutine_Runner (reference: not null access COROUTINE_TYPE);
 
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;

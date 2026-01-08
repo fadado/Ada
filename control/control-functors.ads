@@ -56,7 +56,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Functor_Runner (self: not null access FUNCTOR_TYPE);
+   task type Functor_Runner (reference: not null access FUNCTOR_TYPE);
 
    type FUNCTOR_TYPE (
          main       : FUNCTOR_PROCEDURE;
