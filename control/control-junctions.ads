@@ -178,7 +178,7 @@ package Control . Junctions is
 
       function Has_Element
         (cursor : in CURSOR_TYPE) return BOOLEAN
-      is (TRUE) with Inline;
+      is (cursor=cursor) with Inline;
 
       package Closure_IIP is  -- Closure Iterator Interfaces Package
          new Ada.Iterator_Interfaces (CURSOR_TYPE, Has_Element);

@@ -6,65 +6,48 @@
 
 SUBSYSTEM=control
 
-LIB=./LIBRARY
+OBJ=./LIBRARY
+BIN=./BINARIES
 
-GNATFLAGS= # -q -d -vl
+VERBOSITY=-q # -q -d -vl
 
-TIMESTAMP=$(LIB)/zilch_$(SUBSYSTEM)
+GNATFLAGS=$(VERBOSITY) -gnatn
 
-all: build tests
+LINT=-gnatwa
 
 ########################################################################
 
-$(LIB):
-	@test -d $(LIB) || mkdir -p $(LIB)
+all: build testers
 
-$(LIB)/zilch_$(SUBSYSTEM): zilch_$(SUBSYSTEM).adb
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+$(OBJ):
+	@test -d $(OBJ) || mkdir -p $(OBJ)
 
-build: $(LIB) $(TIMESTAMP)
+$(BIN):
+	@test -d $(BIN) || mkdir -p $(BIN)
+
+TIMESTAMP=$(OBJ)/zilch_$(SUBSYSTEM)
+
+$(TIMESTAMP): zilch_$(SUBSYSTEM).adb
+	@gnatmake $(GNATFLAGS) $(LINT) --subdirs=$(OBJ) $(@F)
+	@rm -f $(OBJ)/zilch_$(SUBSYSTEM).{o,ali}
+	@chmod -x $(TIMESTAMP)
+
+build: $(OBJ) $(BIN) $(TIMESTAMP)
 
 clean:
-	rm -rf $(LIB)
+	rm -rf $(OBJ) $(BIN)
 
 ########################################################################
 
-tests: \
-     $(LIB)/test_semi \
-     $(LIB)/test_coro \
-     $(LIB)/test_semi_pingpong \
-     $(LIB)/test_full_pingpong \
-     $(LIB)/test_fibonacci \
-     $(LIB)/test_io
+testers: $(patsubst %.adb,$(BIN)/%,$(wildcard test_*.adb))
 
-# Test using the package Controllers
-$(LIB)/test_semi: test_semi.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+$(BIN)/test_%: test_%.adb ${TIMESTAMP}
+	@gnatmake $(GNATFLAGS) --subdirs=$(BIN) $(@F)
 
-# Test using the package CoRoutines
-$(LIB)/test_coro: test_coro.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
-
-# Test using symmetric Controllers
-$(LIB)/test_semi_pingpong: test_semi_pingpong.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
-
-# Test using asymmetric Controllers (TODO!)
-$(LIB)/test_full_pingpong: test_full_pingpong.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
-
-# Test using the package Generators
-$(LIB)/test_fibonacci: test_fibonacci.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
-
-# Testing IO
-$(LIB)/test_io: test_io.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
-
-semi:      $(LIB)/test_semi; $<
-coro:      $(LIB)/test_coro; $<
-spingpong: $(LIB)/test_semi_pingpong; $<
-fpingpong: $(LIB)/test_full_pingpong; $<
-fibonacci: $(LIB)/test_fibonacci; $<
-io:        $(LIB)/test_io; ls -1 *.ads | $<
+semi:      $(BIN)/test_semi; $<
+coro:      $(BIN)/test_coro; $<
+spingpong: $(BIN)/test_semi_pingpong; $<
+fpingpong: $(BIN)/test_full_pingpong; $<
+fibonacci: $(BIN)/test_fibonacci; $<
+io:        $(BIN)/test_io; ls -1 *.ads | $<
 

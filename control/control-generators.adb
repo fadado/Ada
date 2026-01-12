@@ -176,7 +176,7 @@ package body Control . Generators is
    is
       type A is not null access all GENERATOR_TYPE;
    begin
-      pragma Assert (GENERATOR_TYPE(self)'Access = A(cursor.source));
+      pragma Assert (self'Access = A(cursor.source));
       return Element(cursor);
    end Element_Value;
 

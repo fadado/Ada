@@ -165,7 +165,7 @@ package body Control is
       controller : in out SEMI_CONTROLLER_TYPE)
    is
    begin
-      controller.Dispatch(self);
+      DISPATCHER_TYPE(controller).Dispatch(self);
    end Resume;
 
    ---------------------------------------------------------------------------
