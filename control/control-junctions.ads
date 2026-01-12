@@ -141,8 +141,8 @@ package Control . Junctions is
       use Generator_Instance;
 
       with package Functor_Instance is new Functors (
-         Source_Type  => SOURCE_TYPE,
-         Target_Type  => TARGET_TYPE,
+         Input_Type   => SOURCE_TYPE,
+         Output_Type  => TARGET_TYPE,
          Context_Type => MIDDLE_CONTEXT
       );
       use Functor_Instance;
