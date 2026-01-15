@@ -1,12 +1,14 @@
-#
+# Subsystem makefile
+# 	* Generates subsystem library in OBJ directory
+# 	* Generates subsystem tests in BIN directory
 
-.SILENT:
+#.SILENT:
 
 ########################################################################
 
 SUBSYSTEM=control
 
-OBJ=./LIBRARY
+OBJ=./OBJECTS
 BIN=./BINARIES
 
 VERBOSITY=-q # -q -d -vl
@@ -27,8 +29,8 @@ $(BIN):
 
 TIMESTAMP=$(OBJ)/zilch_$(SUBSYSTEM)
 
-$(TIMESTAMP): zilch_$(SUBSYSTEM).adb
-	@gnatmake $(GNATFLAGS) $(LINT) --subdirs=$(OBJ) $(@F)
+$(TIMESTAMP): zilch_$(SUBSYSTEM).adb [^z][^i][^l][^c][^h]*.ad?
+	gnatmake $(GNATFLAGS) $(LINT) --subdirs=$(OBJ) $(@F).adb
 	@rm -f $(OBJ)/zilch_$(SUBSYSTEM).{o,ali}
 	@chmod -x $(TIMESTAMP)
 
@@ -39,15 +41,15 @@ clean:
 
 ########################################################################
 
-testers: $(patsubst %.adb,$(BIN)/%,$(wildcard test_*.adb))
+testers: $(patsubst tests/%.adb,$(BIN)/%,$(wildcard tests/test_*.adb))
 
-$(BIN)/test_%: test_%.adb ${TIMESTAMP}
-	@gnatmake $(GNATFLAGS) --subdirs=$(BIN) $(@F)
+$(BIN)/test_%: tests/test_%.adb ${TIMESTAMP}
+	gnatmake $(GNATFLAGS) --subdirs=$(BIN) -aI. tests/$(@F).adb
 
 semi:      $(BIN)/test_semi; $<
 coro:      $(BIN)/test_coro; $<
 spingpong: $(BIN)/test_semi_pingpong; $<
 fpingpong: $(BIN)/test_full_pingpong; $<
 fibonacci: $(BIN)/test_fibonacci; $<
-io:        $(BIN)/test_io; ls -1 *.ads | $<
+io:        $(BIN)/test_io; ls -1 *.ad? | $<
 

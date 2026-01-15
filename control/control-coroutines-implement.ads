@@ -12,6 +12,8 @@ generic
    --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines . Implement is
+   pragma Elaborate_Body(Implement);
+
    ---------------------------------------------------------------------------
    --  COROUTINE_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------

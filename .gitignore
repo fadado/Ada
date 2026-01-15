@@ -1,8 +1,6 @@
 *.ali
 *.o
 *.pdf
-*_test
-tests
 main
 *.std???
 *#
