@@ -53,7 +53,7 @@ private
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;
          context : access CONTEXT_TYPE
-   ) is limited new BASE_CONTROLLER and COROUTINE_INTERFACE with 
+   ) is limited new BASE_CONTROLLER and COROUTINE_INTERFACE with
       record
          runner  : CoRoutine_Runner (COROUTINE_TYPE'Access);
       end record;

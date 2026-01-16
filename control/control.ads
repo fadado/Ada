@@ -15,7 +15,7 @@ pragma Restrictions (
    No_Dynamic_Priorities
 );
 
-        with Ada.Exceptions;
+with Ada.Exceptions;
 private with Ada.Synchronous_Task_Control;
 private with Ada.Task_Identification;
 

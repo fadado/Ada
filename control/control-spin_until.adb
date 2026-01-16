@@ -5,7 +5,7 @@
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Dispatching;
-with Ada.Real_Time;     
+with Ada.Real_Time;
 
 use Ada.Real_Time;
 

@@ -1,14 +1,13 @@
 -- subsystem zilch top library unit
 
-with Control;
-with Control.Collectors;
-with Control.Coroutines;
+--pragma Warnings (Off, "not referenced");
+
 with Control.Coroutines.Full;
 with Control.Coroutines.Semi;
-with Control.Functors;
 with Control.Generators;
+with Control.Collectors;
+with Control.Functors;
 with Control.Junctions;
-with Control.Spin_Until;
 
 procedure Zilch_Control
 is

@@ -61,7 +61,7 @@ private
    type FUNCTOR_TYPE (
          main       : FUNCTOR_PROCEDURE;
          context    : access CONTEXT_TYPE
-   ) is limited new SEMI_CONTROLLER_TYPE and FUNCTOR_INTERFACE with 
+   ) is limited new SEMI_CONTROLLER_TYPE and FUNCTOR_INTERFACE with
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Functor_Runner (FUNCTOR_TYPE'Access);

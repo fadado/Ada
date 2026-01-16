@@ -23,7 +23,9 @@ package Control . Junctions is
       type ELEMENT_TYPE is private;
       type SOURCE_CONTEXT (<>) is limited private;
       type TARGET_CONTEXT (<>) is limited private;
-   package Joint_Pass_Signature is private end;
+   package Joint_Pass_Signature is
+      private
+   end Joint_Pass_Signature;
 
    -------------------------
    -- Joint_Map_Signature --
@@ -34,7 +36,9 @@ package Control . Junctions is
       type TARGET_TYPE is private;
       type SOURCE_CONTEXT (<>) is limited private;
       type TARGET_CONTEXT (<>) is limited private;
-   package Joint_Map_Signature is private end;
+   package Joint_Map_Signature is
+      private
+   end Joint_Map_Signature;
 
    --------------------------
    -- Joint_Tube_Signature --
@@ -46,7 +50,9 @@ package Control . Junctions is
       type SOURCE_CONTEXT (<>) is limited private;
       type MIDDLE_CONTEXT (<>) is limited private;
       type TARGET_CONTEXT (<>) is limited private;
-   package Joint_Tube_Signature is private end;
+   package Joint_Tube_Signature is
+      private
+   end Joint_Tube_Signature;
 
    ---------------------------------------------------------------------------
    --  Junctions

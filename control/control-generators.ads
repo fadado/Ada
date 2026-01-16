@@ -125,7 +125,7 @@ private
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;
          context    : access CONTEXT_TYPE
-   ) is limited new SEMI_CONTROLLER_TYPE and GENERATOR_INTERFACE with 
+   ) is limited new SEMI_CONTROLLER_TYPE and GENERATOR_INTERFACE with
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Generator_Runner (GENERATOR_TYPE'Access);

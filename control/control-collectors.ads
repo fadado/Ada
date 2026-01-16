@@ -57,7 +57,7 @@ private
    type COLLECTOR_TYPE (
          main       : COLLECTOR_PROCEDURE;
          context    : access CONTEXT_TYPE
-   ) is limited new SEMI_CONTROLLER_TYPE and COLLECTOR_INTERFACE with 
+   ) is limited new SEMI_CONTROLLER_TYPE and COLLECTOR_INTERFACE with
       record
          dispatcher : DISPATCHER_TYPE;
          runner     : Collector_Runner (COLLECTOR_TYPE'Access);
