@@ -120,7 +120,7 @@ private
    --  Full view for private types
    ---------------------------------------------------------------------------
 
-   task type Generator_Runner (reference: not null access GENERATOR_TYPE);
+   task type Generator_Runner (encloser: not null access GENERATOR_TYPE);
 
    type GENERATOR_TYPE (
          main       : GENERATOR_PROCEDURE;

@@ -77,7 +77,7 @@ package body Control . Functors is
 
    task body Functor_Runner
    is
-      self : FUNCTOR_TYPE renames reference.all;
+      self : FUNCTOR_TYPE renames encloser.all;
    begin
       self.Commence;
       self.main(self, self.context);

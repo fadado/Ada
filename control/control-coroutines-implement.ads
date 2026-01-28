@@ -48,7 +48,7 @@ private
 
    -- Note: Yield is inherited from BASE_CONTROLLER
 
-   task type CoRoutine_Runner (reference: not null access COROUTINE_TYPE);
+   task type CoRoutine_Runner (encloser: not null access COROUTINE_TYPE);
 
    type COROUTINE_TYPE (
          main    : COROUTINE_PROCEDURE;

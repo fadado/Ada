@@ -70,7 +70,7 @@ package body Control . Generators is
 
    task body Generator_Runner
    is
-      self : GENERATOR_TYPE renames reference.all;
+      self : GENERATOR_TYPE renames encloser.all;
    begin
       self.Commence;
       self.main(self, self.context);
@@ -184,10 +184,9 @@ package body Control . Generators is
    --  ITERATOR_TYPE
    ---------------------------------------------------------------------------
 
-   type ITERATOR_TYPE is limited new ITERATOR_INTERFACE with
-      record
-         source : not null access GENERATOR_TYPE;
-      end record;
+   type ITERATOR_TYPE (
+      source : not null access GENERATOR_TYPE
+   ) is limited new ITERATOR_INTERFACE with null record;
 
    overriding function First
      (iterator : in ITERATOR_TYPE) return CURSOR_TYPE
@@ -233,7 +232,7 @@ package body Control . Generators is
      (self : in out GENERATOR_TYPE) return ITERATOR_INTERFACE'Class
    is
    begin
-      return ITERATOR_TYPE'(source => self'Unchecked_Access);
+      return ITERATOR_TYPE'(source => self'Access);
    end Iterate;
 
 end Control . Generators;

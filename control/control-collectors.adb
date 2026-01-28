@@ -74,7 +74,7 @@ package body Control . Collectors is
 
    task body Collector_Runner
    is
-      self : COLLECTOR_TYPE renames reference.all;
+      self : COLLECTOR_TYPE renames encloser.all;
    begin
       self.Commence;
       self.main(self, self.context);

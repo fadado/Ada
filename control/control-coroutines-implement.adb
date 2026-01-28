@@ -70,7 +70,7 @@ package body Control . CoRoutines . Implement is
 
    task body CoRoutine_Runner
    is
-      self : COROUTINE_TYPE renames reference.all;
+      self : COROUTINE_TYPE renames encloser.all;
    begin
       self.Commence;
       self.main(self, self.context);
