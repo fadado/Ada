@@ -159,8 +159,7 @@ package body Control . Generators is
       cursor : CURSOR_TYPE;
    begin
       cursor := self.First;
-      loop
-         exit when cursor = No_Element;
+      while cursor /= No_Element loop
          callback(self.output); -- hack: bypass Element(cursor)
          cursor := Next(cursor);
       end loop;
@@ -175,8 +174,9 @@ package body Control . Generators is
       cursor : in CURSOR_TYPE) return ELEMENT_TYPE
    is
       type A is not null access all GENERATOR_TYPE;
-   begin
+
       pragma Assert (self'Access = A(cursor.source));
+   begin
       return Element(cursor);
    end Element_Value;
 
@@ -219,8 +219,8 @@ package body Control . Generators is
      (iterator : in ITERATOR_TYPE;
       cursor   : in CURSOR_TYPE) return CURSOR_TYPE
    is
-   begin
       pragma Assert (iterator.source = cursor.source);
+   begin
       return Next(cursor);
    end Next;
 

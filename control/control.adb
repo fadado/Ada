@@ -55,10 +55,9 @@ package body Control is
    procedure Commence
      (self : in out CONTROLLER_TYPE)
    is
+      pragma Assert (self.id = Null_Task_Id);
+      pragma Assert (self.state = EXPECTANT);
    begin
-    --pragma Assert (self.id = Null_Task_Id);
-    --pragma Assert (self.state = EXPECTANT);
-
       self.id := Current_Task;
 
       -- SUSPENDING
@@ -87,8 +86,9 @@ package body Control is
       use Ada.Exceptions;
 
       invoker : DISPATCHER_TYPE renames self.backward.all;
-   begin
+
       pragma Assert (self.state = RUNNING);
+   begin
 
       if Exception_Identity(X) /= Null_Id then
          invoker.migrant := Save_Occurrence(X);
@@ -107,8 +107,9 @@ package body Control is
    is
       function dispatcher_died return BOOLEAN
          is (self.state = DEAD); -- .state is Atomic!
-   begin
+
       pragma Assert (self.id /= Current_Task);
+   begin
 
    <<again>>
       case self.state is
@@ -138,10 +139,10 @@ package body Control is
      (self : in out SEMI_CONTROLLER_TYPE)
    is
       invoker : DISPATCHER_TYPE renames self.backward.all;
+
+      pragma Assert (self.id = Current_Task);
+      pragma Assert (self.state = RUNNING);
    begin
-      -- too paranoid
-    --pragma Assert (self.id = Current_Task);
-    --pragma Assert (self.state = RUNNING);
 
       -- SUSPENDING
       self.state := SUSPENDED;
@@ -180,13 +181,11 @@ package body Control is
      (self : in out FULL_CONTROLLER_TYPE)
    is
       master : DISPATCHER_TYPE renames self.backward.all;
-   begin
-      -- too paranoid
-    --pragma Assert (self.id = Current_Task);
-    --pragma Assert (self.state = RUNNING);
 
+      pragma Assert (self.id = Current_Task);
+      pragma Assert (self.state = RUNNING);
       pragma Assert (master in DISPATCHER_TYPE);
-
+   begin
       -- SUSPENDING
       self.state := SUSPENDED;
       Signal.Notify(master.run);
@@ -210,10 +209,10 @@ package body Control is
    is
       invoker : DISPATCHER_TYPE renames DISPATCHER_TYPE(controller);
       target  : DISPATCHER_TYPE renames DISPATCHER_TYPE(self);
+
+      pragma Assert (controller.id = Current_Task);
+      pragma Assert (controller.state = RUNNING);
    begin
-      -- too paranoid
-    --pragma Assert (controller.id = Current_Task);
-    --pragma Assert (controller.state = RUNNING);
 
       -- store link to master
       self.backward := controller.backward;

@@ -1,5 +1,7 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
+pragma Optimize(Space);
+
 package Generics is
    pragma Pure(Generics);
 

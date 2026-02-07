@@ -26,8 +26,6 @@ package body Generics . Tuples . Arrayed is
    is
       procedure swap is new Swapper (ELEMENT_TYPE);
    begin
-      -- require: n <= t'Length
-
       if n = 0 or else n = t'Length or else t'Length = 1 then
          return;
       end if;
@@ -84,8 +82,6 @@ package body Generics . Tuples . Arrayed is
    is
       -- Linear Search
    begin 
-      -- require: t'Length > 0
-
       for i in t'Range loop
          if x = t(i) then
             return i;
@@ -111,8 +107,6 @@ package body Generics . Tuples . Arrayed is
       function fn is new Squasher (Instance, Member);
    begin
       return fn(t);
-
-      -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
    end Remove_Duplicates;
 
 end Generics . Tuples . Arrayed;

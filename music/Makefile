@@ -3,7 +3,7 @@
 .SILENT:
 
 LIB=./LIBRARY
-GNATFLAGS=-q
+GNATFLAGS=-Os -q
 
 GENLIB=generics.ad[bs] generics-*.ad[bs]
 

@@ -45,8 +45,6 @@ package body Generics . Tuples . Lifted is
       first : constant TI := TI'First;
       last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
    begin
-      -- require: s'Length = t'Length and then s'First = t'First
-
       return result : TA (first .. last) do
          pragma Assert(t'Length = result'Length);
 
@@ -93,8 +91,6 @@ package body Generics . Tuples . Lifted is
       (t : in ARRAY_TYPE) return ELEMENT_TYPE
    is
    begin 
-      -- require: t'Length > 0
-
       if t'Length = 1 then
          return t(t'First);
       end if;
@@ -112,8 +108,6 @@ package body Generics . Tuples . Lifted is
       (t : in ARRAY_TYPE) return ELEMENT_TYPE
    is
    begin 
-      -- require: t'Length > 0
-
       if t'Length = 1 then
          return t(t'First);
       end if;

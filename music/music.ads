@@ -1,5 +1,7 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
+pragma Optimize(Space);
+
 with Generics.Tuples.Arrayed;
 with Generics.Tuples.Ordered;
 with Generics.Tuples.Lifted;
