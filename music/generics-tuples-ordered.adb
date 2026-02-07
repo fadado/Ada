@@ -49,8 +49,6 @@ package body Generics . Tuples . Ordered is
 
          increment := increment / 2;
       end loop;
-
-      -- ensure: Is_Sorted(t)
    end Sort_It;
 
    function Member
@@ -59,8 +57,6 @@ package body Generics . Tuples . Ordered is
    is
       -- Linear Search on sorted array
    begin
-      -- require: Is_Sorted(t);
-
       for e of t loop
          if e < x then
             null;
@@ -83,8 +79,6 @@ package body Generics . Tuples . Ordered is
       high   : INDEX_TYPE := t'Last;
       middle : INDEX_TYPE;
    begin
-      -- require: Is_Sorted(t)
-
       while low <= high loop
          middle := INDEX_TYPE'Val((INDEX_TYPE'Pos(low) +
                                    INDEX_TYPE'Pos(high)) / 2);
@@ -104,8 +98,6 @@ package body Generics . Tuples . Ordered is
      (t : in ARRAY_TYPE) return BOOLEAN
    is
    begin
-      -- require: Is_Sorted(t)
-
       return t'Length > 1 and then
          (for some i in t'First .. INDEX_TYPE'Pred(t'Last)
             => not (t(i) < t(INDEX_TYPE'Succ(i))));
@@ -116,11 +108,7 @@ package body Generics . Tuples . Ordered is
    is
       function fn is new Squasher (Instance, Member);
    begin
-      -- require: Is_Sorted(t);
-
       return fn(t);
-
-      -- ensure: not Contains_Duplicates(Remove_Duplicates'Result);
    end Remove_Duplicates;
 
 end Generics . Tuples . Ordered;

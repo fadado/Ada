@@ -84,12 +84,12 @@ package body Music is
       t : PC_SET;
    begin
       return s : PC_SET := 16#000# do
-      builder:
+      build:
          for i in PC_INTERVAL'First .. PC_INTERVAL'First + d - 1 loop
             t := BitSet(origin + i * g);
-            exit builder when (s and t) /= 16#000#; -- cycle detected
+            exit build when (s and t) /= 16#000#; -- cycle detected
             s := s or t;
-         end loop builder;
+         end loop build;
       end return;
    end Generate;
 
@@ -145,14 +145,14 @@ package body Music is
       h : constant TUPLE_INDEX := k - 1 + TUPLE_INDEX(Cardinality(s));
    begin
       return t : PC_TUPLE(k..h) do
-      builder:
+      build:
          for x in PITCH_CLASS loop
             if (BitSet(x) and s) /= 16#000# then
                t(k) := x;
-               exit builder when k = TUPLE_INDEX'Last;
+               exit build when k = TUPLE_INDEX'Last;
                k := TUPLE_INDEX'Succ(k);
             end if;
-         end loop builder;
+         end loop build;
       end return;
    end Tuple;
 
