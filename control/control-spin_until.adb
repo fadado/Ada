@@ -16,13 +16,14 @@ is
    stop : constant TIME := Clock + Milliseconds(msec);
 begin
    if not done.all then
+   spinner:
       loop
          if Clock > stop then
             raise Control_Error with "spinning loop timed out";
          end if;
          Ada.Dispatching.Yield;
-         exit when done.all;
-      end loop;
+         exit spinner when done.all;
+      end loop spinner;
    end if;
 end Control . Spin_Until;
 

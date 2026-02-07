@@ -102,16 +102,17 @@ procedure Sieve is
 
       candidate : NUMBER;
    begin
+   filter:
       loop
          Input.Dequeue(candidate);
-         exit when candidate = 1;
+         exit filter when candidate = 1;
 
          if Is_Multiple(candidate) then
             null; -- reject candidate
          else
             Output.Enqueue(candidate);
          end if;
-      end loop;
+      end loop filter;
 
       Output.Enqueue(1);
 
@@ -145,18 +146,19 @@ procedure Sieve is
          new ODD_NUMBERS_GENERATOR (result, Limit)
       );
 
+   generator:
       loop
          source := result;
 
          source.Dequeue(prime);
-         exit when prime = 1;
+         exit generator when prime = 1;
          Output.Enqueue(prime);
 
          result := new NUMERIC_CHANNEL;
          Launch (
             new FILTER_PRIME_MULTIPLES (source, result, prime)
          );
-      end loop;
+      end loop generator;
 
       Output.Enqueue(1);
 
@@ -199,11 +201,12 @@ procedure Sieve is
          new SIEVE_GENERATOR (primes, limit)
       );
 
+   consumer:
       loop
          primes.Dequeue(n);
-         exit when n = 1;
+         exit consumer when n = 1;
          Print(n);
-      end loop;
+      end loop consumer;
 
       New_Line;
    end Display_Sieve;

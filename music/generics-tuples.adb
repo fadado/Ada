@@ -29,15 +29,16 @@ package body Generics . Tuples is
          result : ARRAY_TYPE (t'Range);
          i : INDEX_TYPE := result'First;
       begin
+      squash:
          for j in t'Range loop
             if j = t'Last or else
                not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
             then
                result(i) := t(j);
-               exit when i = result'Last;
+               exit squash when i = result'Last;
                i := INDEX_TYPE'Succ(i);
             end if;
-         end loop;
+         end loop squash;
 
          if i = result'Last then -- no duplicates found
             return result;

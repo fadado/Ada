@@ -22,11 +22,12 @@ package body Generics . Tuples . Lifted is
          declare
             i : SI := t'First;
          begin
+         apply:
             for e of result loop
                e := Map(t(i));
-               exit when i = t'Last;
+               exit apply when i = t'Last;
                i := SI'Succ(i);
-            end loop;
+            end loop apply;
          end;
       end return;
    end Mapper;
@@ -52,11 +53,12 @@ package body Generics . Tuples . Lifted is
          declare
             i : SI := t'first;
          begin
+         apply:
             for e of result loop
                e := Zip(s(i), t(i));
-               exit when i = t'Last;
+               exit apply when i = t'Last;
                i := SI'Succ(i);
-            end loop;
+            end loop apply;
          end;
       end return;
    end Zipper;
@@ -69,13 +71,14 @@ package body Generics . Tuples . Lifted is
       result : ARRAY_TYPE (t'Range);
       i : INDEX_TYPE := result'First;
    begin
+   apply:
       for e of t loop
          if Test(e) then
             result(i) := e;
-            exit when i = result'Last;
+            exit apply when i = result'Last;
             i := INDEX_TYPE'Succ(i);
          end if;
-      end loop;
+      end loop apply;
 
       if i = result'Last then -- all e accepted
          return result;
