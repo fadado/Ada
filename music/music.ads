@@ -1,6 +1,6 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-pragma Optimize(Space);
+pragma Optimize(Time);
 
 with Generics.Tuples.Arrayed;
 with Generics.Tuples.Ordered;
@@ -233,6 +233,6 @@ package Music is
      (intervals : INTERVAL_PATTERN) return BOOLEAN;
 
 end Music;
--- ¡ISO-8859-1!
+
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

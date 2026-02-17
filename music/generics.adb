@@ -3,50 +3,50 @@ package body Generics is
  --generic
  --   type T(<>) is private;
    function Identity
-     (x : in T) return T
+     (a : in T) return T
    is
    begin
-      return x;
+      return a;
    end Identity;
 
  --generic
  --   type T(<>) is private;
    procedure Swapper
-     (x, y : in out T)
+     (a, b : in out T)
    is
-      z : constant T := x;
+      z : constant T := a;
    begin
-      x := y;
-      y := z;
+      a := b;
+      b := z;
    end Swapper;
 
  --generic
- --   type A(<>) is limited private;
- --   type B(<>) is limited private;
- --   type C(<>) is limited private;
- --   with function F(x: in A) return B;
- --   with function G(x: in B) return C;
+ --   type α(<>) is limited private;
+ --   type β(<>) is limited private;
+ --   type γ(<>) is limited private;
+ --   with function F(a: in α) return β;
+ --   with function G(a: in β) return γ;
    function Compose
-     (x : in A) return C
+     (a : in α) return γ
    is
    begin
-      return G(F(x));
+      return G(F(a));
    end Compose;
 
  --generic
- --   type A(<>) is limited private;
- --   type B(<>) is limited private;
- --   type C(<>) is limited private;
- --   with function F(x: in A; y: in B) return C;
- --   x : A;
+ --   type α(<>) is limited private;
+ --   type β(<>) is limited private;
+ --   type γ(<>) is limited private;
+ --   with function F(a: in α; b: in β) return γ;
+ --   a : α;
    function Partial
-     (y : in B) return C
+     (b : in β) return γ
    is
    begin
-      return F(x, y);
+      return F(a, b);
    end Partial;
 
 end Generics;
--- �ISO-8859-1!
+
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

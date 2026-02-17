@@ -1,6 +1,6 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-pragma Optimize(Space);
+pragma Optimize(Time);
 
 package Generics is
    pragma Pure(Generics);
@@ -11,36 +11,36 @@ package Generics is
    generic
       type T(<>) is private;
    function Identity
-     (x : in T) return T
+     (a : in T) return T
    with Inline;
 
    generic
       type T(<>) is private;
    procedure Swapper
-     (x, y : in out T)
+     (a, b : in out T)
    with Inline;
 
    generic
-      type A(<>) is limited private;
-      type B(<>) is limited private;
-      type C(<>) is limited private;
-      with function F(x: in A) return B;
-      with function G(x: in B) return C;
+      type α(<>) is limited private;
+      type β(<>) is limited private;
+      type γ(<>) is limited private;
+      with function F(a: in α) return β;
+      with function G(a: in β) return γ;
    function Compose
-     (x : in A) return C
+     (a : in α) return γ
    with Inline;
 
    generic
-      type A(<>) is limited private;
-      type B(<>) is limited private;
-      type C(<>) is limited private;
-      with function F(x: in A; y: in B) return C;
-      x : A;
+      type α(<>) is limited private;
+      type β(<>) is limited private;
+      type γ(<>) is limited private;
+      with function F(a: in α; b: in β) return γ;
+      a : α;
    function Partial
-     (y : in B) return C
+     (b : in β) return γ
    with Inline;
 
 end Generics;
--- �ISO-8859-1!
+
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

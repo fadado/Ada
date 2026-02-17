@@ -59,5 +59,4 @@ clean:
 clobber:
 	@rm -rf $(OUTPUT_DIRECTORIES)
 
-# ¡ISO-8859-1!
-# vim:fileformat=unix:fileencoding=latin1:syntax=make
+# vim:fileformat=unix:fileencoding=UTF8:syntax=make

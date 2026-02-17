@@ -28,7 +28,8 @@ SUBSYSTEM_SW :=     \
    $(SW_LINT)       \
    $(SW_OPTIMIZE)   \
    $(SW_STYLE)      \
-   $(SW_QUIET)  \
+   $(SW_QUIET)      \
+   $(SW_UTF8)       \
    $(SW_VERSION)    \
 
 TESTS_SW :=         \
@@ -36,7 +37,8 @@ TESTS_SW :=         \
    $(SW_INLINING)   \
    $(SW_NO_GNATADC) \
    $(SW_OPTIMIZE)   \
-   $(SW_QUIET)  \
+   $(SW_QUIET)      \
+   $(SW_UTF8)       \
    $(SW_VERSION)    \
 
 # Include generic subsystem rules
@@ -55,5 +57,7 @@ fpingpong: $(BIN_DIR)/test_full_pingpong; $<
 fibonacci: $(BIN_DIR)/test_fibonacci; $<
 iocopy:    $(BIN_DIR)/test_io; ls -1 *.ad? | $<
 
-# �ISO-8859-1!
-# vim:fileformat=unix:fileencoding=latin1:syntax=make
+# Α α  Β β  Γ γ  Δ δ  Ε ε  Ζ ζ  Η η  Θ θ  Ι ι  Κ κ  Λ λ  Μ μ 
+# Ν ν  Ξ ξ  Ο ο  Π π  Ρ ρ  Σ ς  Τ τ  Υ υ  Φ φ  Χ χ  Ψ ψ  Ω ω
+
+# vim:fileformat=unix:fileencoding=UTF8:syntax=make
