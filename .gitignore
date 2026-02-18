@@ -1,6 +1,8 @@
 *.ali
 *.o
 *.pdf
-main
 *.std???
 *#
+*/BINARIES/*
+*/OBJECTS/*
+*/LIBRARY/*

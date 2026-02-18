@@ -51,9 +51,9 @@ package body Generics . Tuples . Arrayed is
    function Left_Rotated
      (n : in NATURAL;
       t : in ARRAY_TYPE) return ARRAY_TYPE
-   is  
+   is
       procedure sub (t: in out ARRAY_TYPE) with Inline
-      is begin Left_Rotate_It(n, t); end;
+      is begin Left_Rotate_It(n, t); end sub;
 
       function fn is new Tuples.Functional (Instance, sub);
    begin
@@ -81,7 +81,7 @@ package body Generics . Tuples . Arrayed is
       t : in ARRAY_TYPE) return INDEX_TYPE
    is
       -- Linear Search
-   begin 
+   begin
       for i in t'Range loop
          if x = t(i) then
             return i;

@@ -8,7 +8,7 @@ with Generics.Tuples.Ordered;
 use Ada.Text_IO;
 use Generics;
 
-procedure Tests_Generics is
+procedure Test_Generics is
 
    package Text_Signature is
       new Tuples.Signature (CHARACTER, POSITIVE,  STRING);
@@ -133,7 +133,7 @@ begin
       pragma Assert(raised);
    end;
 
-end Tests_Generics;
+end Test_Generics;
 
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

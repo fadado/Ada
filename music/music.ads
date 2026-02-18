@@ -224,7 +224,7 @@ package Music is
 
    type INTERVAL_PATTERN is array (TUPLE_INDEX range <>) of PC_INTERVAL;
 
-   function Pattern 
+   function Pattern
      (s : PC_TUPLE) return INTERVAL_PATTERN
    with Pre  => s'Length > 1,
         Post => invariant_octave(Pattern'Result);

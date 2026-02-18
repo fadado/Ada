@@ -41,7 +41,7 @@ package Generics . Tuples . Arrayed is
    function Search
      (x : in ELEMENT_TYPE;
       t : in ARRAY_TYPE) return INDEX_TYPE
-   with Pre => t'length > 0;
+   with Pre => t'Length > 0;
 
    function Contains_Duplicates
      (t : in ARRAY_TYPE) return BOOLEAN;

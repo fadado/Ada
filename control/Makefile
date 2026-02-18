@@ -19,7 +19,7 @@ BIN_DIR := ./BINARIES
 LIB_DIR := ./LIBRARY
 
 # Include switches database
-include switches.make
+include ../switches.make
 
 # Define switches to compile library and tests
 SUBSYSTEM_SW :=     \
@@ -42,7 +42,7 @@ TESTS_SW :=         \
    $(SW_VERSION)    \
 
 # Include generic subsystem rules
-include subsystem.make
+include ../subsystem.make
 
 ########################################################################
 # Tests shortcuts

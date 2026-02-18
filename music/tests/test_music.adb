@@ -6,7 +6,7 @@ with Music.MIDI;
 with Music.Names;
 with Music.DataBase;
 
-procedure Tests_Music is
+procedure Test_Music is
    use Ada.Text_IO;
    use Music;
    package DB renames Music.DataBase;
@@ -241,7 +241,7 @@ begin
       pragma Assert(raised);
    end;
 
-end Tests_Music;
+end Test_Music;
 
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

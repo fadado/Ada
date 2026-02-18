@@ -1,6 +1,4 @@
-# Music subsystem makefile
-#
-# Depends on ../generics
+# Generics subsystem makefile
 
 .SILENT:
 
@@ -24,10 +22,6 @@ LIB_DIR := ./LIBRARY
 include ../switches.make
 
 # Define switches to compile library and tests
-
-EXTRA_LARGS   := -L../generics/LIBRARY -lgenerics
-EXTRA_SOURCES := -aI../generics
-
 SUBSYSTEM_SW :=     \
    $(SW_ASSERTIONS) \
    $(SW_INLINING)   \
@@ -37,7 +31,6 @@ SUBSYSTEM_SW :=     \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(EXTRA_SOURCES) \
 
 TESTS_SW :=         \
    $(SW_ASSERTIONS) \
@@ -47,7 +40,6 @@ TESTS_SW :=         \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(EXTRA_SOURCES) \
 
 # Include generic subsystem rules
 include ../subsystem.make
@@ -56,9 +48,9 @@ include ../subsystem.make
 # Tests shortcuts
 ########################################################################
 
-.PHONY: music
+.PHONY: generics
 
-music: $(BIN_DIR)/test_music; $<
+generics: $(BIN_DIR)/test_generics; $<
 
 # Α α  Β β  Γ γ  Δ δ  Ε ε  Ζ ζ  Η η  Θ θ  Ι ι  Κ κ  Λ λ  Μ μ 
 # Ν ν  Ξ ξ  Ο ο  Π π  Ρ ρ  Σ ς  Τ τ  Υ υ  Φ φ  Χ χ  Ψ ψ  Ω ω

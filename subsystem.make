@@ -21,6 +21,8 @@ help:
 
 build: $(OUTPUT_DIRECTORIES) $(ARCHIVE_LIBRARY)
 
+# "test_" is the prefix for all executable tests
+
 tests: $(patsubst $(TST_DIR)/%.adb, \
                   $(BIN_DIR)/%,     \
                   $(wildcard $(TST_DIR)/test_*.adb))
@@ -47,7 +49,7 @@ $(BIN_DIR)/test_%: $(TST_DIR)/test_%.adb
 		-aO$(LIB_DIR) \
 		-D $(BIN_DIR) \
 		-o $@ $<      \
-		-largs -L$(LIB_DIR) -l$(SUBSYSTEM)
+		-largs -L$(LIB_DIR) -l$(SUBSYSTEM) $(EXTRA_LARGS)
 
 check: $(OBJ_DIR) $(BIN_DIR) 
 	@gnatmake $(SW_CHECK) -D $(OBJ_DIR) *.ad?

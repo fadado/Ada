@@ -6,7 +6,7 @@ package Generics . Tuples is
       type ELEMENT_TYPE is private;
       type INDEX_TYPE   is (<>);
       type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
-   package Signature is private end;
+   package Signature is private end Signature;
 
    generic
       with package Instance is new Signature (<>);

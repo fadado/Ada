@@ -32,7 +32,7 @@ package body Generics . Tuples is
       squash:
          for j in t'Range loop
             if j = t'Last or else
-               not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last)) 
+               not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last))
             then
                result(i) := t(j);
                exit squash when i = result'Last;

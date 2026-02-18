@@ -35,7 +35,7 @@ package body Music . DataBase is
       Phrygian =>            2#110101011010#,
       Spanish_Phrygian =>    2#110011011010#,
       Tritone =>             2#100000100000#,
-      Whole_Tone =>          2#101010101010# 
+      Whole_Tone =>          2#101010101010#
    );
 
    function Name_To_Set

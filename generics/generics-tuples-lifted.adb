@@ -49,7 +49,7 @@ package body Generics . Tuples . Lifted is
          pragma Assert(t'Length = result'Length);
 
          declare
-            i : SI := t'first;
+            i : SI := t'First;
          begin
          apply:
             for e of result loop
@@ -90,7 +90,7 @@ package body Generics . Tuples . Lifted is
    function Reducer
       (t : in ARRAY_TYPE) return ELEMENT_TYPE
    is
-   begin 
+   begin
       if t'Length = 1 then
          return t(t'First);
       end if;
@@ -107,7 +107,7 @@ package body Generics . Tuples . Lifted is
    function Chooser
       (t : in ARRAY_TYPE) return ELEMENT_TYPE
    is
-   begin 
+   begin
       if t'Length = 1 then
          return t(t'First);
       end if;
