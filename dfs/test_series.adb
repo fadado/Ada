@@ -3,6 +3,8 @@
 
 pragma Assertion_Policy(Ignore); -- Check / Ignore
 
+with Ada.Text_IO;
+
 with Backtracker;
 
 procedure test_Series is
@@ -88,11 +90,19 @@ procedure test_Series is
    end;
 
    -- Accept calls to print series
-   task Printer is
-      entry Output(series: TONE_ROW);
-   end Printer;
-
-   task body Printer is separate;
+   procedure Output(series : TONE_ROW)
+   is
+      use Ada.Text_IO;
+   begin
+      for t of series loop
+         case t is
+            when 10 => Put(" A");
+            when 11 => Put(" B");
+            when others => Put(t'Image);
+         end case;
+      end loop;
+      New_Line;
+   end Output;
 
 begin
    declare
@@ -101,7 +111,7 @@ begin
            NODE_VALUE      => PITCH_CLASS,
            VECTOR_INDEX    => TUPLE_INDEX,
            VECTOR_SOLUTION => TONE_ROW,
-           Goal            => Printer.Output,
+           Goal            => Output,
            Rejected        => Rejected,
            Enter           => Enter,
            Leave           => Leave

@@ -10,7 +10,7 @@ DFSLIB := backtracker.ad[sb]
 all: $(LIB) $(LIB)/test_series $(LIB)/test_queens
 	@echo Done!
 
-$(LIB)/test_series: test_series.adb test_series-*.ad[sb] $(DFSLIB)
+$(LIB)/test_series: test_series.adb $(DFSLIB)
 	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
 
 $(LIB)/test_queens: test_queens.adb $(DFSLIB)
