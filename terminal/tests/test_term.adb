@@ -1,9 +1,9 @@
--- demo.adb
+-- Test_Term.adb
 
 with Terminal.Control;
 with Terminal.Device;
 
-procedure demo is
+procedure Test_Term is
    use Terminal;
    use Control;
 
@@ -26,7 +26,7 @@ procedure demo is
       Device.Emit(repeat('=', 80));
       -- Latin1 => UTF-8
       Device.Emit(Cursor.move(2,7));
-      Device.Print('¿'); Device.Print("¡Hi!"); Device.Print('?');
+      Device.Print('Â¿'); Device.Print("!Hi!"); Device.Print('?');
       for i in 1..20 loop
          Device.Emit(Display.scroll_down);
          delay 0.1;
@@ -97,8 +97,7 @@ begin
    -- finalize
    Device.Emit(Setup.alternate_screen(Off)   &
                Cursor.visible(On));
-end demo;
+end Test_Term;
 
--- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

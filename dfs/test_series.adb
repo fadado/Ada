@@ -118,8 +118,6 @@ begin
          );
       use All_Intervals_Twelve_Tone_Rows;
    begin
-    --Traverse(FOREST_SET'(0 => TRUE, others => FALSE));
-      --
       Traverse;
    end;
 end test_Series;

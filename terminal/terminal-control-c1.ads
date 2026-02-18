@@ -12,6 +12,5 @@ private package Terminal.Control.C1 is
    ST    : constant STRING := (C0.ESC, '\');
 end Terminal.Control.C1;
 
--- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

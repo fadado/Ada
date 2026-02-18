@@ -2,18 +2,18 @@
 
 .SILENT:
 
-LIB=./LIBRARY
+OUT=./OUTPUT
 GNATFLAGS=-q
 
-all: $(LIB) $(LIB)/sieve
+all: $(OUT) $(OUT)/sieve
 
-$(LIB)/sieve: sieve.adb 
-	@gnatmake $(GNATFLAGS) --subdirs=$(LIB) $(@F)
+$(OUT)/sieve: sieve.adb 
+	@gnatmake $(GNATFLAGS) --subdirs=$(OUT) $(@F)
 
-$(LIB):
-	@test -d $(LIB) || mkdir $(LIB)
+$(OUT):
+	@test -d $(OUT) || mkdir $(OUT)
 
-sieve: $(LIB)/sieve; $<
+sieve: $(OUT)/sieve; $<
 
 clean:
-	rm -rf $(LIB)
+	rm -rf $(OUT)

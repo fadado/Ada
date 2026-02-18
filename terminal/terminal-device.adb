@@ -16,17 +16,17 @@ package body Terminal.Device is
    procedure Emit(Item: CODE) is
    begin
       Text_IO.Put(Output, Item);
-   end;
+   end Emit;
 
    procedure Emit(Item: STRING) is
    begin
       Text_IO.Put(Output, Item);
-   end;
+   end Emit;
 
    procedure Emit(Item: INTEGER; Width: POSITIVE:=1) is
    begin
       Integer_IO.Put(Output, Item);
-   end;
+   end Emit;
 
    ---------------------------------------------------------------------
    -- Print Latin1 input as UTF-8
@@ -34,17 +34,17 @@ package body Terminal.Device is
    procedure Print is
    begin
       Text_IO.Put(Output, Format.new_line);
-   end;
+   end Print;
 
    procedure Print(Item: STRING) is
    begin
       Text_IO.Put(Output, UTF.Encode(Item));
-   end;
+   end Print;
 
    procedure Print(Item: CHARACTER) is
    begin
       Text_IO.Put(Output, UTF.Encode((1 => Item)));
-   end;
+   end Print;
 
    ---------------------------------------------------------------------
    -- Receive...
@@ -52,6 +52,6 @@ package body Terminal.Device is
    Input : Text_IO.File_Type renames Text_IO.Standard_Input;
 
 end Terminal.Device;
--- ¡ISO-8859-1!
+
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

@@ -165,7 +165,7 @@ package body Terminal.Control is
          return C1.OSC & "2;" & Title & C1.ST;
       end window_title;
    end Display;
-   
+
    ---------------------------------------------------------------------
    package body Cursor is
    ---------------------------------------------------------------------
@@ -395,7 +395,7 @@ package body Terminal.Control is
       begin
          return S(2..S'Last);
       end fgcolor;
-      
+
       function bgcolor(Color: COLORS; Light: INTENSITY:=dimmed) return STRING is
          C : constant NATURAL := COLORS'Pos(Color);
          I : constant NATURAL := (if Light = bright then 60 else 0);
@@ -404,7 +404,7 @@ package body Terminal.Control is
       begin
          return S(2..S'Last);
       end bgcolor;
-      
+
       function Render(p0: STRING) return STRING is
       begin
          return C1.CSI & p0 & 'm';
@@ -475,6 +475,6 @@ package body Terminal.Control is
    end repeat;
 
 end Terminal.Control;
--- ¡ISO-8859-1!
+
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
--- vim:fileformat=dos:fileencoding=latin1:syntax=ada
+-- vim:fileformat=dos:fileencoding=UTF8:syntax=ada
