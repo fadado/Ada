@@ -75,7 +75,7 @@ procedure test_queens is
       Used_Column(col) := FALSE;
    end;
 
-   procedure Output(board: CHESS_BOARD)
+   procedure Goal(board: CHESS_BOARD)
    is
       use Ada.Text_IO;
    begin
@@ -83,7 +83,7 @@ procedure test_queens is
          Put(column'Image);
       end loop;
       New_Line;
-   end Output;
+   end Goal;
 
 begin
    declare
@@ -91,11 +91,7 @@ begin
          new Backtracker (
            NODE_VALUE      => COLUMN_INDEX,
            VECTOR_INDEX    => ROW_INDEX,
-           VECTOR_SOLUTION => CHESS_BOARD,
-           Goal            => Output,
-           Rejected        => Rejected,
-           Enter           => Enter,
-           Leave           => Leave
+           VECTOR_SOLUTION => CHESS_BOARD
          );
    begin
       Queens_8.Traverse;

@@ -25,8 +25,7 @@ include ../switches.make
 
 # Define switches to compile library and tests
 
-EXTRA_LARGS  := -L../generics/LIBRARY -lgenerics
-MORE_SOURCES := -aI../generics
+SRC_INC := -aI../generics
 
 SUBSYSTEM_SW :=     \
    $(SW_ASSERTIONS) \
@@ -37,7 +36,7 @@ SUBSYSTEM_SW :=     \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(MORE_SOURCES)  \
+   $(SRC_INC)       \
 
 TESTS_SW :=         \
    $(SW_ASSERTIONS) \
@@ -47,7 +46,10 @@ TESTS_SW :=         \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(MORE_SOURCES)  \
+   $(SRC_INC)       \
+
+EXTRA_SUBSYS := -aO../generics/LIBRARY
+EXTRA_LARGS  := -L../generics/LIBRARY -lgenerics
 
 # Include generic subsystem rules
 include ../subsystem.make

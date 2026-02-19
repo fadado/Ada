@@ -1,8 +1,10 @@
+*.a
 *.ali
 *.o
 *.pdf
 *.std???
 *#
-*/BINARIES/*
-*/OBJECTS/*
-*/LIBRARY/*
+subsystems/*/BINARIES/*
+subsystems/*/OBJECTS/*
+subsystems/*/LIBRARY/*
+subsystems/LIBRARY/*

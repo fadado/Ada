@@ -90,7 +90,7 @@ procedure test_Series is
    end;
 
    -- Accept calls to print series
-   procedure Output(series : TONE_ROW)
+   procedure Goal(series : TONE_ROW)
    is
       use Ada.Text_IO;
    begin
@@ -102,7 +102,7 @@ procedure test_Series is
          end case;
       end loop;
       New_Line;
-   end Output;
+   end Goal;
 
 begin
    declare
@@ -110,11 +110,7 @@ begin
          new Backtracker (
            NODE_VALUE      => PITCH_CLASS,
            VECTOR_INDEX    => TUPLE_INDEX,
-           VECTOR_SOLUTION => TONE_ROW,
-           Goal            => Output,
-           Rejected        => Rejected,
-           Enter           => Enter,
-           Leave           => Leave
+           VECTOR_SOLUTION => TONE_ROW
          );
       use All_Intervals_Twelve_Tone_Rows;
    begin

@@ -38,17 +38,20 @@ $(ARCHIVE_LIBRARY): $(BUILD_TIMESTAMP)
 $(BUILD_TIMESTAMP): zilch_$(SUBSYSTEM).adb *.ad?
 	gnatmake $(SUBSYSTEM_SW) \
 		 -aO$(OBJ_DIR)   \
+		 $(EXTRA_SUBSYS) \
 		 -D $(OBJ_DIR)   \
-		 -o $@ $<
+		 -o $@ $<        \
+		 -largs $(EXTRA_LARGS)
 	@rm $(OBJ_DIR)/zilch_$(SUBSYSTEM).{o,ali}
 	@chmod -x $(BUILD_TIMESTAMP)
 
 $(BIN_DIR)/test_%: $(TST_DIR)/test_%.adb
-	gnatmake $(TESTS_SW)  \
-		-aI$(SRC_DIR) \
-		-aO$(LIB_DIR) \
-		-D $(BIN_DIR) \
-		-o $@ $<      \
+	gnatmake $(TESTS_SW)     \
+		-aI$(SRC_DIR)    \
+		-aO$(LIB_DIR)    \
+		 $(EXTRA_SUBSYS) \
+		-D $(BIN_DIR)    \
+		-o $@ $<         \
 		-largs -L$(LIB_DIR) -l$(SUBSYSTEM) $(EXTRA_LARGS)
 
 check: $(OBJ_DIR) $(BIN_DIR) 
