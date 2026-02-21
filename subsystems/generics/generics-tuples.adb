@@ -1,7 +1,7 @@
 package body Generics . Tuples is
 
  --generic
- --   with package Instance is new Signature (<>);
+ --   with package Instance is new Tuple_Signature (<>);
  --   use Instance;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
    function Functional
@@ -14,7 +14,7 @@ package body Generics . Tuples is
    end Functional;
 
  --generic
- --   with package Instance is new Signature (<>);
+ --   with package Instance is new Tuple_Signature (<>);
  --   use Instance;
  --   with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
    function Squasher

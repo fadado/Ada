@@ -3,29 +3,28 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 package body Seeker is
-   solution : VECTOR_SOLUTION; -- (partial) solution
+   subtype NODE_VALUES is ELEMENT_TYPE;
+   -- fancy renaming
+
+   solution : ARRAY_TYPE;
+   -- (partial) solution vector to fill with NODE_VALUES
 
    -- Try to add one step to the partial solution
    procedure traverse
-     (index : VECTOR_INDEX)
+     (index : INDEX_TYPE)
    is
-      function accepted (value : NODE_VALUE) return BOOLEAN with Inline
-      is
-      begin
-         return not Rejected(solution, index, value);
-      end accepted;
    begin
       -- try to extend the solution with each choice
-      for value in NODE_VALUE loop
-         if accepted(value) then
-            solution(index) := value;
-            -- accept value for the current level
+      for element in NODE_VALUES loop
+         if not Rejected(solution, index, element) then
+            solution(index) := element;
+            -- accept element for the current level
 
-            if index /= VECTOR_INDEX'Last then
+            if index /= INDEX_TYPE'Last then
                -- recurse if solution is not completed
-               Enter(solution, index, value);
-               traverse(VECTOR_INDEX'Succ(index));
-               Leave(solution, index, value);
+               Enter(solution, index, element);
+               traverse(INDEX_TYPE'Succ(index));
+               Leave(solution, index, element);
             else
                Goal(solution);
             end if;
@@ -37,15 +36,15 @@ package body Seeker is
    procedure Seek
      (forest : FOREST_SET := (others => TRUE))
    is
-      first : constant VECTOR_INDEX := VECTOR_INDEX'First;
+      first : constant INDEX_TYPE := INDEX_TYPE'First;
    begin
-      for value in NODE_VALUE loop
-         if forest(value) then
-            solution(first) := value;
+      for element in NODE_VALUES loop
+         if forest(element) then
+            solution(first) := element;
 
-            Enter(solution, first, value);
-            traverse(VECTOR_INDEX'Succ(first));
-            Leave(solution, first, value);
+            Enter(solution, first, element);
+            traverse(INDEX_TYPE'Succ(first));
+            Leave(solution, first, element);
          end if;
       end loop;
    end Seek;

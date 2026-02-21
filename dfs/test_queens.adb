@@ -10,7 +10,7 @@ with Seeker;
 procedure test_queens is
    type COLUMN_INDEX is range 1..8;
    type ROW_INDEX    is new COLUMN_INDEX;
-   type CHESS_BOARD  is array(ROW_INDEX) of COLUMN_INDEX;
+   type CHESS_BOARD  is array (ROW_INDEX) of COLUMN_INDEX;
 
    type LESS_DIAGONAL_ID is range ROW_INDEX'First - ROW_INDEX'Last
                                .. ROW_INDEX'Last  - ROW_INDEX'First;
@@ -20,6 +20,16 @@ procedure test_queens is
    Used_Column   : array (COLUMN_INDEX) of BOOLEAN := (others => FALSE);
    Less_Diagonal : array (ROW_INDEX) of LESS_DIAGONAL_ID;
    Plus_Diagonal : array (ROW_INDEX) of PLUS_DIAGONAL_ID;
+
+   procedure Goal(board: CHESS_BOARD)
+   is
+      use Ada.Text_IO;
+   begin
+      for column of board loop
+         Put(column'Image);
+      end loop;
+      New_Line;
+   end Goal;
 
    function Rejected
      (board : CHESS_BOARD;
@@ -69,32 +79,22 @@ procedure test_queens is
    procedure Leave
      (board : CHESS_BOARD;
       row   : ROW_INDEX;
-      col   : COLUMN_INDEX)
+      col   : COLUMN_INDEX) with Inline
    is
    begin
       Used_Column(col) := FALSE;
    end;
 
-   procedure Goal(board: CHESS_BOARD)
-   is
-      use Ada.Text_IO;
-   begin
-      for column of board loop
-         Put(column'Image);
-      end loop;
-      New_Line;
-   end Goal;
-
 begin
    declare
-      package Queens_8 is
+      package Eight_Queens_Boards is
          new Seeker (
-           NODE_VALUE      => COLUMN_INDEX,
-           VECTOR_INDEX    => ROW_INDEX,
-           VECTOR_SOLUTION => CHESS_BOARD
+           ARRAY_TYPE   => CHESS_BOARD,
+           INDEX_TYPE   => ROW_INDEX,
+           ELEMENT_TYPE => COLUMN_INDEX
          );
    begin
-      Queens_8.Seek;
+      Eight_Queens_Boards.Seek;
    end;
 end test_queens;
 

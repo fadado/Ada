@@ -6,10 +6,10 @@ package Generics . Tuples is
       type ELEMENT_TYPE is private;
       type INDEX_TYPE   is (<>);
       type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
-   package Signature is private end Signature;
+   package Tuple_Signature is private end Tuple_Signature;
 
    generic
-      with package Instance is new Signature (<>);
+      with package Instance is new Tuple_Signature (<>);
       use Instance;
       with procedure Do_It(t: in out ARRAY_TYPE);
    function Functional
@@ -19,7 +19,7 @@ package Generics . Tuples is
 private
 
    generic
-      with package Instance is new Signature (<>);
+      with package Instance is new Tuple_Signature (<>);
       use Instance;
       with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
    function Squasher
