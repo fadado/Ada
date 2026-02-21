@@ -5,7 +5,7 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Seeker;
+with Depth_First_Search;
 
 procedure test_Series is
    type PITCH_CLASS is mod 12;
@@ -34,16 +34,23 @@ procedure test_Series is
       tone_up : PITCH_CLASS renames series(TUPLE_INDEX'Pred(index));
       -- previous tone
    begin
-      -- ordered pitch-class interval
-      return INTERVAL(tone_up - tone);
-
-    -- buggy old version using unordered pitch interval
-    --if tone > tone_up then
-    --   return INTERVAL(tone - tone_up);
-    --else
-    --   return INTERVAL(tone_up - tone);
-    --end if;
+      return INTERVAL(tone_up - tone); -- ordered pitch-class interval
    end;
+
+   -- Print series
+   procedure Goal(series : TONE_ROW)
+   is
+      use Ada.Text_IO;
+   begin
+      for t of series loop
+         case t is
+            when 10 => Put(" A");
+            when 11 => Put(" B");
+            when others => Put(t'Image);
+         end case;
+      end loop;
+      New_Line;
+   end Goal;
 
    -- Reasons to prune?
    function Rejected
@@ -89,28 +96,13 @@ procedure test_Series is
       end if;
    end;
 
-   -- Accept calls to print series
-   procedure Goal(series : TONE_ROW)
-   is
-      use Ada.Text_IO;
-   begin
-      for t of series loop
-         case t is
-            when 10 => Put(" A");
-            when 11 => Put(" B");
-            when others => Put(t'Image);
-         end case;
-      end loop;
-      New_Line;
-   end Goal;
-
 begin
    declare
       package All_Intervals_Twelve_Tone_Rows is
-         new Seeker (
-           NODE_VALUE      => PITCH_CLASS,
-           VECTOR_INDEX    => TUPLE_INDEX,
-           VECTOR_SOLUTION => TONE_ROW
+         new Depth_First_Search (
+           ARRAY_TYPE   => TONE_ROW,
+           INDEX_TYPE   => TUPLE_INDEX,
+           ELEMENT_TYPE => PITCH_CLASS
          );
    begin
       All_Intervals_Twelve_Tone_Rows.Seek;

@@ -5,12 +5,14 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Seeker;
+with Depth_First_Search;
 
 procedure test_queens is
-   type COLUMN_INDEX is range 1..8;
+   BOARD_SIZE : constant INTEGER := 8;
+
+   type COLUMN_INDEX is range 1..BOARD_SIZE;
    type ROW_INDEX    is new COLUMN_INDEX;
-   type CHESS_BOARD  is array(ROW_INDEX) of COLUMN_INDEX;
+   type CHESS_BOARD  is array (ROW_INDEX) of COLUMN_INDEX;
 
    type LESS_DIAGONAL_ID is range ROW_INDEX'First - ROW_INDEX'Last
                                .. ROW_INDEX'Last  - ROW_INDEX'First;
@@ -21,17 +23,28 @@ procedure test_queens is
    Less_Diagonal : array (ROW_INDEX) of LESS_DIAGONAL_ID;
    Plus_Diagonal : array (ROW_INDEX) of PLUS_DIAGONAL_ID;
 
+   procedure Goal(board: in CHESS_BOARD)
+   is
+      use Ada.Text_IO;
+   begin
+      for column of board loop
+         Put(column'Image);
+      end loop;
+      New_Line;
+   end Goal;
+
    function Rejected
-     (board : CHESS_BOARD;
-      row   : ROW_INDEX;
-      col   : COLUMN_INDEX) return BOOLEAN
+     (board : in CHESS_BOARD;
+      row   : in ROW_INDEX;
+      col   : in COLUMN_INDEX) return BOOLEAN
+   with
+      Pre => (row > ROW_INDEX'First)
    is
    begin
-      pragma Assert(row > ROW_INDEX'First);
-
       if Used_Column(col) then
          return TRUE;
       end if;
+
       declare
          less_id : constant LESS_DIAGONAL_ID
             := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
@@ -42,6 +55,7 @@ procedure test_queens is
             return TRUE;
          end if;
       end;
+
       declare
          plus_id : constant PLUS_DIAGONAL_ID
             := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
@@ -52,13 +66,14 @@ procedure test_queens is
             return TRUE;
          end if;
       end;
+
       return FALSE;
    end;
 
    procedure Enter
-     (board : CHESS_BOARD;
-      row   : ROW_INDEX;
-      col   : COLUMN_INDEX)
+     (board : in CHESS_BOARD;
+      row   : in ROW_INDEX;
+      col   : in COLUMN_INDEX)
    is
    begin
       Used_Column(col) := TRUE;
@@ -67,34 +82,24 @@ procedure test_queens is
    end;
 
    procedure Leave
-     (board : CHESS_BOARD;
-      row   : ROW_INDEX;
-      col   : COLUMN_INDEX)
+     (board : in CHESS_BOARD;
+      row   : in ROW_INDEX;
+      col   : in COLUMN_INDEX) with Inline
    is
    begin
       Used_Column(col) := FALSE;
    end;
 
-   procedure Goal(board: CHESS_BOARD)
-   is
-      use Ada.Text_IO;
-   begin
-      for column of board loop
-         Put(column'Image);
-      end loop;
-      New_Line;
-   end Goal;
-
 begin
    declare
-      package Queens_8 is
-         new Seeker (
-           NODE_VALUE      => COLUMN_INDEX,
-           VECTOR_INDEX    => ROW_INDEX,
-           VECTOR_SOLUTION => CHESS_BOARD
+      package Queens_Solutions is
+         new Depth_First_Search (
+           ARRAY_TYPE   => CHESS_BOARD,
+           INDEX_TYPE   => ROW_INDEX,
+           ELEMENT_TYPE => COLUMN_INDEX
          );
    begin
-      Queens_8.Seek;
+      Queens_Solutions.Seek;
    end;
 end test_queens;
 
