@@ -15,5 +15,8 @@ $(OUT):
 
 sieve: $(OUT)/sieve; $<
 
+clean:
+	rm -f $(OUT)/*
+
 clobber:
 	rm -rf $(OUT)

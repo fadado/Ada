@@ -5,7 +5,7 @@
 LIB=./LIBRARY
 GNATFLAGS=-q
 
-DFSLIB := backtracker.ad[sb]
+DFSLIB := seeker.ad[sb]
 
 all: $(LIB) $(LIB)/test_series $(LIB)/test_queens
 	@echo Done!

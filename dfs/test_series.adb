@@ -5,7 +5,7 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Backtracker;
+with Seeker;
 
 procedure test_Series is
    type PITCH_CLASS is mod 12;
@@ -107,14 +107,13 @@ procedure test_Series is
 begin
    declare
       package All_Intervals_Twelve_Tone_Rows is
-         new Backtracker (
+         new Seeker (
            NODE_VALUE      => PITCH_CLASS,
            VECTOR_INDEX    => TUPLE_INDEX,
            VECTOR_SOLUTION => TONE_ROW
          );
-      use All_Intervals_Twelve_Tone_Rows;
    begin
-      Traverse;
+      All_Intervals_Twelve_Tone_Rows.Seek;
    end;
 end test_Series;
 

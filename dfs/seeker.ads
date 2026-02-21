@@ -1,4 +1,4 @@
--- backtracker.ads
+-- seeker.ads
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
@@ -38,14 +38,14 @@ generic
    is <>;
    -- Hook to run after exiting one level down
 
-package Backtracker is
+package Seeker is
    type FOREST_SET is array (NODE_VALUE) of BOOLEAN;
 
-   procedure Traverse
+   procedure Seek
      (forest : FOREST_SET := (others => TRUE))
    with Pre => VECTOR_SOLUTION'Length > 1;
    -- Walk the indicated trees, prunning when a node is rejected
-end Backtracker;
+end Seeker;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

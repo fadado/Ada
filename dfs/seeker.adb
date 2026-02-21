@@ -1,8 +1,8 @@
--- backtracker.adb
+-- seeker.adb
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-package body Backtracker is
+package body Seeker is
    solution : VECTOR_SOLUTION; -- (partial) solution
 
    -- Try to add one step to the partial solution
@@ -34,7 +34,7 @@ package body Backtracker is
    end traverse;
 
    -- Walk the tree prunning when a node is rejected
-   procedure Traverse
+   procedure Seek
      (forest : FOREST_SET := (others => TRUE))
    is
       first : constant VECTOR_INDEX := VECTOR_INDEX'First;
@@ -48,8 +48,8 @@ package body Backtracker is
             Leave(solution, first, value);
          end if;
       end loop;
-   end Traverse;
-end Backtracker;
+   end Seek;
+end Seeker;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

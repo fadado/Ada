@@ -5,11 +5,11 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Backtracker;
+with Seeker;
 
 procedure test_queens is
-   type ROW_INDEX    is range 1..8;
-   type COLUMN_INDEX is new ROW_INDEX;
+   type COLUMN_INDEX is range 1..8;
+   type ROW_INDEX    is new COLUMN_INDEX;
    type CHESS_BOARD  is array(ROW_INDEX) of COLUMN_INDEX;
 
    type LESS_DIAGONAL_ID is range ROW_INDEX'First - ROW_INDEX'Last
@@ -88,13 +88,13 @@ procedure test_queens is
 begin
    declare
       package Queens_8 is
-         new Backtracker (
+         new Seeker (
            NODE_VALUE      => COLUMN_INDEX,
            VECTOR_INDEX    => ROW_INDEX,
            VECTOR_SOLUTION => CHESS_BOARD
          );
    begin
-      Queens_8.Traverse;
+      Queens_8.Seek;
    end;
 end test_queens;
 

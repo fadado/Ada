@@ -25,7 +25,7 @@ include ../switches.make
 
 # Define switches to compile library and tests
 
-SRC_INC := -aI../generics
+INCLUDES := -aI../generics
 
 SUBSYSTEM_SW :=     \
    $(SW_ASSERTIONS) \
@@ -36,7 +36,7 @@ SUBSYSTEM_SW :=     \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(SRC_INC)       \
+   $(INCLUDES)      \
 
 TESTS_SW :=         \
    $(SW_ASSERTIONS) \
@@ -46,10 +46,12 @@ TESTS_SW :=         \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
-   $(SRC_INC)       \
+   $(INCLUDES)      \
 
-EXTRA_SUBSYS := -aO../generics/LIBRARY
-EXTRA_LARGS  := -L../generics/LIBRARY -lgenerics
+G_LIB := ../generics/LIBRARY
+
+EXTRA_SUBSYS := -aO$(G_LIB)
+EXTRA_LARGS  := -L$(G_LIB) -lgenerics
 
 # Include generic subsystem rules
 include ../subsystem.make
@@ -61,8 +63,5 @@ include ../subsystem.make
 .PHONY: music
 
 music: $(BIN_DIR)/test_music; $<
-
-# Α α  Β β  Γ γ  Δ δ  Ε ε  Ζ ζ  Η η  Θ θ  Ι ι  Κ κ  Λ λ  Μ μ 
-# Ν ν  Ξ ξ  Ο ο  Π π  Ρ ρ  Σ ς  Τ τ  Υ υ  Φ φ  Χ χ  Ψ ψ  Ω ω
 
 # vim:fileformat=unix:fileencoding=UTF8:syntax=make
