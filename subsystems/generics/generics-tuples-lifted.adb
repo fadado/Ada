@@ -1,10 +1,10 @@
 --generic
---   with package Instance is new Signature (<>);
+--   with package Instance is new Tuple_Signature (<>);
 --   use Instance;
 package body Generics . Tuples . Lifted is
 
  --generic
- --   with package Target is new Signature (<>);
+ --   with package Target is new Tuple_Signature (<>);
  --   with function Map (X: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
    function Mapper
      (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
@@ -33,7 +33,7 @@ package body Generics . Tuples . Lifted is
    end Mapper;
 
  --generic
- --   with package Target is new Signature (<>);
+ --   with package Target is new Tuple_Signature (<>);
  --   with function Zip (X, Y: in ELEMENT_TYPE) return Target.ELEMENT_TYPE;
    function Zipper
      (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE

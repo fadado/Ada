@@ -1,5 +1,5 @@
 --generic
---   with package Instance is new Signature (<>);
+--   with package Instance is new Tuple_Signature (<>);
 --   use Instance;
 --   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 --   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
