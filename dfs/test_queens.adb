@@ -8,101 +8,110 @@ with Ada.Text_IO;
 with Depth_First_Search;
 
 procedure test_queens is
-   BOARD_SIZE : constant := 4;
 
-   type COLUMN_INDEX is range 1..BOARD_SIZE;
-   type ROW_INDEX    is range 1..BOARD_SIZE;
-   type CHESS_BOARD  is array (ROW_INDEX) of COLUMN_INDEX;
+   generic
+      BOARD_SIZE : INTEGER := 8;
+   procedure Queens_Solver;
 
-   type LESS_DIAGONAL_ID is range ROW_INDEX'First - ROW_INDEX'Last
-                               .. ROW_INDEX'Last  - ROW_INDEX'First;
-   type PLUS_DIAGONAL_ID is range ROW_INDEX'First + ROW_INDEX'First
-                               .. ROW_INDEX'Last  + ROW_INDEX'Last;
-
-   Used_Column   : array (COLUMN_INDEX) of BOOLEAN := (others => FALSE);
-   Less_Diagonal : array (ROW_INDEX) of LESS_DIAGONAL_ID;
-   Plus_Diagonal : array (ROW_INDEX) of PLUS_DIAGONAL_ID;
-
-   procedure Goal(board: in CHESS_BOARD)
+   procedure Queens_Solver
    is
-      use Ada.Text_IO;
-   begin
-      Put('[');
-      for column of board loop
-         Put(column'Image);
-      end loop;
-      Put(" ]");
-      New_Line;
-   end Goal;
+      pragma Assert (BOARD_SIZE >= 4);
 
-   function Rejected
-     (board : in CHESS_BOARD;
-      row   : in ROW_INDEX;
-      col   : in COLUMN_INDEX) return BOOLEAN
-   with
-      Pre => (row > ROW_INDEX'First)
-   is
-   begin
-      if Used_Column(col) then
-         return TRUE;
-      end if;
+      subtype COLUMN_INDEX is INTEGER range 1..BOARD_SIZE;
+      subtype ROW_INDEX    is INTEGER range 1..BOARD_SIZE;
+      type CHESS_BOARD     is array (ROW_INDEX) of COLUMN_INDEX;
 
-      declare
-         less_id : constant LESS_DIAGONAL_ID
-            := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
+      subtype LESS_DIAGONAL_ID is INTEGER
+         range ROW_INDEX'First - ROW_INDEX'Last
+            .. ROW_INDEX'Last  - ROW_INDEX'First;
+      subtype PLUS_DIAGONAL_ID is INTEGER
+         range ROW_INDEX'First + ROW_INDEX'First
+            .. ROW_INDEX'Last  + ROW_INDEX'Last;
+
+      Used_Column   : array (COLUMN_INDEX) of BOOLEAN := (others => FALSE);
+      Less_Diagonal : array (ROW_INDEX) of LESS_DIAGONAL_ID;
+      Plus_Diagonal : array (ROW_INDEX) of PLUS_DIAGONAL_ID;
+
+      procedure Goal(board: in CHESS_BOARD)
+      is
+         use Ada.Text_IO;
       begin
-         if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
-               => less_id = Less_Diagonal(r))
-         then
+         for column of board loop
+            Put(column'Image);
+         end loop;
+         New_Line;
+      end Goal;
+
+      function Rejected
+      (board : in CHESS_BOARD;
+         row   : in ROW_INDEX;
+         col   : in COLUMN_INDEX) return BOOLEAN
+      with
+         Pre => (row > ROW_INDEX'First)
+      is
+      begin
+         if Used_Column(col) then
             return TRUE;
          end if;
+
+         declare
+            less_id : constant LESS_DIAGONAL_ID
+               := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
+         begin
+            if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
+                  => less_id = Less_Diagonal(r))
+            then
+               return TRUE;
+            end if;
+         end;
+
+         declare
+            plus_id : constant PLUS_DIAGONAL_ID
+               := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
+         begin
+            if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
+                  => plus_id = Plus_Diagonal(r))
+            then
+               return TRUE;
+            end if;
+         end;
+
+         return FALSE;
       end;
 
-      declare
-         plus_id : constant PLUS_DIAGONAL_ID
-            := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
+      procedure Enter
+      (board : in CHESS_BOARD;
+         row   : in ROW_INDEX;
+         col   : in COLUMN_INDEX)
+      is
       begin
-         if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
-               => plus_id = Plus_Diagonal(r))
-         then
-            return TRUE;
-         end if;
+         Used_Column(col) := TRUE;
+         Less_Diagonal(row) := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
+         Plus_Diagonal(row) := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
       end;
 
-      return FALSE;
-   end;
+      procedure Leave
+      (board : in CHESS_BOARD;
+         row   : in ROW_INDEX;
+         col   : in COLUMN_INDEX) with Inline
+      is
+      begin
+         Used_Column(col) := FALSE;
+      end;
 
-   procedure Enter
-     (board : in CHESS_BOARD;
-      row   : in ROW_INDEX;
-      col   : in COLUMN_INDEX)
-   is
-   begin
-      Used_Column(col) := TRUE;
-      Less_Diagonal(row) := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
-      Plus_Diagonal(row) := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
-   end;
-
-   procedure Leave
-     (board : in CHESS_BOARD;
-      row   : in ROW_INDEX;
-      col   : in COLUMN_INDEX) with Inline
-   is
-   begin
-      Used_Column(col) := FALSE;
-   end;
-
-begin
-   declare
-      package Queens_Solutions is
+      package QueensDFS is
          new Depth_First_Search (
            ARRAY_TYPE   => CHESS_BOARD,
            INDEX_TYPE   => ROW_INDEX,
            ELEMENT_TYPE => COLUMN_INDEX
          );
    begin
-      Queens_Solutions.Seek;
-   end;
+      QueensDFS.Seek;
+   end Queens_Solver;
+
+   procedure Solver is new Queens_Solver(4);
+begin
+      Solver;
 end test_queens;
 
 -- ¡ISO-8859-1!
