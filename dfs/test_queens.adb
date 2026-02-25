@@ -19,7 +19,7 @@ procedure test_queens is
 
       subtype COLUMN_INDEX is INTEGER range 1..BOARD_SIZE;
       subtype ROW_INDEX    is INTEGER range 1..BOARD_SIZE;
-      type CHESS_BOARD     is array (ROW_INDEX) of COLUMN_INDEX;
+      type    CHESS_BOARD  is array (ROW_INDEX) of COLUMN_INDEX;
 
       subtype LESS_DIAGONAL_ID is INTEGER
          range ROW_INDEX'First - ROW_INDEX'Last
@@ -43,7 +43,7 @@ procedure test_queens is
       end Goal;
 
       function Rejected
-      (board : in CHESS_BOARD;
+        (board : in CHESS_BOARD;
          row   : in ROW_INDEX;
          col   : in COLUMN_INDEX) return BOOLEAN
       with
@@ -55,8 +55,7 @@ procedure test_queens is
          end if;
 
          declare
-            less_id : constant LESS_DIAGONAL_ID
-               := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
+            less_id : constant LESS_DIAGONAL_ID := row - col;
          begin
             if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
                   => less_id = Less_Diagonal(r))
@@ -66,8 +65,7 @@ procedure test_queens is
          end;
 
          declare
-            plus_id : constant PLUS_DIAGONAL_ID
-               := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
+            plus_id : constant PLUS_DIAGONAL_ID := row + col;
          begin
             if (for some r in ROW_INDEX'First .. ROW_INDEX'Pred(row)
                   => plus_id = Plus_Diagonal(r))
@@ -80,18 +78,18 @@ procedure test_queens is
       end;
 
       procedure Enter
-      (board : in CHESS_BOARD;
+        (board : in CHESS_BOARD;
          row   : in ROW_INDEX;
          col   : in COLUMN_INDEX)
       is
       begin
          Used_Column(col) := TRUE;
-         Less_Diagonal(row) := LESS_DIAGONAL_ID(INTEGER(row) - INTEGER(col));
-         Plus_Diagonal(row) := PLUS_DIAGONAL_ID(INTEGER(row) + INTEGER(col));
+         Less_Diagonal(row) := row - col;
+         Plus_Diagonal(row) := row + col;
       end;
 
       procedure Leave
-      (board : in CHESS_BOARD;
+        (board : in CHESS_BOARD;
          row   : in ROW_INDEX;
          col   : in COLUMN_INDEX) with Inline
       is
@@ -109,7 +107,7 @@ procedure test_queens is
       QueensDFS.Seek;
    end Queens_Solver;
 
-   procedure Solver is new Queens_Solver(4);
+   procedure Solver is new Queens_Solver(5);
 begin
       Solver;
 end test_queens;
