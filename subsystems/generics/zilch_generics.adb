@@ -2,6 +2,7 @@
 --pragma Warnings (Off, "not referenced");
 
 with generics;
+with generics.depth_first_search;
 with generics.tuples;
 with generics.tuples.arrayed;
 with generics.tuples.lifted;

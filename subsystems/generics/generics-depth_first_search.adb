@@ -1,6 +1,6 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
-package body Depth_First_Search is
+package body Generics . Depth_First_Search is
    subtype NODE_VALUES     is ELEMENT_TYPE;
    subtype VECTOR_SOLUTION is ARRAY_TYPE;
    -- fancy renaming
@@ -47,7 +47,7 @@ package body Depth_First_Search is
          end if;
       end loop;
    end Seek;
-end Depth_First_Search;
+end Generics . Depth_First_Search;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

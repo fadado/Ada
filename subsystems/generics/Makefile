@@ -48,8 +48,10 @@ include ../subsystem.make
 # Tests shortcuts
 ########################################################################
 
-.PHONY: generics
+.PHONY: generics queens series
 
 generics: $(BIN_DIR)/test_generics; $<
+queens:   $(BIN_DIR)/test_queens; $<
+series:   $(BIN_DIR)/test_series; $<
 
 # vim:fileformat=unix:fileencoding=UTF8:syntax=make

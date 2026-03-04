@@ -9,6 +9,7 @@
 
 ## Programs
 
-- Sieve
-- TBD...
+- sieve
+- queens
+- series
 

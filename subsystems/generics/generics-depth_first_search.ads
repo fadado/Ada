@@ -44,7 +44,7 @@ generic
    is <>;
    -- Hook to run after exiting one level down
 
-package Depth_First_Search is
+package Generics . Depth_First_Search is
    type FOREST_SET is array (ELEMENT_TYPE) of BOOLEAN;
    -- (sub)set of ELEMENT_TYPE values used as tree root node
 
@@ -52,7 +52,7 @@ package Depth_First_Search is
      (forest : in FOREST_SET := (others => TRUE))
    with Pre => ARRAY_TYPE'Length > 1;
    -- Walk the indicated trees, prunning when a node is rejected
-end Depth_First_Search;
+end Generics . Depth_First_Search;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
