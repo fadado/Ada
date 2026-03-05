@@ -11,7 +11,7 @@ use Generics;
 procedure Test_Generics is
 
    package Text_Signature is
-      new Tuples.Signature (CHARACTER, POSITIVE,  STRING);
+      new Tuples.Tuple_Signature (CHARACTER, POSITIVE,  STRING);
 
    package Text_Arrayed is
       new Tuples.Arrayed (Text_Signature, "=");

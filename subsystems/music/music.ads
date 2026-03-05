@@ -149,7 +149,7 @@ package Music is
    -- Signature and internal packages (CamelCaseMeansVisibleButInternal)
 
    package PCTupleInstance is
-      new Tuples.Signature (
+      new Tuples.Tuple_Signature (
          Element_Type => PITCH_CLASS,
          Index_Type   => TUPLE_INDEX,
          Array_Type   => PC_TUPLE

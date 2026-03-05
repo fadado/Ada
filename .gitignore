@@ -4,7 +4,9 @@
 *.pdf
 *.std???
 *#
+*.h
+subsystems/LIBRARY/*
 subsystems/*/BINARIES/*
 subsystems/*/OBJECTS/*
 subsystems/*/LIBRARY/*
-subsystems/LIBRARY/*
+programs/*/OUTPUT/*
