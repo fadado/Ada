@@ -6,6 +6,7 @@
 *#
 *.h
 subsystems/LIBRARY/*
+subsystems/INCLUDE/*
 subsystems/*/BINARIES/*
 subsystems/*/OBJECTS/*
 subsystems/*/LIBRARY/*

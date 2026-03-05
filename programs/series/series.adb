@@ -5,9 +5,9 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Depth_First_Search;
+with Generics.Depth_First_Search;
 
-procedure test_Series is
+procedure Series is
    type PITCH_CLASS is mod 12;
    -- 12 chromatic tones
 
@@ -99,7 +99,7 @@ procedure test_Series is
 begin
    declare
       package All_Intervals_Twelve_Tone_Rows is
-         new Depth_First_Search (
+         new Generics.Depth_First_Search (
            ARRAY_TYPE   => TONE_ROW,
            INDEX_TYPE   => TUPLE_INDEX,
            ELEMENT_TYPE => PITCH_CLASS
@@ -107,7 +107,7 @@ begin
    begin
       All_Intervals_Twelve_Tone_Rows.Seek;
    end;
-end test_Series;
+end Series;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

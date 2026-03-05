@@ -4,17 +4,14 @@ SUBSYSTEMS="control generics music terminal"
 
 ALLINONE=liballinone.a
 
-function build {
-    for ss in $SUBSYSTEMS; do
-        cd $ss
-        echo; echo Building subsystem $ss...
-        time make clobber build tests
-        cd ..
-    done
-}
+for ss in $SUBSYSTEMS; do
+    cd $ss
 
-build
-./merge.sh
+    echo; echo Building subsystem $ss...
+    time make clobber build tests
+
+    cd ..
+done
 
 exit
 

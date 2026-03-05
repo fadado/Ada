@@ -5,9 +5,9 @@ pragma Assertion_Policy(Ignore); -- Check / Ignore
 
 with Ada.Text_IO;
 
-with Depth_First_Search;
+with Generics.Depth_First_Search;
 
-procedure test_queens is
+procedure queens is
 
    generic
       BOARD_SIZE : INTEGER := 8;
@@ -98,7 +98,7 @@ procedure test_queens is
       end;
 
       package QueensDFS is
-         new Depth_First_Search (
+         new Generics.Depth_First_Search (
            ARRAY_TYPE   => CHESS_BOARD,
            INDEX_TYPE   => ROW_INDEX,
            ELEMENT_TYPE => COLUMN_INDEX
@@ -107,10 +107,10 @@ procedure test_queens is
       QueensDFS.Seek;
    end Queens_Solver;
 
-   procedure Solver is new Queens_Solver(5);
+   procedure Solver is new Queens_Solver;
 begin
       Solver;
-end test_queens;
+end queens;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

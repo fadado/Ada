@@ -14,10 +14,11 @@ help:
 	echo 'Usage: make {target}'
 	echo 'Targets:'
 	echo '    build   - build the subsystem library'
-	echo '    tests   - compile all tests'
 	echo '    check   - check syntax and semantics'
 	echo '    clean   - remove generated files'
 	echo '    clobber - remove also generated directories'
+	echo '    help    - show this message'
+	echo '    tests   - compile all tests'
 
 build: $(OUTPUT_DIRECTORIES) $(ARCHIVE_LIBRARY)
 

@@ -1,10 +1,18 @@
-# Sieve program makefile
+########################################################################
+# Common program's rules
+########################################################################
 
-.SILENT:
+OUT := ./OUTPUT
 
-PROGRAM := sieve
+SUBSYS_DIR := ../../subsystems
+SUBSYS_LIB := $(SUBSYS_DIR)/LIBRARY
 
-OUT=./OUTPUT
+GNATFLAGS := \
+   -gnatW8 \
+   -aO$(SUBSYS_LIB) \
+   -aI$(SUBSYS_DIR)/INCLUDE \
+   -D $(OUT) \
+   -largs -L$(SUBSYS_LIB) -lallinone -margs
 
 .PHONY: help build clean clobber run
 
@@ -19,19 +27,16 @@ help:
 
 build: $(OUT) $(OUT)/$(PROGRAM)
 
-$(OUT)/$(PROGRAM): $(PROGRAM).adb 
-	@gnatmake -q -gnatW8 -D $(OUT) -o $@ $<
-
-$(OUT):
-	@test -d $(OUT) || mkdir $(OUT)
-
 clean:
-	rm -f $(OUT)/*
+	@rm -f $(OUT)/*
 
 clobber:
-	rm -rf $(OUT)
+	@rm -rf $(OUT)
 
 run: $(OUT) $(OUT)/$(PROGRAM)
 	$(OUT)/$(PROGRAM)
+
+$(OUT):
+	@test -d $(OUT) || mkdir $(OUT)
 
 # vim:fileformat=unix:fileencoding=UTF8:syntax=make
