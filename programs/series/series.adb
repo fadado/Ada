@@ -38,7 +38,8 @@ procedure Series is
    end;
 
    -- Print series
-   procedure Goal(series : TONE_ROW)
+   procedure Goal
+     (series : TONE_ROW)
    is
       use Ada.Text_IO;
    begin
