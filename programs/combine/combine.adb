@@ -1,4 +1,4 @@
--- Generates permutations
+-- Generates combinations
 
 pragma Assertion_Policy(Check); -- Check / Ignore
 
@@ -6,25 +6,30 @@ with Ada.Text_IO;
 
 with Generics.Depth_First_Search;
 
-procedure Permute
+procedure Combine
 is
    Bits : constant := 8;
 
    type TINY is range 0..2**Bits-1;
 
-   procedure Permute_String
-     (CSet : in STRING)
+   procedure Combine_String
+     (CSet : in STRING;
+      N    : in TINY)
    is
-      subtype ITEMS is TINY range TINY(CSet'First)..TINY(CSet'Last);
+      first : constant TINY := TINY(CSet'First);
+      last  : constant TINY := TINY(CSet'Last);
 
-      type PERMUTATION is array (ITEMS) of ITEMS
+      subtype ITEMS   is TINY range first .. last;
+      subtype INDICES is TINY range first .. first+N-1;
+
+      type COMBINATION is array (INDICES) of ITEMS
          with Pack,
               Component_Size => Bits;
 
       Used_Items : array (ITEMS) of BOOLEAN := (others => FALSE);
 
       procedure Goal
-        (solution : PERMUTATION)
+        (solution : COMBINATION)
       is
          use Ada.Text_IO;
       begin
@@ -36,19 +41,19 @@ is
       end Goal;
 
       function Rejected
-        (candidate : PERMUTATION;
-         index     : ITEMS;
+        (candidate : COMBINATION;
+         index     : INDICES;
          item      : ITEMS) return BOOLEAN
       with Inline,
-           Pre => index > ITEMS'First
+           Pre => index > INDICES'First and then index <= INDICES'Last
       is
       begin
-         return Used_Items(item);
+         return Used_Items(item) or item < index;
       end;
 
       procedure Enter
-        (candidate : PERMUTATION;
-         index     : ITEMS;
+        (candidate : COMBINATION;
+         index     : INDICES;
          item      : ITEMS)
       with Inline,
            Pre  => not Used_Items(item),
@@ -59,8 +64,8 @@ is
       end;
 
       procedure Leave
-        (candidate : PERMUTATION;
-         index     : ITEMS;
+        (candidate : COMBINATION;
+         index     : INDICES;
          item      : ITEMS)
       with Inline,
            Pre  => Used_Items(item),
@@ -72,21 +77,21 @@ is
 
    begin
       declare
-         package Permutations is
+         package Combinations is
             new Generics.Depth_First_Search (
-               INDEX_TYPE   => ITEMS,
+               INDEX_TYPE   => INDICES,
                ELEMENT_TYPE => ITEMS,
-               ARRAY_TYPE   => PERMUTATION
+               ARRAY_TYPE   => COMBINATION
             );
       begin
-         Permutations.Seek;
+         Combinations.Seek;
       end;
-   end Permute_String;
+   end Combine_String;
 
 begin
    -- main
-   Permute_String("ABC");
-end Permute;
+   Combine_String("ABC", 2);
+end Combine;
 
 -- ¡ISO-8859-1!
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent

@@ -1,4 +1,4 @@
-# Sieve program makefile
+# Sieve program standalone makefile
 
 .SILENT:
 

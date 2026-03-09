@@ -1,10 +1,6 @@
-# Series program makefile
-#
-# Require generics
-
 .SILENT:
 
-PROGRAM := series
+PROGRAM := $(notdir $(PWD))
 
 include ../program.make
 

@@ -1,10 +1,6 @@
-# Queens program makefile
-#
-# Require generics
-
 .SILENT:
 
-PROGRAM := queens
+PROGRAM := $(notdir $(PWD))
 
 include ../program.make
 
