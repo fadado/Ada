@@ -4,88 +4,152 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
 
+with Control.Generators;
 with Generics.Depth_First_Search;
 
 procedure Permute
 is
-   Bits : constant := 8;
+   use Control;
 
-   type TINY is range 0..2**Bits-1;
-
-   procedure Permute_String
-     (CSet : in STRING)
+   procedure Permute_Set   -- TODO add k- parameter ???
+     (Set : in STRING)
    is
-      subtype ITEMS is TINY range TINY(CSet'First)..TINY(CSet'Last);
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
 
-      type PERMUTATION is array (ITEMS) of ITEMS
-         with Pack,
-              Component_Size => Bits;
+      Bits : constant := 8;
 
-      Used_Items : array (ITEMS) of BOOLEAN := (others => FALSE);
+      type TINY is range 0..2**Bits-1;
+
+      subtype INDICES is TINY range TINY(Set'First)..TINY(Set'Last);
+
+      type BIJECTION is array (INDICES) of INDICES
+      with Pack,
+           Component_Size => Bits;
+
+      package DeclarePermutationsTypes is new Generators (
+         Element_Type => BIJECTION,
+         Context_Type => VOID
+      );
+      use DeclarePermutationsTypes;
+
+      type GENERATOR_PROXY is access all GENERATOR_INTERFACE'Class;
+
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
+
+      Shared_Generator : GENERATOR_PROXY := NULL;
 
       procedure Goal
-        (solution : PERMUTATION)
+        (solution : BIJECTION)
+      with Inline,
+           Pre => Shared_Generator /= NULL
       is
-         use Ada.Text_IO;
       begin
-         for t of solution loop
-            Put(' ');
-            Put(CSet(POSITIVE(t)));
-         end loop;
-         New_Line;
+         Shared_Generator.Yield(solution);
       end Goal;
 
+      Used_Items : array (INDICES) of BOOLEAN := (others => FALSE);
+
       function Rejected
-        (candidate : PERMUTATION;
-         index     : ITEMS;
-         item      : ITEMS) return BOOLEAN
+        (candidate : BIJECTION;
+         index     : INDICES;
+         item      : INDICES) return BOOLEAN
       with Inline,
-           Pre => index > ITEMS'First
+           Pre => index > INDICES'First
       is
       begin
          return Used_Items(item);
       end;
 
       procedure Enter
-        (candidate : PERMUTATION;
-         index     : ITEMS;
-         item      : ITEMS)
+        (candidate : BIJECTION;
+         index     : INDICES;
+         item      : INDICES)
       with Inline,
            Pre  => not Used_Items(item),
-           Post => Used_Items(item) 
+           Post => Used_Items(item)
       is
       begin
          Used_Items(item) := TRUE;
       end;
 
       procedure Leave
-        (candidate : PERMUTATION;
-         index     : ITEMS;
-         item      : ITEMS)
+        (candidate : BIJECTION;
+         index     : INDICES;
+         item      : INDICES)
       with Inline,
            Pre  => Used_Items(item),
-           Post => not Used_Items(item) 
+           Post => not Used_Items(item)
       is
       begin
          Used_Items(item) := FALSE;
       end;
 
-   begin
-      declare
-         package Permutations is
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
+
+      procedure Generate
+        (generator : in out GENERATOR_INTERFACE'Class;
+         context   : access VOID)
+      with Pre  => Shared_Generator = NULL,
+           Post => Shared_Generator = NULL
+      is
+         package permuter is
             new Generics.Depth_First_Search (
-               INDEX_TYPE   => ITEMS,
-               ELEMENT_TYPE => ITEMS,
-               ARRAY_TYPE   => PERMUTATION
+               INDEX_TYPE   => INDICES,
+               ELEMENT_TYPE => INDICES,
+               ARRAY_TYPE   => BIJECTION
             );
       begin
-         Permutations.Seek;
+         Shared_Generator := generator'Unchecked_Access;
+         permuter.Seek;
+         Shared_Generator := NULL;
+      end Generate;
+
+      subtype ITERABLE is GENERATOR_TYPE (Generate'Access, NULL);
+
+   begin
+      ------------------------------------------------------------------
+      --
+      ------------------------------------------------------------------
+
+      declare
+         use Ada.Text_IO;
+
+         permutations : ITERABLE;
+      begin
+
+      each_permutation:
+         for permutation of permutations loop
+
+         each_item:
+            for item of permutation loop
+               Put(' ');
+               Put(Set(POSITIVE(item)));
+            end loop each_item;
+
+            New_Line;
+         end loop each_permutation;
+
       end;
-   end Permute_String;
+   end Permute_Set;
 
 begin
    -- main
-   Permute_String("ABC");
+   Permute_Set("ABC");
+
+   -- Output for RGB:
+   --    R G B
+   --    R B G
+   --    G R B
+   --    G B R
+   --    B R G
+   --    B G R
+
 end Permute;
 
 -- ¡ISO-8859-1!

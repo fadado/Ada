@@ -48,7 +48,7 @@ is
            Pre => index > INDICES'First and then index <= INDICES'Last
       is
       begin
-         return Used_Items(item) or item < index;
+         return Used_Items(item) or else item < index;
       end;
 
       procedure Enter
