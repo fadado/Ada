@@ -1,8 +1,8 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic
-   with package Instance is new Tuple_Signature (<>);
-   use Instance;
+   with package TupleInstance is new Tuple_Signature (<>);
+   use TupleInstance;
    with function "="  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    with function "<"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    with function ">"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
@@ -19,7 +19,7 @@ package Generics . Tuples . Ordered is
    with Post => Is_Sorted(t);
 
    function Sorted is
-      new Tuples.Functional (Instance, Sort_It);
+      new Tuples.Functional (TupleInstance, Sort_It);
 
    function Member
      (x : in ELEMENT_TYPE;

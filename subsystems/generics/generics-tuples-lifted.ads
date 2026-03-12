@@ -1,8 +1,8 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic
-   with package Instance is new Tuple_Signature (<>);
-   use Instance;
+   with package TupleInstance is new Tuple_Signature (<>);
+   use TupleInstance;
 
 package Generics . Tuples . Lifted is
 

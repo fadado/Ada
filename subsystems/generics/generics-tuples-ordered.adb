@@ -1,6 +1,6 @@
 --generic
---   with package Instance is new Tuple_Signature (<>);
---   use Instance;
+--   with package TupleInstance is new Tuple_Signature (<>);
+--   use TupleInstance;
 --   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 --   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
@@ -106,7 +106,7 @@ package body Generics . Tuples . Ordered is
    function Remove_Duplicates
      (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
-      function fn is new Squasher (Instance, Member);
+      function fn is new Squasher (TupleInstance, Member);
    begin
       return fn(t);
    end Remove_Duplicates;

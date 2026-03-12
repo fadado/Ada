@@ -1,6 +1,6 @@
 --generic
---   with package Instance is new Tuple_Signature (<>);
---   use Instance;
+--   with package TupleInstance is new Tuple_Signature (<>);
+--   use TupleInstance;
 package body Generics . Tuples . Lifted is
 
  --generic
@@ -9,7 +9,7 @@ package body Generics . Tuples . Lifted is
    function Mapper
      (t : in ARRAY_TYPE) return Target.ARRAY_TYPE
    is
-      subtype SI is Instance.INDEX_TYPE;
+      subtype SI is TupleInstance.INDEX_TYPE;
       subtype TI is Target.INDEX_TYPE;
       subtype TA is Target.ARRAY_TYPE;
 
@@ -38,7 +38,7 @@ package body Generics . Tuples . Lifted is
    function Zipper
      (s, t : in ARRAY_TYPE) return Target.ARRAY_TYPE
    is
-      subtype SI is Instance.INDEX_TYPE;
+      subtype SI is TupleInstance.INDEX_TYPE;
       subtype TI is Target.INDEX_TYPE;
       subtype TA is Target.ARRAY_TYPE;
 

@@ -1,8 +1,8 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic
-   with package Instance is new Tuple_Signature (<>);
-   use Instance;
+   with package TupleInstance is new Tuple_Signature (<>);
+   use TupleInstance;
    with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Arrayed is
@@ -11,7 +11,7 @@ package Generics . Tuples . Arrayed is
      (t : in out ARRAY_TYPE);
 
    function Reversed is
-      new Tuples.Functional (Instance, Reverse_It);
+      new Tuples.Functional (TupleInstance, Reverse_It);
 
    procedure Left_Rotate_It
      (n : in     NATURAL;
