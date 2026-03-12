@@ -9,19 +9,19 @@ with Generics.Depth_First_Search;
 
 procedure Permute
 is
-   use Control;
-
    generic
-      Set : in STRING;
-      N   : in NATURAL := 0;
-   -- R   : BOOLEAN := FALSE; -- repeat?
+      Objects  : in STRING;   -- make generic as tuples signature
+      N        : in NATURAL := 0;
+      Repeated : in BOOLEAN := FALSE;
    package Sequences
    is
+      use Control;
+
       Bits : constant := 8;
 
-      pragma Assert(N <= Set'Length);
-      pragma Assert(Set'First >= 0);
-      pragma Assert(Set'Last  <= 2**Bits-1);
+      pragma Assert(N <= Objects'Length);
+      pragma Assert(Objects'First >= 0);
+      pragma Assert(Objects'Last  <= 2**Bits-1);
 
       ------------------------------------------------------------------
       --
@@ -29,8 +29,8 @@ is
 
       type TINY is range 0..2**Bits-1;
 
-      First : constant TINY := TINY(Set'First);
-      Last  : constant TINY := TINY(Set'Last);
+      First : constant TINY := TINY(Objects'First);
+      Last  : constant TINY := TINY(Objects'Last);
 
       subtype VALUES is TINY range First..Last;
 
@@ -52,6 +52,7 @@ is
          context   : access VOID);
 
       subtype ITERABLE is GENERATOR_TYPE (Generate'Access, NULL);
+      -- the only exported name!
 
    end Sequences;
 
@@ -84,7 +85,7 @@ is
            Pre => index > INDICES'First
       is
       begin
-         return Used_Items(item);
+         return not Repeated and then Used_Items(item);
       end;
 
       procedure Enter
@@ -92,11 +93,11 @@ is
          index     : INDICES;
          item      : VALUES)
       with Inline,
-           Pre  => not Used_Items(item),
-           Post => Used_Items(item)
+           Pre  => Repeated or else not Used_Items(item),
+           Post => Repeated or else Used_Items(item)
       is
       begin
-         Used_Items(item) := TRUE;
+         if not Repeated then Used_Items(item) := TRUE; end if;
       end;
 
       procedure Leave
@@ -104,11 +105,11 @@ is
          index     : INDICES;
          item      : VALUES)
       with Inline,
-           Pre  => Used_Items(item),
-           Post => not Used_Items(item)
+           Pre  => Repeated or else Used_Items(item),
+           Post => Repeated or else not Used_Items(item)
       is
       begin
-         Used_Items(item) := FALSE;
+         if not Repeated then Used_Items(item) := FALSE; end if;
       end;
 
       ------------------------------------------------------------------
@@ -146,7 +147,10 @@ main:
 
       str : constant STRING := "ABC";
 
-      package P is new Sequences(str, 3);
+      package P is new Sequences (
+         Objects  => str,
+         N        => 0, -- = Objects'Length
+         Repeated => FALSE);
 
       permutations : P.ITERABLE;
    begin
