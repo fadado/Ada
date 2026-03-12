@@ -8,9 +8,6 @@ package Generics . Tuples is
       type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
    package Tuple_Signature is private end Tuple_Signature;
 
-   package String_Instance is
-      new Tuple_Signature (CHARACTER, POSITIVE, STRING);
-
    generic
       with package TupleInstance is new Tuple_Signature (<>);
       use TupleInstance;

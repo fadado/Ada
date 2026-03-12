@@ -6,11 +6,16 @@ with Ada.Text_IO;
 
 with Control.Generators;
 with Generics.Depth_First_Search;
+with Generics.Tuples;
 
 procedure Permute
 is
    generic
-      Objects  : in STRING;   -- make generic as tuples signature
+      with package TupleInstance is
+         new Generics.Tuples.Tuple_Signature (<>);
+      use TupleInstance;
+
+      Objects  : in ARRAY_TYPE;
       N        : in NATURAL := 0;
       Repeated : in BOOLEAN := FALSE;
    package Sequences
@@ -20,8 +25,8 @@ is
       Bits : constant := 8;
 
       pragma Assert(N <= Objects'Length);
-      pragma Assert(Objects'First >= 0);
-      pragma Assert(Objects'Last  <= 2**Bits-1);
+      pragma Assert(INDEX_TYPE'Pos(Objects'First) >= 0);
+      pragma Assert(INDEX_TYPE'Pos(Objects'Last)  <= 2**Bits-1);
 
       ------------------------------------------------------------------
       --
@@ -29,8 +34,8 @@ is
 
       type TINY is range 0..2**Bits-1;
 
-      First : constant TINY := TINY(Objects'First);
-      Last  : constant TINY := TINY(Objects'Last);
+      First : constant TINY := TINY(INDEX_TYPE'Pos(Objects'First));
+      Last  : constant TINY := TINY(INDEX_TYPE'Pos(Objects'Last));
 
       subtype VALUES is TINY range First..Last;
 
@@ -147,7 +152,11 @@ main:
 
       str : constant STRING := "ABC";
 
+      package String_Instance is
+         new Generics.Tuples.Tuple_Signature (CHARACTER, POSITIVE, STRING);
+
       package P is new Sequences (
+         String_Instance,
          Objects  => str,
          N        => 0, -- = Objects'Length
          Repeated => FALSE);
