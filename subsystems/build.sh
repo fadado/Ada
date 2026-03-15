@@ -1,8 +1,6 @@
 #/bin/sh
 
-SUBSYSTEMS="control generics music terminal"
-
-ALLINONE=liballinone.a
+. ./config.sh
 
 for ss in $SUBSYSTEMS; do
     cd $ss

@@ -24,7 +24,7 @@ is
       Repeated => FALSE
    );
 
-   permutations : P.ITERABLE_TYPE;
+   permutations : P.ITERABLE_TYPE;  -- an iterable generator!
 
 begin
 
@@ -39,13 +39,8 @@ begin
          New_Line;
       end loop each_permutation;
 
-   -- Output for "RGB":
-   --    R G B
-   --    R B G
-   --    G R B
-   --    G B R
-   --    B R G
-   --    B G R
+      permutations.Close;
+      -- not necessary because we have exhausted the generator...
 
 end Permute;
 

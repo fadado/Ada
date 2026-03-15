@@ -102,26 +102,6 @@ begin
       begin
          Copy(input, output);
       end;
-
-      -- test Closure_Wrapper
-      declare
-         N : NATURAL := 0;
-         function counter return NATURAL
-         is
-         begin
-            N := N + 1;
-            return N;
-         end counter;
-
-         package Natural_Flux is new Closure_Wrapper (NATURAL);
-         count : Natural_Flux.ITERABLE_TYPE (counter'Access); 
-      begin
-         for element of count loop
-            Put(element'Image);
-            exit when element = 20;
-         end loop;
-         New_Line;
-      end;
    end;
 
 exception
