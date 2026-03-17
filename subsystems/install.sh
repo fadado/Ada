@@ -1,6 +1,6 @@
 #/bin/sh
 
-. ./config.sh
+. $(dirname $0)/config.sh
 
 LIB_DIR=./LIBRARY
 INC_DIR=./INCLUDE

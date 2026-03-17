@@ -3,7 +3,7 @@ pragma Assertion_Policy(Check); -- Check / Ignore
 with Generics.Depth_First_Search;
 with Generics.Tuples.Arrayed;
 
-package body Sequences
+package body Iterables . Sequences
 is
    package GTA is
       new Generics.Tuples.Arrayed (TupleInstance);
@@ -19,12 +19,12 @@ is
    Shared_Generator : GENERATOR_PROXY := NULL;
 
    procedure Goal
-     (vector : ORDERING)
+     (solution : ORDERING)
    with Inline,
         Pre => Shared_Generator /= NULL
    is
    begin
-      Shared_Generator.Yield(vector);
+      Shared_Generator.Yield(solution);
    end Goal;
 
    Used_Items : array (VALUES) of BOOLEAN := (others => FALSE);
@@ -38,7 +38,7 @@ is
    is
    begin
       return not Repeated and then Used_Items(item);
-   end;
+   end Rejected;
 
    procedure Enter
      (candidate : ORDERING;
@@ -50,7 +50,7 @@ is
    is
    begin
       if not Repeated then Used_Items(item) := TRUE; end if;
-   end;
+   end Enter;
 
    procedure Leave
      (candidate : ORDERING;
@@ -62,7 +62,7 @@ is
    is
    begin
       if not Repeated then Used_Items(item) := FALSE; end if;
-   end;
+   end Leave;
 
    ------------------------------------------------------------------
    --
@@ -86,7 +86,7 @@ is
       Shared_Generator := NULL;
    end Generate;
 
-end Sequences;
+end Iterables . Sequences;
 
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

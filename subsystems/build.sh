@@ -1,6 +1,6 @@
 #/bin/sh
 
-. ./config.sh
+. $(dirname $0)/config.sh
 
 for ss in $SUBSYSTEMS; do
     cd $ss

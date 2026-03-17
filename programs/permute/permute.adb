@@ -3,10 +3,8 @@
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Ada.Text_IO;
-
 with Generics.Tuples;
-
-with Sequences;
+with Iterables.Sequences;
 
 procedure Permute
 is
@@ -17,7 +15,7 @@ is
 
    codes : constant STRING := "ABC";   --"0123456789";
 
-   package P is new Sequences (
+   package P is new Iterables.Sequences (
       String_Tuple,
       Objects  => codes,
       N        => codes'Length,
@@ -33,7 +31,8 @@ begin
 
       each_index:
          for index of permutation loop
-            Put(' ' & codes(POSITIVE(index)));
+            Put(' ');
+            Put(codes(POSITIVE(index)));
          end loop each_index;
 
          New_Line;

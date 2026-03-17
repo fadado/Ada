@@ -1,6 +1,6 @@
-# Music subsystem makefile
+# Iterables subsystem makefile
 #
-# Depends on ../generics
+# Depends on ../generics and ../control
 
 .SILENT:
 
@@ -25,7 +25,7 @@ include ../switches.make
 
 # Define switches to compile library and tests
 
-INCLUDES := -aI../generics
+INCLUDES := -aI../generics -aI../control
 
 SUBSYSTEM_SW :=     \
    $(SW_ASSERTIONS) \

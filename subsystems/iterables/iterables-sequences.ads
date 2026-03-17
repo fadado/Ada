@@ -12,7 +12,7 @@ generic
    N        : in NATURAL := 0;
    Repeated : in BOOLEAN := FALSE;
 
-package Sequences
+package Iterables . Sequences
 is
    use Control;
 
@@ -37,8 +37,7 @@ is
       range First..(if N = 0 then Last else First+TINY(N)-1);
 
    type ORDERING is array (INDICES) of VALUES
-   with Pack,
-        Component_Size => Bits;
+   with Component_Size => Bits;
 
    package DeclarePermutationsTypes is
       new Generators (
@@ -54,7 +53,7 @@ is
    subtype ITERABLE_TYPE is GENERATOR_TYPE (Generate'Access, NULL);
    -- the only exported name!
 
-end Sequences;
+end Iterables . Sequences;
 
 -- vim:tabstop=3:shiftwidth=3:expandtab:autoindent
 -- vim:fileformat=dos:fileencoding=UTF8:syntax=ada

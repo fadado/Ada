@@ -23,8 +23,7 @@ is
       subtype INDICES is TINY range first .. first+N-1;
 
       type COMBINATION is array (INDICES) of ITEMS
-         with Pack,
-              Component_Size => Bits;
+         with Component_Size => Bits;
 
       Used_Items : array (ITEMS) of BOOLEAN := (others => FALSE);
 

@@ -1,8 +1,6 @@
 #/bin/sh
 
-PROGRAMS="sieve queens series"
-
-ALLINONE=liballinone.a
+. $(dirname $0)/config.sh
 
 function build {
     for pp in $PROGRAMS; do

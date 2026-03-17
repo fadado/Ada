@@ -2,6 +2,7 @@
 --pragma Warnings (Off, "not referenced");
 
 with Iterables;
+with Iterables.Sequences;
 
 procedure Zilch_Iterables
 is
