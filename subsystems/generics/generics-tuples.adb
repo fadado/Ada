@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples implementation
+------------------------------------------------------------------------------
+
 package body Generics . Tuples is
 
  --generic
@@ -5,7 +9,7 @@ package body Generics . Tuples is
  --   use Instance;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
    function Functional
-   (t : in ARRAY_TYPE) return ARRAY_TYPE
+     (t : in ARRAY_TYPE) return ARRAY_TYPE
    is
    begin
       return result : ARRAY_TYPE := t do

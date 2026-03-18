@@ -2,8 +2,6 @@
 --  Control . Generators implementation (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Control.Spin_Until;
 
 package body Control . Generators is

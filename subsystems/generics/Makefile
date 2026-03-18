@@ -1,6 +1,6 @@
 # Generics subsystem makefile
 
-.SILENT:
+#.SILENT:
 
 ########################################################################
 # Subsystem specification
@@ -23,7 +23,6 @@ include ../switches.make
 
 # Define switches to compile library and tests
 SUBSYSTEM_SW :=     \
-   $(SW_ASSERTIONS) \
    $(SW_INLINING)   \
    $(SW_LINT)       \
    $(SW_OPTIMIZE)   \
@@ -40,6 +39,7 @@ TESTS_SW :=         \
    $(SW_QUIET)      \
    $(SW_UTF8)       \
    $(SW_VERSION)    \
+
 
 # Include generic subsystem rules
 include ../subsystem.make

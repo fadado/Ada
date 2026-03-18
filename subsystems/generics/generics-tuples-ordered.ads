@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples . Ordered specification (generic)
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic
@@ -5,9 +9,6 @@ generic
    use TupleInstance;
    with function "="  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
    with function "<"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   with function ">"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   with function "<=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
-   with function ">=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Ordered is
 

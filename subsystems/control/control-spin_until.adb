@@ -2,8 +2,6 @@
 --  Control . Spin_Until implementation
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Ada.Dispatching;
 with Ada.Real_Time;
 

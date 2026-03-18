@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Iterables . Sequences specification (generic)
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 with Control.Generators;

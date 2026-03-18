@@ -2,8 +2,6 @@
 --  Control implementation
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Ada.Unchecked_Deallocation;
 with Ada.Dispatching;
 

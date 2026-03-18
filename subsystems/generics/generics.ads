@@ -1,39 +1,53 @@
+------------------------------------------------------------------------------
+--  Generics specification
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 pragma Optimize(Time);
 
 package Generics is
-   pragma Pure(Generics);
+   pragma Pure (Generics);
 
    Not_Found       : exception;
    Not_Implemented : exception;
 
+   pragma Assertion_Policy (
+      Post => Ignore
+   );
+
    generic
-      type T(<>) is private;
+      type T (<>) is private;
    function Identity
      (a : in T) return T
-   with Inline;
+   with Inline,
+        Post => a = Identity'Result;
 
    generic
-      type T(<>) is private;
+      type T (<>) is private;
    procedure Swapper
      (a, b : in out T)
-   with Inline;
+   with Inline,
+        Post => a = b'Old and b = a'Old;
+
+   pragma Assertion_Policy (
+      Post => Check
+   );
 
    generic
-      type α(<>) is limited private;
-      type β(<>) is limited private;
-      type γ(<>) is limited private;
+      type α (<>) is limited private;
+      type β (<>) is limited private;
       with function F(a: in α) return β;
-      with function G(a: in β) return γ;
+      type γ (<>) is limited private;
+      with function G(b: in β) return γ;
    function Compose
      (a : in α) return γ
    with Inline;
 
    generic
-      type α(<>) is limited private;
-      type β(<>) is limited private;
-      type γ(<>) is limited private;
+      type α (<>) is limited private;
+      type β (<>) is limited private;
+      type γ (<>) is limited private;
       with function F(a: in α; b: in β) return γ;
       a : α;
    function Partial

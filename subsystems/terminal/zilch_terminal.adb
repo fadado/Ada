@@ -1,6 +1,4 @@
--- subsystem zilch top library unit
-
---pragma Warnings (Off, "not referenced");
+-- Terminal subsystem zilch root library unit
 
 with Terminal.Control;
 with Terminal.Device;

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Terminal . Device implementation
+------------------------------------------------------------------------------
+
 with Ada.Strings.UTF_Encoding.Strings;
 with Ada.Text_IO; use Ada;
 with Terminal.Control; use Terminal.Control;

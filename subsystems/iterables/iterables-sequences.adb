@@ -1,4 +1,6 @@
-pragma Assertion_Policy(Check); -- Check / Ignore
+------------------------------------------------------------------------------
+--  Iterables . Sequences implementation
+------------------------------------------------------------------------------
 
 with Generics.Depth_First_Search;
 with Generics.Tuples.Arrayed;

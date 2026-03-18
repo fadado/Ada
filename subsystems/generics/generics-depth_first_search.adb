@@ -1,4 +1,6 @@
-pragma Assertion_Policy(Check); -- Check / Ignore
+------------------------------------------------------------------------------
+--  Generics . Depth_First_Search implementation
+------------------------------------------------------------------------------
 
 package body Generics . Depth_First_Search is
    subtype NODE_VALUES     is ELEMENT_TYPE;

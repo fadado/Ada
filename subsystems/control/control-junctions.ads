@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---  Junctions specification
+--  Control . Junctions specification
 ------------------------------------------------------------------------------
 
 pragma Assertion_Policy (Check); -- Check / Ignore

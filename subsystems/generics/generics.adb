@@ -1,7 +1,11 @@
+------------------------------------------------------------------------------
+--  Generics implementation
+------------------------------------------------------------------------------
+
 package body Generics is
 
  --generic
- --   type T(<>) is private;
+ --   type T (<>) is private;
    function Identity
      (a : in T) return T
    is
@@ -10,7 +14,7 @@ package body Generics is
    end Identity;
 
  --generic
- --   type T(<>) is private;
+ --   type T (<>) is private;
    procedure Swapper
      (a, b : in out T)
    is
@@ -21,11 +25,11 @@ package body Generics is
    end Swapper;
 
  --generic
- --   type α(<>) is limited private;
- --   type β(<>) is limited private;
- --   type γ(<>) is limited private;
+ --   type α (<>) is limited private;
+ --   type β (<>) is limited private;
  --   with function F(a: in α) return β;
- --   with function G(a: in β) return γ;
+ --   type γ (<>) is limited private;
+ --   with function G(b: in β) return γ;
    function Compose
      (a : in α) return γ
    is
@@ -34,9 +38,9 @@ package body Generics is
    end Compose;
 
  --generic
- --   type α(<>) is limited private;
- --   type β(<>) is limited private;
- --   type γ(<>) is limited private;
+ --   type α (<>) is limited private;
+ --   type β (<>) is limited private;
+ --   type γ (<>) is limited private;
  --   with function F(a: in α; b: in β) return γ;
  --   a : α;
    function Partial

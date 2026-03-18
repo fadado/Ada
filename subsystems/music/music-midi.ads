@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Music . MIDI specification
+------------------------------------------------------------------------------
+
 -- An example implementation for pitches encoded as in MIDI.
 -- Several other encodings are possible.
 

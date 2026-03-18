@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Iterables specification
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy (Check); -- Check / Ignore
 
 with Ada.Iterator_Interfaces;

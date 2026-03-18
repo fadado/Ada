@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Depth_First_Search specification (generic)
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic

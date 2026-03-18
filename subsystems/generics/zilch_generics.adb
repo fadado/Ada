@@ -1,5 +1,4 @@
--- subsystem zilch top library unit
---pragma Warnings (Off, "not referenced");
+-- Generics subsystem zilch root library unit
 
 with generics;
 with generics.depth_first_search;

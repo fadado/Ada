@@ -2,7 +2,7 @@
 # Common subsystem's rules
 ########################################################################
 
-.PHONY: help build clean clobber check tests
+.PHONY: help build clean clobber tests silent
 
 OUTPUT_DIRECTORIES := $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR)
 
@@ -14,11 +14,11 @@ help:
 	echo 'Usage: make {target}'
 	echo 'Targets:'
 	echo '    build   - build the subsystem library'
-	echo '    check   - check syntax and semantics'
 	echo '    clean   - remove generated files'
 	echo '    clobber - remove also generated directories'
 	echo '    help    - show this message'
 	echo '    tests   - compile all tests'
+	echo '    silent  - run silent tests if available'
 
 build: $(OUTPUT_DIRECTORIES) $(ARCHIVE_LIBRARY)
 
@@ -36,8 +36,8 @@ $(ARCHIVE_LIBRARY): $(BUILD_TIMESTAMP)
 	@cp --force --update $(OBJ_DIR)/*.ali $(LIB_DIR)
 	@chmod -w $(LIB_DIR)/*.ali
 
-$(BUILD_TIMESTAMP): zilch_$(SUBSYSTEM).adb *.ad?
-	gnatmake $(SUBSYSTEM_SW) \
+$(BUILD_TIMESTAMP): zilch_$(SUBSYSTEM).adb $(SUBSYSTEM)*.ad?
+	@gnatmake $(SUBSYSTEM_SW) \
 		 -aO$(OBJ_DIR)   \
 		 $(EXTRA_SUBSYS) \
 		 -D $(OBJ_DIR)   \
@@ -46,8 +46,8 @@ $(BUILD_TIMESTAMP): zilch_$(SUBSYSTEM).adb *.ad?
 	@rm $(OBJ_DIR)/zilch_$(SUBSYSTEM).{o,ali}
 	@chmod -x $(BUILD_TIMESTAMP)
 
-$(BIN_DIR)/test_%: $(TST_DIR)/test_%.adb
-	gnatmake $(TESTS_SW)     \
+$(BIN_DIR)/test_%: $(TST_DIR)/test_%.adb $(ARCHIVE_LIBRARY) 
+	@gnatmake $(TESTS_SW)     \
 		-aI$(SRC_DIR)    \
 		-aO$(LIB_DIR)    \
 		 $(EXTRA_SUBSYS) \
@@ -55,14 +55,14 @@ $(BIN_DIR)/test_%: $(TST_DIR)/test_%.adb
 		-o $@ $<         \
 		-largs -L$(LIB_DIR) -l$(SUBSYSTEM) $(EXTRA_LARGS)
 
-check: $(OBJ_DIR) $(BIN_DIR) 
-	@gnatmake $(SW_CHECK) -D $(OBJ_DIR) *.ad?
-	@gnatmake $(SW_CHECK) -aI$(SRC_DIR) -D $(BIN_DIR) $(TST_DIR)/*.ad?
+$(BIN_DIR)/test_silent: tests/silent_*.adb
 
 clean:
 	@rm -f $(OBJ_DIR)/* $(BIN_DIR)/*
 
 clobber:
 	@rm -rf $(OUTPUT_DIRECTORIES)
+
+silent: $(BIN_DIR)/test_silent; $<
 
 # vim:fileformat=unix:fileencoding=UTF8:syntax=make

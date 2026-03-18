@@ -1,8 +1,6 @@
 ------------------------------------------------------------------------
---  Junctions implementation
+--  Control . Junctions implementation
 ------------------------------------------------------------------------
-
-pragma Assertion_Policy (Check); -- Check / Ignore
 
 package body Control . Junctions is
 

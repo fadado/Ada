@@ -1,6 +1,4 @@
--- subsystem zilch top library unit
-
---pragma Warnings (Off, "not referenced");
+-- Control subsystem zilch root library unit
 
 with Control.Coroutines.Full;
 with Control.Coroutines.Semi;

@@ -1,11 +1,18 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples . Ordered implementation
+------------------------------------------------------------------------------
+
 --generic
 --   with package TupleInstance is new Tuple_Signature (<>);
 --   use TupleInstance;
---   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
---   with function ">" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 --   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+--   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package body Generics . Tuples . Ordered is
+
+   function ">" (a, b: ELEMENT_TYPE) return BOOLEAN
+   is (a /= b and then not (a < b))
+   with Inline;
 
    function Is_Sorted
      (t : in ARRAY_TYPE) return BOOLEAN

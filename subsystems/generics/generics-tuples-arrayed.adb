@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples . Arrayed implementation
+------------------------------------------------------------------------------
+
 -- generic
 --    with package TupleInstance is new Tuple_Signature (<>);
 --    use TupleInstance;

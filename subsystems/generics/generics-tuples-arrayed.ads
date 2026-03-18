@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples . Arrayed specification (generic)
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic

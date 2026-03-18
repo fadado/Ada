@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Generics . Tuples . Lifted specification (generic)
+------------------------------------------------------------------------------
+
 pragma Assertion_Policy(Check); -- Check / Ignore
 
 generic

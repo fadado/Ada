@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+--  Music . DataBase implementation
+------------------------------------------------------------------------------
+
 package body Music . DataBase is
 
    PCS : constant array (SCALE_NAME) of PC_SET := (

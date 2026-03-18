@@ -1,5 +1,4 @@
--- subsystem zilch top library unit
---pragma Warnings (Off, "not referenced");
+-- Iterables subsystem zilch root library unit
 
 with Iterables;
 with Iterables.Sequences;

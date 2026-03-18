@@ -1,5 +1,4 @@
--- subsystem zilch top library unit
---pragma Warnings (Off, "not referenced");
+-- Music subsystem zilch root library unit
 
 with music;
 with music.database;

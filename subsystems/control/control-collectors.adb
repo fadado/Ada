@@ -2,8 +2,6 @@
 --  Control . Collectors implementation (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Control.Spin_Until;
 
 package body Control . Collectors is
