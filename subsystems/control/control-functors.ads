@@ -2,8 +2,6 @@
 --  Control . Functors specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 generic
    type INPUT_TYPE  is private;
    type OUTPUT_TYPE is private;
@@ -13,6 +11,9 @@ generic
    --  Data to provide an environment for the functor procedure
 
 package Control . Functors is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
+
    ---------------------------------------------------------------------------
    --  FUNCTOR_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------

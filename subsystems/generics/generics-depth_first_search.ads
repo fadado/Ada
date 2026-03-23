@@ -2,9 +2,8 @@
 --  Generics . Depth_First_Search specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 generic
+
    ---------------------------------------------------------------------
    -- Vector solution types (signature like)
    ---------------------------------------------------------------------
@@ -49,6 +48,9 @@ generic
    -- Hook to run after exiting one level down
 
 package Generics . Depth_First_Search is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
+
    type FOREST_SET is array (ELEMENT_TYPE) of BOOLEAN;
    -- (sub)set of ELEMENT_TYPE values used as tree root node
 

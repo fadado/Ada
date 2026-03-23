@@ -2,14 +2,14 @@
 --  Generics . Tuples . Arrayed specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 generic
    with package TupleInstance is new Tuple_Signature (<>);
    use TupleInstance;
    with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Arrayed is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    procedure Reverse_It
      (t : in out ARRAY_TYPE);

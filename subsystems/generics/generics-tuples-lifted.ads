@@ -2,13 +2,13 @@
 --  Generics . Tuples . Lifted specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 generic
    with package TupleInstance is new Tuple_Signature (<>);
    use TupleInstance;
 
 package Generics . Tuples . Lifted is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    generic
       with package  Target is new Tuple_Signature (<>);

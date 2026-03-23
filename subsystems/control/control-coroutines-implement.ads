@@ -2,8 +2,6 @@
 --  Control . CoRoutines . Implement specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 generic
    type BASE_CONTROLLER is new CONTROLLER_TYPE with private;
    --  Semi or full controller to derive from
@@ -12,7 +10,9 @@ generic
    --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines . Implement is
-   pragma Elaborate_Body(Implement);
+
+   pragma Elaborate_Body (Implement);
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
    ---------------------------------------------------------------------------
    --  COROUTINE_TYPE methods and auxiliar types

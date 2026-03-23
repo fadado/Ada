@@ -2,11 +2,12 @@
 --  Iterables specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Ada.Iterator_Interfaces;
 
 package Iterables is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
+
    ---------------------
    -- Closure Wrapper --
    ---------------------

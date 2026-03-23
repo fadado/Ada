@@ -2,8 +2,6 @@
 --  Music specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 pragma Optimize(Time);
 
 with Generics.Tuples.Arrayed;
@@ -13,6 +11,8 @@ with Generics.Tuples.Lifted;
 use Generics;
 
 package Music is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    Not_Found : exception renames Generics.Not_Found;
 

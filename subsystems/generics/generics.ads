@@ -2,12 +2,12 @@
 --  Generics specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 pragma Optimize(Time);
 
 package Generics is
+
    pragma Pure (Generics);
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    Not_Found       : exception;
    Not_Implemented : exception;

@@ -2,9 +2,9 @@
 --  Generics . Tuples specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 package Generics . Tuples is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    generic
       type ELEMENT_TYPE is private;

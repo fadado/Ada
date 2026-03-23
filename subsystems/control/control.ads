@@ -2,8 +2,6 @@
 --  Control specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 pragma Restrictions (
    No_Abort_Statements,
    No_Select_Statements,
@@ -22,6 +20,8 @@ private with Ada.Synchronous_Task_Control;
 private with Ada.Task_Identification;
 
 package Control is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
    ---------------------------------------------------------------------------
    --  Exceptions

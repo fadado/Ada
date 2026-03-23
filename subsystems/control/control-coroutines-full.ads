@@ -2,8 +2,6 @@
 --  Control . CoRoutines . Full specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Control.CoRoutines.Implement;
 
 generic
@@ -11,6 +9,8 @@ generic
    --  Data to provide an environment for the coroutine procedure
 
 package Control . CoRoutines . Full is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
    package FullCoroImplement is new Implement
      (Base_Controller => FULL_CONTROLLER_TYPE,

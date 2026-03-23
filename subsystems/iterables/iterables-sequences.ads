@@ -2,8 +2,6 @@
 --  Iterables . Sequences specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 with Control.Generators;
 with Generics.Tuples;
 
@@ -16,8 +14,10 @@ generic
    N        : in NATURAL := 0;
    Repeated : in BOOLEAN := FALSE;
 
-package Iterables . Sequences
-is
+package Iterables . Sequences is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
+
    use Control;
 
    Bits : constant := 8;

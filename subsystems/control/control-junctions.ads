@@ -2,8 +2,6 @@
 --  Control . Junctions specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Ada.Iterator_Interfaces;
 
 with Control.Generators;
@@ -11,6 +9,9 @@ with Control.Functors;
 with Control.Collectors;
 
 package Control . Junctions is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
+
    ---------------------------------------------------------------------------
    --  Signatures
    ---------------------------------------------------------------------------

@@ -2,8 +2,6 @@
 --  Control . Collectors specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 generic
    type ELEMENT_TYPE is private;
    --  Type for `Yield` generated values
@@ -12,6 +10,9 @@ generic
    --  Data to provide an environment for the collector procedure
 
 package Control . Collectors is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
+
    ---------------------------------------------------------------------------
    --  COLLECTOR_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------

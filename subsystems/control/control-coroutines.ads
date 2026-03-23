@@ -2,9 +2,9 @@
 --  Control . CoRoutines specification
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 package Control . CoRoutines is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
    type COROUTINE_INTERFACE is limited interface;
 

@@ -2,8 +2,6 @@
 --  Generics . Tuples . Ordered specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy(Check); -- Check / Ignore
-
 generic
    with package TupleInstance is new Tuple_Signature (<>);
    use TupleInstance;
@@ -11,6 +9,8 @@ generic
    with function "<"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Ordered is
+
+   pragma Assertion_Policy(Check); -- Check / Ignore
 
    function Is_Sorted
      (t : in ARRAY_TYPE) return BOOLEAN;

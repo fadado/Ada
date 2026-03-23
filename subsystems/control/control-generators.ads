@@ -2,8 +2,6 @@
 --  Control . Generators specification (generic)
 ------------------------------------------------------------------------------
 
-pragma Assertion_Policy (Check); -- Check / Ignore
-
 with Ada.Iterator_Interfaces;
 
 generic
@@ -14,6 +12,9 @@ generic
    --  Data to provide an environment for the generator procedure
 
 package Control . Generators is
+
+   pragma Assertion_Policy (Check); -- Check / Ignore
+
    ---------------------------------------------------------------------------
    --  GENERATOR_TYPE methods and auxiliar types
    ---------------------------------------------------------------------------
