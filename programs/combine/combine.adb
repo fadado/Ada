@@ -78,9 +78,9 @@ is
       declare
          package Combinations is
             new Generics.Depth_First_Search (
-               INDEX_TYPE   => INDICES,
-               ELEMENT_TYPE => ITEMS,
-               ARRAY_TYPE   => COMBINATION
+               INDEX_TYPE      => INDICES,
+               NODE_VALUES     => ITEMS,
+               VECTOR_SOLUTION => COMBINATION
             );
       begin
          Combinations.Seek;

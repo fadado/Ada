@@ -5,6 +5,10 @@
 --generic
 --   with package TupleInstance is new Tuple_Signature (<>);
 --   use TupleInstance;
+--   -- type ELEMENT_TYPE is private;
+--   -- type INDEX_TYPE   is (<>);
+--   -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
+
 package body Generics . Tuples . Lifted is
 
  --generic
@@ -21,7 +25,7 @@ package body Generics . Tuples . Lifted is
       last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
    begin
       return result : TA (first .. last) do
-         pragma Assert(t'Length = result'Length);
+         pragma Assert (t'Length = result'Length);
 
          declare
             i : SI := t'First;
@@ -50,7 +54,7 @@ package body Generics . Tuples . Lifted is
       last  : constant TI := TI'Val(TI'Pos(first) + t'Length - 1);
    begin
       return result : TA (first .. last) do
-         pragma Assert(t'Length = result'Length);
+         pragma Assert (t'Length = result'Length);
 
          declare
             i : SI := t'First;

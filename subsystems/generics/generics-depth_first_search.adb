@@ -2,13 +2,19 @@
 --  Generics . Depth_First_Search implementation
 ------------------------------------------------------------------------------
 
+-- generic
+--    type NODE_VALUES is (<>);
+--    type INDEX_TYPE is (<>);
+--    type VECTOR_SOLUTION is array (INDEX_TYPE) of NODE_VALUES;
+--    with procedure Goal
+--    with function  Rejected
+--    with procedure Enter
+--    with procedure Leave
+
 package body Generics . Depth_First_Search is
-   subtype NODE_VALUES     is ELEMENT_TYPE;
-   subtype VECTOR_SOLUTION is ARRAY_TYPE;
-   -- fancy renaming
 
    solution : VECTOR_SOLUTION;
-   -- (partial) solution vector to fill with NODE_VALUES
+   -- Vector to fill with NODE_VALUES
 
    -- Try to add one step to the partial solution
    procedure traverse
@@ -18,8 +24,8 @@ package body Generics . Depth_First_Search is
       -- try to extend the solution with each choice
       for element in NODE_VALUES loop
          if not Rejected(solution, index, element) then
-            solution(index) := element;
             -- accept element for the current level
+            solution(index) := element;
 
             if index /= INDEX_TYPE'Last then
                -- recurse if solution is not completed
@@ -33,7 +39,7 @@ package body Generics . Depth_First_Search is
       end loop;
    end traverse;
 
-   -- Walk the tree prunning when a node is rejected
+   -- Walk the tree, prunning when a node is rejected
    procedure Seek
      (forest : in FOREST_SET := (others => TRUE))
    is

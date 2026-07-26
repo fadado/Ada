@@ -36,7 +36,7 @@ function import {
 
     chmod 444 $LIB_DIR/*.ali
 
-    # *.ad? files
+    # *.ad[bs] files
     for ss in $SUBSYSTEMS; do
         cp --no-clobber $ss/*.ad[bs] $INC_DIR
     done

@@ -5,11 +5,14 @@
 generic
    with package TupleInstance is new Tuple_Signature (<>);
    use TupleInstance;
+   -- type ELEMENT_TYPE is private;
+   -- type INDEX_TYPE   is (<>);
+   -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
    with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package Generics . Tuples . Arrayed is
 
-   pragma Assertion_Policy(Check); -- Check / Ignore
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
    procedure Reverse_It
      (t : in out ARRAY_TYPE);
@@ -44,7 +47,7 @@ package Generics . Tuples . Arrayed is
 
    function Search
      (x : in ELEMENT_TYPE;
-      t : in ARRAY_TYPE) return INDEX_TYPE
+      t : in ARRAY_TYPE) return INDEX_TYPE -- or raise Not_Found
    with Pre => t'Length > 0;
 
    function Contains_Duplicates

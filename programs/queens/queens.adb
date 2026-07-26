@@ -99,9 +99,9 @@ procedure queens is
 
       package QueensDFS is
          new Generics.Depth_First_Search (
-           ARRAY_TYPE   => CHESS_BOARD,
-           INDEX_TYPE   => ROW_INDEX,
-           ELEMENT_TYPE => COLUMN_INDEX
+           INDEX_TYPE      => ROW_INDEX,
+           NODE_VALUES     => COLUMN_INDEX,
+           VECTOR_SOLUTION => CHESS_BOARD
          );
    begin
       QueensDFS.Seek;

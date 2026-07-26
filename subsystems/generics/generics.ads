@@ -7,10 +7,10 @@ pragma Optimize(Time);
 package Generics is
 
    pragma Pure (Generics);
-   pragma Assertion_Policy(Check); -- Check / Ignore
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
-   Not_Found       : exception;
-   Not_Implemented : exception;
+   Not_Found : exception;
+   --  Available to child packages. Raised when a search fails.
 
    pragma Assertion_Policy (
       Post => Ignore
@@ -22,6 +22,7 @@ package Generics is
      (a : in T) return T
    with Inline,
         Post => a = Identity'Result;
+   --  Generates the traditional identity function for any nonlimited type.
 
    generic
       type T (<>) is private;
@@ -29,6 +30,7 @@ package Generics is
      (a, b : in out T)
    with Inline,
         Post => a = b'Old and b = a'Old;
+   --  Generates the traditional swap function for any nonlimited type.
 
    pragma Assertion_Policy (
       Post => Check
@@ -43,6 +45,8 @@ package Generics is
    function Compose
      (a : in α) return γ
    with Inline;
+   --  Generates the composition function of two functions with three types
+   --  involved.
 
    generic
       type α (<>) is limited private;
@@ -53,6 +57,8 @@ package Generics is
    function Partial
      (b : in β) return γ
    with Inline;
+   --  Generates a partial function for a binary function with three types involved
+   --  and an argument provided.
 
 end Generics;
 

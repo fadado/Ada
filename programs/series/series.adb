@@ -101,9 +101,9 @@ begin
    declare
       package All_Intervals_Twelve_Tone_Rows is
          new Generics.Depth_First_Search (
-           ARRAY_TYPE   => TONE_ROW,
-           INDEX_TYPE   => TUPLE_INDEX,
-           ELEMENT_TYPE => PITCH_CLASS
+           INDEX_TYPE      => TUPLE_INDEX,
+           NODE_VALUES     => PITCH_CLASS,
+           VECTOR_SOLUTION => TONE_ROW
          );
    begin
       All_Intervals_Twelve_Tone_Rows.Seek;

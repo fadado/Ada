@@ -76,9 +76,9 @@ is
    is
       package permuter is
          new Generics.Depth_First_Search (
-            INDEX_TYPE   => INDICES,
-            ELEMENT_TYPE => VALUES,
-            ARRAY_TYPE   => ORDERING
+            INDEX_TYPE      => INDICES,
+            NODE_VALUES     => VALUES,
+            VECTOR_SOLUTION => ORDERING
          );
    begin
       pragma Assert (Shared_Generator = NULL);

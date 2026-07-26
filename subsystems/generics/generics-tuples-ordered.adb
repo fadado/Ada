@@ -5,8 +5,11 @@
 --generic
 --   with package TupleInstance is new Tuple_Signature (<>);
 --   use TupleInstance;
---   with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
---   with function "<" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+--   -- type ELEMENT_TYPE is private;
+--   -- type INDEX_TYPE   is (<>);
+--   -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
+--   with function "="  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
+--   with function "<"  (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
 
 package body Generics . Tuples . Ordered is
 
@@ -62,8 +65,8 @@ package body Generics . Tuples . Ordered is
      (x : in ELEMENT_TYPE;
       t : in ARRAY_TYPE) return BOOLEAN
    is
-      -- Linear Search on sorted array
    begin
+      -- Linear Search on sorted array
       for e of t loop
          if e < x then
             null;

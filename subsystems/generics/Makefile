@@ -1,6 +1,6 @@
 # Generics subsystem makefile
 
-#.SILENT:
+.SILENT:
 
 ########################################################################
 # Subsystem specification
@@ -52,6 +52,5 @@ include ../subsystem.make
 
 generics: $(BIN_DIR)/test_generics; $<
 queens:   $(BIN_DIR)/test_queens; $<
-series:   $(BIN_DIR)/test_series; $<
 
 # vim:fileformat=unix:fileencoding=UTF8:syntax=make

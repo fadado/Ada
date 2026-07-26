@@ -3,60 +3,59 @@
 ------------------------------------------------------------------------------
 
 generic
-
    ---------------------------------------------------------------------
-   -- Vector solution types (signature like)
+   -- Vector solution types (like a signature)
    ---------------------------------------------------------------------
 
-   type ELEMENT_TYPE is (<>);
+   type NODE_VALUES is (<>);
    -- Set of available choices
 
    type INDEX_TYPE is (<>);
    -- Search tree levels
 
-   type ARRAY_TYPE is array (INDEX_TYPE) of ELEMENT_TYPE;
+   type VECTOR_SOLUTION is array (INDEX_TYPE) of NODE_VALUES;
    -- Vector of choices
 
    ---------------------------------------------------------------------
-   -- Vector solution hooks (primitive operations like)
+   -- Vector solution hooks
    ---------------------------------------------------------------------
 
    with procedure Goal
-     (solution : in ARRAY_TYPE)
+     (solution : in VECTOR_SOLUTION)
    is <>;
    -- Called for each solution found
 
    with function Rejected
-     (solution : in ARRAY_TYPE;
+     (solution : in VECTOR_SOLUTION;
       index    : in INDEX_TYPE;
-      element  : in ELEMENT_TYPE) return BOOLEAN
+      element  : in NODE_VALUES) return BOOLEAN
    is <>;
    -- Check constraints for the current node
 
    with procedure Enter
-     (solution : in ARRAY_TYPE;
+     (solution : in VECTOR_SOLUTION;
       index    : in INDEX_TYPE;
-      element  : in ELEMENT_TYPE)
+      element  : in NODE_VALUES)
    is <>;
    -- Hook to run before entering one level down
 
    with procedure Leave
-     (solution : in ARRAY_TYPE;
+     (solution : in VECTOR_SOLUTION;
       index    : in INDEX_TYPE;
-      element  : in ELEMENT_TYPE)
+      element  : in NODE_VALUES)
    is <>;
    -- Hook to run after exiting one level down
 
 package Generics . Depth_First_Search is
 
-   pragma Assertion_Policy(Check); -- Check / Ignore
+   pragma Assertion_Policy (Check); -- Check / Ignore
 
-   type FOREST_SET is array (ELEMENT_TYPE) of BOOLEAN;
-   -- (sub)set of ELEMENT_TYPE values used as tree root node
+   type FOREST_SET is array (NODE_VALUES) of BOOLEAN;
+   -- (sub)set of NODE_VALUES values used as tree root node
 
    procedure Seek
      (forest : in FOREST_SET := (others => TRUE))
-   with Pre => ARRAY_TYPE'Length > 1;
+   with Pre => VECTOR_SOLUTION'Length > 1;
    -- Walk the indicated trees, prunning when a node is rejected
 end Generics . Depth_First_Search;
 

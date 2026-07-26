@@ -7,6 +7,9 @@ package body Generics . Tuples is
  --generic
  --   with package Instance is new Tuple_Signature (<>);
  --   use Instance;
+ --   -- type ELEMENT_TYPE is private;
+ --   -- type INDEX_TYPE   is (<>);
+ --   -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
  --   with procedure Do_It(t: in out ARRAY_TYPE);
    function Functional
      (t : in ARRAY_TYPE) return ARRAY_TYPE
@@ -20,6 +23,9 @@ package body Generics . Tuples is
  --generic
  --   with package Instance is new Tuple_Signature (<>);
  --   use Instance;
+ --   -- type ELEMENT_TYPE is private;
+ --   -- type INDEX_TYPE   is (<>);
+ --   -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
  --   with function Member(x: ELEMENT_TYPE; t: in ARRAY_TYPE) return BOOLEAN;
    function Squasher
      (t : in ARRAY_TYPE) return ARRAY_TYPE
@@ -39,16 +45,17 @@ package body Generics . Tuples is
                not Member(t(j), t(INDEX_TYPE'Succ(j) .. t'Last))
             then
                result(i) := t(j);
-               exit squash when i = result'Last;
+               if i = result'Last then -- no duplicates found
+                  pragma Assert (result = t);
+                  return result;
+               end if;
                i := INDEX_TYPE'Succ(i);
             end if;
          end loop squash;
 
-         if i = result'Last then -- no duplicates found
-            return result;
-         else
-            return result(result'First .. INDEX_TYPE'Pred(i));
-         end if;
+         pragma Assert (i < result'Last); -- some duplicates found
+
+         return result(result'First .. INDEX_TYPE'Pred(i));
       end;
    end Squasher;
 

@@ -5,15 +5,18 @@
 -- generic
 --    with package TupleInstance is new Tuple_Signature (<>);
 --    use TupleInstance;
+--    -- type ELEMENT_TYPE is private;
+--    -- type INDEX_TYPE   is (<>);
+--    -- type ARRAY_TYPE   is array (INDEX_TYPE range <>) of ELEMENT_TYPE;
 --    with function "=" (a, b: ELEMENT_TYPE) return BOOLEAN is <>;
---
+
 package body Generics . Tuples . Arrayed is
+
+   procedure swap is new Swapper (ELEMENT_TYPE);
 
    procedure Reverse_It
      (t : in out ARRAY_TYPE)
    is
-      procedure swap is new Swapper (ELEMENT_TYPE);
-
       i : INDEX_TYPE := t'First;
       j : INDEX_TYPE := t'Last;
    begin
@@ -28,14 +31,13 @@ package body Generics . Tuples . Arrayed is
      (n : in     NATURAL;
       t : in out ARRAY_TYPE)
    is
-      procedure swap is new Swapper (ELEMENT_TYPE);
    begin
       if n = 0 or else n = t'Length or else t'Length = 1 then
          return;
       end if;
 
       if t'Length = 2 then
-         if n mod 2 /= 0 then -- odd?
+         if n mod 2 /= 0 then -- swap if not even
             swap(t(t'First), t(t'Last));
          end if;
          return;
@@ -84,8 +86,8 @@ package body Generics . Tuples . Arrayed is
      (x : in ELEMENT_TYPE;
       t : in ARRAY_TYPE) return INDEX_TYPE
    is
-      -- Linear Search
    begin
+      -- Linear Search
       for i in t'Range loop
          if x = t(i) then
             return i;
